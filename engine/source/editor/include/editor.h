@@ -3,9 +3,11 @@
 /**
  * Editor core
  */
-namespace ReCoder{
+namespace ReCoder
+{
     
-    class ReCoderEditor{ ///< Editor
+    class ReCoderEditor ///< Editor
+    { 
 
     public:
         void initialize(); ///< It is executed once at the beginning of the operation.

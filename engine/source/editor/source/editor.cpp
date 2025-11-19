@@ -1,10 +1,16 @@
 #include "editor/include/editor.h"
 
-namespace ReCoder{
+namespace ReCoder
+{
 
     void ReCoderEditor::initialize(){}
 
-    void ReCoderEditor::run(){}
+    void ReCoderEditor::run()
+    {
+        while (true)
+        {
+        }
+    }
 
     void ReCoderEditor::clear(){}
 }

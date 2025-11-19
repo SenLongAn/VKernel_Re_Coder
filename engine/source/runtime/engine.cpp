@@ -1,12 +1,19 @@
 #include "runtime/engine.h"
 
-#include <iostream>
+#include "runtime/function/global/global_context.h"
 
-namespace VKernel{
+namespace VKernel
+{
 
-    void VKernelEngine::initialize(){std::cout << "hello world" << std::endl;}
-
+    void VKernelEngine::startEngine()
+    {
+        g_runtime_global_context.startSystems();
+    }
+    
     void VKernelEngine::run(){}
-
-    void VKernelEngine::clear(){}
+    
+    void VKernelEngine::shutdownEngine()
+    {
+        g_runtime_global_context.shutdownSystems();
+    }
 }

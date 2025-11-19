@@ -4,17 +4,18 @@
 /**
  * Entry point
  */
-int main(){
+int main()
+{
     
     VKernel::VKernelEngine* engine = new VKernel::VKernelEngine();
-    engine->initialize();
+    engine->startEngine();
     ReCoder::ReCoderEditor* editor = new ReCoder::ReCoderEditor();
     editor->initialize();
 
     editor->run();
 
-    engine->clear();
     editor->clear();
-
+    engine->shutdownEngine();
+    
     return 0;
 }

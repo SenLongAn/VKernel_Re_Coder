@@ -17,5 +17,6 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC") ##< Compiler identifier == MSVC
 endif()
 
 # Add subdirectories
+add_subdirectory(3rdparty)
 add_subdirectory(source/runtime)
 add_subdirectory(source/editor)

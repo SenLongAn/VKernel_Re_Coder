@@ -13,7 +13,23 @@ set_target_properties(${TARGET_NAME} PROPERTIES FOLDER "Engine") ##< Display by 
 target_compile_options(${TARGET_NAME} PUBLIC "$<$<COMPILE_LANG_AND_ID:CXX,MSVC>:/permissive->") ##< Enable the strict standard consistency mode
 target_compile_options(${TARGET_NAME} PUBLIC "$<$<COMPILE_LANG_AND_ID:CXX,MSVC>:/WX->") ##< When compiling C++ code using the MSVC compiler, Disable "Treat warnings as errors"
 
-target_include_directories( ##< include directories
+# Link library, including directory
+target_link_libraries(${TARGET_NAME} PUBLIC glfw)
+target_link_libraries(${TARGET_NAME} PUBLIC ${vulkan_lib})
+
+target_include_directories(
+  ${TARGET_NAME}
+  PUBLIC 
+  $<BUILD_INTERFACE:${vulkan_include}>
+)
+
+target_include_directories(
+  ${TARGET_NAME} 
+  PUBLIC 
+  $<BUILD_INTERFACE:${THIRD_PARTY_DIR}/vulkanmemoryallocator/include>
+)
+
+target_include_directories(
   ${TARGET_NAME} 
   PUBLIC 
   $<BUILD_INTERFACE:${ENGINE_ROOT_DIR}/source>
