@@ -5,6 +5,9 @@
 
 #include <array>
 
+/**
+ * window core
+ */
 namespace VKernel
 {
     struct WindowCreateInfo

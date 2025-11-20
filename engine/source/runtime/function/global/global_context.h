@@ -2,16 +2,22 @@
 
 #include <memory>
 
+/**
+ * Manage all systems and managers
+ */
 namespace VKernel
 {
     
     class WindowSystem;
+    class RenderSystem;
 
     class RuntimeGlobalContext ///< Management system and manager
     {
         
     public:
+        // systems and managers
         std::shared_ptr<WindowSystem> m_window_system;
+        std::shared_ptr<RenderSystem> m_render_system;
     
     public:
         void startSystems(); ///< Start all systems

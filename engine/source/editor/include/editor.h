@@ -10,8 +10,8 @@ namespace ReCoder
     { 
 
     public:
-        void initialize(); ///< It is executed once at the beginning of the operation.
-        void run(); ///< Execute each frame
-        void clear(); ///< Execute once at the end of the operation.
+        void initialize(); ///< init
+        void run(); ///< run
+        void clear(); ///< clear
     };
 }

@@ -29,4 +29,8 @@ namespace VKernel
             return;
         }
     }
+
+    GLFWwindow* WindowSystem::getWindow() const { return m_window; }
+
+    std::array<int, 2> WindowSystem::getWindowSize() const { return std::array<int, 2>({m_width, m_height}); }
 }
