@@ -2,6 +2,7 @@
 
 #include "runtime/function/render/window_system.h"
 #include "runtime/function/render/render_system.h"
+#include "runtime/function/render/debugdraw/debug_draw_manager.h"
 
 namespace VKernel
 {
@@ -15,10 +16,15 @@ namespace VKernel
 
         m_render_system = std::make_shared<RenderSystem>();
         m_render_system->initialize(m_window_system);
+        
+        m_debugdraw_manager = std::make_shared<DebugDrawManager>();
+        m_debugdraw_manager->initialize();
     }
 
     void RuntimeGlobalContext::shutdownSystems()
     {
+        m_debugdraw_manager.reset();
+        
         m_render_system->clear();
         m_render_system.reset();
 

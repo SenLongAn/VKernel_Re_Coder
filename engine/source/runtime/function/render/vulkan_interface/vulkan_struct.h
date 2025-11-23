@@ -27,5 +27,21 @@ namespace VKernel
         std::vector<VkSurfaceFormatKHR> formats;
         std::vector<VkPresentModeKHR>   presentModes;
     };
+
+    struct SwapChainDesc ///< swapchain description
+    {
+        VkExtent2D extent;
+        VkFormat   image_format;
+        VkViewport viewport;
+        VkRect2D scissor;
+        std::vector<VkImageView> imageViews;
+    };
+
+    struct DepthImageDesc ///< depth iamge description
+    {
+        VkImage depth_image = VK_NULL_HANDLE;
+        VkImageView depth_image_view = VK_NULL_HANDLE;
+        VkFormat        depth_image_format;
+    };
 }
    

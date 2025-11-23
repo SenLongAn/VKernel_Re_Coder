@@ -10,6 +10,9 @@ else()
   message(FATAL_ERROR "Unknown Platform")
 endif()
 
+# defined variable
+set(SHADER_COMPILE_TARGET VkernelShaderCompile)
+
 # properties, options
 if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC") ##< Compiler identifier == MSVC
   add_compile_options("/MP") ##< parallel compiling
@@ -17,6 +20,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC") ##< Compiler identifier == MSVC
 endif()
 
 # Add subdirectories
+add_subdirectory(shader)
 add_subdirectory(3rdparty)
 add_subdirectory(source/runtime)
 add_subdirectory(source/editor)

@@ -1,6 +1,7 @@
 #include "runtime/function/render/vulkan_interface/vulkan_api.h"
 
 #include "runtime/function/render/window_system.h"
+#include "runtime/function/render/vulkan_interface/vulkan_util.h"
 
 #include <iostream>
 #include <set>
@@ -13,10 +14,191 @@ namespace VKernel
 
     void VulkanAPI::initialize(std::shared_ptr<WindowSystem> window_system)
     {
+        // window
         m_window = window_system->getWindow();
         std::array<int, 2> window_size = window_system->getWindowSize();
         m_viewport = {0.0f, 0.0f, (float)window_size[0], (float)window_size[1], 0.0f, 1.0f};
         m_scissor  = {{0, 0}, {(uint32_t)window_size[0], (uint32_t)window_size[1]}};
+
+        // vulkan object
+        createInstance();
+
+        initializeDebugMessenger();
+
+        createWindowSurface();
+
+        initializePhysicalDevice();
+
+        createLogicalDevice();
+
+        createCommandPool();
+
+        createCommandBuffers();
+
+        createDescriptorPool();
+
+        createSyncPrimitives();
+
+        createSwapchain();
+
+        createSwapchainImageViews();
+
+        createFramebufferImageAndView();
+
+        createAssetAllocator();
+    }
+
+    void VulkanAPI::clear()
+    {
+        if (m_enable_validation_Layers)
+        {
+            destroyDebugUtilsMessengerEXT(m_instance, m_debug_messenger, nullptr);
+        }
+    }
+
+    VkShaderModule VulkanAPI::createShaderModule(const std::vector<unsigned char>& shader_code)
+    {
+        return VulkanUtil::createShaderModule(m_device, shader_code);
+    }
+
+    void VulkanAPI::createSwapchain()
+    {
+        // query all supports of this physical device
+        SwapChainSupportDetails swapchain_support_details = querySwapChainSupport(m_physical_device);
+
+        // choose the best or fitting format
+        VkSurfaceFormatKHR chosen_surface_format =
+            chooseSwapchainSurfaceFormatFromDetails(swapchain_support_details.formats);
+        // choose the best or fitting present mode
+        VkPresentModeKHR chosen_presentMode =
+            chooseSwapchainPresentModeFromDetails(swapchain_support_details.presentModes);
+        // choose the best or fitting extent
+        VkExtent2D chosen_extent = chooseSwapchainExtentFromDetails(swapchain_support_details.capabilities);
+        // choose image count
+        uint32_t image_count = swapchain_support_details.capabilities.minImageCount + 1;
+        if (swapchain_support_details.capabilities.maxImageCount > 0 &&
+            image_count > swapchain_support_details.capabilities.maxImageCount)
+        {
+            image_count = swapchain_support_details.capabilities.maxImageCount;
+        }
+
+        // Create Swapchain
+        VkSwapchainCreateInfoKHR createInfo {};
+        createInfo.sType   = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+        createInfo.surface = m_surface;
+
+        createInfo.minImageCount    = image_count;
+        createInfo.imageFormat      = chosen_surface_format.format;
+        createInfo.imageColorSpace  = chosen_surface_format.colorSpace;
+        createInfo.imageExtent      = chosen_extent;
+        createInfo.imageArrayLayers = 1;
+        createInfo.imageUsage       = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+
+        uint32_t queueFamilyIndices[] = {m_queue_indices.graphics_family.value(), m_queue_indices.present_family.value()};
+
+        if (m_queue_indices.graphics_family != m_queue_indices.present_family)
+        {
+            createInfo.imageSharingMode      = VK_SHARING_MODE_CONCURRENT;
+            createInfo.queueFamilyIndexCount = 2;
+            createInfo.pQueueFamilyIndices   = queueFamilyIndices;
+        }
+        else
+        {
+            createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+        }
+
+        createInfo.preTransform   = swapchain_support_details.capabilities.currentTransform;
+        createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+        createInfo.presentMode    = chosen_presentMode;
+        createInfo.clipped        = VK_TRUE;
+
+        createInfo.oldSwapchain = VK_NULL_HANDLE;
+
+        if (vkCreateSwapchainKHR(m_device, &createInfo, nullptr, &m_swapchain) != VK_SUCCESS)
+        {
+            std::cerr << "vk create swapchain khr" << std::endl;
+        }
+
+        // Get Swapchain Images
+        vkGetSwapchainImagesKHR(m_device, m_swapchain, &image_count, nullptr);
+        m_swapchain_images.resize(image_count);
+        vkGetSwapchainImagesKHR(m_device, m_swapchain, &image_count, m_swapchain_images.data());
+
+        m_swapchain_image_format = chosen_surface_format.format;
+        m_swapchain_extent.height = chosen_extent.height;
+        m_swapchain_extent.width = chosen_extent.width;
+
+        m_scissor = {{0, 0}, {m_swapchain_extent.width, m_swapchain_extent.height}};
+    }
+
+    void VulkanAPI::createSwapchainImageViews()
+    {
+        m_swapchain_imageviews.resize(m_swapchain_images.size());
+
+        // create imageview (one for each this time) for all swapchain images
+        for (size_t i = 0; i < m_swapchain_images.size(); i++)
+        {
+            VkImageView vk_image_view;
+            vk_image_view = VulkanUtil::createImageView(m_device,
+                                                        m_swapchain_images[i],
+                                                        m_swapchain_image_format,
+                                                        VK_IMAGE_ASPECT_COLOR_BIT,
+                                                        VK_IMAGE_VIEW_TYPE_2D,
+                                                        1,
+                                                        1);
+            m_swapchain_imageviews[i] = vk_image_view;
+        }
+    }
+
+    void VulkanAPI::createFramebufferImageAndView()
+    {
+        // create depth image
+        VulkanUtil::createImage(m_physical_device,
+                                m_device,
+                                m_swapchain_extent.width,
+                                m_swapchain_extent.height,
+                                m_depth_image_format,
+                                VK_IMAGE_TILING_OPTIMAL,
+                                VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT | VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT |
+                                VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
+                                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                                m_depth_image,
+                                m_depth_image_memory,
+                                0,
+                                1,
+                                1);
+        // create depth image view
+        VulkanUtil::createImageView(m_device, m_depth_image, m_depth_image_format, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_VIEW_TYPE_2D, 1, 1);
+    }
+
+    VkDevice VulkanAPI::getLogicDevice() const
+    {
+        return m_device;
+    }
+
+    SwapChainDesc VulkanAPI::getSwapchainInfo()
+    {
+        SwapChainDesc desc;
+        desc.image_format = m_swapchain_image_format;
+        desc.extent = m_swapchain_extent;
+        desc.viewport = m_viewport;
+        desc.scissor = m_scissor;
+        desc.imageViews = m_swapchain_imageviews;
+        return desc;
+    }
+
+    DepthImageDesc VulkanAPI::getDepthImageInfo() const
+    {
+        DepthImageDesc desc;
+        desc.depth_image_format = m_depth_image_format;
+        desc.depth_image_view = m_depth_image_view;
+        desc.depth_image = m_depth_image;
+        return desc;
+    }
+
+    void VulkanAPI::destroyShaderModule(VkShaderModule shaderModule)
+    {
+        vkDestroyShaderModule(m_device, shaderModule, nullptr);
     }
 
     bool VulkanAPI::checkValidationLayerSupport()
@@ -263,6 +445,59 @@ namespace VKernel
 
         std::cerr << "findSupportedFormat failed" << std::endl;
         return VkFormat();
+    }
+
+    VkSurfaceFormatKHR
+    VulkanAPI::chooseSwapchainSurfaceFormatFromDetails(const std::vector<VkSurfaceFormatKHR>& available_surface_formats)
+    {
+        for (const auto& surface_format : available_surface_formats)
+        {
+            // select the VK_FORMAT_B8G8R8A8_SRGB surface format,
+            // there is no need to do gamma correction in the fragment shader
+            if (surface_format.format == VK_FORMAT_B8G8R8A8_UNORM &&
+                surface_format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
+            {
+                return surface_format;
+            }
+        }
+        return available_surface_formats[0];
+    }
+
+    VkPresentModeKHR
+    VulkanAPI::chooseSwapchainPresentModeFromDetails(const std::vector<VkPresentModeKHR>& available_present_modes)
+    {
+        // select the VK_PRESENT_MODE_MAILBOX_KHR
+        for (VkPresentModeKHR present_mode : available_present_modes)
+        {
+            if (VK_PRESENT_MODE_MAILBOX_KHR == present_mode)
+            {
+                return VK_PRESENT_MODE_MAILBOX_KHR;
+            }
+        }
+
+        return VK_PRESENT_MODE_FIFO_KHR;
+    }
+
+    VkExtent2D VulkanAPI::chooseSwapchainExtentFromDetails(const VkSurfaceCapabilitiesKHR& capabilities)
+    {
+        if (capabilities.currentExtent.width != UINT32_MAX) ///< Not resizable
+        {
+            return capabilities.currentExtent;
+        }
+        else ///< Restore the window size and ensure it is within the supported range of the function.
+        {
+            int width, height;
+            glfwGetFramebufferSize(m_window, &width, &height);
+
+            VkExtent2D actualExtent = {static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
+
+            actualExtent.width =
+                std::clamp(actualExtent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
+            actualExtent.height =
+                std::clamp(actualExtent.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
+
+            return actualExtent;
+        }
     }
 
     void VulkanAPI::createInstance()
@@ -577,13 +812,5 @@ namespace VKernel
         allocatorCreateInfo.pVulkanFunctions       = &vulkanFunctions;
 
         vmaCreateAllocator(&allocatorCreateInfo, &m_assets_allocator);
-    }
-
-    void VulkanAPI::clear()
-    {
-        if (m_enable_validation_Layers)
-        {
-            destroyDebugUtilsMessengerEXT(m_instance, m_debug_messenger, nullptr);
-        }
     }
 }

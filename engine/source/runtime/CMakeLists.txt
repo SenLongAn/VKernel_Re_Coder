@@ -34,3 +34,8 @@ target_include_directories(
   PUBLIC 
   $<BUILD_INTERFACE:${ENGINE_ROOT_DIR}/source>
 )
+
+add_dependencies(${TARGET_NAME} ${SHADER_COMPILE_TARGET}) ##< Establish the dependency relationship between the targets, ensuring that target TARGET_NAME is constructed after target SHADER_COMPILE_TARGET.
+target_include_directories(
+  ${TARGET_NAME}
+  PUBLIC $<BUILD_INTERFACE:${ENGINE_ROOT_DIR}/shader/generated/cpp>)

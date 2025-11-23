@@ -24,4 +24,6 @@ namespace VKernel
         }
         m_vulkan_api.reset();
     }
+
+    std::shared_ptr<VulkanAPI> RenderSystem::getVulkanAPI() const { return m_vulkan_api; }
 }

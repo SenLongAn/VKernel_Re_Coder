@@ -18,16 +18,22 @@ namespace VKernel
 
     class WindowSystem;
     
-    class VulkanAPI final ///< vulkan API
+    class VulkanAPI ///< vulkan API
     {
         
     public:
-        void initialize(std::shared_ptr<WindowSystem> window_system); ///< init
         ~VulkanAPI(); ///< Destructor
+        void initialize(std::shared_ptr<WindowSystem> window_system); ///< init
+        void clear(); // destory
         
-    public:
-        // destory
-        void clear();
+        // create
+        VkShaderModule createShaderModule(const std::vector<unsigned char>& shader_code);
+
+        // query
+        VkDevice getLogicDevice() const;
+        SwapChainDesc getSwapchainInfo();
+        DepthImageDesc getDepthImageInfo() const;
+        void destroyShaderModule(VkShaderModule shader);
         
     private:
         // Maximum parallel frame count
@@ -48,9 +54,16 @@ namespace VKernel
         VkCommandPool m_command_pools[k_max_frames_in_flight];
         VkCommandBuffer m_command_buffers[k_max_frames_in_flight];
         VkDescriptorPool m_descriptor_pool{nullptr};
+        VkSwapchainKHR m_swapchain {nullptr};
+        std::vector<VkImage> m_swapchain_images;
+        std::vector<VkImageView> m_swapchain_imageviews;
+        VkImage m_depth_image {nullptr};
+        VkImageView m_depth_image_view {nullptr};
+        VkDeviceMemory m_depth_image_memory {nullptr};
         
     private:
         // auxiliary configuration
+
         // vulkan version
         uint32_t m_vulkan_api_version {VK_API_VERSION_1_0};
 
@@ -61,9 +74,11 @@ namespace VKernel
         
         // swapchain
         std::vector<char const*> m_device_extensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+        VkFormat m_swapchain_image_format{ VK_FORMAT_UNDEFINED };
+        VkExtent2D m_swapchain_extent;
         VkViewport m_viewport;
         VkRect2D m_scissor;
-
+        
         // depth test
         VkFormat m_depth_image_format{ VK_FORMAT_UNDEFINED };
 
@@ -87,7 +102,8 @@ namespace VKernel
         VmaAllocator m_assets_allocator;
 
     private:
-        // auxiliary function
+        // util function
+
         // validation Layers
         bool checkValidationLayerSupport(); ///< Verification and validation layer support
         std::vector<const char*> getRequiredExtensions(); ///< get Required Extensions, The requirements of glfw and the validation layer
@@ -112,6 +128,13 @@ namespace VKernel
                                      VkImageTiling                tiling,
                                      VkFormatFeatureFlags         features); ///< find Supported Format
     
+        // swapchain, choose the best
+        VkSurfaceFormatKHR
+        chooseSwapchainSurfaceFormatFromDetails(const std::vector<VkSurfaceFormatKHR>& available_surface_formats); ///< Format
+        VkPresentModeKHR
+                   chooseSwapchainPresentModeFromDetails(const std::vector<VkPresentModeKHR>& available_present_modes); ///< PresentMode
+        VkExtent2D chooseSwapchainExtentFromDetails(const VkSurfaceCapabilitiesKHR& capabilities); ///< Extent
+
     private:
         // Initialization process
         void createInstance();
@@ -123,6 +146,9 @@ namespace VKernel
         void createCommandBuffers();
         void createDescriptorPool();
         void createSyncPrimitives();
+        void createSwapchain();
+        void createSwapchainImageViews();
+        void createFramebufferImageAndView();
         void createAssetAllocator();
     };
 }
