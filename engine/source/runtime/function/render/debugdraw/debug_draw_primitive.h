@@ -6,7 +6,7 @@
 #include <array>
 
 /**
- * Basic primitive
+ * Basic primitive: Vertex data, vertex description
  */
 namespace VKernel
 {
@@ -29,12 +29,11 @@ namespace VKernel
         // Vertex data
         Vector3 pos;
         Vector4 color;
-        Vector2 texcoord;
+        
         DebugDrawVertex()  ///< Default initialization Vertex data
         { 
             pos = Vector3(-1.0f, -1.0f, -1.0f); 
             color = Vector4(-1.0f, -1.0f, -1.0f, -1.0f); 
-            texcoord = Vector2(-1.0f, -1.0f); 
         }
 
         // Vertex Description
@@ -48,9 +47,9 @@ namespace VKernel
             return binding_descriptions;
         }
 
-        static std::array<VkVertexInputAttributeDescription, 3> getAttributeDescriptions()
+        static std::array<VkVertexInputAttributeDescription, 2> getAttributeDescriptions()
         {
-            std::array<VkVertexInputAttributeDescription, 3> attribute_descriptions{};
+            std::array<VkVertexInputAttributeDescription, 2> attribute_descriptions{};
 
             // position
             attribute_descriptions[0].binding = 0;
@@ -63,12 +62,6 @@ namespace VKernel
             attribute_descriptions[1].location = 1;
             attribute_descriptions[1].format = VK_FORMAT_R32G32B32A32_SFLOAT;
             attribute_descriptions[1].offset = offsetof(DebugDrawVertex, color);
-
-            // texcoord
-            attribute_descriptions[2].binding = 0;
-            attribute_descriptions[2].location = 2;
-            attribute_descriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
-            attribute_descriptions[2].offset = offsetof(DebugDrawVertex, texcoord);
 
             return attribute_descriptions;
         }

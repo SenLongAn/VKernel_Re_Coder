@@ -8,5 +8,87 @@ namespace VKernel
     void DebugDrawManager::initialize()
     {
         m_vulkan_api = g_runtime_global_context.m_render_system->getVulkanAPI();
+
+        setupPipelines();
+    }
+
+    void DebugDrawManager::setupPipelines()
+    {
+        //setup pipelines
+        m_debug_draw_pipeline = new DebugDrawPipeline(DebugDrawPipelineType::_debug_draw_pipeline_type_triangle_no_depth_test);
+        m_debug_draw_pipeline->initialize();
+        
+        //setup allocator
+        m_buffer_allocator = new DebugDrawAllocator();
+        m_buffer_allocator->initialize();
+    }
+
+
+    void DebugDrawManager::draw(uint32_t current_swapchain_image_index)
+    {
+        // viewport and scissor
+        SwapChainDesc swap_chain_desc = m_vulkan_api->getSwapchainInfo();
+        vkCmdSetViewport(m_vulkan_api->getCurrentCommandBuffer(), 0, 1, &swap_chain_desc.viewport);
+        vkCmdSetScissor(m_vulkan_api->getCurrentCommandBuffer(), 0, 1, &swap_chain_desc.scissor);
+
+        // draw obj
+        drawDebugObject(current_swapchain_image_index);
+    }
+
+    void DebugDrawManager::drawDebugObject(uint32_t current_swapchain_image_index)
+    {
+        prepareDrawBuffer(); ///< prepare buffer
+        drawPointLineTriangleBox(current_swapchain_image_index);
+    }
+
+    void DebugDrawManager::prepareDrawBuffer()
+    {
+        m_buffer_allocator->clear();
+
+        std::vector<DebugDrawVertex> vertexs;
+
+        // data loading
+        m_debug_draw_group_for_render.writeTriangleData(vertexs); ///< Write the "group" data to the "vertex"
+        m_no_depth_test_triangle_start_offset = m_buffer_allocator->cacheVertexs(vertexs); ///< Load vertex data
+        m_no_depth_test_triangle_end_offset = m_buffer_allocator->getVertexCacheOffset(); ///< get size
+
+        m_buffer_allocator->allocator(); ///< Load into the buffer
+    }
+
+    void DebugDrawManager::drawPointLineTriangleBox(uint32_t current_swapchain_image_index)
+    {
+        // bind vertex buffer
+        VkBuffer vertex_buffers[] = { m_buffer_allocator->getVertexBuffer() };
+        if (vertex_buffers[0] == nullptr)
+        {
+            return;
+        }
+        vkCmdBindVertexBuffers(m_vulkan_api->getCurrentCommandBuffer(), 0, 1, vertex_buffers, 0);
+
+        // Begin RenderPass
+        VkClearValue clear_values[2];
+        clear_values[0].color = { 0.0f,0.0f,0.0f,0.0f };
+        clear_values[1].depthStencil = { 1.0f, 0 };
+
+        VkRenderPassBeginInfo renderpass_begin_info{};
+        renderpass_begin_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+        renderpass_begin_info.renderArea.offset = { 0, 0 };
+        renderpass_begin_info.renderArea.extent = m_vulkan_api->getSwapchainInfo().extent;
+        renderpass_begin_info.clearValueCount = (sizeof(clear_values) / sizeof(clear_values[0]));
+        renderpass_begin_info.pClearValues = clear_values;
+
+        if(m_no_depth_test_triangle_start_offset == m_no_depth_test_triangle_end_offset) return;
+
+        renderpass_begin_info.renderPass = m_debug_draw_pipeline->getFramebuffer().render_pass;
+        renderpass_begin_info.framebuffer = m_debug_draw_pipeline->getFramebuffer().framebuffers[current_swapchain_image_index];
+        vkCmdBeginRenderPass(m_vulkan_api->getCurrentCommandBuffer(), &renderpass_begin_info, VK_SUBPASS_CONTENTS_INLINE);
+
+        // Bind Pipeline
+        vkCmdBindPipeline(m_vulkan_api->getCurrentCommandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, m_debug_draw_pipeline->getPipeline().pipeline);
+
+        // drawcall
+        vkCmdDraw(m_vulkan_api->getCurrentCommandBuffer(), m_no_depth_test_triangle_end_offset - m_no_depth_test_triangle_start_offset, 1, m_no_depth_test_triangle_start_offset, 0);
+
+        vkCmdEndRenderPass(m_vulkan_api->getCurrentCommandBuffer());
     }
 }

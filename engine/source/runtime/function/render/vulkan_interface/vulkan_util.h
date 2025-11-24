@@ -21,6 +21,14 @@ namespace VKernel
         // create
         static VkShaderModule createShaderModule(VkDevice device, const std::vector<unsigned char>& shader_code);
 
+        static void createBuffer(VkPhysicalDevice      physical_device,
+                                VkDevice              device,
+                                VkDeviceSize          size,
+                                VkBufferUsageFlags    usage,
+                                VkMemoryPropertyFlags properties,
+                                VkBuffer&             buffer,
+                                VkDeviceMemory&       buffer_memor);
+
         static void createImage(VkPhysicalDevice      physical_device,
                                 VkDevice              device,
                                 uint32_t              image_width,

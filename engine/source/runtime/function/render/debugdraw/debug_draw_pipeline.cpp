@@ -18,10 +18,18 @@ namespace VKernel
 
         setupRenderPass();
         setupFramebuffer();
-        setupDescriptorLayout();
         setupPipelines();
     }
     
+    const DebugDrawPipelineBase &DebugDrawPipeline::getPipeline() const
+    {
+        return m_render_pipelines[0];
+    }
+    const DebugDrawFramebuffer &DebugDrawPipeline::getFramebuffer() const
+    {
+        return m_framebuffer;
+    }
+
     void DebugDrawPipeline::setupRenderPass()
     {
         // color attachment
@@ -38,17 +46,6 @@ namespace VKernel
         VkAttachmentReference color_attachment_reference{};
         color_attachment_reference.attachment = 0;
         color_attachment_reference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-        // depth attachment
-        VkAttachmentDescription depth_attachment_description{};
-        depth_attachment_description.format = m_vulkan_api->getDepthImageInfo().depth_image_format;
-        depth_attachment_description.samples = VK_SAMPLE_COUNT_1_BIT;
-        depth_attachment_description.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
-        depth_attachment_description.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-        depth_attachment_description.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-        depth_attachment_description.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        depth_attachment_description.initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-        depth_attachment_description.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
         VkAttachmentReference depth_attachment_reference{};
         depth_attachment_reference.attachment = 1;
@@ -73,7 +70,7 @@ namespace VKernel
         debug_draw_dependency.dependencyFlags = 0; // NOT BY REGION
         
         // RenderPass
-        std::array<VkAttachmentDescription, 2> attachments = { color_attachment_description, depth_attachment_description };
+        std::array<VkAttachmentDescription, 1> attachments = { color_attachment_description};
         VkRenderPassCreateInfo renderpass_create_info{};
         renderpass_create_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
         renderpass_create_info.attachmentCount = attachments.size();
@@ -95,7 +92,7 @@ namespace VKernel
         m_framebuffer.framebuffers.resize(imageViews.size());
         for (size_t i = 0; i < m_framebuffer.framebuffers.size(); i++) {
 
-            VkImageView attachments[2] = { imageViews[i], m_vulkan_api->getDepthImageInfo().depth_image_view};
+            VkImageView attachments[1] = { imageViews[i]};
 
             VkFramebufferCreateInfo framebuffer_create_info{};
             framebuffer_create_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
@@ -113,38 +110,6 @@ namespace VKernel
         }
     }
 
-    void DebugDrawPipeline::setupDescriptorLayout()
-    {
-        VkDescriptorSetLayoutBinding uboLayoutBinding[3];
-        uboLayoutBinding[0].binding = 0;
-        uboLayoutBinding[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        uboLayoutBinding[0].descriptorCount = 1;
-        uboLayoutBinding[0].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-        uboLayoutBinding[0].pImmutableSamplers = nullptr;
-
-        uboLayoutBinding[1].binding = 1;
-        uboLayoutBinding[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
-        uboLayoutBinding[1].descriptorCount = 1;
-        uboLayoutBinding[1].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-        uboLayoutBinding[1].pImmutableSamplers = nullptr;
-
-        uboLayoutBinding[2].binding = 2;
-        uboLayoutBinding[2].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        uboLayoutBinding[2].descriptorCount = 1;
-        uboLayoutBinding[2].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-        uboLayoutBinding[2].pImmutableSamplers = nullptr;
-
-        VkDescriptorSetLayoutCreateInfo layoutInfo{};
-        layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-        layoutInfo.bindingCount = 3;
-        layoutInfo.pBindings = uboLayoutBinding;
-
-        if (vkCreateDescriptorSetLayout(m_vulkan_api->getLogicDevice(), &layoutInfo, nullptr, &m_descriptor_layout) != VK_SUCCESS)
-        {
-            std::cerr << "create debug draw layout" << std::endl;
-        }
-    }
-
     void DebugDrawPipeline::setupPipelines()
     {
         m_render_pipelines.resize(1);
@@ -152,7 +117,6 @@ namespace VKernel
         VkPipelineLayoutCreateInfo pipeline_layout_create_info{};
         pipeline_layout_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
         pipeline_layout_create_info.setLayoutCount = 1;
-        pipeline_layout_create_info.pSetLayouts = &m_descriptor_layout;
         pipeline_layout_create_info.pushConstantRangeCount = 0;
         pipeline_layout_create_info.pPushConstantRanges = nullptr;
 
@@ -271,19 +235,7 @@ namespace VKernel
         pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
         pipelineInfo.pDynamicState = &dynamic_state_create_info;
 
-        if (m_pipeline_type == _debug_draw_pipeline_type_point)
-        {
-            input_assembly_create_info.topology = VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
-        }
-        else if (m_pipeline_type == _debug_draw_pipeline_type_line)
-        {
-            input_assembly_create_info.topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
-        }
-        else if (m_pipeline_type == _debug_draw_pipeline_type_triangle)
-        {
-            input_assembly_create_info.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-        }
-        else if (m_pipeline_type == _debug_draw_pipeline_type_point_no_depth_test)
+        if (m_pipeline_type == _debug_draw_pipeline_type_point_no_depth_test)
         {
             input_assembly_create_info.topology = VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
             depth_stencil_create_info.depthTestEnable = VK_FALSE;

@@ -34,10 +34,7 @@ namespace VKernel
     
     enum DebugDrawPipelineType : uint8_t ///< pipline type (AssemblyState and DepthStencilState)
     {
-        _debug_draw_pipeline_type_point = 0,
-        _debug_draw_pipeline_type_line,
-        _debug_draw_pipeline_type_triangle,
-        _debug_draw_pipeline_type_point_no_depth_test,
+        _debug_draw_pipeline_type_point_no_depth_test = 0,
         _debug_draw_pipeline_type_line_no_depth_test,
         _debug_draw_pipeline_type_triangle_no_depth_test,
         _debug_draw_pipeline_type_count,
@@ -58,18 +55,16 @@ namespace VKernel
         const DebugDrawFramebuffer& getFramebuffer() const;
 
     private:
-        // What needs to be created in the pipeline
+        // What needs to be accomplished in the pipeline class
         void setupFramebuffer();
         void setupRenderPass();
-        void setupDescriptorLayout();
         void setupPipelines();
     
     private:
         std::shared_ptr<VulkanAPI> m_vulkan_api; ///< Vulkan interface
 
-        // Created in the pipeline
+        // What needs to be accomplished in the pipeline class
         DebugDrawFramebuffer m_framebuffer;
-        VkDescriptorSetLayout m_descriptor_layout;
         std::vector<DebugDrawPipelineBase> m_render_pipelines; ///< A render pass can have multiple pipelines
     };
 }

@@ -26,7 +26,7 @@ namespace VKernel
         */
         std::shared_ptr<WindowSystem> m_window_system;
         std::shared_ptr<RenderSystem> m_render_system;
-        std::shared_ptr<DebugDrawManager>  m_debugdraw_manager;
+        std::shared_ptr<DebugDrawManager> m_debugdraw_manager;
     
     public:
         void startSystems(); ///< Start all systems

@@ -43,8 +43,6 @@ namespace VKernel
 
         createSwapchainImageViews();
 
-        createFramebufferImageAndView();
-
         createAssetAllocator();
     }
 
@@ -56,9 +54,26 @@ namespace VKernel
         }
     }
 
+    void VulkanAPI::prepareContext()
+    {
+        m_current_command_buffer = m_command_buffers[m_current_frame_index];
+    }
+
+    bool VulkanAPI::prepareBeforePass(std::function<void()> passUpdateAfterRecreateSwapchain)
+    {
+        m_current_frame_index = (m_current_frame_index + 1) % k_max_frames_in_flight;
+        return false;
+    }
+
     VkShaderModule VulkanAPI::createShaderModule(const std::vector<unsigned char>& shader_code)
     {
         return VulkanUtil::createShaderModule(m_device, shader_code);
+    }
+
+    void VulkanAPI::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, 
+                                VkBuffer& buffer, VkDeviceMemory& buffer_memory)
+    {
+        VulkanUtil::createBuffer(m_physical_device, m_device, size, usage, properties, buffer, buffer_memory);
     }
 
     void VulkanAPI::createSwapchain()
@@ -150,27 +165,6 @@ namespace VKernel
         }
     }
 
-    void VulkanAPI::createFramebufferImageAndView()
-    {
-        // create depth image
-        VulkanUtil::createImage(m_physical_device,
-                                m_device,
-                                m_swapchain_extent.width,
-                                m_swapchain_extent.height,
-                                m_depth_image_format,
-                                VK_IMAGE_TILING_OPTIMAL,
-                                VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT | VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT |
-                                VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
-                                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                                m_depth_image,
-                                m_depth_image_memory,
-                                0,
-                                1,
-                                1);
-        // create depth image view
-        VulkanUtil::createImageView(m_device, m_depth_image, m_depth_image_format, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_VIEW_TYPE_2D, 1, 1);
-    }
-
     VkDevice VulkanAPI::getLogicDevice() const
     {
         return m_device;
@@ -187,18 +181,24 @@ namespace VKernel
         return desc;
     }
 
-    DepthImageDesc VulkanAPI::getDepthImageInfo() const
-    {
-        DepthImageDesc desc;
-        desc.depth_image_format = m_depth_image_format;
-        desc.depth_image_view = m_depth_image_view;
-        desc.depth_image = m_depth_image;
-        return desc;
-    }
-
     void VulkanAPI::destroyShaderModule(VkShaderModule shaderModule)
     {
         vkDestroyShaderModule(m_device, shaderModule, nullptr);
+    }
+
+    uint8_t VulkanAPI::getMaxFramesInFlight() const
+    {
+        return k_max_frames_in_flight;
+    }
+
+    VkDescriptorPool VulkanAPI::getDescriptorPool() const
+    {
+        return m_descriptor_pool;
+    }
+
+    VkCommandBuffer VulkanAPI::getCurrentCommandBuffer() const
+    {
+        return m_current_command_buffer;
     }
 
     bool VulkanAPI::checkValidationLayerSupport()
@@ -688,9 +688,6 @@ namespace VKernel
         vkGetDeviceQueue(m_device, m_queue_indices.graphics_family.value(), 0, &m_graphics_queue);
         vkGetDeviceQueue(m_device, m_queue_indices.present_family.value(), 0, &m_present_queue);
         vkGetDeviceQueue(m_device, m_queue_indices.m_compute_family.value(), 0, &m_compute_queue);
-
-        // find Supported Depth Format
-        m_depth_image_format = (VkFormat)findDepthFormat();
     }
     
     void VulkanAPI::createCommandPool()

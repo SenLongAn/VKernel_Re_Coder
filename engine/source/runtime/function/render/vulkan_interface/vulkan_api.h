@@ -9,6 +9,7 @@
 
 #include <vector>
 #include <memory>
+#include <functional>
 
 /**
  * Vulkan interface
@@ -24,16 +25,25 @@ namespace VKernel
     public:
         ~VulkanAPI(); ///< Destructor
         void initialize(std::shared_ptr<WindowSystem> window_system); ///< init
-        void clear(); // destory
+        void clear(); ///< destory
         
-        // create
-        VkShaderModule createShaderModule(const std::vector<unsigned char>& shader_code);
+        void prepareContext(); ///< prepare Context，update m_current_command_buffer
+        
+        // command write
+        bool prepareBeforePass(std::function<void()> passUpdateAfterRecreateSwapchain); ///< Rendering interface
 
-        // query
+        // create(call vulkanUtil)
+        VkShaderModule createShaderModule(const std::vector<unsigned char>& shader_code);
+        void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, 
+                        VkBuffer& buffer, VkDeviceMemory& buffer_memory);
+
+        // query(get)
         VkDevice getLogicDevice() const;
         SwapChainDesc getSwapchainInfo();
-        DepthImageDesc getDepthImageInfo() const;
         void destroyShaderModule(VkShaderModule shader);
+        uint8_t getMaxFramesInFlight() const;
+        VkDescriptorPool getDescriptorPool()const;
+        VkCommandBuffer getCurrentCommandBuffer() const;
         
     private:
         // Maximum parallel frame count
@@ -53,13 +63,11 @@ namespace VKernel
         VkQueue m_compute_queue{ nullptr };
         VkCommandPool m_command_pools[k_max_frames_in_flight];
         VkCommandBuffer m_command_buffers[k_max_frames_in_flight];
+        VkCommandBuffer m_current_command_buffer {nullptr};
         VkDescriptorPool m_descriptor_pool{nullptr};
         VkSwapchainKHR m_swapchain {nullptr};
         std::vector<VkImage> m_swapchain_images;
         std::vector<VkImageView> m_swapchain_imageviews;
-        VkImage m_depth_image {nullptr};
-        VkImageView m_depth_image_view {nullptr};
-        VkDeviceMemory m_depth_image_memory {nullptr};
         
     private:
         // auxiliary configuration
@@ -78,9 +86,6 @@ namespace VKernel
         VkExtent2D m_swapchain_extent;
         VkViewport m_viewport;
         VkRect2D m_scissor;
-        
-        // depth test
-        VkFormat m_depth_image_format{ VK_FORMAT_UNDEFINED };
 
         // queue Family Indices
         QueueFamilyIndices m_queue_indices;
@@ -100,6 +105,9 @@ namespace VKernel
 
         // asset allocator use VMA library
         VmaAllocator m_assets_allocator;
+
+        // cur frame index
+        uint8_t m_current_frame_index {0};
 
     private:
         // util function
@@ -148,7 +156,6 @@ namespace VKernel
         void createSyncPrimitives();
         void createSwapchain();
         void createSwapchainImageViews();
-        void createFramebufferImageAndView();
         void createAssetAllocator();
     };
 }

@@ -40,6 +40,48 @@ namespace VKernel
         return shader_module;
     }
 
+    void VulkanUtil::createBuffer(VkPhysicalDevice      physical_device,
+                                  VkDevice              device,
+                                  VkDeviceSize          size,
+                                  VkBufferUsageFlags    usage,
+                                  VkMemoryPropertyFlags properties,
+                                  VkBuffer&             buffer,
+                                  VkDeviceMemory&       buffer_memory)
+    {
+        // create buffer
+        VkBufferCreateInfo buffer_create_info {};
+        buffer_create_info.sType       = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+        buffer_create_info.size        = size;
+        buffer_create_info.usage       = usage;                     // use as a vertex/staging/index buffer
+        buffer_create_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE; // not sharing among queue families
+
+        if (vkCreateBuffer(device, &buffer_create_info, nullptr, &buffer) != VK_SUCCESS)
+        {
+            std::cerr << "vkCreateBuffer failed!" << std::endl;
+            return;
+        }
+
+        // allocate memory
+        VkMemoryRequirements buffer_memory_requirements; // for allocate_info.allocationSize and
+                                                         // allocate_info.memoryTypeIndex
+        vkGetBufferMemoryRequirements(device, buffer, &buffer_memory_requirements);
+
+        VkMemoryAllocateInfo buffer_memory_allocate_info {};
+        buffer_memory_allocate_info.sType          = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+        buffer_memory_allocate_info.allocationSize = buffer_memory_requirements.size;
+        buffer_memory_allocate_info.memoryTypeIndex =
+            VulkanUtil::findMemoryType(physical_device, buffer_memory_requirements.memoryTypeBits, properties);
+
+        if (vkAllocateMemory(device, &buffer_memory_allocate_info, nullptr, &buffer_memory) != VK_SUCCESS)
+        {
+            std::cerr << "vkAllocateMemory failed!" << std::endl;
+            return;
+        }
+
+        // bind buffer with buffer memory
+        vkBindBufferMemory(device, buffer, buffer_memory, 0); // offset = 0
+    }
+
     void VulkanUtil::createImage(VkPhysicalDevice      physical_device,
                                  VkDevice              device,
                                  uint32_t              image_width,
