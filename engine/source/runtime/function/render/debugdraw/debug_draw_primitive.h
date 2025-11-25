@@ -37,12 +37,12 @@ namespace VKernel
         }
 
         // Vertex Description
-        static std::array<VkVertexInputBindingDescription, 1> getBindingDescriptions()
+        static VkVertexInputBindingDescription getBindingDescriptions()
         {
-            std::array<VkVertexInputBindingDescription, 1>binding_descriptions;
-            binding_descriptions[0].binding = 0;
-            binding_descriptions[0].stride = sizeof(DebugDrawVertex);
-            binding_descriptions[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX; ///< vertex index or instance index
+            VkVertexInputBindingDescription binding_descriptions;
+            binding_descriptions.binding = 0;
+            binding_descriptions.stride = sizeof(DebugDrawVertex);
+            binding_descriptions.inputRate = VK_VERTEX_INPUT_RATE_VERTEX; ///< vertex index or instance index
 
             return binding_descriptions;
         }

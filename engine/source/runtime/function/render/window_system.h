@@ -29,6 +29,8 @@ namespace VKernel
         GLFWwindow* getWindow() const; ///< Get Window
         std::array<int, 2> getWindowSize() const; ///< Get the window size
 
+        bool shouldClose() const; ///< Have you closed the window?
+
     private:
         GLFWwindow* m_window {nullptr}; ///< window instance
         int         m_width {0}; ///< window width

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "runtime/function/render/render_pipeline_base.h"
-#include "runtime/function/render/render_resource_base.h"
 
 #include <memory>
 
@@ -21,6 +20,7 @@ namespace VKernel
         ~RenderSystem(); ///< Destructor
 
         void initialize(std::shared_ptr<WindowSystem> window_system); ///< init
+        void tick(float delta_time); ///< tick
         void clear(); ///< clear
 
         std::shared_ptr<VulkanAPI> getVulkanAPI() const;
@@ -28,7 +28,6 @@ namespace VKernel
     private:
         // direct management
         std::shared_ptr<VulkanAPI> m_vulkan_api;
-        std::shared_ptr<RenderResourceBase> m_render_resource;
         std::shared_ptr<RenderPipelineBase> m_render_pipeline;
     };
 }

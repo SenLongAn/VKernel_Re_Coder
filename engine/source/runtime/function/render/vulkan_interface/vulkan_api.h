@@ -30,7 +30,8 @@ namespace VKernel
         void prepareContext(); ///< prepare Context，update m_current_command_buffer
         
         // command write
-        bool prepareBeforePass(std::function<void()> passUpdateAfterRecreateSwapchain); ///< Rendering interface
+        bool prepareBeforePass();
+        void submitRendering();
 
         // create(call vulkanUtil)
         VkShaderModule createShaderModule(const std::vector<unsigned char>& shader_code);
@@ -43,11 +44,15 @@ namespace VKernel
         void destroyShaderModule(VkShaderModule shader);
         uint8_t getMaxFramesInFlight() const;
         VkDescriptorPool getDescriptorPool()const;
-        VkCommandBuffer getCurrentCommandBuffer() const;
+        VkCommandBuffer getCurrentCommandBuffer() const;  
+        const VkFence* getFenceList() const;
+        uint8_t getCurrentFrameIndex() const;
+        VkCommandPool getCommandPool() const;
+        uint8_t getCurrentSwapchainImageIndex() const;
         
     private:
         // Maximum parallel frame count
-        static uint8_t const k_max_frames_in_flight {3};
+        static uint8_t const k_max_frames_in_flight {2};
 
     private:
         // external reference
@@ -60,14 +65,16 @@ namespace VKernel
         VkDevice m_device {nullptr};
         VkQueue m_graphics_queue{ nullptr };
         VkQueue m_present_queue {nullptr};
-        VkQueue m_compute_queue{ nullptr };
-        VkCommandPool m_command_pools[k_max_frames_in_flight];
+        VkCommandPool m_command_pool;
         VkCommandBuffer m_command_buffers[k_max_frames_in_flight];
         VkCommandBuffer m_current_command_buffer {nullptr};
         VkDescriptorPool m_descriptor_pool{nullptr};
         VkSwapchainKHR m_swapchain {nullptr};
         std::vector<VkImage> m_swapchain_images;
         std::vector<VkImageView> m_swapchain_imageviews;
+        VkSemaphore m_image_available_for_render_semaphores[k_max_frames_in_flight];
+        VkSemaphore m_image_finished_for_presentation_semaphores[k_max_frames_in_flight];
+        VkFence m_is_frame_in_flight_fences[k_max_frames_in_flight];
         
     private:
         // auxiliary configuration
@@ -86,6 +93,7 @@ namespace VKernel
         VkExtent2D m_swapchain_extent;
         VkViewport m_viewport;
         VkRect2D m_scissor;
+        uint32_t m_current_swapchain_image_index;
 
         // queue Family Indices
         QueueFamilyIndices m_queue_indices;
@@ -96,12 +104,6 @@ namespace VKernel
         // used in descriptor pool creation
         uint32_t m_max_vertex_blending_mesh_count{ 256 };
         uint32_t m_max_material_count{ 256 };
-
-        // semaphore and fence
-        VkSemaphore m_image_available_for_render_semaphores[k_max_frames_in_flight];
-        VkSemaphore m_image_finished_for_presentation_semaphores[k_max_frames_in_flight];
-        VkSemaphore m_image_available_for_texturescopy_semaphores[k_max_frames_in_flight];
-        VkFence m_is_frame_in_flight_fences[k_max_frames_in_flight];
 
         // asset allocator use VMA library
         VmaAllocator m_assets_allocator;

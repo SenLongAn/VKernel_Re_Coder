@@ -1,6 +1,8 @@
 #include "runtime/engine.h"
 
 #include "runtime/function/global/global_context.h"
+#include "runtime/function/render/window_system.h"
+#include "runtime/function/render/render_system.h"
 
 namespace VKernel
 {
@@ -11,9 +13,40 @@ namespace VKernel
     }
     
     void VKernelEngine::run(){}
+
+    bool VKernelEngine::tickOneFrame(float delta_time)
+    {
+        // tick
+        rendererTick(delta_time);
+
+        // check window
+        const bool should_window_close = g_runtime_global_context.m_window_system->shouldClose();
+        return !should_window_close;
+    }
     
     void VKernelEngine::shutdownEngine()
     {
         g_runtime_global_context.shutdownSystems();
+    }
+
+    bool VKernelEngine::rendererTick(float delta_time)
+    {
+        g_runtime_global_context.m_render_system->tick(delta_time);
+        return true;
+    }
+
+    float VKernelEngine::calculateDeltaTime()
+    {
+        float delta_time;
+        {
+            using namespace std::chrono;
+
+            steady_clock::time_point tick_time_point = steady_clock::now(); ///< current time 
+            duration<float> time_span = duration_cast<duration<float>>(tick_time_point - m_last_tick_time_point); ///< Calculate the time difference
+            delta_time = time_span.count();
+
+            m_last_tick_time_point = tick_time_point;
+        }
+        return delta_time;
     }
 }

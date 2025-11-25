@@ -20,7 +20,7 @@ namespace VKernel
                 return i;
             }
         }
-        std::cerr << "findMemoryType error" << std::endl;
+        throw std::runtime_error("findMemoryType error");
         return 0;
     }
 
@@ -57,7 +57,7 @@ namespace VKernel
 
         if (vkCreateBuffer(device, &buffer_create_info, nullptr, &buffer) != VK_SUCCESS)
         {
-            std::cerr << "vkCreateBuffer failed!" << std::endl;
+            throw std::runtime_error("vkCreateBuffer failed!");
             return;
         }
 
@@ -74,7 +74,7 @@ namespace VKernel
 
         if (vkAllocateMemory(device, &buffer_memory_allocate_info, nullptr, &buffer_memory) != VK_SUCCESS)
         {
-            std::cerr << "vkAllocateMemory failed!" << std::endl;
+            throw std::runtime_error("vkAllocateMemory failed!");
             return;
         }
 
@@ -115,7 +115,7 @@ namespace VKernel
 
         if (vkCreateImage(device, &image_create_info, nullptr, &image) != VK_SUCCESS)
         {
-            std::cerr << "failed to create image!" << std::endl;
+            throw std::runtime_error("failed to create image!");
             return;
         }
 
@@ -131,7 +131,7 @@ namespace VKernel
 
         if (vkAllocateMemory(device, &allocInfo, nullptr, &memory) != VK_SUCCESS)
         {
-            std::cerr << "failed to allocate image memory!" << std::endl;
+            throw std::runtime_error("failed to allocate image memory!");
             return;
         }
 
@@ -151,6 +151,10 @@ namespace VKernel
         image_view_create_info.image                           = image;
         image_view_create_info.viewType                        = view_type;
         image_view_create_info.format                          = format;
+        image_view_create_info.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+        image_view_create_info.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+        image_view_create_info.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+        image_view_create_info.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
         image_view_create_info.subresourceRange.aspectMask     = image_aspect_flags;
         image_view_create_info.subresourceRange.baseMipLevel   = 0;
         image_view_create_info.subresourceRange.levelCount     = miplevels;

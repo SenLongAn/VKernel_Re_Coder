@@ -2,6 +2,7 @@
 
 #include "runtime/function/global/global_context.h"
 #include "runtime/function/render/render_system.h"
+#include "runtime/core/math/math_headers.h"
 
 namespace VKernel
 {
@@ -14,13 +15,21 @@ namespace VKernel
 
     void DebugDrawManager::setupPipelines()
     {
-        //setup pipelines
+        // create pipelines
         m_debug_draw_pipeline = new DebugDrawPipeline(DebugDrawPipelineType::_debug_draw_pipeline_type_triangle_no_depth_test);
         m_debug_draw_pipeline->initialize();
         
-        //setup allocator
+        // create buffer
         m_buffer_allocator = new DebugDrawAllocator();
         m_buffer_allocator->initialize();
+
+        m_debug_draw_group_for_render.addTriangle(
+                                        Vector3(0.0, -0.5, 0.0),
+                                        Vector3(0.5, 0.5, 0.0),
+                                        Vector3(-0.5, 0.5, 0.0),
+                                        Vector4(1.0, 0.0, 0.0, 1.0),
+                                        Vector4(0.0, 1.0, 0.0, 1.0),
+                                        Vector4(0.0, 0.0, 1.0, 1.0));
     }
 
 
@@ -47,7 +56,7 @@ namespace VKernel
 
         std::vector<DebugDrawVertex> vertexs;
 
-        // data loading
+        // Data is loaded from the group to the buffer.
         m_debug_draw_group_for_render.writeTriangleData(vertexs); ///< Write the "group" data to the "vertex"
         m_no_depth_test_triangle_start_offset = m_buffer_allocator->cacheVertexs(vertexs); ///< Load vertex data
         m_no_depth_test_triangle_end_offset = m_buffer_allocator->getVertexCacheOffset(); ///< get size
@@ -63,12 +72,12 @@ namespace VKernel
         {
             return;
         }
-        vkCmdBindVertexBuffers(m_vulkan_api->getCurrentCommandBuffer(), 0, 1, vertex_buffers, 0);
+        VkDeviceSize offsets[] = {0};
+        vkCmdBindVertexBuffers(m_vulkan_api->getCurrentCommandBuffer(), 0, 1, vertex_buffers, offsets);
 
         // Begin RenderPass
-        VkClearValue clear_values[2];
-        clear_values[0].color = { 0.0f,0.0f,0.0f,0.0f };
-        clear_values[1].depthStencil = { 1.0f, 0 };
+        VkClearValue clear_values[1];
+        clear_values[0].color = { 0.0f,0.0f,0.0f,1.0f };
 
         VkRenderPassBeginInfo renderpass_begin_info{};
         renderpass_begin_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;

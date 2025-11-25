@@ -59,10 +59,83 @@ namespace VKernel
         m_current_command_buffer = m_command_buffers[m_current_frame_index];
     }
 
-    bool VulkanAPI::prepareBeforePass(std::function<void()> passUpdateAfterRecreateSwapchain)
+    bool VulkanAPI::prepareBeforePass()
     {
-        m_current_frame_index = (m_current_frame_index + 1) % k_max_frames_in_flight;
+       // acquire image 
+       VkResult acquire_image_result =
+            vkAcquireNextImageKHR(m_device,
+                                m_swapchain,
+                                UINT64_MAX,
+                                m_image_available_for_render_semaphores[m_current_frame_index],
+                                VK_NULL_HANDLE,
+                                &m_current_swapchain_image_index);
+        
+        // begin command buffer
+        VkCommandBufferBeginInfo command_buffer_begin_info {};
+        command_buffer_begin_info.sType            = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        command_buffer_begin_info.flags            = 0;
+        command_buffer_begin_info.pInheritanceInfo = nullptr;
+
+        VkResult res_begin_command_buffer = vkBeginCommandBuffer(m_command_buffers[m_current_frame_index], &command_buffer_begin_info);
+
+        if (VK_SUCCESS != res_begin_command_buffer)
+        {
+            throw std::runtime_error("_vkBeginCommandBuffer failed!");
+            return false;
+        }
         return false;
+    }
+
+    void VulkanAPI::submitRendering()
+    {
+        // end command buffer
+        VkResult res_end_command_buffer = vkEndCommandBuffer(m_command_buffers[m_current_frame_index]);
+        if (VK_SUCCESS != res_end_command_buffer)
+        {
+            throw std::runtime_error("_vkEndCommandBuffer failed!");
+            return;
+        }
+
+        // submit command buffer
+        VkSemaphore semaphores[1] = {m_image_finished_for_presentation_semaphores[m_current_frame_index]};
+        VkPipelineStageFlags wait_stages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+        VkSubmitInfo submit_info = {};
+        submit_info.sType                  = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submit_info.waitSemaphoreCount     = 1;
+        submit_info.pWaitSemaphores        = &m_image_available_for_render_semaphores[m_current_frame_index]; ///< Wait Semaphores  
+        submit_info.pWaitDstStageMask      = wait_stages;
+        submit_info.commandBufferCount     = 1;
+        submit_info.pCommandBuffers        = &m_command_buffers[m_current_frame_index];
+        submit_info.signalSemaphoreCount = 1;
+        submit_info.pSignalSemaphores = semaphores; ///< Signal Semaphores
+
+        VkResult res_queue_submit =
+        vkQueueSubmit(m_graphics_queue, 1, &submit_info, m_is_frame_in_flight_fences[m_current_frame_index]); ///< Queue Submit
+        
+        if (VK_SUCCESS != res_queue_submit)
+        {
+            throw std::runtime_error("vkQueueSubmit failed!");
+            return;
+        }
+
+        // present swapchain
+        VkPresentInfoKHR present_info   = {};
+        present_info.sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+        present_info.waitSemaphoreCount = 1;
+        present_info.pWaitSemaphores    = &m_image_finished_for_presentation_semaphores[m_current_frame_index];
+        present_info.swapchainCount     = 1;
+        present_info.pSwapchains        = &m_swapchain;
+        present_info.pImageIndices      = &m_current_swapchain_image_index;
+        
+        VkResult present_result = vkQueuePresentKHR(m_present_queue, &present_info); ///< Queue Present
+        if (VK_SUCCESS != present_result)
+        {
+            throw std::runtime_error("vkQueuePresentKHR failed!");
+            return;
+        }
+
+        // update frame index
+        m_current_frame_index = (m_current_frame_index + 1) % k_max_frames_in_flight;
     }
 
     VkShaderModule VulkanAPI::createShaderModule(const std::vector<unsigned char>& shader_code)
@@ -127,11 +200,9 @@ namespace VKernel
         createInfo.presentMode    = chosen_presentMode;
         createInfo.clipped        = VK_TRUE;
 
-        createInfo.oldSwapchain = VK_NULL_HANDLE;
-
         if (vkCreateSwapchainKHR(m_device, &createInfo, nullptr, &m_swapchain) != VK_SUCCESS)
         {
-            std::cerr << "vk create swapchain khr" << std::endl;
+            throw std::runtime_error("vk create swapchain khr");
         }
 
         // Get Swapchain Images
@@ -199,6 +270,26 @@ namespace VKernel
     VkCommandBuffer VulkanAPI::getCurrentCommandBuffer() const
     {
         return m_current_command_buffer;
+    }
+    
+    const VkFence* VulkanAPI::getFenceList() const
+    {
+        return m_is_frame_in_flight_fences;
+    }
+    
+    uint8_t VulkanAPI::getCurrentFrameIndex() const
+    {
+        return m_current_frame_index;
+    }
+    
+    VkCommandPool VulkanAPI::getCommandPool() const
+    {
+        return m_command_pool;
+    }
+
+    uint8_t VulkanAPI::getCurrentSwapchainImageIndex() const
+    {
+        return m_current_swapchain_image_index;
     }
 
     bool VulkanAPI::checkValidationLayerSupport()
@@ -319,12 +410,6 @@ namespace VKernel
                 indices.graphics_family = i;
             }
 
-            if (queue_family.queueFlags & VK_QUEUE_COMPUTE_BIT)
-            {
-                indices.m_compute_family = i;
-            }
-
-
             VkBool32 is_present_support = false;
             vkGetPhysicalDeviceSurfaceSupportKHR(physicalm_device,
                                                  i,
@@ -353,7 +438,7 @@ namespace VKernel
         std::vector<VkExtensionProperties> available_extensions(extension_count);
         vkEnumerateDeviceExtensionProperties(physicalm_device, nullptr, &extension_count, available_extensions.data());
 
-        // If the exchange chain expansion returns true
+        // If the swapchain expansion returns true
         std::set<std::string> required_extensions(m_device_extensions.begin(), m_device_extensions.end());
         for (const auto& extension : available_extensions)
         {
@@ -406,10 +491,7 @@ namespace VKernel
                 !swapchain_support_details.formats.empty() && !swapchain_support_details.presentModes.empty();
         }
 
-        VkPhysicalDeviceFeatures physicalm_device_features;
-        vkGetPhysicalDeviceFeatures(physicalm_device, &physicalm_device_features);
-
-        if (!queue_indices.isComplete() || !is_swapchain_adequate || !physicalm_device_features.samplerAnisotropy)
+        if (!queue_indices.isComplete() || !is_swapchain_adequate)
         {
             return false;
         }
@@ -443,7 +525,7 @@ namespace VKernel
             }
         }
 
-        std::cerr << "findSupportedFormat failed" << std::endl;
+        throw std::runtime_error("findSupportedFormat failed");
         return VkFormat();
     }
 
@@ -505,12 +587,12 @@ namespace VKernel
         // Verification and validation layer support
         if (m_enable_validation_Layers && !checkValidationLayerSupport())
         {
-            std::cerr << "validation layers requested, but not available!" << std::endl;
+            throw std::runtime_error("validation layers requested, but not available!");
         }
 
-        m_vulkan_api_version = VK_API_VERSION_1_0;
-
         // app info
+        
+        m_vulkan_api_version = VK_API_VERSION_1_0;
         VkApplicationInfo appInfo {};
         appInfo.sType              = VK_STRUCTURE_TYPE_APPLICATION_INFO;
         appInfo.pApplicationName   = "vkernel_renderer";
@@ -548,7 +630,7 @@ namespace VKernel
         // create instance
         if (vkCreateInstance(&instance_create_info, nullptr, &m_instance) != VK_SUCCESS)
         {
-            std::cerr << "vk create instance" << std::endl;
+            throw std::runtime_error("vk create instance");
         }
     }
 
@@ -560,7 +642,7 @@ namespace VKernel
             populateDebugMessengerCreateInfo(createInfo);
             if (VK_SUCCESS != createDebugUtilsMessengerEXT(m_instance, &createInfo, nullptr, &m_debug_messenger))
             {
-                std::cerr << "failed to set up debug messenger!" << std::endl;
+                throw std::runtime_error("failed to set up debug messenger!");
             }
         }
     }
@@ -570,7 +652,7 @@ namespace VKernel
         // create surface
         if (glfwCreateWindowSurface(m_instance, m_window, nullptr, &m_surface) != VK_SUCCESS)
         {
-            std::cerr << "glfwCreateWindowSurface failed!" << std::endl;
+            throw std::runtime_error("glfwCreateWindowSurface failed!");
         }
     }
 
@@ -581,53 +663,26 @@ namespace VKernel
         vkEnumeratePhysicalDevices(m_instance, &physical_device_count, nullptr);
         if (physical_device_count == 0)
         {
-            std::cerr << "enumerate physical devices failed!" << std::endl;
+            throw std::runtime_error("enumerate physical devices failed!");
         }
         else
         {
             std::vector<VkPhysicalDevice> physical_devices(physical_device_count);
             vkEnumeratePhysicalDevices(m_instance, &physical_device_count, physical_devices.data());
 
-            // Enumerate Physical Devices, Add to the alternative list
-            std::vector<std::pair<int, VkPhysicalDevice>> ranked_physical_devices;
+            // Select the appropriate equipment
             for (const auto& device : physical_devices)
             {
-                VkPhysicalDeviceProperties physical_device_properties;
-                vkGetPhysicalDeviceProperties(device, &physical_device_properties);
-                int score = 0;
-
-                if (physical_device_properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) ///< Independent graphics card
+                if (isDeviceSuitable(device))
                 {
-                    score += 1000;
-                }
-                else if (physical_device_properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU) ///< integrated graphics card
-                {
-                    score += 100;
-                }
-
-                ranked_physical_devices.push_back({score, device});
-            }
-
-            // Sort by scores
-            std::sort(ranked_physical_devices.begin(),
-                      ranked_physical_devices.end(),
-                      [](const std::pair<int, VkPhysicalDevice>& p1, const std::pair<int, VkPhysicalDevice>& p2) {
-                          return p1 > p2;
-                      });
-
-            // Select the appropriate equipment
-            for (const auto& device : ranked_physical_devices)
-            {
-                if (isDeviceSuitable(device.second))
-                {
-                    m_physical_device = device.second;
+                    m_physical_device = device;
                     break;
                 }
             }
 
             if (m_physical_device == VK_NULL_HANDLE)
             {
-                std::cerr << "failed to find suitable physical device" << std::endl;
+                throw std::runtime_error("failed to find suitable physical device");
             }
         }
     }
@@ -638,9 +693,8 @@ namespace VKernel
         m_queue_indices = findQueueFamilies(m_physical_device);
 
         std::vector<VkDeviceQueueCreateInfo> queue_create_infos;
-        std::set<uint32_t>                   queue_families = {m_queue_indices.graphics_family.value(),
-                                             m_queue_indices.present_family.value(),
-                                             m_queue_indices.m_compute_family.value()};
+        std::set<uint32_t> queue_families = {m_queue_indices.graphics_family.value(),
+                                             m_queue_indices.present_family.value()};
 
         float queue_priority = 1.0f;
         for (uint32_t queue_family : queue_families) ///< for every queue family
@@ -654,21 +708,8 @@ namespace VKernel
             queue_create_infos.push_back(queue_create_info);
         }
 
-        // physical device features
-        VkPhysicalDeviceFeatures physical_device_features = {};
-
-        physical_device_features.samplerAnisotropy = VK_TRUE; ///< anti-aliasing
-
-        physical_device_features.fragmentStoresAndAtomics = VK_TRUE; //< support inefficient readback storage buffer
-
-        physical_device_features.independentBlend = VK_TRUE; //< support independent blending
-        
-        if (m_enable_point_light_shadow)
-        {
-            physical_device_features.geometryShader = VK_TRUE; //< support geometry shader
-        }
-
         // device create info
+        VkPhysicalDeviceFeatures physical_device_features = {};
         VkDeviceCreateInfo device_create_info {};
         device_create_info.sType                   = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
         device_create_info.pQueueCreateInfos       = queue_create_infos.data();
@@ -676,18 +717,22 @@ namespace VKernel
         device_create_info.pEnabledFeatures        = &physical_device_features;
         device_create_info.enabledExtensionCount   = static_cast<uint32_t>(m_device_extensions.size());
         device_create_info.ppEnabledExtensionNames = m_device_extensions.data();
-        device_create_info.enabledLayerCount       = 0;
+        if (m_enable_validation_Layers) {
+            device_create_info.enabledLayerCount = static_cast<uint32_t>(m_validation_layers.size());
+            device_create_info.ppEnabledLayerNames = m_validation_layers.data();
+        } else {
+            device_create_info.enabledLayerCount = 0;
+        }
 
         // create device
         if (vkCreateDevice(m_physical_device, &device_create_info, nullptr, &m_device) != VK_SUCCESS)
         {
-            std::cerr << "vk create device" << std::endl;
+            throw std::runtime_error("vk create device");
         }
 
         // Obtain the queues of this device
         vkGetDeviceQueue(m_device, m_queue_indices.graphics_family.value(), 0, &m_graphics_queue);
         vkGetDeviceQueue(m_device, m_queue_indices.present_family.value(), 0, &m_present_queue);
-        vkGetDeviceQueue(m_device, m_queue_indices.m_compute_family.value(), 0, &m_compute_queue);
     }
     
     void VulkanAPI::createCommandPool()
@@ -697,15 +742,12 @@ namespace VKernel
             VkCommandPoolCreateInfo command_pool_create_info;
             command_pool_create_info.sType            = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
             command_pool_create_info.pNext            = NULL;
-            command_pool_create_info.flags            = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT; ///< The command buffer will have a short lifespan.
+            command_pool_create_info.flags            = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT; ///< The command buffer will have a short lifespan.
             command_pool_create_info.queueFamilyIndex = m_queue_indices.graphics_family.value();
 
-            for (uint32_t i = 0; i < k_max_frames_in_flight; ++i)
+            if (vkCreateCommandPool(m_device, &command_pool_create_info, NULL, &m_command_pool) != VK_SUCCESS)
             {
-                if (vkCreateCommandPool(m_device, &command_pool_create_info, NULL, &m_command_pools[i]) != VK_SUCCESS)
-                {
-                    std::cerr << "vk create command pool" << std::endl;
-                }
+                throw std::runtime_error("vk create command pool");
             }
         }
     }
@@ -715,18 +757,13 @@ namespace VKernel
         // Allocate command pools
         VkCommandBufferAllocateInfo command_buffer_allocate_info {};
         command_buffer_allocate_info.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+        command_buffer_allocate_info.commandPool = m_command_pool;
         command_buffer_allocate_info.level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        command_buffer_allocate_info.commandBufferCount = 1U;
+        command_buffer_allocate_info.commandBufferCount = sizeof(m_command_buffers) / sizeof(m_command_buffers[0]);
 
-        for (uint32_t i = 0; i < k_max_frames_in_flight; ++i)
+        if (vkAllocateCommandBuffers(m_device, &command_buffer_allocate_info, m_command_buffers) != VK_SUCCESS)
         {
-            command_buffer_allocate_info.commandPool = m_command_pools[i];
-            VkCommandBuffer vk_command_buffer;
-            if (vkAllocateCommandBuffers(m_device, &command_buffer_allocate_info, &vk_command_buffer) != VK_SUCCESS)
-            {
-                std::cerr << "vk allocate command buffers" << std::endl;
-            }
-            m_command_buffers[i] = vk_command_buffer;
+            throw std::runtime_error("vk allocate command buffers");
         }
     }
 
@@ -762,7 +799,7 @@ namespace VKernel
 
         if (vkCreateDescriptorPool(m_device, &pool_info, nullptr, &m_descriptor_pool) != VK_SUCCESS)
         {
-            std::cerr << "create descriptor pool" << std::endl;
+            throw std::runtime_error("create descriptor pool");
         }
     }
 
@@ -784,12 +821,9 @@ namespace VKernel
                 vkCreateSemaphore(
                     m_device, &semaphore_create_info, nullptr, &m_image_finished_for_presentation_semaphores[i]) !=
                     VK_SUCCESS ||
-                vkCreateSemaphore(
-                    m_device, &semaphore_create_info, nullptr, &m_image_available_for_texturescopy_semaphores[i]) !=
-                    VK_SUCCESS ||
                 vkCreateFence(m_device, &fence_create_info, nullptr, &m_is_frame_in_flight_fences[i]) != VK_SUCCESS)
             {
-                std::cerr << "vk create semaphore & fence" << std::endl;
+                throw std::runtime_error("vk create semaphore & fence");
             }
         }
     }

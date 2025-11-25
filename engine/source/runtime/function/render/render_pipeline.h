@@ -11,9 +11,8 @@ namespace VKernel
     {
 
     public:
-        virtual void initialize() override final;
+        virtual void initialize() override final {}
 
-        virtual void forwardRender(std::shared_ptr<VulkanAPI> vulkan_api,
-                                   std::shared_ptr<RenderResourceBase> render_resource) override final;
+        virtual void forwardRender(std::shared_ptr<VulkanAPI> vulkan_api);
     };
 }

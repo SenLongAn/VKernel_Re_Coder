@@ -12,7 +12,7 @@ namespace VKernel
     {
         if(!glfwInit())
         {
-            std::cerr << "failed to initialize GLFW" << std::endl;
+            throw std::runtime_error("failed to initialize GLFW");
             return;
         }
 
@@ -24,7 +24,7 @@ namespace VKernel
         m_window = glfwCreateWindow(create_info.width, create_info.height, create_info.title, nullptr, nullptr);
         if (!m_window)
         {
-            std::cerr << "failed to create window" << std::endl;
+            throw std::runtime_error("failed to create window");
             glfwTerminate();
             return;
         }
@@ -33,4 +33,6 @@ namespace VKernel
     GLFWwindow* WindowSystem::getWindow() const { return m_window; }
 
     std::array<int, 2> WindowSystem::getWindowSize() const { return std::array<int, 2>({m_width, m_height}); }
+
+    bool WindowSystem::shouldClose() const { return glfwWindowShouldClose(m_window); }
 }

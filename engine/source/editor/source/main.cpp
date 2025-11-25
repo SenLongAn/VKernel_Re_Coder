@@ -10,7 +10,7 @@ int main()
     VKernel::VKernelEngine* engine = new VKernel::VKernelEngine();
     engine->startEngine();
     ReCoder::ReCoderEditor* editor = new ReCoder::ReCoderEditor();
-    editor->initialize();
+    editor->initialize(engine);
 
     editor->run();
 
