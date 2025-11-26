@@ -1,6 +1,7 @@
 #pragma once
 
-#include "runtime/core/math/math.h"
+#include "runtime/core/math/math_angle.h"
+#include "runtime/core/math/quaternion.h"
 
 #include <cassert>
 #include <cmath>
@@ -19,17 +20,22 @@ namespace VKernel
 
     public:
         // Constructor
+        //-----------------------------------------------------------------------
         Vector3() = default;
+
         Vector3(float x_, float y_, float z_) : x {x_}, y {y_}, z {z_} {}
+        
         explicit Vector3(const float coords[3]) : x {coords[0]}, y {coords[1]}, z {coords[2]} {}
 
         // get ptr
+        //-----------------------------------------------------------------------
         // Pointer accessor for direct copying
         float* ptr() { return &x; }
         // Pointer accessor for direct copying
         const float* ptr() const { return &x; }
 
         // overloaded operator([], ==, !=, +-*/, +=-=*=/=)
+        //-----------------------------------------------------------------------
         float operator[](size_t i) const
         {
             assert(i < 3);
@@ -167,8 +173,8 @@ namespace VKernel
             return *this;
         }
 
-        // Arithmetic function
-
+        // util function
+        //-----------------------------------------------------------------------
         // length
         // Returns the length of the vector.
         float length() const { return std::hypot(x, y, z); }
@@ -222,6 +228,71 @@ namespace VKernel
                 z = cmp.z;
         }
 
+        // Gets the angle between 2 vectors
+        Radian angleBetween(const Vector3& dest) const
+        {
+            float len_product = length() * dest.length();
+
+            // Divide by zero check
+            if (len_product < 1e-6f)
+                len_product = 1e-6f;
+
+            float f = dotProduct(dest) / len_product;
+
+            f = Math::clamp(f, (float)-1.0, (float)1.0);
+            return Math::acos(f);
+        }
+
+        // Gets the shortest arc quaternion to rotate this vector to the destination vector.
+        Quaternion getRotationTo(const Vector3& dest, const Vector3& fallback_axis = Vector3::ZERO) const
+        {
+            // Based on Stan Melax's article in Game Programming Gems
+            Quaternion q;
+            // Copy, since cannot modify local
+            Vector3 v0 = *this;
+            Vector3 v1 = dest;
+            v0.normalise();
+            v1.normalise();
+
+            float d = v0.dotProduct(v1);
+            // If dot == 1, vectors are the same
+            if (d >= 1.0f)
+            {
+                return Quaternion::IDENTITY;
+            }
+            if (d < (1e-6f - 1.0f))
+            {
+                if (fallback_axis != Vector3::ZERO)
+                {
+                    // rotate 180 degrees about the fall back axis
+                    q.fromAngleAxis(Radian(Math_PI), fallback_axis);
+                }
+                else
+                {
+                    // Generate an axis
+                    Vector3 axis = Vector3::UNIT_X.crossProduct(*this);
+                    if (axis.isZeroLength()) // pick another if collinear
+                        axis = Vector3::UNIT_Y.crossProduct(*this);
+                    axis.normalise();
+                    q.fromAngleAxis(Radian(Math_PI), axis);
+                }
+            }
+            else
+            {
+                float s    = Math::sqrt((1 + d) * 2);
+                float invs = 1 / s;
+
+                Vector3 c = v0.crossProduct(v1);
+
+                q.x = c.x * invs;
+                q.y = c.y * invs;
+                q.z = c.z * invs;
+                q.w = s * 0.5f;
+                q.normalise();
+            }
+            return q;
+        }
+
         // Returns true if this vector is zero length. 
         bool isZeroLength(void) const
         {
@@ -267,6 +338,7 @@ namespace VKernel
         bool isNaN() const { return Math::isNan(x) || Math::isNan(y) || Math::isNan(z); }
         
         // special value
+        //-----------------------------------------------------------------------
         static const Vector3 ZERO;
         static const Vector3 UNIT_X;
         static const Vector3 UNIT_Y;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "runtime/core/math/math.h"
+#include "runtime/core/math/math_angle.h"
 #include "runtime/core/math/vector3.h"
 
 /**
@@ -15,19 +15,24 @@ namespace VKernel
 
     public:
         // Constructor
+        //-----------------------------------------------------------------------
         Vector4() = default;
+
         Vector4(float x_, float y_, float z_, float w_) : x {x_}, y {y_}, z {z_}, w {w_} {}
+        
         Vector4(const Vector3& v3, float w_) : x {v3.x}, y {v3.y}, z {v3.z}, w {w_} {}
 
         explicit Vector4(float coords[4]) : x {coords[0]}, y {coords[1]}, z {coords[2]}, w {coords[3]} {}
 
         // get ptr
+        //-----------------------------------------------------------------------
         // Pointer accessor for direct copying
         float* ptr() { return &x; }
         // Pointer accessor for direct copying
         const float* ptr() const { return &x; }
 
         // overloaded operator([], ==, !=, +-*/, +=-=*=/=)
+        //-----------------------------------------------------------------------
         float operator[](size_t i) const
         {
             assert(i < 4);
@@ -103,7 +108,6 @@ namespace VKernel
             return Vector4(lhs - rhs.x, lhs - rhs.y, lhs - rhs.z, lhs - rhs.w);
         }
 
-        // arithmetic updates
         Vector4& operator+=(const Vector4& rhs)
         {
             x += rhs.x;
@@ -179,6 +183,8 @@ namespace VKernel
             return *this;
         }
 
+        // util function
+        //-----------------------------------------------------------------------
         // Calculates the dot (scalar) product of this vector with another.
         float dotProduct(const Vector4& vec) const { return x * vec.x + y * vec.y + z * vec.z + w * vec.w; }
 
@@ -186,6 +192,7 @@ namespace VKernel
         bool isNaN() const { return Math::isNan(x) || Math::isNan(y) || Math::isNan(z) || Math::isNan(w); }
 
         // special value
+        //-----------------------------------------------------------------------
         static const Vector4 ZERO;
         static const Vector4 UNIT_SCALE;
     };

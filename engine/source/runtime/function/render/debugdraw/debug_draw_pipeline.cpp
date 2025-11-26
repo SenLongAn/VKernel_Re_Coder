@@ -18,6 +18,7 @@ namespace VKernel
 
         setupRenderPass();
         setupFramebuffer();
+        setupDescriptorLayout();
         setupPipelines();
     }
     
@@ -115,6 +116,26 @@ namespace VKernel
         }
     }
 
+    void DebugDrawPipeline::setupDescriptorLayout()
+    {
+        VkDescriptorSetLayoutBinding uboLayoutBinding[1];
+        uboLayoutBinding[0].binding = 0;
+        uboLayoutBinding[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+        uboLayoutBinding[0].descriptorCount = 1;
+        uboLayoutBinding[0].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+        uboLayoutBinding[0].pImmutableSamplers = nullptr;
+
+        VkDescriptorSetLayoutCreateInfo layoutInfo{};
+        layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+        layoutInfo.bindingCount = 1;
+        layoutInfo.pBindings = uboLayoutBinding;
+
+        if (vkCreateDescriptorSetLayout(m_vulkan_api->getLogicDevice(), &layoutInfo, nullptr, &m_descriptor_layout) != VK_SUCCESS)
+        {
+            throw std::runtime_error("create debug draw layout");
+        }
+    }
+
     void DebugDrawPipeline::setupPipelines()
     {
         // Pipeline Layout
@@ -122,6 +143,8 @@ namespace VKernel
 
         VkPipelineLayoutCreateInfo pipeline_layout_create_info{};
         pipeline_layout_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+        pipeline_layout_create_info.setLayoutCount = 1;
+        pipeline_layout_create_info.pSetLayouts = &m_descriptor_layout;
         pipeline_layout_create_info.setLayoutCount = 0;
         pipeline_layout_create_info.pushConstantRangeCount = 0;
 

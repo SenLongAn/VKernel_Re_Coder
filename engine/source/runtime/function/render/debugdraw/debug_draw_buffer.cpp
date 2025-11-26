@@ -10,6 +10,9 @@ namespace VKernel
     void DebugDrawAllocator::initialize()
     { 
         m_vulkan_api = g_runtime_global_context.m_render_system->getVulkanAPI();
+
+        setupDescriptorSet();
+        updateDescriptorSet();
     }
 
     void DebugDrawAllocator::clear()
@@ -38,6 +41,14 @@ namespace VKernel
         return offset;
     }
 
+    size_t DebugDrawAllocator::cacheUniformDynamicObject(const Matrix4x4& model)
+    {
+        size_t offset = m_uniform_buffer_dynamic_object_cache.size();
+        m_uniform_buffer_dynamic_object_cache.resize(offset + 1);
+        m_uniform_buffer_dynamic_object_cache[offset].model_matrix = model;
+        return offset;
+    }
+
     void DebugDrawAllocator::allocator()
     {
         clearBuffer();
@@ -60,6 +71,27 @@ namespace VKernel
             memcpy(data, m_vertex_cache.data(), vertex_bufferSize);
             vkUnmapMemory(m_vulkan_api->getLogicDevice(), m_vertex_resource.memory);
         }
+
+        // udbo
+        uint64_t uniform_dynamic_BufferSize = static_cast<uint64_t>(sizeof(UniformBufferDynamicObject) * m_uniform_buffer_dynamic_object_cache.size());
+        if (uniform_dynamic_BufferSize > 0)
+        {
+            // create memory and buffer
+            m_vulkan_api->createBuffer(
+                uniform_dynamic_BufferSize,
+                VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                m_uniform_dynamic_resource.buffer,
+                m_uniform_dynamic_resource.memory);
+            
+            // Fill the vertex data into the memory
+            void* data;
+            vkMapMemory(m_vulkan_api->getLogicDevice(), m_uniform_dynamic_resource.memory, 0, uniform_dynamic_BufferSize, 0, &data);
+            memcpy(data, m_uniform_buffer_dynamic_object_cache.data(), uniform_dynamic_BufferSize);
+            vkUnmapMemory(m_vulkan_api->getLogicDevice(), m_uniform_dynamic_resource.memory);
+        }
+
+        updateDescriptorSet();
     }
 
     size_t DebugDrawAllocator::getVertexCacheOffset() const
@@ -68,4 +100,65 @@ namespace VKernel
     }
 
     VkBuffer DebugDrawAllocator::getVertexBuffer(){return m_vertex_resource.buffer;}
+
+    void DebugDrawAllocator::setupDescriptorSet()
+    {
+        // create DescriptorSetLayout
+        VkDescriptorSetLayoutBinding uboLayoutBinding[1];
+        uboLayoutBinding[0].binding = 0;
+        uboLayoutBinding[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+        uboLayoutBinding[0].descriptorCount = 1;
+        uboLayoutBinding[0].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+        uboLayoutBinding[0].pImmutableSamplers = nullptr;
+
+        VkDescriptorSetLayoutCreateInfo layoutInfo{};
+        layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+        layoutInfo.bindingCount = 1;
+        layoutInfo.pBindings = uboLayoutBinding;
+
+        if (vkCreateDescriptorSetLayout(m_vulkan_api->getLogicDevice(), &layoutInfo, nullptr, &m_descriptor.layout) != VK_SUCCESS)
+        {
+            throw std::runtime_error("create debug draw layout");
+        }
+
+        // allocate DescriptorSet
+        m_descriptor.descriptor_set.resize(m_vulkan_api->getMaxFramesInFlight());
+        for (size_t i = 0; i < m_vulkan_api->getMaxFramesInFlight(); i++)
+        {
+            VkDescriptorSetAllocateInfo allocInfo{};
+            allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+            allocInfo.pNext = NULL;
+            allocInfo.descriptorPool = m_vulkan_api->getDescriptorPool();
+            allocInfo.descriptorSetCount = 1;
+            allocInfo.pSetLayouts = &m_descriptor.layout;
+
+            if (VK_SUCCESS != vkAllocateDescriptorSets(m_vulkan_api->getLogicDevice(), &allocInfo, &m_descriptor.descriptor_set[i]))
+            {
+                throw std::runtime_error("debug draw descriptor set");
+            }
+        }
+    }
+
+    void DebugDrawAllocator::updateDescriptorSet()
+    {
+        // DescriptorSet bind buffer
+        VkDescriptorBufferInfo buffer_info[1];
+        buffer_info[0].buffer = m_uniform_dynamic_resource.buffer;
+        buffer_info[0].offset = 0;
+        buffer_info[0].range = sizeof(UniformBufferDynamicObject);
+        
+        VkWriteDescriptorSet descriptor_write[1];
+        descriptor_write[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        descriptor_write[0].dstSet = m_descriptor.descriptor_set[m_vulkan_api->getCurrentFrameIndex()];
+        descriptor_write[0].dstBinding = 0;
+        descriptor_write[0].dstArrayElement = 0;
+        descriptor_write[0].pNext = nullptr;
+        descriptor_write[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+        descriptor_write[0].descriptorCount = 1;
+        descriptor_write[0].pBufferInfo = &buffer_info[1];
+        descriptor_write[0].pImageInfo = nullptr;
+        descriptor_write[0].pTexelBufferView = nullptr;
+
+        vkUpdateDescriptorSets(m_vulkan_api->getLogicDevice(), 1, descriptor_write, 0, nullptr);
+    }
 }

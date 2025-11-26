@@ -1,6 +1,6 @@
 #pragma once
 
-#include "runtime/core/math/math.h"
+#include "runtime/core/math/math_angle.h"
 
 #include <cassert>
 #include <cmath>
@@ -18,18 +18,25 @@ namespace VKernel
 
     public:
         // Constructor
+        //-----------------------------------------------------------------------
         Vector2() = default;
+
         Vector2(float x_, float y_) : x(x_), y(y_) {}
+
         explicit Vector2(float scaler) : x(scaler), y(scaler) {}
+
         explicit Vector2(const float v[2]) : x(v[0]), y(v[1]) {}
+
         explicit Vector2(float* const r) : x(r[0]), y(r[1]) {}
 
         // get ptr
+        //-----------------------------------------------------------------------
         float* ptr() { return &x; }
 
         const float* ptr() const { return &x; }
 
         // overloaded operator([], ==, !=, +-*/, +=-=*=/=)
+        //-----------------------------------------------------------------------
         float operator[](size_t i) const
         {
             assert(i < 2);
@@ -150,9 +157,12 @@ namespace VKernel
 
             return *this;
         }
-
-        // Arithmetic function
+        bool operator<(const Vector2& rhs) const { return x < rhs.x && y < rhs.y; }
         
+        bool operator>(const Vector2& rhs) const { return x > rhs.x && y > rhs.y; }
+
+        // util function
+        //-----------------------------------------------------------------------
         // length
         // Returns the length of the vector.
         float length() const { return std::hypot(x, y); }
@@ -190,12 +200,6 @@ namespace VKernel
 
         // Returns a vector at a point half way between this and the passed in vector.
         Vector2 midPoint(const Vector2& vec) const { return Vector2((x + vec.x) * 0.5f, (y + vec.y) * 0.5f); }
-
-        // operator <, >
-        // Returns true if the vector's scalar components are all greater that the ones of the vector it is compared against.
-        bool operator<(const Vector2& rhs) const { return x < rhs.x && y < rhs.y; }
-        // Returns true if the vector's scalar components are all smaller that the ones of the vector it is compared against.
-        bool operator>(const Vector2& rhs) const { return x > rhs.x && y > rhs.y; }
 
         // Sets this vector's components to the minimum of its own and the ones of the passed in vector.
         void makeFloor(const Vector2& cmp)
@@ -248,6 +252,7 @@ namespace VKernel
         static Vector2 lerp(const Vector2& lhs, const Vector2& rhs, float alpha) { return lhs + alpha * (rhs - lhs); }
 
         // special value
+        //-----------------------------------------------------------------------
         static const Vector2 ZERO;
         static const Vector2 UNIT_X;
         static const Vector2 UNIT_Y;

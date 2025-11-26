@@ -60,12 +60,14 @@ namespace VKernel
         // What needs to be accomplished in the pipeline class
         void setupFramebuffer();
         void setupRenderPass();
+        void setupDescriptorLayout();
         void setupPipelines();
 
     private:
         std::shared_ptr<VulkanAPI> m_vulkan_api; ///< Vulkan interface
 
         // What needs to be accomplished in the pipeline class
+        VkDescriptorSetLayout m_descriptor_layout;
         DebugDrawFramebuffer m_framebuffer;
         std::vector<DebugDrawPipelineBase> m_render_pipelines; ///< A render pass can have multiple pipelines
     };
