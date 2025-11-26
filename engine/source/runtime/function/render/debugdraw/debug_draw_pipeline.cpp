@@ -30,6 +30,16 @@ namespace VKernel
         return m_framebuffer;
     }
 
+    void DebugDrawPipeline::recreateAfterSwapchain()
+    {
+        for (auto framebuffer : m_framebuffer.framebuffers)
+        {
+            vkDestroyFramebuffer(m_vulkan_api->getLogicDevice(), framebuffer, nullptr);
+        }
+
+        setupFramebuffer();
+    }
+
     void DebugDrawPipeline::setupRenderPass()
     {
         // color attachment
@@ -159,9 +169,10 @@ namespace VKernel
         VkPipelineViewportStateCreateInfo viewport_state_create_info{};
         viewport_state_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
         viewport_state_create_info.viewportCount = 1;
+        viewport_state_create_info.scissorCount = 1;
+        // static state
         SwapChainDesc swapChainInfo = m_vulkan_api->getSwapchainInfo();
         viewport_state_create_info.pViewports = &swapChainInfo.viewport;
-        viewport_state_create_info.scissorCount = 1;
         viewport_state_create_info.pScissors = &swapChainInfo.scissor;
 
         // Rasterization State

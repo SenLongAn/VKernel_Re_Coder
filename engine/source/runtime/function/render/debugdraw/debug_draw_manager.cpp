@@ -32,6 +32,10 @@ namespace VKernel
                                         Vector4(0.0, 0.0, 1.0, 1.0));
     }
 
+    void DebugDrawManager::updateAfterRecreateSwapchain()
+    {
+        m_debug_draw_pipeline->recreateAfterSwapchain();
+    }
 
     void DebugDrawManager::draw(uint32_t current_swapchain_image_index)
     {

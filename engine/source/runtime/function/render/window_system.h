@@ -29,7 +29,21 @@ namespace VKernel
         GLFWwindow* getWindow() const; ///< Get Window
         std::array<int, 2> getWindowSize() const; ///< Get the window size
 
+        void pollEvents() const; // glfw event
         bool shouldClose() const; ///< Have you closed the window?
+
+    protected:
+        // callbacks func
+        static void windowSizeCallback(GLFWwindow* window, int width, int height)
+        {
+            WindowSystem* app = (WindowSystem*)glfwGetWindowUserPointer(window);
+            if (app)
+            {
+                app->m_width  = width;
+                app->m_height = height;
+            }
+        }
+        static void windowCloseCallback(GLFWwindow* window) { glfwSetWindowShouldClose(window, true); }
 
     private:
         GLFWwindow* m_window {nullptr}; ///< window instance

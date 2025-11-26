@@ -54,12 +54,14 @@ namespace VKernel
         const DebugDrawPipelineBase& getPipeline() const;
         const DebugDrawFramebuffer& getFramebuffer() const;
 
+        void recreateAfterSwapchain(); ///< destory and recreate framebuffer
+
     private:
         // What needs to be accomplished in the pipeline class
         void setupFramebuffer();
         void setupRenderPass();
         void setupPipelines();
-    
+
     private:
         std::shared_ptr<VulkanAPI> m_vulkan_api; ///< Vulkan interface
 

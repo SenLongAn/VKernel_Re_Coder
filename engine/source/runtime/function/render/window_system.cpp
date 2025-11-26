@@ -28,11 +28,18 @@ namespace VKernel
             glfwTerminate();
             return;
         }
+
+        // Setup input callbacks
+        glfwSetWindowUserPointer(m_window, this);
+        glfwSetWindowSizeCallback(m_window, windowSizeCallback);
+        glfwSetWindowCloseCallback(m_window, windowCloseCallback);
     }
 
     GLFWwindow* WindowSystem::getWindow() const { return m_window; }
 
     std::array<int, 2> WindowSystem::getWindowSize() const { return std::array<int, 2>({m_width, m_height}); }
+
+    void WindowSystem::pollEvents() const { glfwPollEvents(); }
 
     bool WindowSystem::shouldClose() const { return glfwWindowShouldClose(m_window); }
 }

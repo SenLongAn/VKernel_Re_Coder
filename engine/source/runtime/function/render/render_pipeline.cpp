@@ -9,13 +9,12 @@ namespace VKernel
     {
         // wait fence
         vkWaitForFences(vulkan_api->getLogicDevice(), 1, &vulkan_api->getFenceList()[vulkan_api->getCurrentFrameIndex()], VK_TRUE, UINT64_MAX);
-        vkResetFences(vulkan_api->getLogicDevice(), 1,  &vulkan_api->getFenceList()[vulkan_api->getCurrentFrameIndex()]);
 
         // reset command buffer
         vkResetCommandBuffer(vulkan_api->getCurrentCommandBuffer(), 0);
         
         // acquire image and begin command buffer
-        bool recreate_swapchain = vulkan_api->prepareBeforePass();
+        bool recreate_swapchain = vulkan_api->prepareBeforePass(std::bind(&RenderPipeline::passUpdateAfterRecreateSwapchain, this));
         if (recreate_swapchain)
         {
             return;
@@ -25,6 +24,11 @@ namespace VKernel
         g_runtime_global_context.m_debugdraw_manager->draw(vulkan_api->getCurrentSwapchainImageIndex());
 
         // end command buffer, submit and present
-        vulkan_api->submitRendering();
+        vulkan_api->submitRendering(std::bind(&RenderPipeline::passUpdateAfterRecreateSwapchain, this));
+    }
+
+    void RenderPipeline::passUpdateAfterRecreateSwapchain()
+    {
+        g_runtime_global_context.m_debugdraw_manager->updateAfterRecreateSwapchain();
     }
 }

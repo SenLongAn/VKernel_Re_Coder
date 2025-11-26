@@ -20,6 +20,7 @@ namespace VKernel
         rendererTick(delta_time);
 
         // check window
+        g_runtime_global_context.m_window_system->pollEvents();
         const bool should_window_close = g_runtime_global_context.m_window_system->shouldClose();
         return !should_window_close;
     }

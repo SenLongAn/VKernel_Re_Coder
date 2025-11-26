@@ -23,6 +23,8 @@ namespace VKernel
         
         void setupPipelines(); ///< pipline and Allocator init
 
+        void updateAfterRecreateSwapchain(); ///< destory and recreate framebuffer
+
         // draw
         void draw(uint32_t current_swapchain_image_index); ///< Rendering interface
         

@@ -30,13 +30,14 @@ namespace VKernel
         void prepareContext(); ///< prepare Context，update m_current_command_buffer
         
         // command write
-        bool prepareBeforePass();
-        void submitRendering();
+        bool prepareBeforePass(std::function<void()> passUpdateAfterRecreateSwapchain);
+        void submitRendering(std::function<void()> passUpdateAfterRecreateSwapchain);
 
         // create(call vulkanUtil)
         VkShaderModule createShaderModule(const std::vector<unsigned char>& shader_code);
         void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, 
                         VkBuffer& buffer, VkDeviceMemory& buffer_memory);
+        void recreateSwapchain();
 
         // query(get)
         VkDevice getLogicDevice() const;

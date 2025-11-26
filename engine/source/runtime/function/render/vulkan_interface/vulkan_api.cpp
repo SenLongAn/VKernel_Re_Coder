@@ -59,7 +59,7 @@ namespace VKernel
         m_current_command_buffer = m_command_buffers[m_current_frame_index];
     }
 
-    bool VulkanAPI::prepareBeforePass()
+    bool VulkanAPI::prepareBeforePass(std::function<void()> passUpdateAfterRecreateSwapchain)
     {
        // acquire image 
        VkResult acquire_image_result =
@@ -70,6 +70,22 @@ namespace VKernel
                                 VK_NULL_HANDLE,
                                 &m_current_swapchain_image_index);
         
+
+        // whether need recreate swapchain
+        if (VK_ERROR_OUT_OF_DATE_KHR == acquire_image_result)
+        {
+            recreateSwapchain();
+            passUpdateAfterRecreateSwapchain(); ///< destory and recreate framebuffer
+            return true;
+        }
+        else if (acquire_image_result != VK_SUCCESS && acquire_image_result != VK_SUBOPTIMAL_KHR)
+        {
+            throw std::runtime_error("vkAcquireNextImageKHR failed!");
+        }
+
+        // reset fence
+        vkResetFences(m_device, 1, &m_is_frame_in_flight_fences[m_current_frame_index]);
+
         // begin command buffer
         VkCommandBufferBeginInfo command_buffer_begin_info {};
         command_buffer_begin_info.sType            = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -86,7 +102,7 @@ namespace VKernel
         return false;
     }
 
-    void VulkanAPI::submitRendering()
+    void VulkanAPI::submitRendering(std::function<void()> passUpdateAfterRecreateSwapchain)
     {
         // end command buffer
         VkResult res_end_command_buffer = vkEndCommandBuffer(m_command_buffers[m_current_frame_index]);
@@ -128,10 +144,16 @@ namespace VKernel
         present_info.pImageIndices      = &m_current_swapchain_image_index;
         
         VkResult present_result = vkQueuePresentKHR(m_present_queue, &present_info); ///< Queue Present
-        if (VK_SUCCESS != present_result)
+        
+        // whether need recreate swapchain
+        if (VK_ERROR_OUT_OF_DATE_KHR == present_result || VK_SUBOPTIMAL_KHR == present_result)
+        {
+            recreateSwapchain();
+            passUpdateAfterRecreateSwapchain(); ///< destory and recreate framebuffer
+        }
+        else if (VK_SUCCESS != present_result)
         {
             throw std::runtime_error("vkQueuePresentKHR failed!");
-            return;
         }
 
         // update frame index
@@ -147,6 +169,30 @@ namespace VKernel
                                 VkBuffer& buffer, VkDeviceMemory& buffer_memory)
     {
         VulkanUtil::createBuffer(m_physical_device, m_device, size, usage, properties, buffer, buffer_memory);
+    }
+
+    void VulkanAPI::recreateSwapchain()
+    {
+        // get glfw framebuffer size
+        int width  = 0;
+        int height = 0;
+        glfwGetFramebufferSize(m_window, &width, &height);
+        while (width == 0 || height == 0) // minimized 0,0, pause for now
+        {
+            glfwGetFramebufferSize(m_window, &width, &height);
+            glfwWaitEvents();
+        }
+
+        // destory (imageview, swapchain)
+        for (auto imageview : m_swapchain_imageviews)
+        {
+            vkDestroyImageView(m_device, imageview, NULL);
+        }
+        vkDestroySwapchainKHR(m_device, m_swapchain, NULL);
+
+        // recreate (imageview, swapchain)
+        createSwapchain();
+        createSwapchainImageViews();
     }
 
     void VulkanAPI::createSwapchain()
@@ -246,6 +292,13 @@ namespace VKernel
         SwapChainDesc desc;
         desc.image_format = m_swapchain_image_format;
         desc.extent = m_swapchain_extent;
+
+        // dynamic state
+        // m_viewport.width = m_swapchain_extent.width;
+        // m_viewport.height = m_swapchain_extent.height;
+        // m_scissor.extent.width = m_swapchain_extent.width;
+        // m_scissor.extent.height = m_swapchain_extent.height;
+
         desc.viewport = m_viewport;
         desc.scissor = m_scissor;
         desc.imageViews = m_swapchain_imageviews;

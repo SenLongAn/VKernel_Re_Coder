@@ -16,7 +16,8 @@ namespace ReCoder
         while (true)
         {
             delta_time = m_engine_runtime->calculateDeltaTime();
-            m_engine_runtime->tickOneFrame(delta_time);
+            if (!m_engine_runtime->tickOneFrame(delta_time))
+                return;
         }
     }
 
