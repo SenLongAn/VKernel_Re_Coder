@@ -44,7 +44,7 @@ namespace VKernel
         Resource m_vertex_resource; ///< vertex: memory, buffer
         std::vector<DebugDrawVertex>m_vertex_cache; ///< Vertex data, vertex description(all primitive)
 
-        struct alignas(256) UniformBufferDynamicObject
+        struct alignas(64) UniformBufferDynamicObject
         {
             Matrix4x4 model_matrix;
         };

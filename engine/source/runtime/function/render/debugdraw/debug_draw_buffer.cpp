@@ -12,7 +12,6 @@ namespace VKernel
         m_vulkan_api = g_runtime_global_context.m_render_system->getVulkanAPI();
 
         setupDescriptorSet();
-        updateDescriptorSet();
     }
 
     void DebugDrawAllocator::clear()
