@@ -19,6 +19,7 @@ namespace VKernel
     {
         clearBuffer();
         m_vertex_cache.clear();
+        m_uniform_buffer_dynamic_object_cache.clear();
     }
 
     void DebugDrawAllocator::clearBuffer()
@@ -27,6 +28,11 @@ namespace VKernel
         {
             m_vertex_resource.buffer = nullptr;
             m_vertex_resource.memory = nullptr;
+        }
+        if (m_uniform_dynamic_resource.buffer)
+        {
+            m_uniform_dynamic_resource.buffer = nullptr;
+            m_uniform_dynamic_resource.memory = nullptr;
         }
     }
     
@@ -41,11 +47,13 @@ namespace VKernel
         return offset;
     }
 
-    size_t DebugDrawAllocator::cacheUniformDynamicObject(const Matrix4x4& model)
+    size_t DebugDrawAllocator::cacheUniformDynamicObject(const std::vector<Matrix4x4>& model)
     {
         size_t offset = m_uniform_buffer_dynamic_object_cache.size();
-        m_uniform_buffer_dynamic_object_cache.resize(offset + 1);
-        m_uniform_buffer_dynamic_object_cache[offset].model_matrix = model;
+        m_uniform_buffer_dynamic_object_cache.resize(offset + model.size());
+        for (size_t i = 0; i < model.size(); i++){
+            m_uniform_buffer_dynamic_object_cache[offset + i].model_matrix = model[i];
+        }
         return offset;
     }
 
@@ -99,7 +107,9 @@ namespace VKernel
         return m_vertex_cache.size();
     }
 
-    VkBuffer DebugDrawAllocator::getVertexBuffer(){return m_vertex_resource.buffer;}
+    VkBuffer DebugDrawAllocator::getVertexBuffer() const {return m_vertex_resource.buffer;}
+
+    VkDescriptorSet DebugDrawAllocator::getDescriptorSet() const { return m_descriptor.descriptor_set[m_vulkan_api->getCurrentFrameIndex()]; }
 
     void DebugDrawAllocator::setupDescriptorSet()
     {
@@ -155,7 +165,7 @@ namespace VKernel
         descriptor_write[0].pNext = nullptr;
         descriptor_write[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
         descriptor_write[0].descriptorCount = 1;
-        descriptor_write[0].pBufferInfo = &buffer_info[1];
+        descriptor_write[0].pBufferInfo = &buffer_info[0];
         descriptor_write[0].pImageInfo = nullptr;
         descriptor_write[0].pTexelBufferView = nullptr;
 

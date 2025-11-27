@@ -6,10 +6,14 @@
 layout(location = 0) in vec3 inPosition;
 layout(location = 1) in vec4 inColor;
 
+layout(set = 0, binding = 0) uniform UniformDynamicBufferObject {
+    mat4 model;
+} dynamic_ubo;
+
 layout(location = 0) out vec4 fragColor;
 
 void main() {
-    gl_Position = vec4(inPosition,1.0);
+    gl_Position = dynamic_ubo.model * vec4(inPosition,1.0);
 
     fragColor = inColor;
 }

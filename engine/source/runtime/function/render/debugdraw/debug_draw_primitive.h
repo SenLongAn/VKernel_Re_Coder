@@ -76,6 +76,9 @@ namespace VKernel
     {
     public:
         DebugDrawVertex m_vertex[3]; ///< Vertex data
+        
+        Transform m_model; ///< model
+
         static const DebugDrawPrimitiveType k_type_enum_value = _debug_draw_primitive_type_triangle; ///< Primitive Type
     };
 }

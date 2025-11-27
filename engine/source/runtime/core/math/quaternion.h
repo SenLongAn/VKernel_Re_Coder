@@ -24,24 +24,23 @@ namespace VKernel
         Quaternion(float w_, float x_, float y_, float z_) : w {w_}, x {x_}, y {y_}, z {z_} {}
 
         explicit Quaternion(const Matrix3x3& rot) { this->fromRotationMatrix(rot); }
+        void fromRotationMatrix(const Matrix3x3& rotation); ///< Construct from RotationMatrix
 
         Quaternion(const Radian& angle, const Vector3& axis) { this->fromAngleAxis(angle, axis); }
+        void fromAngleAxis(const Radian& angle, const Vector3& axis); ///< Construct from axis
+        static Quaternion getQuaternionFromAngleAxis(const Radian& angle, const Vector3& axis);
         
         Quaternion(const Vector3& xaxis, const Vector3& yaxis, const Vector3& zaxis)
         {
             this->fromAxes(xaxis, yaxis, zaxis);
         }
-
-        void fromRotationMatrix(const Matrix3x3& rotation); ///< Construct from RotationMatrix
-        
-        void fromAngleAxis(const Radian& angle, const Vector3& axis); ///< Construct from axis
-        static Quaternion getQuaternionFromAngleAxis(const Radian& angle, const Vector3& axis);
+        void fromAxes(const Vector3& x_axis, const Vector3& y_axis, const Vector3& z_axis); ///< Constructs from 3 axis, the axes are assumed to be orthonormal
 
         void fromDirection(const Vector3& direction, const Vector3& up_direction); ///< Construct from Direction
         static Quaternion getQuaternionFromDirection(const Vector3& direction, const Vector3& up_direction);
-        
-        void fromAxes(const Vector3& x_axis, const Vector3& y_axis, const Vector3& z_axis); ///< Constructs from 3 axis, the axes are assumed to be orthonormal
 
+        Quaternion(const Vector3& eulerAngle){ this->fromEulerAngle(eulerAngle); }
+        
         // get ptr
         //-----------------------------------------------------------------------
         /// Pointer accessor for direct copying
@@ -94,6 +93,10 @@ namespace VKernel
 
         // util function
         //-----------------------------------------------------------------------
+        // Quaternion <-> euler angle
+        Vector3 toEulerAngle() const; ///< Quaternion 2 euler angle
+        void fromEulerAngle(const Vector3& eulerAngle); ///< euler angle 2 Quaternion
+
         // Quaternion 2 RotationMatrix
         void toRotationMatrix(Matrix3x3 & rotation) const;
         void toRotationMatrix(Matrix4x4 & rotation) const;

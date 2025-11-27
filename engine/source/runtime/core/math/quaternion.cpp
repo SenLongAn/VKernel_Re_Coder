@@ -53,6 +53,44 @@ namespace VKernel
         }
     }
 
+    Vector3 Quaternion::toEulerAngle() const
+    {
+        Vector3 euler_angle;
+        euler_angle.x = this->getPitch(false).valueDegrees();
+        euler_angle.y = this->getRoll(false).valueDegrees();
+        euler_angle.z = this->getYaw(false).valueDegrees();
+        return euler_angle;
+    }
+
+    void Quaternion::fromEulerAngle(const Vector3& eulerAngle)
+    {
+        this->w = Math::cos(Math::degreesToRadians(eulerAngle.x / 2)) *
+                                        Math::cos(Math::degreesToRadians(eulerAngle.y / 2)) *
+                                        Math::cos(Math::degreesToRadians(eulerAngle.z / 2)) +
+                                    Math::sin(Math::degreesToRadians(eulerAngle.x / 2)) *
+                                        Math::sin(Math::degreesToRadians(eulerAngle.y / 2)) *
+                                        Math::sin(Math::degreesToRadians(eulerAngle.z / 2));
+        this->x = Math::sin(Math::degreesToRadians(eulerAngle.x / 2)) *
+                                        Math::cos(Math::degreesToRadians(eulerAngle.y / 2)) *
+                                        Math::cos(Math::degreesToRadians(eulerAngle.z / 2)) -
+                                    Math::cos(Math::degreesToRadians(eulerAngle.x / 2)) *
+                                        Math::sin(Math::degreesToRadians(eulerAngle.y / 2)) *
+                                        Math::sin(Math::degreesToRadians(eulerAngle.z / 2));
+        this->y = Math::cos(Math::degreesToRadians(eulerAngle.x / 2)) *
+                                        Math::sin(Math::degreesToRadians(eulerAngle.y / 2)) *
+                                        Math::cos(Math::degreesToRadians(eulerAngle.z / 2)) +
+                                    Math::sin(Math::degreesToRadians(eulerAngle.x / 2)) *
+                                        Math::cos(Math::degreesToRadians(eulerAngle.y / 2)) *
+                                        Math::sin(Math::degreesToRadians(eulerAngle.z / 2));
+        this->z = Math::cos(Math::degreesToRadians(eulerAngle.x / 2)) *
+                                        Math::cos(Math::degreesToRadians(eulerAngle.y / 2)) *
+                                        Math::sin(Math::degreesToRadians(eulerAngle.z / 2)) -
+                                    Math::sin(Math::degreesToRadians(eulerAngle.x / 2)) *
+                                        Math::sin(Math::degreesToRadians(eulerAngle.y / 2)) *
+                                        Math::cos(Math::degreesToRadians(eulerAngle.z / 2));
+        this->normalise();
+    }
+
     void Quaternion::toRotationMatrix(Matrix3x3& kRot) const
     {
         float fTx  = x + x;  

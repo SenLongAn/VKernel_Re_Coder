@@ -20,13 +20,14 @@ namespace VKernel
 
         // interface
         size_t cacheVertexs(const std::vector<DebugDrawVertex>& vertexs); ///< Copy vertex data to this class
-        size_t cacheUniformDynamicObject(const Matrix4x4& model); ///< udbo
+        size_t cacheUniformDynamicObject(const std::vector<Matrix4x4>& model); ///< udbo
         
         void allocator(); ///< Fill the memory and buffer with data
 
         // get
         size_t getVertexCacheOffset() const; ///< get cache size
-        VkBuffer getVertexBuffer();
+        VkBuffer getVertexBuffer() const;
+        VkDescriptorSet getDescriptorSet() const;
 
     private:
         std::shared_ptr<VulkanAPI> m_vulkan_api; ///< Vulkan interface

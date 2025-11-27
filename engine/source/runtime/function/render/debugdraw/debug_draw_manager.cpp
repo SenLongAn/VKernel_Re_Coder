@@ -4,6 +4,7 @@
 #include "runtime/function/render/render_system.h"
 #include "runtime/core/math/math_headers.h"
 
+#include <iostream>
 namespace VKernel
 {
     void DebugDrawManager::initialize()
@@ -23,13 +24,16 @@ namespace VKernel
         m_buffer_allocator = new DebugDrawAllocator();
         m_buffer_allocator->initialize();
 
-        m_debug_draw_group_for_render.addTriangle(
-                                        Vector3(0.0, -0.5, 0.0),
-                                        Vector3(0.5, 0.5, 0.0),
-                                        Vector3(-0.5, 0.5, 0.0),
-                                        Vector4(1.0, 0.0, 0.0, 1.0),
-                                        Vector4(0.0, 1.0, 0.0, 1.0),
-                                        Vector4(0.0, 0.0, 1.0, 1.0));
+        // add primitive
+        m_debug_draw_group_for_render.addTriangle(Vector3(0.0, -0.5, 0.0),
+                                                  Vector3(0.5, 0.5, 0.0),
+                                                  Vector3(-0.5, 0.5, 0.0),
+                                                  Vector4(1.0, 0.0, 0.0, 1.0),
+                                                  Vector4(0.0, 1.0, 0.0, 1.0),
+                                                  Vector4(0.0, 0.0, 1.0, 1.0),
+                                                  Transform(Vector3(0.0, 0.0, 0.0),
+                                                  Quaternion(Vector3(0.0, 0.0, 0.0)),
+                                                  Vector3(0.5, 0.5, 0.5)));
     }
 
     void DebugDrawManager::updateAfterRecreateSwapchain()
@@ -58,14 +62,26 @@ namespace VKernel
     {
         m_buffer_allocator->clear();
 
-        std::vector<DebugDrawVertex> vertexs;
-
         // Data is loaded from the group to the buffer.
+        // vbo
+        std::vector<DebugDrawVertex> vertexs;
         m_debug_draw_group_for_render.writeTriangleData(vertexs); ///< Write the "group" data to the "vertex"
         m_no_depth_test_triangle_start_offset = m_buffer_allocator->cacheVertexs(vertexs); ///< Load vertex data
         m_no_depth_test_triangle_end_offset = m_buffer_allocator->getVertexCacheOffset(); ///< get size
 
-        m_buffer_allocator->allocator(); ///< Load into the buffer
+        // udbo
+        std::vector<Matrix4x4> dynamicObject = { Matrix4x4::IDENTITY };
+        m_debug_draw_group_for_render.writeUniformDynamicDataToCache(dynamicObject);
+
+        // temp
+        // static float val;
+        // val+=1;
+        // dynamicObject[0] = Transform(Vector3(0.0, 0.0, 0.0), Quaternion(Vector3(0.0, 0.0, val)), Vector3(0.5, 0.5, 0.5)).getMatrix();
+
+        m_buffer_allocator->cacheUniformDynamicObject(dynamicObject);
+
+        // Load into the buffer
+        m_buffer_allocator->allocator();
     }
 
     void DebugDrawManager::drawPointLineTriangleBox(uint32_t current_swapchain_image_index)
@@ -98,6 +114,18 @@ namespace VKernel
 
         // Bind Pipeline
         vkCmdBindPipeline(m_vulkan_api->getCurrentCommandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, m_debug_draw_pipeline->getPipeline().pipeline);
+
+        // bind DescriptorSet
+        uint32_t dynamicOffset = 0;
+        VkDescriptorSet descriptorSet = m_buffer_allocator->getDescriptorSet();
+        vkCmdBindDescriptorSets(m_vulkan_api->getCurrentCommandBuffer(),
+            VK_PIPELINE_BIND_POINT_GRAPHICS,
+            m_debug_draw_pipeline->getPipeline().layout,
+            0,
+            1,
+            &descriptorSet,
+            1,
+            &dynamicOffset);
 
         // drawcall
         vkCmdDraw(m_vulkan_api->getCurrentCommandBuffer(), m_no_depth_test_triangle_end_offset - m_no_depth_test_triangle_start_offset, 1, m_no_depth_test_triangle_start_offset, 0);
