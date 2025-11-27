@@ -292,13 +292,6 @@ namespace VKernel
         SwapChainDesc desc;
         desc.image_format = m_swapchain_image_format;
         desc.extent = m_swapchain_extent;
-
-        // dynamic state
-        // m_viewport.width = m_swapchain_extent.width;
-        // m_viewport.height = m_swapchain_extent.height;
-        // m_scissor.extent.width = m_swapchain_extent.width;
-        // m_scissor.extent.height = m_swapchain_extent.height;
-
         desc.viewport = m_viewport;
         desc.scissor = m_scissor;
         desc.imageViews = m_swapchain_imageviews;

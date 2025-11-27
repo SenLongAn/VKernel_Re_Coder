@@ -34,15 +34,6 @@ namespace VKernel
                                                   Transform(Vector3(0.0, 0.0, 0.0),
                                                   Quaternion(Vector3(0.0, 0.0, 0.0)),
                                                   Vector3(0.5, 0.5, 0.5)));
-        m_debug_draw_group_for_render.addTriangle(Vector3(0.0, -0.5, 0.0),
-                                                  Vector3(0.5, 0.5, 0.0),
-                                                  Vector3(-0.5, 0.5, 0.0),
-                                                  Vector4(1.0, 0.0, 0.0, 1.0),
-                                                  Vector4(0.0, 1.0, 0.0, 1.0),
-                                                  Vector4(0.0, 0.0, 1.0, 1.0),
-                                                  Transform(Vector3(0.5, 0.0, 0.0),
-                                                  Quaternion(Vector3(0.0, 0.0, 0.0)),
-                                                  Vector3(0.5, 0.5, 0.5)));
     }
 
     void DebugDrawManager::updateAfterRecreateSwapchain()
@@ -82,11 +73,6 @@ namespace VKernel
         std::vector<Matrix4x4> dynamicObject = { Matrix4x4::IDENTITY };
         m_debug_draw_group_for_render.writeUniformDynamicDataToCache(dynamicObject);
 
-        // temp
-        // static float val;
-        // val+=1;
-        // dynamicObject[0] = Transform(Vector3(0.0, 0.0, 0.0), Quaternion(Vector3(0.0, 0.0, val)), Vector3(0.5, 0.5, 0.5)).getMatrix();
-
         m_buffer_allocator->cacheUniformDynamicObject(dynamicObject);
 
         // Load into the buffer
@@ -125,43 +111,19 @@ namespace VKernel
         vkCmdBindPipeline(m_vulkan_api->getCurrentCommandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, m_debug_draw_pipeline->getPipeline().pipeline);
 
         // bind DescriptorSet
-        // uint32_t dynamicOffset = 0;
-        // VkDescriptorSet descriptorSet = m_buffer_allocator->getDescriptorSet();
-        // vkCmdBindDescriptorSets(m_vulkan_api->getCurrentCommandBuffer(),
-        //     VK_PIPELINE_BIND_POINT_GRAPHICS,
-        //     m_debug_draw_pipeline->getPipeline().layout,
-        //     0,
-        //     1,
-        //     &descriptorSet,
-        //     1,
-        //     &dynamicOffset);
+        uint32_t dynamicOffset = 0;
+        VkDescriptorSet descriptorSet = m_buffer_allocator->getDescriptorSet();
+        vkCmdBindDescriptorSets(m_vulkan_api->getCurrentCommandBuffer(),
+            VK_PIPELINE_BIND_POINT_GRAPHICS,
+            m_debug_draw_pipeline->getPipeline().layout,
+            0,
+            1,
+            &descriptorSet,
+            0,
+            nullptr);
 
         // drawcall
-        // vkCmdDraw(m_vulkan_api->getCurrentCommandBuffer(), m_no_depth_test_triangle_end_offset - m_no_depth_test_triangle_start_offset, 1, m_no_depth_test_triangle_start_offset, 0);
-
-        // temp
-        VkDescriptorSet descriptorSet = m_buffer_allocator->getDescriptorSet();
-        uint32_t dynamicOffset0 = 0;
-        vkCmdBindDescriptorSets(m_vulkan_api->getCurrentCommandBuffer(),
-            VK_PIPELINE_BIND_POINT_GRAPHICS,
-            m_debug_draw_pipeline->getPipeline().layout,
-            0,
-            1,
-            &descriptorSet,
-            1,
-            &dynamicOffset0);
-        vkCmdDraw(m_vulkan_api->getCurrentCommandBuffer(), 3, 1, m_no_depth_test_triangle_start_offset, 0);
-
-        uint32_t dynamicOffset1 = 64;
-        vkCmdBindDescriptorSets(m_vulkan_api->getCurrentCommandBuffer(),
-            VK_PIPELINE_BIND_POINT_GRAPHICS,
-            m_debug_draw_pipeline->getPipeline().layout,
-            0,
-            1,
-            &descriptorSet,
-            1,
-            &dynamicOffset1);
-        vkCmdDraw(m_vulkan_api->getCurrentCommandBuffer(), 3, 1, m_no_depth_test_triangle_start_offset + 3, 0);
+        vkCmdDraw(m_vulkan_api->getCurrentCommandBuffer(), m_no_depth_test_triangle_end_offset - m_no_depth_test_triangle_start_offset, 1, m_no_depth_test_triangle_start_offset, 0);
 
         vkCmdEndRenderPass(m_vulkan_api->getCurrentCommandBuffer());
     }

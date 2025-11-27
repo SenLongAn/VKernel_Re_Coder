@@ -18,7 +18,7 @@ namespace VKernel
     {
         clearBuffer();
         m_vertex_cache.clear();
-        m_uniform_buffer_dynamic_object_cache.clear();
+        m_uniform_buffer_object_cache.clear();
     }
 
     void DebugDrawAllocator::clearBuffer()
@@ -28,10 +28,10 @@ namespace VKernel
             m_vertex_resource.buffer = nullptr;
             m_vertex_resource.memory = nullptr;
         }
-        if (m_uniform_dynamic_resource.buffer)
+        if (m_uniform_resource.buffer)
         {
-            m_uniform_dynamic_resource.buffer = nullptr;
-            m_uniform_dynamic_resource.memory = nullptr;
+            m_uniform_resource.buffer = nullptr;
+            m_uniform_resource.memory = nullptr;
         }
     }
     
@@ -48,10 +48,10 @@ namespace VKernel
 
     size_t DebugDrawAllocator::cacheUniformDynamicObject(const std::vector<Matrix4x4>& model)
     {
-        size_t offset = m_uniform_buffer_dynamic_object_cache.size();
-        m_uniform_buffer_dynamic_object_cache.resize(offset + model.size());
+        size_t offset = m_uniform_buffer_object_cache.size();
+        m_uniform_buffer_object_cache.resize(offset + model.size());
         for (size_t i = 0; i < model.size(); i++){
-            m_uniform_buffer_dynamic_object_cache[offset + i].model_matrix = model[i];
+            m_uniform_buffer_object_cache[offset + i].model_matrix = model[i];
         }
         return offset;
     }
@@ -79,23 +79,23 @@ namespace VKernel
             vkUnmapMemory(m_vulkan_api->getLogicDevice(), m_vertex_resource.memory);
         }
 
-        // udbo
-        uint64_t uniform_dynamic_BufferSize = static_cast<uint64_t>(sizeof(UniformBufferDynamicObject) * m_uniform_buffer_dynamic_object_cache.size());
-        if (uniform_dynamic_BufferSize > 0)
+        // ubo
+        uint64_t uniform_BufferSize = static_cast<uint64_t>(sizeof(UniformBufferObject) * m_uniform_buffer_object_cache.size());
+        if (uniform_BufferSize > 0)
         {
             // create memory and buffer
             m_vulkan_api->createBuffer(
-                uniform_dynamic_BufferSize,
+                uniform_BufferSize,
                 VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                m_uniform_dynamic_resource.buffer,
-                m_uniform_dynamic_resource.memory);
+                m_uniform_resource.buffer,
+                m_uniform_resource.memory);
             
             // Fill the vertex data into the memory
             void* data;
-            vkMapMemory(m_vulkan_api->getLogicDevice(), m_uniform_dynamic_resource.memory, 0, uniform_dynamic_BufferSize, 0, &data);
-            memcpy(data, m_uniform_buffer_dynamic_object_cache.data(), uniform_dynamic_BufferSize);
-            vkUnmapMemory(m_vulkan_api->getLogicDevice(), m_uniform_dynamic_resource.memory);
+            vkMapMemory(m_vulkan_api->getLogicDevice(), m_uniform_resource.memory, 0, uniform_BufferSize, 0, &data);
+            memcpy(data, m_uniform_buffer_object_cache.data(), uniform_BufferSize);
+            vkUnmapMemory(m_vulkan_api->getLogicDevice(), m_uniform_resource.memory);
         }
 
         updateDescriptorSet();
@@ -115,7 +115,7 @@ namespace VKernel
         // create DescriptorSetLayout
         VkDescriptorSetLayoutBinding uboLayoutBinding[1];
         uboLayoutBinding[0].binding = 0;
-        uboLayoutBinding[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+        uboLayoutBinding[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         uboLayoutBinding[0].descriptorCount = 1;
         uboLayoutBinding[0].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
         uboLayoutBinding[0].pImmutableSamplers = nullptr;
@@ -152,9 +152,9 @@ namespace VKernel
     {
         // DescriptorSet bind buffer
         VkDescriptorBufferInfo buffer_info[1];
-        buffer_info[0].buffer = m_uniform_dynamic_resource.buffer;
+        buffer_info[0].buffer = m_uniform_resource.buffer;
         buffer_info[0].offset = 0;
-        buffer_info[0].range = sizeof(UniformBufferDynamicObject);
+        buffer_info[0].range = sizeof(UniformBufferObject);
         
         VkWriteDescriptorSet descriptor_write[1];
         descriptor_write[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -162,7 +162,7 @@ namespace VKernel
         descriptor_write[0].dstBinding = 0;
         descriptor_write[0].dstArrayElement = 0;
         descriptor_write[0].pNext = nullptr;
-        descriptor_write[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+        descriptor_write[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         descriptor_write[0].descriptorCount = 1;
         descriptor_write[0].pBufferInfo = &buffer_info[0];
         descriptor_write[0].pImageInfo = nullptr;

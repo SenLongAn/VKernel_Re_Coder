@@ -44,13 +44,13 @@ namespace VKernel
         Resource m_vertex_resource; ///< vertex: memory, buffer
         std::vector<DebugDrawVertex>m_vertex_cache; ///< Vertex data, vertex description(all primitive)
 
-        struct alignas(64) UniformBufferDynamicObject
+        struct UniformBufferObject
         {
             Matrix4x4 model_matrix;
         };
 
-        Resource m_uniform_dynamic_resource; ///< udbo
-        std::vector<UniformBufferDynamicObject> m_uniform_buffer_dynamic_object_cache;
+        Resource m_uniform_resource; ///< ubo
+        std::vector<UniformBufferObject> m_uniform_buffer_object_cache;
 
         // descriptor: layout and set
         struct Descriptor

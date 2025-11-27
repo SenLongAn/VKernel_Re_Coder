@@ -120,7 +120,7 @@ namespace VKernel
     {
         VkDescriptorSetLayoutBinding uboLayoutBinding[1];
         uboLayoutBinding[0].binding = 0;
-        uboLayoutBinding[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+        uboLayoutBinding[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         uboLayoutBinding[0].descriptorCount = 1;
         uboLayoutBinding[0].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
         uboLayoutBinding[0].pImmutableSamplers = nullptr;
@@ -192,7 +192,6 @@ namespace VKernel
         viewport_state_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
         viewport_state_create_info.viewportCount = 1;
         viewport_state_create_info.scissorCount = 1;
-        // static state
         SwapChainDesc swapChainInfo = m_vulkan_api->getSwapchainInfo();
         viewport_state_create_info.pViewports = &swapChainInfo.viewport;
         viewport_state_create_info.pScissors = &swapChainInfo.scissor;
