@@ -10,13 +10,13 @@ namespace VKernel
 
     void WindowSystem::initialize(WindowCreateInfo create_info)
     {
-        if(!glfwInit())
+        if (!glfwInit())
         {
             throw std::runtime_error("failed to initialize GLFW");
             return;
         }
 
-        m_width  = create_info.width;
+        m_width = create_info.width;
         m_height = create_info.height;
 
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API); ///< Vulkan is required.
@@ -33,9 +33,10 @@ namespace VKernel
         glfwSetWindowUserPointer(m_window, this);
         glfwSetWindowSizeCallback(m_window, windowSizeCallback);
         glfwSetWindowCloseCallback(m_window, windowCloseCallback);
+        glfwSetKeyCallback(m_window, keyCallback);
     }
 
-    GLFWwindow* WindowSystem::getWindow() const { return m_window; }
+    GLFWwindow *WindowSystem::getWindow() const { return m_window; }
 
     std::array<int, 2> WindowSystem::getWindowSize() const { return std::array<int, 2>({m_width, m_height}); }
 

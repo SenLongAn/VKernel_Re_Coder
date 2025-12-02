@@ -7,7 +7,8 @@
  */
 namespace VKernel
 {
-    
+
+    class InputSystem;
     class WorldManager;
     class WindowSystem;
     class RenderSystem;
@@ -15,7 +16,7 @@ namespace VKernel
 
     class RuntimeGlobalContext ///< Management system and manager
     {
-        
+
     public:
         // systems and managers
         /*
@@ -25,13 +26,14 @@ namespace VKernel
         It cannot use unique_ptr because multiple classes need to share it;
         It cannot use a regular pointer because shared_ptr has automatic lifecycle management, which is more convenient.
         */
+        std::shared_ptr<InputSystem> m_input_system;
         std::shared_ptr<WorldManager> m_world_manager;
         std::shared_ptr<WindowSystem> m_window_system;
         std::shared_ptr<RenderSystem> m_render_system;
         std::shared_ptr<DebugDrawManager> m_debugdraw_manager;
-    
+
     public:
-        void startSystems(); ///< Start all systems
+        void startSystems();    ///< Start all systems
         void shutdownSystems(); ///< shutdown all System
     };
 

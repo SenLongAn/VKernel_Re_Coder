@@ -6,6 +6,8 @@
 
 #include "runtime/function/framework/world/world_manager.h"
 
+#include "runtime/function/input/input_system.h"
+
 namespace VKernel
 {
     RuntimeGlobalContext g_runtime_global_context; ///< instance
@@ -19,9 +21,12 @@ namespace VKernel
         WindowCreateInfo window_create_info;
         m_window_system->initialize(window_create_info);
 
+        m_input_system = std::make_shared<InputSystem>();
+        m_input_system->initialize();
+
         m_render_system = std::make_shared<RenderSystem>();
         m_render_system->initialize(m_window_system);
-        
+
         m_debugdraw_manager = std::make_shared<DebugDrawManager>();
         m_debugdraw_manager->initialize();
     }
@@ -29,7 +34,7 @@ namespace VKernel
     void RuntimeGlobalContext::shutdownSystems()
     {
         m_debugdraw_manager.reset();
-        
+
         m_render_system->clear();
         m_render_system.reset();
 
@@ -37,5 +42,8 @@ namespace VKernel
 
         m_world_manager->clear();
         m_world_manager.reset();
+
+        m_input_system->clear();
+        m_input_system.reset();
     }
 }

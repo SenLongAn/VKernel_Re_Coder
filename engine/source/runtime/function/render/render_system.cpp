@@ -36,7 +36,7 @@ namespace VKernel
         {
             {///< camera_config
                 { ///< pose
-                    {-5.0f, 0.0f, -1.0f}, ///< position
+                    {0.0f, 0.0f, -1.0f}, ///< position
                     {0.0f, 0.0f, 0.0f}, ///< target
                     {0.0f, 0.0f, 1.0f}   ///< up
                 },
@@ -101,7 +101,7 @@ namespace VKernel
             }
 
             m_render_camera->setAspect(1.0f);
-            
+
             if (swap_data.m_camera_swap_data->m_view_matrix.has_value())
             {
                 m_render_camera->setMainViewMatrix(*swap_data.m_camera_swap_data->m_view_matrix);
