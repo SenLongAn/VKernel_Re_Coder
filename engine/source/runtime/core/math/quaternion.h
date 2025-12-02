@@ -27,7 +27,7 @@ namespace VKernel
         void fromRotationMatrix(const Matrix3x3& rotation); ///< Construct from RotationMatrix
 
         Quaternion(const Radian& angle, const Vector3& axis) { this->fromAngleAxis(angle, axis); }
-        void fromAngleAxis(const Radian& angle, const Vector3& axis); ///< Construct from axis
+        void fromAngleAxis(const Radian& angle, const Vector3& axis); ///< Construct from angle and axis, Rotate around the axis by angle
         static Quaternion getQuaternionFromAngleAxis(const Radian& angle, const Vector3& axis);
         
         Quaternion(const Vector3& xaxis, const Vector3& yaxis, const Vector3& zaxis)

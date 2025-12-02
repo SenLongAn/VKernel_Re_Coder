@@ -4,6 +4,8 @@
 #include "runtime/function/render/window_system.h"
 #include "runtime/function/render/render_system.h"
 
+#include "runtime/function/framework/world/world_manager.h"
+
 namespace VKernel
 {
 
@@ -17,6 +19,8 @@ namespace VKernel
     bool VKernelEngine::tickOneFrame(float delta_time)
     {
         // tick
+        logicalTick(delta_time);
+        g_runtime_global_context.m_render_system->swapLogicRenderData();///< exchange data between logic and render contexts
         rendererTick(delta_time);
 
         // check window
@@ -28,6 +32,11 @@ namespace VKernel
     void VKernelEngine::shutdownEngine()
     {
         g_runtime_global_context.shutdownSystems();
+    }
+
+    void VKernelEngine::logicalTick(float delta_time)
+    {
+        g_runtime_global_context.m_world_manager->tick(delta_time);
     }
 
     bool VKernelEngine::rendererTick(float delta_time)

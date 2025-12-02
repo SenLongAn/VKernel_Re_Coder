@@ -290,6 +290,7 @@ namespace VKernel
 
     Vector3 Quaternion::operator*(const Vector3& v) const
     {
+        // Simplified implementation of unit quaternions
         Vector3 uv, uuv;
         Vector3 qvec(x, y, z);
         uv  = qvec.crossProduct(v);

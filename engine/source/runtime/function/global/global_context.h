@@ -8,6 +8,7 @@
 namespace VKernel
 {
     
+    class WorldManager;
     class WindowSystem;
     class RenderSystem;
     class DebugDrawManager;
@@ -24,6 +25,7 @@ namespace VKernel
         It cannot use unique_ptr because multiple classes need to share it;
         It cannot use a regular pointer because shared_ptr has automatic lifecycle management, which is more convenient.
         */
+        std::shared_ptr<WorldManager> m_world_manager;
         std::shared_ptr<WindowSystem> m_window_system;
         std::shared_ptr<RenderSystem> m_render_system;
         std::shared_ptr<DebugDrawManager> m_debugdraw_manager;

@@ -46,14 +46,16 @@ namespace VKernel
         return offset;
     }
 
-    size_t DebugDrawAllocator::cacheUniformDynamicObject(const std::vector<Matrix4x4>& model)
+    size_t DebugDrawAllocator::cacheUniformObject(const std::vector<std::pair<Matrix4x4,Matrix4x4> >& mvp)
     {
         size_t offset = m_uniform_buffer_object_cache.size();
-        m_uniform_buffer_object_cache.resize(offset + model.size());
-        for (size_t i = 0; i < model.size(); i++){
-            m_uniform_buffer_object_cache[offset + i].model_matrix = model[i];
+        m_uniform_buffer_object_cache.resize(offset + mvp.size());
+        for (size_t i = 0; i < mvp.size(); i++){
+            m_uniform_buffer_object_cache[offset + i].model_matrix = mvp[i].first;
+            m_uniform_buffer_object_cache[offset + i].proj_view_matrix = mvp[i].second;
         }
-        return offset;
+
+        return offset; ///< start offset
     }
 
     void DebugDrawAllocator::allocator()

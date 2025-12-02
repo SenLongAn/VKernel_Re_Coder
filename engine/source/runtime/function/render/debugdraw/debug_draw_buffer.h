@@ -20,7 +20,7 @@ namespace VKernel
 
         // interface
         size_t cacheVertexs(const std::vector<DebugDrawVertex>& vertexs); ///< Copy vertex data to this class
-        size_t cacheUniformDynamicObject(const std::vector<Matrix4x4>& model); ///< udbo
+        size_t cacheUniformObject(const std::vector<std::pair<Matrix4x4,Matrix4x4>>& mvp); ///< ubo
         
         void allocator(); ///< Fill the memory and buffer with data
 
@@ -44,9 +44,10 @@ namespace VKernel
         Resource m_vertex_resource; ///< vertex: memory, buffer
         std::vector<DebugDrawVertex>m_vertex_cache; ///< Vertex data, vertex description(all primitive)
 
-        struct UniformBufferObject
+        struct alignas(256) UniformBufferObject
         {
             Matrix4x4 model_matrix;
+            Matrix4x4 proj_view_matrix;
         };
 
         Resource m_uniform_resource; ///< ubo

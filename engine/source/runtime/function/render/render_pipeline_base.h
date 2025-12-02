@@ -7,6 +7,8 @@
  */
 namespace VKernel
 {
+    class RenderResourceBase;
+
     class RenderPipelineBase
     {
 
@@ -16,6 +18,8 @@ namespace VKernel
         virtual ~RenderPipelineBase() {} ///< Constructor
         virtual void clear() {}; ///< clear
         virtual void initialize() = 0; ///< init
+
+        virtual void preparePassData(std::shared_ptr<RenderResourceBase> render_resource); ///< prepare processing data
 
         virtual void forwardRender(std::shared_ptr<VulkanAPI> vulkan_api) = 0; ///< forward render core
 

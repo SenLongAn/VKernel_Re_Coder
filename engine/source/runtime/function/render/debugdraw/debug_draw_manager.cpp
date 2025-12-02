@@ -19,7 +19,7 @@ namespace VKernel
         // create pipelines
         m_debug_draw_pipeline = new DebugDrawPipeline(DebugDrawPipelineType::_debug_draw_pipeline_type_triangle_no_depth_test);
         m_debug_draw_pipeline->initialize();
-        
+
         // create buffer
         m_buffer_allocator = new DebugDrawAllocator();
         m_buffer_allocator->initialize();
@@ -32,13 +32,19 @@ namespace VKernel
                                                   Vector4(0.0, 1.0, 0.0, 1.0),
                                                   Vector4(0.0, 0.0, 1.0, 1.0),
                                                   Transform(Vector3(0.0, 0.0, 0.0),
-                                                  Quaternion(Vector3(0.0, 0.0, 0.0)),
-                                                  Vector3(0.5, 0.5, 0.5)));
+                                                            Quaternion(Vector3(0.0, 0.0, 0.0)),
+                                                            Vector3(0.5, 0.5, 0.5)));
     }
 
     void DebugDrawManager::updateAfterRecreateSwapchain()
     {
         m_debug_draw_pipeline->recreateAfterSwapchain();
+    }
+
+    void DebugDrawManager::preparePassData(std::shared_ptr<RenderResourceBase> render_resource)
+    {
+        const RenderResource *resource = static_cast<const RenderResource *>(render_resource.get());
+        m_proj_view_matrix = resource->m_mesh_perframe_storage_buffer_object.proj_view_matrix;
     }
 
     void DebugDrawManager::draw(uint32_t current_swapchain_image_index)
@@ -65,15 +71,15 @@ namespace VKernel
         // Data is loaded from the group to the buffer.
         // vbo
         std::vector<DebugDrawVertex> vertexs;
-        m_debug_draw_group_for_render.writeTriangleData(vertexs); ///< Write the "group" data to the "vertex"
+        m_debug_draw_group_for_render.writeTriangleData(vertexs);                          ///< Write the "group" data to the "vertex"
         m_no_depth_test_triangle_start_offset = m_buffer_allocator->cacheVertexs(vertexs); ///< Load vertex data
-        m_no_depth_test_triangle_end_offset = m_buffer_allocator->getVertexCacheOffset(); ///< get size
+        m_no_depth_test_triangle_end_offset = m_buffer_allocator->getVertexCacheOffset();  ///< get size
 
-        // udbo
-        std::vector<Matrix4x4> dynamicObject = { Matrix4x4::IDENTITY };
-        m_debug_draw_group_for_render.writeUniformDynamicDataToCache(dynamicObject);
+        // ubo
 
-        m_buffer_allocator->cacheUniformDynamicObject(dynamicObject);
+        std::vector<std::pair<Matrix4x4, Matrix4x4>> object = {std::make_pair(Matrix4x4::IDENTITY, m_proj_view_matrix)};
+        m_debug_draw_group_for_render.writeUniformDataToCache(object); ///< m
+        m_buffer_allocator->cacheUniformObject(object);                ///< mvp
 
         // Load into the buffer
         m_buffer_allocator->allocator();
@@ -82,7 +88,7 @@ namespace VKernel
     void DebugDrawManager::drawPointLineTriangleBox(uint32_t current_swapchain_image_index)
     {
         // bind vertex buffer
-        VkBuffer vertex_buffers[] = { m_buffer_allocator->getVertexBuffer() };
+        VkBuffer vertex_buffers[] = {m_buffer_allocator->getVertexBuffer()};
         if (vertex_buffers[0] == nullptr)
         {
             return;
@@ -92,16 +98,17 @@ namespace VKernel
 
         // Begin RenderPass
         VkClearValue clear_values[1];
-        clear_values[0].color = { 0.0f,0.0f,0.0f,1.0f };
+        clear_values[0].color = {0.0f, 0.0f, 0.0f, 1.0f};
 
         VkRenderPassBeginInfo renderpass_begin_info{};
         renderpass_begin_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        renderpass_begin_info.renderArea.offset = { 0, 0 };
+        renderpass_begin_info.renderArea.offset = {0, 0};
         renderpass_begin_info.renderArea.extent = m_vulkan_api->getSwapchainInfo().extent;
         renderpass_begin_info.clearValueCount = (sizeof(clear_values) / sizeof(clear_values[0]));
         renderpass_begin_info.pClearValues = clear_values;
 
-        if(m_no_depth_test_triangle_start_offset == m_no_depth_test_triangle_end_offset) return;
+        if (m_no_depth_test_triangle_start_offset == m_no_depth_test_triangle_end_offset)
+            return;
 
         renderpass_begin_info.renderPass = m_debug_draw_pipeline->getFramebuffer().render_pass;
         renderpass_begin_info.framebuffer = m_debug_draw_pipeline->getFramebuffer().framebuffers[current_swapchain_image_index];
@@ -111,16 +118,15 @@ namespace VKernel
         vkCmdBindPipeline(m_vulkan_api->getCurrentCommandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, m_debug_draw_pipeline->getPipeline().pipeline);
 
         // bind DescriptorSet
-        uint32_t dynamicOffset = 0;
         VkDescriptorSet descriptorSet = m_buffer_allocator->getDescriptorSet();
         vkCmdBindDescriptorSets(m_vulkan_api->getCurrentCommandBuffer(),
-            VK_PIPELINE_BIND_POINT_GRAPHICS,
-            m_debug_draw_pipeline->getPipeline().layout,
-            0,
-            1,
-            &descriptorSet,
-            0,
-            nullptr);
+                                VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                m_debug_draw_pipeline->getPipeline().layout,
+                                0,
+                                1,
+                                &descriptorSet,
+                                0,
+                                nullptr);
 
         // drawcall
         vkCmdDraw(m_vulkan_api->getCurrentCommandBuffer(), m_no_depth_test_triangle_end_offset - m_no_depth_test_triangle_start_offset, 1, m_no_depth_test_triangle_start_offset, 0);
