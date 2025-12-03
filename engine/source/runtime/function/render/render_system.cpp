@@ -32,21 +32,22 @@ namespace VKernel
 
         // camera
         // temp
-        GlobalRenderingRes global_rendering_res = 
-        {
-            {///< camera_config
-                { ///< pose
-                    {0.0f, 0.0f, -1.0f}, ///< position
-                    {0.0f, 0.0f, 0.0f}, ///< target
-                    {0.0f, 0.0f, 1.0f}   ///< up
-                },
-                {500.0f, 500.0f}, ///< aspect
-                1000.0f, ///< far
-                0.1f ///< near
-            }
-        };
+        GlobalRenderingRes global_rendering_res =
+            {
+                {
+                    ///< camera_config
+                    {
+                        ///< pose
+                        {0.0f, 0.0f, -1.0f}, ///< position
+                        {0.0f, 0.0f, 0.0f},  ///< target
+                        {0.0f, 0.0f, 1.0f}   ///< up
+                    },
+                    {500.0f, 500.0f}, ///< aspect
+                    1000.0f,          ///< far
+                    0.1f              ///< near
+                }};
 
-        const CameraPose& camera_pose = global_rendering_res.m_camera_config.m_pose;
+        const CameraPose &camera_pose = global_rendering_res.m_camera_config.m_pose;
         m_render_camera = std::make_shared<RenderCamera>();
         m_render_camera->lookAt(camera_pose.m_position, camera_pose.m_target, camera_pose.m_up);
         m_render_camera->setZFar(global_rendering_res.m_camera_config.m_z_far);
@@ -86,6 +87,8 @@ namespace VKernel
 
     RenderSwapContext &RenderSystem::getSwapContext() { return m_swap_context; }
 
+    std::shared_ptr<RenderCamera> RenderSystem::getRenderCamera() const { return m_render_camera; }
+
     void RenderSystem::swapLogicRenderData() { m_swap_context.swapLogicRenderData(); }
 
     void RenderSystem::processSwapData()
@@ -102,10 +105,10 @@ namespace VKernel
 
             m_render_camera->setAspect(1.0f);
 
-            if (swap_data.m_camera_swap_data->m_view_matrix.has_value())
-            {
-                m_render_camera->setMainViewMatrix(*swap_data.m_camera_swap_data->m_view_matrix);
-            }
+            // if (swap_data.m_camera_swap_data->m_view_matrix.has_value())
+            // {
+            //     m_render_camera->setMainViewMatrix(*swap_data.m_camera_swap_data->m_view_matrix);
+            // }
 
             m_swap_context.resetCameraSwapData();
         }

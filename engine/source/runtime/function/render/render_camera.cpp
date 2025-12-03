@@ -8,7 +8,6 @@ namespace VKernel
     {
         std::lock_guard<std::mutex> lock_guard(m_view_matrix_mutex);
 
-
         // Construct a matrix based on the camera attributes
         auto view_matrix = Matrix4x4::IDENTITY;
         view_matrix = Math::makeLookAtMatrix(position(), position() + forward(), up());
@@ -27,7 +26,7 @@ namespace VKernel
         return proj_mat;
     }
 
-    void RenderCamera::setMainViewMatrix(const Matrix4x4 &view_matrix) 
+    void RenderCamera::setMainViewMatrix(const Matrix4x4 &view_matrix)
     {
         std::lock_guard<std::mutex> lock_guard(m_view_matrix_mutex);
 
@@ -38,14 +37,14 @@ namespace VKernel
         m_position = s * (-view_matrix[0][3]) + u * (-view_matrix[1][3]) + f * view_matrix[2][3];
     }
 
-    void RenderCamera::lookAt(const Vector3& position, const Vector3& target, const Vector3& up)
+    void RenderCamera::lookAt(const Vector3 &position, const Vector3 &target, const Vector3 &up)
     {
         m_position = position;
 
         Vector3 forward = (target - position).normalisedCopy();
         Vector3 upNorm = up.normalisedCopy();
         m_rotation = forward.getRotationTo(Y);
-        Vector3 right  = forward.crossProduct(up.normalisedCopy()).normalisedCopy();
+        Vector3 right = forward.crossProduct(up.normalisedCopy()).normalisedCopy();
         Vector3 orthUp = right.crossProduct(forward);
         Quaternion upRotation = (m_rotation * orthUp).getRotationTo(Z);
         m_rotation = Quaternion(upRotation) * m_rotation;
@@ -58,5 +57,27 @@ namespace VKernel
         m_aspect = aspect;
 
         m_fovy = Radian(Math::atan(Math::tan(Radian(Degree(m_fovx) * 0.5f)) / m_aspect) * 2.0f).valueDegrees();
+    }
+
+    void RenderCamera::move(Vector3 delta) { m_position += delta; }
+
+    void RenderCamera::rotate(Vector2 delta)
+    {
+        // to switch from degree to radian
+        delta = Vector2(Radian(Degree(delta.x)).valueRadians(), Radian(Degree(delta.y)).valueRadians());
+
+        // limit pitch
+        // float dot = m_up_axis.dotProduct(forward());
+        // if ((dot < -0.99f && delta.x > 0.0f) || // angle nearing 180 degrees
+        //     (dot > 0.99f && delta.x < 0.0f))    // angle nearing 0 degrees
+        //     delta.x = 0.0f;
+
+        Quaternion pitch, yaw;
+        pitch.fromAngleAxis(Radian(delta.x), X);
+        yaw.fromAngleAxis(-Radian(delta.y), Y);
+
+        m_rotation = pitch * m_rotation * yaw;
+
+        m_invRotation = m_rotation.conjugate();
     }
 }

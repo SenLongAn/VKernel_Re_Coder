@@ -29,6 +29,7 @@ namespace VKernel
         // get
         std::shared_ptr<VulkanAPI> getVulkanAPI() const;
         RenderSwapContext &getSwapContext();
+        std::shared_ptr<RenderCamera> getRenderCamera() const;
 
         void swapLogicRenderData(); ///< swap Logic Render Data
 

@@ -23,6 +23,10 @@ namespace VKernel
         Matrix4x4 getViewMatrix();           ///< view Matrix
         Matrix4x4 getPersProjMatrix() const; ///< projection Matrix
 
+        Vector2 getFOV() const { return {m_fovx, m_fovy}; } ///< fov
+
+        Quaternion rotation() const { return m_rotation; }
+
         // set: Calculate and set the camera properties based on the input values
         void setFOVx(float fovx) { m_fovx = fovx; }
         void setMainViewMatrix(const Matrix4x4 &view_matrix);
@@ -30,6 +34,9 @@ namespace VKernel
         void setAspect(float aspect);
         void setZNear(float znear) { m_znear = znear; }
         void setZFar(float zfar) { m_zfar = zfar; }
+
+        void move(Vector3 delta);
+        void rotate(Vector2 delta);
 
     protected:
         std::mutex m_view_matrix_mutex; ///< mutex
@@ -40,6 +47,8 @@ namespace VKernel
         Vector3 m_position{0.0f, 0.0f, 0.0f};           ///< position
         Quaternion m_rotation{Quaternion::IDENTITY};    ///< rotation
         Quaternion m_invRotation{Quaternion::IDENTITY}; ///< invert rotation: Keep the camera position unchanged and apply the inverse transformation of the camera to the object.
+
+        Vector3 m_up_axis{Z};
 
         float m_znear{1000.0f}; ///< near plane
         float m_zfar{0.1f};     ///< far plane

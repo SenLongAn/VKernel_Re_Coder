@@ -36,9 +36,20 @@ namespace VKernel
 
         // type function
         typedef std::function<void(int, int, int, int)> onKeyFunc;
+        typedef std::function<void(double, double)> onCursorPosFunc;
 
         // Register to the observer
         void registerOnKeyFunc(onKeyFunc func) { m_onKeyFunc.push_back(func); }
+        void registerOnCursorPosFunc(onCursorPosFunc func) { m_onCursorPosFunc.push_back(func); }
+
+        bool isMouseButtonDown(int button) const ///< press the button?
+        {
+            if (button < GLFW_MOUSE_BUTTON_1 || button > GLFW_MOUSE_BUTTON_LAST)
+            {
+                return false;
+            }
+            return glfwGetMouseButton(m_window, button) == GLFW_PRESS;
+        }
 
     protected:
         // callbacks func
@@ -53,12 +64,21 @@ namespace VKernel
         }
         static void windowCloseCallback(GLFWwindow *window) { glfwSetWindowShouldClose(window, true); }
 
-        static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+        static void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods)
         {
-            WindowSystem* app = (WindowSystem*)glfwGetWindowUserPointer(window);
+            WindowSystem *app = (WindowSystem *)glfwGetWindowUserPointer(window);
             if (app)
             {
                 app->onKey(key, scancode, action, mods);
+            }
+        }
+
+        static void cursorPosCallback(GLFWwindow *window, double xpos, double ypos)
+        {
+            WindowSystem *app = (WindowSystem *)glfwGetWindowUserPointer(window);
+            if (app)
+            {
+                app->onCursorPos(xpos, ypos);
             }
         }
 
@@ -68,6 +88,12 @@ namespace VKernel
                 func(key, scancode, action, mods);
         }
 
+        void onCursorPos(double xpos, double ypos)
+        {
+            for (auto &func : m_onCursorPosFunc)
+                func(xpos, ypos);
+        }
+
     private:
         GLFWwindow *m_window{nullptr}; ///< window instance
         int m_width{0};                ///< window width
@@ -75,5 +101,6 @@ namespace VKernel
 
         // List of Observers
         std::vector<onKeyFunc> m_onKeyFunc;
+        std::vector<onCursorPosFunc> m_onCursorPosFunc;
     };
 }

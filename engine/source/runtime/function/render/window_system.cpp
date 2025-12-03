@@ -34,6 +34,7 @@ namespace VKernel
         glfwSetWindowSizeCallback(m_window, windowSizeCallback);
         glfwSetWindowCloseCallback(m_window, windowCloseCallback);
         glfwSetKeyCallback(m_window, keyCallback);
+        glfwSetCursorPosCallback(m_window, cursorPosCallback);
     }
 
     GLFWwindow *WindowSystem::getWindow() const { return m_window; }

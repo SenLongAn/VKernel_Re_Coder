@@ -2,6 +2,8 @@
 
 #include "runtime/function/global/global_context.h"
 #include "runtime/function/render/window_system.h"
+#include "runtime/function/render/render_system.h"
+#include "runtime/function/render/render_camera.h"
 
 namespace VKernel
 {
@@ -13,16 +15,42 @@ namespace VKernel
         std::shared_ptr<WindowSystem> window_system = g_runtime_global_context.m_window_system;
 
         window_system->registerOnKeyFunc(std::bind(&InputSystem::onKey,
-                                                    this,
-                                                    std::placeholders::_1,
-                                                    std::placeholders::_2,
-                                                    std::placeholders::_3,
-                                                    std::placeholders::_4));
+                                                   this,
+                                                   std::placeholders::_1,
+                                                   std::placeholders::_2,
+                                                   std::placeholders::_3,
+                                                   std::placeholders::_4));
+
+        window_system->registerOnCursorPosFunc(
+            std::bind(&InputSystem::onCursorPos, this, std::placeholders::_1, std::placeholders::_2));
+    }
+
+    void InputSystem::tick()
+    {
+        calculateCursorDeltaAngles();
+        clear();
+    }
+
+    void InputSystem::clear()
+    {
+        m_cursor_delta_x = 0;
+        m_cursor_delta_y = 0;
     }
 
     void InputSystem::onKey(int key, int scancode, int action, int mods)
     {
         onKeyInGameMode(key, scancode, action, mods);
+    }
+
+    void InputSystem::onCursorPos(double current_cursor_x, double current_cursor_y)
+    {
+        // calculate xy delta
+        m_cursor_delta_x = m_last_cursor_x - current_cursor_x;
+        m_cursor_delta_y = m_last_cursor_y - current_cursor_y;
+
+        // last xy
+        m_last_cursor_x = current_cursor_x;
+        m_last_cursor_y = current_cursor_y;
     }
 
     void InputSystem::onKeyInGameMode(int key, int scancode, int action, int mods)
@@ -31,41 +59,64 @@ namespace VKernel
         {
             switch (key)
             {
-                case GLFW_KEY_A:
-                    m_game_command |= (unsigned int)GameCommand::left;
-                    break;
-                case GLFW_KEY_S:
-                    m_game_command |= (unsigned int)GameCommand::backward;
-                    break;
-                case GLFW_KEY_W:
-                    m_game_command |= (unsigned int)GameCommand::forward;
-                    break;
-                case GLFW_KEY_D:
-                    m_game_command |= (unsigned int)GameCommand::right;
-                    break;
-                default:
-                    break;
+            case GLFW_KEY_A:
+                m_game_command |= (unsigned int)GameCommand::left;
+                break;
+            case GLFW_KEY_S:
+                m_game_command |= (unsigned int)GameCommand::backward;
+                break;
+            case GLFW_KEY_W:
+                m_game_command |= (unsigned int)GameCommand::forward;
+                break;
+            case GLFW_KEY_D:
+                m_game_command |= (unsigned int)GameCommand::right;
+                break;
+            default:
+                break;
             }
         }
         else if (action == GLFW_RELEASE) ///< release
         {
             switch (key)
             {
-                case GLFW_KEY_W:
-                    m_game_command &= (k_complement_control_command ^ (unsigned int)GameCommand::forward);
-                    break;
-                case GLFW_KEY_S:
-                    m_game_command &= (k_complement_control_command ^ (unsigned int)GameCommand::backward);
-                    break;
-                case GLFW_KEY_A:
-                    m_game_command &= (k_complement_control_command ^ (unsigned int)GameCommand::left);
-                    break;
-                case GLFW_KEY_D:
-                    m_game_command &= (k_complement_control_command ^ (unsigned int)GameCommand::right);
-                    break;
-                default:
-                    break;
+            case GLFW_KEY_W:
+                m_game_command &= (k_complement_control_command ^ (unsigned int)GameCommand::forward);
+                break;
+            case GLFW_KEY_S:
+                m_game_command &= (k_complement_control_command ^ (unsigned int)GameCommand::backward);
+                break;
+            case GLFW_KEY_A:
+                m_game_command &= (k_complement_control_command ^ (unsigned int)GameCommand::left);
+                break;
+            case GLFW_KEY_D:
+                m_game_command &= (k_complement_control_command ^ (unsigned int)GameCommand::right);
+                break;
+            default:
+                break;
             }
         }
+    }
+
+    void InputSystem::calculateCursorDeltaAngles()
+    {
+        // get window_size
+        std::array<int, 2> window_size = g_runtime_global_context.m_window_system->getWindowSize();
+
+        if (window_size[0] < 1 || window_size[1] < 1)
+        {
+            return;
+        }
+
+        // get camera fov
+        std::shared_ptr<RenderCamera> render_camera = g_runtime_global_context.m_render_system->getRenderCamera();
+        const Vector2 &fov = render_camera->getFOV();
+
+        // transition
+        Radian cursor_delta_x(Math::degreesToRadians(m_cursor_delta_x));
+        Radian cursor_delta_y(Math::degreesToRadians(m_cursor_delta_y));
+
+        // Calculate based on the geometric ratio relationship.
+        m_cursor_delta_yaw = (cursor_delta_x / (float)window_size[0]) * fov.x;
+        m_cursor_delta_pitch = -(cursor_delta_y / (float)window_size[1]) * fov.y;
     }
 }

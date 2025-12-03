@@ -30,7 +30,8 @@ namespace VKernel
 
     public:
         void initialize(); ///< init
-        void clear(){} ///< clear
+        void tick();       ///< tick
+        void clear();      ///< clear
 
         void onKey(int key, int scancode, int action, int mods);            ///< Update the key data
         void onCursorPos(double current_cursor_x, double current_cursor_y); ///< Update mouse data
@@ -45,5 +46,7 @@ namespace VKernel
         int m_last_cursor_y{0};
 
         void onKeyInGameMode(int key, int scancode, int action, int mods); ///< Update the key data
+
+        void calculateCursorDeltaAngles(); ///< calculate Cursor Delta Angles
     };
 }
