@@ -54,6 +54,8 @@ namespace VKernel
         // The starting and ending offsets in the cache of the buffer class.
         size_t m_no_depth_test_triangle_start_offset;
         size_t m_no_depth_test_triangle_end_offset;
+        size_t m_no_depth_test_quad_start_offset;
+        size_t m_no_depth_test_quad_end_offset;
         
     };
 }

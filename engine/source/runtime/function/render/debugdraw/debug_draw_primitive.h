@@ -29,11 +29,11 @@ namespace VKernel
         // Vertex data
         Vector3 pos;
         Vector4 color;
-        
-        DebugDrawVertex()  ///< Default initialization Vertex data
-        { 
-            pos = Vector3(-1.0f, -1.0f, -1.0f); 
-            color = Vector4(-1.0f, -1.0f, -1.0f, -1.0f); 
+
+        DebugDrawVertex() ///< Default initialization Vertex data
+        {
+            pos = Vector3(-1.0f, -1.0f, -1.0f);
+            color = Vector4(-1.0f, -1.0f, -1.0f, -1.0f);
         }
 
         // Vertex Description
@@ -69,16 +69,25 @@ namespace VKernel
 
     class DebugDrawPrimitive ///< Primitive base class
     {
-
     };
 
     class DebugDrawTriangle : public DebugDrawPrimitive ///< Triangle Primitive derived class
     {
     public:
         DebugDrawVertex m_vertex[3]; ///< Vertex data
-        
+
         Transform m_model; ///< model
 
         static const DebugDrawPrimitiveType k_type_enum_value = _debug_draw_primitive_type_triangle; ///< Primitive Type
+    };
+
+    class DebugDrawQuad : public DebugDrawPrimitive ///< quad
+    {
+    public:
+        DebugDrawVertex m_vertex[6];
+
+        Transform m_model; ///< model
+
+        static const DebugDrawPrimitiveType k_type_enum_value = _debug_draw_primitive_type_quad;
     };
 }
