@@ -3,6 +3,8 @@
 #include "runtime/function/render/window_system.h"
 #include "runtime/function/render/vulkan_interface/vulkan_util.h"
 
+#include "runtime/core/math/math_marcos.h"
+
 #include <iostream>
 #include <set>
 #include <algorithm>
@@ -292,6 +294,12 @@ namespace VKernel
         SwapChainDesc desc;
         desc.image_format = m_swapchain_image_format;
         desc.extent = m_swapchain_extent;
+        
+        m_viewport.width = m_swapchain_extent.width;
+        m_viewport.height = m_swapchain_extent.height;
+        m_scissor.extent.width = m_swapchain_extent.width;
+        m_scissor.extent.height = m_swapchain_extent.height;
+
         desc.viewport = m_viewport;
         desc.scissor = m_scissor;
         desc.imageViews = m_swapchain_imageviews;

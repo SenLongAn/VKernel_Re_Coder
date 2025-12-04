@@ -14,8 +14,8 @@ namespace VKernel
 {
     struct WindowCreateInfo
     {
-        int width{500};
-        int height{500};
+        int width{640};
+        int height{400};
         const char *title{"VKernel"};
     };
 

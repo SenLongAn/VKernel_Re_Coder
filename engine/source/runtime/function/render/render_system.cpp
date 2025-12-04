@@ -42,7 +42,7 @@ namespace VKernel
                         {0.0f, 0.0f, 0.0f},  ///< target
                         {0.0f, 0.0f, 1.0f}   ///< up
                     },
-                    {500.0f, 500.0f}, ///< aspect
+                    {640.0f, 400.0f}, ///< aspect
                     1000.0f,          ///< far
                     0.1f              ///< near
                 }};
@@ -103,7 +103,7 @@ namespace VKernel
                 m_render_camera->setFOVx(*swap_data.m_camera_swap_data->m_fov_x);
             }
 
-            m_render_camera->setAspect(1.0f);
+            m_render_camera->setAspect(m_vulkan_api->getSwapchainInfo().viewport.width / m_vulkan_api->getSwapchainInfo().viewport.height);
 
             // if (swap_data.m_camera_swap_data->m_view_matrix.has_value())
             // {

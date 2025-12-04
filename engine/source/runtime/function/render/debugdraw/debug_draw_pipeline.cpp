@@ -192,9 +192,9 @@ namespace VKernel
         viewport_state_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
         viewport_state_create_info.viewportCount = 1;
         viewport_state_create_info.scissorCount = 1;
-        SwapChainDesc swapChainInfo = m_vulkan_api->getSwapchainInfo();
-        viewport_state_create_info.pViewports = &swapChainInfo.viewport;
-        viewport_state_create_info.pScissors = &swapChainInfo.scissor;
+        // SwapChainDesc swapChainInfo = m_vulkan_api->getSwapchainInfo();
+        // viewport_state_create_info.pViewports = &swapChainInfo.viewport;
+        // viewport_state_create_info.pScissors = &swapChainInfo.scissor;
 
         // Rasterization State
         VkPipelineRasterizationStateCreateInfo rasterization_state_create_info{};
