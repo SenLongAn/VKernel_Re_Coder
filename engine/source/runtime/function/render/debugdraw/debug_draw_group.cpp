@@ -85,6 +85,7 @@ namespace VKernel
 
     size_t DebugDrawGroup::getTriangleCount() const
     {
+        // The list needs to be traversed in order to obtain the number of nodes.
         size_t triangle_count = 0;
         for (const DebugDrawTriangle triangle : m_triangles)
         {
@@ -105,9 +106,11 @@ namespace VKernel
 
     void DebugDrawGroup::writeTriangleData(std::vector<DebugDrawVertex> &vertexs)
     {
+        // resize
         size_t vertexs_count = getTriangleCount() * 3;
         vertexs.resize(vertexs_count);
 
+        // Traverse and write the data
         size_t current_index = 0;
         for (DebugDrawTriangle triangle : m_triangles)
         {
@@ -134,7 +137,7 @@ namespace VKernel
         }
     }
 
-    void DebugDrawGroup::writeUniformDataToCache(std::vector<std::pair<Matrix4x4, Matrix4x4>> &datas, const Matrix4x4 &viewProjMatrix)
+    void DebugDrawGroup::writeUniformDynamicDataToCache(std::vector<Matrix4x4> &datas)
     {
         // triangle
         size_t triangle_count = getTriangleCount();
@@ -143,21 +146,17 @@ namespace VKernel
         size_t current_index = 0;
         for (DebugDrawTriangle triangle : m_triangles)
         {
-            datas[current_index].first = triangle.m_model.getMatrix();
-            datas[current_index].second = viewProjMatrix;
-            current_index++;
+            datas[current_index++] = triangle.m_model.getMatrix();
         }
 
         // quad
         size_t quad_count = getQuadCount();
-        current_index = datas.size();
+        current_index = datas.size(); // last offset
         datas.resize(datas.size() + quad_count);
 
         for (DebugDrawQuad quad : m_quads)
         {
-            datas[current_index].first = quad.m_model.getMatrix();
-            datas[current_index].second = viewProjMatrix;
-            current_index++;
+            datas[current_index++] = quad.m_model.getMatrix();
         }
     }
 }

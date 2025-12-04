@@ -14,14 +14,16 @@ namespace VKernel
     public:
         // init and destory
         DebugDrawAllocator() {}; ///< Constructor
-        void initialize(); ///< init
-        void clear(); ///< clear
-        void clearBuffer(); ///< clear buffer
+        void initialize();       ///< init
+        void destory();          ///< clear
+        void clear();            ///< clear
+        void clearBuffer();      ///< clear buffer
 
-        // interface
-        size_t cacheVertexs(const std::vector<DebugDrawVertex>& vertexs); ///< Copy vertex data to this class
-        size_t cacheUniformObject(const std::vector<std::pair<Matrix4x4,Matrix4x4>>& mvp); ///< ubo
-        
+        // Fill the data into the cache
+        size_t cacheVertexs(const std::vector<DebugDrawVertex> &vertexs);      ///< vertex data
+        void cacheUniformObject(Matrix4x4 proj_view_matrix);                   ///< ubo
+        size_t cacheUniformDynamicObject(const std::vector<Matrix4x4> &model); ///< udbo
+
         void allocator(); ///< Fill the memory and buffer with data
 
         // get
@@ -31,7 +33,7 @@ namespace VKernel
 
     private:
         std::shared_ptr<VulkanAPI> m_vulkan_api; ///< Vulkan interface
-        
+
         // What needs to be accomplished in the buffer class
 
         // memory and buffer
@@ -40,18 +42,23 @@ namespace VKernel
             VkBuffer buffer;
             VkDeviceMemory memory;
         };
-        
-        Resource m_vertex_resource; ///< vertex: memory, buffer
-        std::vector<DebugDrawVertex>m_vertex_cache; ///< Vertex data, vertex description(all primitive)
 
-        struct alignas(256) UniformBufferObject
+        Resource m_vertex_resource; ///< vertex
+        std::vector<DebugDrawVertex> m_vertex_cache;
+
+        struct UniformBufferObject ///< ubo
         {
-            Matrix4x4 model_matrix;
             Matrix4x4 proj_view_matrix;
         };
+        Resource m_uniform_resource;
+        UniformBufferObject m_uniform_buffer_object;
 
-        Resource m_uniform_resource; ///< ubo
-        std::vector<UniformBufferObject> m_uniform_buffer_object_cache;
+        struct alignas(64)  UniformBufferDynamicObject ///< udbo
+        {
+            Matrix4x4 model_matrix;
+        };
+        Resource m_uniform_dynamic_resource;
+        std::vector<UniformBufferDynamicObject> m_uniform_buffer_dynamic_object_cache;
 
         // descriptor: layout and set
         struct Descriptor
@@ -61,7 +68,7 @@ namespace VKernel
         };
 
         Descriptor m_descriptor;
-        
+
     private:
         // What needs to be accomplished in the buffer class
         void setupDescriptorSet();

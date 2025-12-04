@@ -21,7 +21,7 @@ namespace VKernel
         setupDescriptorLayout();
         setupPipelines();
     }
-    
+
     const DebugDrawPipelineBase &DebugDrawPipeline::getPipeline() const
     {
         return m_render_pipelines[0];
@@ -66,14 +66,14 @@ namespace VKernel
 
         // Subpass Dependency
         VkSubpassDependency dependencies[1] = {};
-        VkSubpassDependency& debug_draw_dependency = dependencies[0];
+        VkSubpassDependency &debug_draw_dependency = dependencies[0];
         debug_draw_dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
         debug_draw_dependency.dstSubpass = 0;
         debug_draw_dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
         debug_draw_dependency.srcAccessMask = 0;
         debug_draw_dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
         debug_draw_dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-        
+
         // RenderPass
         VkRenderPassCreateInfo renderpass_create_info{};
         renderpass_create_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
@@ -83,7 +83,7 @@ namespace VKernel
         renderpass_create_info.pSubpasses = &subpass;
         renderpass_create_info.dependencyCount = 1;
         renderpass_create_info.pDependencies = dependencies;
-        
+
         if (vkCreateRenderPass(m_vulkan_api->getLogicDevice(), &renderpass_create_info, nullptr, &m_framebuffer.render_pass) != VK_SUCCESS)
         {
             throw std::runtime_error("create inefficient pick render pass");
@@ -93,10 +93,11 @@ namespace VKernel
     void DebugDrawPipeline::setupFramebuffer()
     {
         const std::vector<VkImageView> imageViews = m_vulkan_api->getSwapchainInfo().imageViews;
-        
+
         m_framebuffer.framebuffers.resize(imageViews.size());
 
-        for (size_t i = 0; i < m_framebuffer.framebuffers.size(); i++) {
+        for (size_t i = 0; i < m_framebuffer.framebuffers.size(); i++)
+        {
 
             VkImageView attachments[] = {imageViews[i]};
 
@@ -108,7 +109,7 @@ namespace VKernel
             framebuffer_create_info.width = m_vulkan_api->getSwapchainInfo().extent.width;
             framebuffer_create_info.height = m_vulkan_api->getSwapchainInfo().extent.height;
             framebuffer_create_info.layers = 1;
-            
+
             if (vkCreateFramebuffer(m_vulkan_api->getLogicDevice(), &framebuffer_create_info, nullptr, &m_framebuffer.framebuffers[i]) != VK_SUCCESS)
             {
                 throw std::runtime_error("create inefficient pick framebuffer");
@@ -118,16 +119,22 @@ namespace VKernel
 
     void DebugDrawPipeline::setupDescriptorLayout()
     {
-        VkDescriptorSetLayoutBinding uboLayoutBinding[1];
+        VkDescriptorSetLayoutBinding uboLayoutBinding[2];
         uboLayoutBinding[0].binding = 0;
         uboLayoutBinding[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         uboLayoutBinding[0].descriptorCount = 1;
         uboLayoutBinding[0].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
         uboLayoutBinding[0].pImmutableSamplers = nullptr;
 
+        uboLayoutBinding[1].binding = 1;
+        uboLayoutBinding[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+        uboLayoutBinding[1].descriptorCount = 1;
+        uboLayoutBinding[1].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+        uboLayoutBinding[1].pImmutableSamplers = nullptr;
+
         VkDescriptorSetLayoutCreateInfo layoutInfo{};
         layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-        layoutInfo.bindingCount = 1;
+        layoutInfo.bindingCount = 2;
         layoutInfo.pBindings = uboLayoutBinding;
 
         if (vkCreateDescriptorSetLayout(m_vulkan_api->getLogicDevice(), &layoutInfo, nullptr, &m_descriptor_layout) != VK_SUCCESS)
@@ -168,8 +175,8 @@ namespace VKernel
         frag_pipeline_shader_stage_create_info.module = frag_shader_module;
         frag_pipeline_shader_stage_create_info.pName = "main";
 
-        VkPipelineShaderStageCreateInfo shader_stages[] = { vert_pipeline_shader_stage_create_info,
-                                                           frag_pipeline_shader_stage_create_info };
+        VkPipelineShaderStageCreateInfo shader_stages[] = {vert_pipeline_shader_stage_create_info,
+                                                           frag_pipeline_shader_stage_create_info};
 
         // VertexInput state
         auto vertex_binding_descriptions = DebugDrawVertex::getBindingDescriptions();
@@ -231,7 +238,7 @@ namespace VKernel
         color_blend_state_create_info.blendConstants[3] = 0.0f;
 
         // Dynamic State
-        VkDynamicState dynamic_states[] = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR };
+        VkDynamicState dynamic_states[] = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
         VkPipelineDynamicStateCreateInfo dynamic_state_create_info{};
         dynamic_state_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
         dynamic_state_create_info.dynamicStateCount = 2;

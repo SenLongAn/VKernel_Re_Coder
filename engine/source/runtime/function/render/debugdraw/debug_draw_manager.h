@@ -22,7 +22,7 @@ namespace VKernel
         DebugDrawManager() {}; ///< Constructor
         ~DebugDrawManager() { } ///< Destructor
         void initialize(); ///< init
-        void destory(){}; ///< clear
+        void destory(); ///< clear
         
         // interface
         void setupPipelines(); ///< pipline and Allocator init

@@ -51,7 +51,7 @@ namespace VKernel
         void writeQuadData(std::vector<DebugDrawVertex> &vertexs);
 
         // The input parameter that writes the vertex data
-        void writeUniformDataToCache(std::vector<std::pair<Matrix4x4, Matrix4x4>> &datas, const Matrix4x4& viewProjMatrix);
+        void writeUniformDynamicDataToCache(std::vector<Matrix4x4> &datas);
 
     private:
         std::mutex m_mutex; ///< shared data
