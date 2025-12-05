@@ -76,6 +76,8 @@ namespace VKernel
     public:
         DebugDrawVertex m_vertex[3]; ///< Vertex data
 
+        uint8_t m_indices[3];
+
         Transform m_model; ///< model
 
         static const DebugDrawPrimitiveType k_type_enum_value = _debug_draw_primitive_type_triangle; ///< Primitive Type
@@ -84,7 +86,9 @@ namespace VKernel
     class DebugDrawQuad : public DebugDrawPrimitive ///< quad
     {
     public:
-        DebugDrawVertex m_vertex[6];
+        DebugDrawVertex m_vertex[4];
+
+        uint8_t m_indices[6];
 
         Transform m_model; ///< model
 

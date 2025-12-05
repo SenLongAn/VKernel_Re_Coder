@@ -22,7 +22,8 @@ namespace VKernel
                                      const Vector4 &color0,
                                      const Vector4 &color1,
                                      const Vector4 &color2,
-                                     const Transform &model)
+                                     const Transform &model,
+                                     const uint8_t (&indices)[3])
     {
         std::lock_guard<std::mutex> guard(m_mutex);
 
@@ -39,6 +40,8 @@ namespace VKernel
 
         triangle.m_model = model;
 
+        std::memcpy(triangle.m_indices, indices, sizeof(indices));
+
         m_triangles.push_back(triangle);
     }
 
@@ -46,15 +49,12 @@ namespace VKernel
                                  const Vector3 &point1,
                                  const Vector3 &point2,
                                  const Vector3 &point3,
-                                 const Vector3 &point4,
-                                 const Vector3 &point5,
                                  const Vector4 &color0,
                                  const Vector4 &color1,
                                  const Vector4 &color2,
                                  const Vector4 &color3,
-                                 const Vector4 &color4,
-                                 const Vector4 &color5,
-                                 const Transform &model)
+                                 const Transform &model,
+                                 const uint8_t (&indices)[6])
     {
         std::lock_guard<std::mutex> guard(m_mutex);
 
@@ -72,13 +72,9 @@ namespace VKernel
         quad.m_vertex[3].pos = point3;
         quad.m_vertex[3].color = color3;
 
-        quad.m_vertex[4].pos = point4;
-        quad.m_vertex[4].color = color4;
-
-        quad.m_vertex[5].pos = point5;
-        quad.m_vertex[5].color = color5;
-
         quad.m_model = model;
+
+        std::memcpy(quad.m_indices, indices, sizeof(indices));
 
         m_quads.push_back(quad);
     }
@@ -122,7 +118,7 @@ namespace VKernel
 
     void DebugDrawGroup::writeQuadData(std::vector<DebugDrawVertex> &vertexs)
     {
-        size_t vertexs_count = getQuadCount() * 6;
+        size_t vertexs_count = getQuadCount() * 4;
         vertexs.resize(vertexs_count);
 
         size_t current_index = 0;
@@ -132,8 +128,37 @@ namespace VKernel
             vertexs[current_index++] = quad.m_vertex[1];
             vertexs[current_index++] = quad.m_vertex[2];
             vertexs[current_index++] = quad.m_vertex[3];
-            vertexs[current_index++] = quad.m_vertex[4];
-            vertexs[current_index++] = quad.m_vertex[5];
+        }
+    }
+
+    void DebugDrawGroup::writeTriangleIndiceData(std::vector<uint8_t> &indices)
+    {
+        size_t indices_count = getTriangleCount() * 3;
+        indices.resize(indices_count);
+
+        size_t current_index = 0;
+        for (DebugDrawTriangle triangle : m_triangles)
+        {
+            indices[current_index++] = triangle.m_indices[0];
+            indices[current_index++] = triangle.m_indices[1];
+            indices[current_index++] = triangle.m_indices[2];
+        }
+    }
+
+    void DebugDrawGroup::writeQuadIndiceData(std::vector<uint8_t> &indices)
+    {
+        size_t indices_count = getQuadCount() * 6;
+        indices.resize(indices_count);
+
+        size_t current_index = 0;
+        for (DebugDrawQuad quad : m_quads)
+        {
+            indices[current_index++] = quad.m_indices[0];
+            indices[current_index++] = quad.m_indices[1];
+            indices[current_index++] = quad.m_indices[2];
+            indices[current_index++] = quad.m_indices[3];
+            indices[current_index++] = quad.m_indices[4];
+            indices[current_index++] = quad.m_indices[5];
         }
     }
 

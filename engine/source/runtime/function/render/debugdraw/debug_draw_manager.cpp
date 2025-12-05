@@ -34,6 +34,7 @@ namespace VKernel
         m_buffer_allocator->initialize();
 
         // add primitive
+        const uint8_t triangle_indices[3] = {0, 1, 2};
         m_debug_draw_group_for_render.addTriangle(Vector3(0.0, -0.5, 0.0),
                                                   Vector3(0.5, 0.5, 0.0),
                                                   Vector3(-0.5, 0.5, 0.0),
@@ -42,7 +43,8 @@ namespace VKernel
                                                   Vector4(0.0, 0.0, 1.0, 1.0),
                                                   Transform(Vector3(-0.5, 0.0, 0.0),
                                                             Quaternion(Vector3(0.0, 0.0, 0.0)),
-                                                            Vector3(0.5, 0.5, 0.5)));
+                                                            Vector3(0.5, 0.5, 0.5)),
+                                                  triangle_indices);
         m_debug_draw_group_for_render.addTriangle(Vector3(0.0, -0.5, 0.0),
                                                   Vector3(0.5, 0.5, 0.0),
                                                   Vector3(-0.5, 0.5, 0.0),
@@ -51,39 +53,35 @@ namespace VKernel
                                                   Vector4(0.0, 0.0, 1.0, 1.0),
                                                   Transform(Vector3(1.0, 0.0, 0.0),
                                                             Quaternion(Vector3(0.0, 0.0, 0.0)),
-                                                            Vector3(0.5, 0.5, 0.5)));
+                                                            Vector3(0.5, 0.5, 0.5)),
+                                                  triangle_indices);
+        const uint8_t quad_indices[6] = {0, 1, 2, 2, 3, 0};
         m_debug_draw_group_for_render.addQuad(Vector3(-0.5, -0.5, 0.0),
                                               Vector3(0.5, -0.5, 0.0),
-                                              Vector3(-0.5, 0.5, 0.0),
-                                              Vector3(-0.5, 0.5, 0.0),
-                                              Vector3(0.5, -0.5, 0.0),
                                               Vector3(0.5, 0.5, 0.0),
+                                              Vector3(-0.5, 0.5, 0.0),
 
                                               Vector4(1.0, 0.0, 0.0, 1.0),
                                               Vector4(0.0, 1.0, 0.0, 1.0),
                                               Vector4(0.0, 0.0, 1.0, 1.0),
-                                              Vector4(0.0, 0.0, 1.0, 1.0),
-                                              Vector4(0.0, 1.0, 0.0, 1.0),
-                                              Vector4(1.0, 0.0, 0.0, 1.0),
+                                              Vector4(1.0, 1.0, 1.0, 1.0),
                                               Transform(Vector3(0.5, 0.0, 0.0),
                                                         Quaternion(Vector3(0.0, 0.0, 0.0)),
-                                                        Vector3(0.5, 0.5, 0.5)));
+                                                        Vector3(0.5, 0.5, 0.5)),
+                                              quad_indices);
         m_debug_draw_group_for_render.addQuad(Vector3(-0.5, -0.5, 0.0),
                                               Vector3(0.5, -0.5, 0.0),
-                                              Vector3(-0.5, 0.5, 0.0),
-                                              Vector3(-0.5, 0.5, 0.0),
-                                              Vector3(0.5, -0.5, 0.0),
                                               Vector3(0.5, 0.5, 0.0),
+                                              Vector3(-0.5, 0.5, 0.0),
 
                                               Vector4(1.0, 0.0, 0.0, 1.0),
                                               Vector4(0.0, 1.0, 0.0, 1.0),
                                               Vector4(0.0, 0.0, 1.0, 1.0),
-                                              Vector4(0.0, 0.0, 1.0, 1.0),
-                                              Vector4(0.0, 1.0, 0.0, 1.0),
-                                              Vector4(1.0, 0.0, 0.0, 1.0),
+                                              Vector4(0.0, 0.0, 0.0, 1.0),
                                               Transform(Vector3(-1.0, 0.0, 0.0),
                                                         Quaternion(Vector3(0.0, 0.0, 0.0)),
-                                                        Vector3(0.5, 0.5, 0.5)));
+                                                        Vector3(0.5, 0.5, 0.5)),
+                                              quad_indices);
     }
 
     void DebugDrawManager::updateAfterRecreateSwapchain()
@@ -129,6 +127,12 @@ namespace VKernel
         m_debug_draw_group_for_render.writeQuadData(vertexs);
         m_no_depth_test_quad_start_offset = m_buffer_allocator->cacheVertexs(vertexs);
         m_no_depth_test_quad_end_offset = m_buffer_allocator->getVertexCacheOffset();
+        // ibo
+        std::vector<uint8_t> indices;
+        m_debug_draw_group_for_render.writeTriangleIndiceData(indices);
+        m_buffer_allocator->cacheIndices(indices);
+        m_debug_draw_group_for_render.writeQuadIndiceData(indices);
+        m_buffer_allocator->cacheIndices(indices);
         // ubo
         m_buffer_allocator->cacheUniformObject(m_proj_view_matrix); ///< vp
         // udbo
@@ -150,6 +154,11 @@ namespace VKernel
         }
         VkDeviceSize offsets[] = {0};
         vkCmdBindVertexBuffers(m_vulkan_api->getCurrentCommandBuffer(), 0, 1, vertex_buffers, offsets);
+
+        // bind indice buffer
+        VkBuffer indice_buffers = m_buffer_allocator->getIndiceBuffer();
+        VkDeviceSize offset = 0;
+        vkCmdBindIndexBuffer(m_vulkan_api->getCurrentCommandBuffer(), indice_buffers, offset, VK_INDEX_TYPE_UINT8_EXT);
 
         // primitive vertex offsets
         std::vector<size_t> vc_start_offsets{
@@ -179,6 +188,7 @@ namespace VKernel
 
         // drawcall
         uint32_t dynamicOffset = 0;
+        size_t k = 0;
         int n = sizeof(k_primitive_vertex_counts) / sizeof(k_primitive_vertex_counts[0]);
         for (size_t i = 0; i < n; i++)
         {
@@ -188,7 +198,7 @@ namespace VKernel
                 continue;
             }
 
-            for(int j = vc_start_offsets[i]; j < vc_end_offsets[i]; j += k_primitive_vertex_counts[i])
+            for (size_t j = vc_start_offsets[i]; j < vc_end_offsets[i]; j += k_primitive_vertex_counts[i], k += k_primitive_indice_counts[i])
             {
                 // bind DescriptorSet
                 VkDescriptorSet descriptorSet = m_buffer_allocator->getDescriptorSet();
@@ -201,10 +211,9 @@ namespace VKernel
                                         1,
                                         &dynamicOffset);
                 dynamicOffset += 64;
-    
-                // drawcall
-                vkCmdDraw(m_vulkan_api->getCurrentCommandBuffer(), k_primitive_vertex_counts[i], 1, j, 0);
 
+                // drawcall
+                vkCmdDrawIndexed(m_vulkan_api->getCurrentCommandBuffer(), k_primitive_indice_counts[i], 1, k, j, 0);
             }
         }
 

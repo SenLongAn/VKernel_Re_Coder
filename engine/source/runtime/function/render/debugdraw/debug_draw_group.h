@@ -26,21 +26,19 @@ namespace VKernel
                          const Vector4 &color0,
                          const Vector4 &color1,
                          const Vector4 &color2,
-                         const Transform &model);
+                         const Transform &model,
+                         const uint8_t (&indices) [3]);
 
         void addQuad(const Vector3 &point0,
                      const Vector3 &point1,
                      const Vector3 &point2,
                      const Vector3 &point3,
-                     const Vector3 &point4,
-                     const Vector3 &point5,
                      const Vector4 &color0,
                      const Vector4 &color1,
                      const Vector4 &color2,
                      const Vector4 &color3,
-                     const Vector4 &color4,
-                     const Vector4 &color5,
-                     const Transform &model);
+                     const Transform &model,
+                     const uint8_t (&indices) [6]);
 
         // get
         size_t getTriangleCount() const;
@@ -49,6 +47,10 @@ namespace VKernel
         // The input parameter that writes the vertex data
         void writeTriangleData(std::vector<DebugDrawVertex> &vertexs);
         void writeQuadData(std::vector<DebugDrawVertex> &vertexs);
+        
+        // The input parameter that writes the indice data
+        void writeTriangleIndiceData(std::vector<uint8_t> &indices);
+        void writeQuadIndiceData(std::vector<uint8_t> &indices);
 
         // The input parameter that writes the vertex data
         void writeUniformDynamicDataToCache(std::vector<Matrix4x4> &datas);

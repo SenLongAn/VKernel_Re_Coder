@@ -21,6 +21,7 @@ namespace VKernel
 
         // Fill the data into the cache
         size_t cacheVertexs(const std::vector<DebugDrawVertex> &vertexs);      ///< vertex data
+        void cacheIndices(const std::vector<uint8_t> &indices);                ///< indice data
         void cacheUniformObject(Matrix4x4 proj_view_matrix);                   ///< ubo
         size_t cacheUniformDynamicObject(const std::vector<Matrix4x4> &model); ///< udbo
 
@@ -29,6 +30,7 @@ namespace VKernel
         // get
         size_t getVertexCacheOffset() const; ///< get cache size
         VkBuffer getVertexBuffer() const;
+        VkBuffer getIndiceBuffer() const;
         VkDescriptorSet getDescriptorSet() const;
 
     private:
@@ -46,6 +48,9 @@ namespace VKernel
         Resource m_vertex_resource; ///< vertex
         std::vector<DebugDrawVertex> m_vertex_cache;
 
+        Resource m_indice_resource; ///< indice
+        std::vector<uint8_t> m_indice_cache;
+
         struct UniformBufferObject ///< ubo
         {
             Matrix4x4 proj_view_matrix;
@@ -53,7 +58,7 @@ namespace VKernel
         Resource m_uniform_resource;
         UniformBufferObject m_uniform_buffer_object;
 
-        struct alignas(64)  UniformBufferDynamicObject ///< udbo
+        struct alignas(64) UniformBufferDynamicObject ///< udbo
         {
             Matrix4x4 model_matrix;
         };

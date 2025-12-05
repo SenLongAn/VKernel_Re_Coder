@@ -58,6 +58,16 @@ namespace VKernel
         return offset;
     }
 
+    void DebugDrawAllocator::cacheIndices(const std::vector<uint8_t> &indices)
+    {
+        size_t offset = m_indice_cache.size(); ///< start offset
+        m_indice_cache.resize(offset + indices.size());
+        for (size_t i = 0; i < indices.size(); i++)
+        {
+            m_indice_cache[i + offset] = indices[i];
+        }
+    }
+
     void DebugDrawAllocator::cacheUniformObject(Matrix4x4 proj_view_matrix)
     {
         m_uniform_buffer_object.proj_view_matrix = proj_view_matrix;
@@ -96,6 +106,25 @@ namespace VKernel
             vkMapMemory(m_vulkan_api->getLogicDevice(), m_vertex_resource.memory, 0, vertex_bufferSize, 0, &data);
             memcpy(data, m_vertex_cache.data(), vertex_bufferSize);
             vkUnmapMemory(m_vulkan_api->getLogicDevice(), m_vertex_resource.memory);
+        }
+
+        // indice
+        uint64_t indice_bufferSize = static_cast<uint64_t>(m_indice_cache.size() * sizeof(uint8_t));
+        if (indice_bufferSize > 0)
+        {
+            // create memory and buffer
+            m_vulkan_api->createBuffer(
+                indice_bufferSize,
+                VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                m_indice_resource.buffer,
+                m_indice_resource.memory);
+
+            // Fill the indice data into the memory
+            void *data;
+            vkMapMemory(m_vulkan_api->getLogicDevice(), m_indice_resource.memory, 0, indice_bufferSize, 0, &data);
+            memcpy(data, m_indice_cache.data(), indice_bufferSize);
+            vkUnmapMemory(m_vulkan_api->getLogicDevice(), m_indice_resource.memory);
         }
 
         // ubo
@@ -145,6 +174,8 @@ namespace VKernel
     }
 
     VkBuffer DebugDrawAllocator::getVertexBuffer() const { return m_vertex_resource.buffer; }
+
+    VkBuffer DebugDrawAllocator::getIndiceBuffer() const { return m_indice_resource.buffer; }
 
     VkDescriptorSet DebugDrawAllocator::getDescriptorSet() const { return m_descriptor.descriptor_set[m_vulkan_api->getCurrentFrameIndex()]; }
 
