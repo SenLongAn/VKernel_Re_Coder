@@ -37,10 +37,12 @@ namespace VKernel
         // type function
         typedef std::function<void(int, int, int, int)> onKeyFunc;
         typedef std::function<void(double, double)> onCursorPosFunc;
+        typedef std::function<void(double, double)> onScrollFunc;
 
         // Register to the observer
         void registerOnKeyFunc(onKeyFunc func) { m_onKeyFunc.push_back(func); }
         void registerOnCursorPosFunc(onCursorPosFunc func) { m_onCursorPosFunc.push_back(func); }
+        void registerOnScrollFunc(onScrollFunc func) { m_onScrollFunc.push_back(func); }
 
         bool isMouseButtonDown(int button) const ///< press the button?
         {
@@ -82,6 +84,15 @@ namespace VKernel
             }
         }
 
+        static void scrollCallback(GLFWwindow *window, double xoffset, double yoffset)
+        {
+            WindowSystem *app = (WindowSystem *)glfwGetWindowUserPointer(window);
+            if (app)
+            {
+                app->onScroll(xoffset, yoffset);
+            }
+        }
+
         void onKey(int key, int scancode, int action, int mods)
         {
             for (auto &func : m_onKeyFunc)
@@ -94,6 +105,12 @@ namespace VKernel
                 func(xpos, ypos);
         }
 
+        void onScroll(double xoffset, double yoffset)
+        {
+            for (auto &func : m_onScrollFunc)
+                func(xoffset, yoffset);
+        }
+
     private:
         GLFWwindow *m_window{nullptr}; ///< window instance
         int m_width{0};                ///< window width
@@ -102,5 +119,6 @@ namespace VKernel
         // List of Observers
         std::vector<onKeyFunc> m_onKeyFunc;
         std::vector<onCursorPosFunc> m_onCursorPosFunc;
+        std::vector<onScrollFunc> m_onScrollFunc;
     };
 }

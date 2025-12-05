@@ -80,4 +80,9 @@ namespace VKernel
 
         m_invRotation = m_rotation.conjugate();
     }
+
+    void RenderCamera::zoom(float offset)
+    {
+        m_fovx = Math::clamp(m_fovx - offset, MIN_FOV, MAX_FOV);
+    }
 }

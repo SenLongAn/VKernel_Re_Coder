@@ -26,6 +26,8 @@ namespace ReCoder
                                                                              std::placeholders::_2,
                                                                              std::placeholders::_3,
                                                                              std::placeholders::_4));
+        g_editor_global_context.m_window_system->registerOnScrollFunc(
+            std::bind(&EditorInputManager::onScroll, this, std::placeholders::_1, std::placeholders::_2));
     }
 
     void EditorInputManager::onKey(int key, int scancode, int action, int mods)
@@ -45,6 +47,29 @@ namespace ReCoder
         }
         m_mouse_x = xpos;
         m_mouse_y = ypos;
+    }
+
+    void EditorInputManager::onScroll(double xoffset, double yoffset)
+    {
+        if (isCursorInRect(VKernel::Vector2(0, 0), VKernel::Vector2(g_editor_global_context.m_window_system->getWindowSize()[0],
+                                                                    g_editor_global_context.m_window_system->getWindowSize()[1])))
+        {
+            if (g_editor_global_context.m_window_system->isMouseButtonDown(GLFW_MOUSE_BUTTON_RIGHT))
+            {
+                if (yoffset > 0)
+                {
+                    m_camera_speed *= 1.2f;
+                }
+                else
+                {
+                    m_camera_speed *= 0.8f;
+                }
+            }
+            else
+            {
+                g_editor_global_context.m_scene_manager->getEditorCamera()->zoom((float)yoffset * 2.0f);
+            }
+        }
     }
 
     void EditorInputManager::processEditorCommand()
@@ -116,5 +141,10 @@ namespace ReCoder
                 break;
             }
         }
+    }
+
+    bool EditorInputManager::isCursorInRect(VKernel::Vector2 pos, VKernel::Vector2 size) const
+    {
+        return pos.x <= m_mouse_x && m_mouse_x <= pos.x + size.x && pos.y <= m_mouse_y && m_mouse_y <= pos.y + size.y;
     }
 }

@@ -19,6 +19,7 @@ namespace VKernel
 
         RenderSwapContext &swap_context = g_runtime_global_context.m_render_system->getSwapContext();
         CameraSwapData camera_swap_data;
+        camera_swap_data.m_fov_x = 50.0f;
         swap_context.getLogicSwapData().m_camera_swap_data = camera_swap_data;
     }
 
@@ -26,8 +27,6 @@ namespace VKernel
     {
         RenderSwapContext &swap_context = g_runtime_global_context.m_render_system->getSwapContext();
         CameraSwapData camera_swap_data;
-        camera_swap_data.m_fov_x = 50.0f;
-        // camera_swap_data.m_view_matrix = desired_mat;
         swap_context.getLogicSwapData().m_camera_swap_data = camera_swap_data;
     }
 }

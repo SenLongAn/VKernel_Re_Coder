@@ -1,5 +1,7 @@
 #pragma once
 
+#include "runtime/core/math/vector2.h"
+
 /**
  * Manage user input data
  */
@@ -23,6 +25,7 @@ namespace ReCoder
 
         void onKey(int key, int scancode, int action, int mods); ///< Update the key data
         void onCursorPos(double xpos, double ypos);              ///< Update mouse data
+        void onScroll(double xoffset, double yoffset);           ///< update mouse data
 
     private:
         // mouse data
@@ -39,5 +42,7 @@ namespace ReCoder
         void processEditorCommand(); ///< process key data
 
         void onKeyInEditorMode(int key, int scancode, int action, int mods); ///< Update the key data
+
+        bool isCursorInRect(VKernel::Vector2 pos, VKernel::Vector2 size) const; ///< Check whether the cursor is within the window.
     };
 }

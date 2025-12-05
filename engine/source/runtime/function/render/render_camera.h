@@ -35,8 +35,10 @@ namespace VKernel
         void setZNear(float znear) { m_znear = znear; }
         void setZFar(float zfar) { m_zfar = zfar; }
 
+        // update
         void move(Vector3 delta);
         void rotate(Vector2 delta);
+        void zoom(float offset);
 
     protected:
         std::mutex m_view_matrix_mutex; ///< mutex
@@ -53,12 +55,13 @@ namespace VKernel
         float m_znear{1000.0f}; ///< near plane
         float m_zfar{0.1f};     ///< far plane
 
-        float m_fovx{0.f}; ///< horizontal direction fov
+        float m_fovx{Degree(89.f).valueDegrees()}; ///< horizontal direction fov
         float m_fovy{0.f}; ///< vertical direction fov
+        float m_aspect{0.f}; ///< The aspect ratio = viewport width/viewport height
+        static constexpr float MIN_FOV{10.0f};
+        static constexpr float MAX_FOV{89.0f};
 
         Matrix4x4 m_view_matrices{Matrix4x4::IDENTITY}; ///< view matrices
-
-        float m_aspect{0.f}; ///< The aspect ratio = viewport width/viewport height
     };
 
     inline const Vector3 RenderCamera::X = {1.0f, 0.0f, 0.0f};
