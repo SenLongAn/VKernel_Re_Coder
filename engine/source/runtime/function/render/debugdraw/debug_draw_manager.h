@@ -56,6 +56,8 @@ namespace VKernel
         size_t m_no_depth_test_triangle_end_offset;
         size_t m_no_depth_test_quad_start_offset;
         size_t m_no_depth_test_quad_end_offset;
+
+        static constexpr uint8_t k_primitive_vertex_counts[] = {3, 6};
         
     };
 }

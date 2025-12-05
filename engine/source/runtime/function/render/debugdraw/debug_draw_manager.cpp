@@ -43,6 +43,15 @@ namespace VKernel
                                                   Transform(Vector3(-0.5, 0.0, 0.0),
                                                             Quaternion(Vector3(0.0, 0.0, 0.0)),
                                                             Vector3(0.5, 0.5, 0.5)));
+        m_debug_draw_group_for_render.addTriangle(Vector3(0.0, -0.5, 0.0),
+                                                  Vector3(0.5, 0.5, 0.0),
+                                                  Vector3(-0.5, 0.5, 0.0),
+                                                  Vector4(1.0, 0.0, 0.0, 1.0),
+                                                  Vector4(0.0, 1.0, 0.0, 1.0),
+                                                  Vector4(0.0, 0.0, 1.0, 1.0),
+                                                  Transform(Vector3(1.0, 0.0, 0.0),
+                                                            Quaternion(Vector3(0.0, 0.0, 0.0)),
+                                                            Vector3(0.5, 0.5, 0.5)));
         m_debug_draw_group_for_render.addQuad(Vector3(-0.5, -0.5, 0.0),
                                               Vector3(0.5, -0.5, 0.0),
                                               Vector3(-0.5, 0.5, 0.0),
@@ -57,6 +66,22 @@ namespace VKernel
                                               Vector4(0.0, 1.0, 0.0, 1.0),
                                               Vector4(1.0, 0.0, 0.0, 1.0),
                                               Transform(Vector3(0.5, 0.0, 0.0),
+                                                        Quaternion(Vector3(0.0, 0.0, 0.0)),
+                                                        Vector3(0.5, 0.5, 0.5)));
+        m_debug_draw_group_for_render.addQuad(Vector3(-0.5, -0.5, 0.0),
+                                              Vector3(0.5, -0.5, 0.0),
+                                              Vector3(-0.5, 0.5, 0.0),
+                                              Vector3(-0.5, 0.5, 0.0),
+                                              Vector3(0.5, -0.5, 0.0),
+                                              Vector3(0.5, 0.5, 0.0),
+
+                                              Vector4(1.0, 0.0, 0.0, 1.0),
+                                              Vector4(0.0, 1.0, 0.0, 1.0),
+                                              Vector4(0.0, 0.0, 1.0, 1.0),
+                                              Vector4(0.0, 0.0, 1.0, 1.0),
+                                              Vector4(0.0, 1.0, 0.0, 1.0),
+                                              Vector4(1.0, 0.0, 0.0, 1.0),
+                                              Transform(Vector3(-1.0, 0.0, 0.0),
                                                         Quaternion(Vector3(0.0, 0.0, 0.0)),
                                                         Vector3(0.5, 0.5, 0.5)));
     }
@@ -154,7 +179,8 @@ namespace VKernel
 
         // drawcall
         uint32_t dynamicOffset = 0;
-        for (size_t i = 0; i < 2; i++)
+        int n = sizeof(k_primitive_vertex_counts) / sizeof(k_primitive_vertex_counts[0]);
+        for (size_t i = 0; i < n; i++)
         {
             // If such primitives do not exist, skip this step.
             if (vc_end_offsets[i] - vc_start_offsets[i] == 0)
@@ -162,20 +188,24 @@ namespace VKernel
                 continue;
             }
 
-            // bind DescriptorSet
-            VkDescriptorSet descriptorSet = m_buffer_allocator->getDescriptorSet();
-            vkCmdBindDescriptorSets(m_vulkan_api->getCurrentCommandBuffer(),
-                                    VK_PIPELINE_BIND_POINT_GRAPHICS,
-                                    m_debug_draw_pipeline->getPipeline().layout,
-                                    0,
-                                    1,
-                                    &descriptorSet,
-                                    0,
-                                    &dynamicOffset);
-            dynamicOffset += 64;
+            for(int j = vc_start_offsets[i]; j < vc_end_offsets[i]; j += k_primitive_vertex_counts[i])
+            {
+                // bind DescriptorSet
+                VkDescriptorSet descriptorSet = m_buffer_allocator->getDescriptorSet();
+                vkCmdBindDescriptorSets(m_vulkan_api->getCurrentCommandBuffer(),
+                                        VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                        m_debug_draw_pipeline->getPipeline().layout,
+                                        0,
+                                        1,
+                                        &descriptorSet,
+                                        1,
+                                        &dynamicOffset);
+                dynamicOffset += 64;
+    
+                // drawcall
+                vkCmdDraw(m_vulkan_api->getCurrentCommandBuffer(), k_primitive_vertex_counts[i], 1, j, 0);
 
-            // drawcall
-            vkCmdDraw(m_vulkan_api->getCurrentCommandBuffer(), vc_end_offsets[i] - vc_start_offsets[i], 1, vc_start_offsets[i], 0);
+            }
         }
 
         // end renderpass
