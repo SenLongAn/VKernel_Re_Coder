@@ -58,27 +58,45 @@ namespace VKernel
         color_attachment_reference.attachment = 0;
         color_attachment_reference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
+        // depth attachment
+        VkAttachmentDescription depth_attachment_description{};
+        depth_attachment_description.format = m_vulkan_api->getDepthImageInfo().depth_image_format;
+        depth_attachment_description.samples = VK_SAMPLE_COUNT_1_BIT;
+        depth_attachment_description.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        depth_attachment_description.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+        depth_attachment_description.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        depth_attachment_description.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        depth_attachment_description.initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+        depth_attachment_description.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+        VkAttachmentReference depth_attachment_reference{};
+        depth_attachment_reference.attachment = 1;
+        depth_attachment_reference.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
         // Subpass
         VkSubpassDescription subpass{};
         subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
         subpass.colorAttachmentCount = 1;
         subpass.pColorAttachments = &color_attachment_reference;
+        subpass.pDepthStencilAttachment = &depth_attachment_reference;
 
         // Subpass Dependency
         VkSubpassDependency dependencies[1] = {};
         VkSubpassDependency &debug_draw_dependency = dependencies[0];
         debug_draw_dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
         debug_draw_dependency.dstSubpass = 0;
-        debug_draw_dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-        debug_draw_dependency.srcAccessMask = 0;
-        debug_draw_dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-        debug_draw_dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        debug_draw_dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+        debug_draw_dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+        debug_draw_dependency.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+        debug_draw_dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+        debug_draw_dependency.dependencyFlags = 0;
 
         // RenderPass
+        std::array<VkAttachmentDescription, 2> attachments = {color_attachment_description, depth_attachment_description};
         VkRenderPassCreateInfo renderpass_create_info{};
         renderpass_create_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-        renderpass_create_info.attachmentCount = 1;
-        renderpass_create_info.pAttachments = &color_attachment_description;
+        renderpass_create_info.attachmentCount = attachments.size();
+        renderpass_create_info.pAttachments = attachments.data();
         renderpass_create_info.subpassCount = 1;
         renderpass_create_info.pSubpasses = &subpass;
         renderpass_create_info.dependencyCount = 1;
@@ -99,7 +117,7 @@ namespace VKernel
         for (size_t i = 0; i < m_framebuffer.framebuffers.size(); i++)
         {
 
-            VkImageView attachments[] = {imageViews[i]};
+            VkImageView attachments[2] = {imageViews[i], m_vulkan_api->getDepthImageInfo().depth_image_view};
 
             VkFramebufferCreateInfo framebuffer_create_info{};
             framebuffer_create_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
@@ -237,6 +255,15 @@ namespace VKernel
         color_blend_state_create_info.blendConstants[2] = 0.0f;
         color_blend_state_create_info.blendConstants[3] = 0.0f;
 
+        // depth state
+        VkPipelineDepthStencilStateCreateInfo depth_stencil_create_info{};
+        depth_stencil_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+        depth_stencil_create_info.depthTestEnable = VK_TRUE;
+        depth_stencil_create_info.depthWriteEnable = VK_TRUE;
+        depth_stencil_create_info.depthCompareOp = VK_COMPARE_OP_LESS;
+        depth_stencil_create_info.depthBoundsTestEnable = VK_FALSE;
+        depth_stencil_create_info.stencilTestEnable = VK_FALSE;
+
         // Dynamic State
         VkDynamicState dynamic_states[] = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
         VkPipelineDynamicStateCreateInfo dynamic_state_create_info{};
@@ -256,6 +283,7 @@ namespace VKernel
         pipelineInfo.pMultisampleState = &multisample_state_create_info;
         pipelineInfo.pColorBlendState = &color_blend_state_create_info;
         pipelineInfo.pDynamicState = &dynamic_state_create_info;
+        pipelineInfo.pDepthStencilState = &depth_stencil_create_info;
         pipelineInfo.layout = m_render_pipelines[0].layout;
         pipelineInfo.renderPass = m_framebuffer.render_pass;
         pipelineInfo.subpass = 0;

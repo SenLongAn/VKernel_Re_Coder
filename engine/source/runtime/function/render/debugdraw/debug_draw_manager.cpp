@@ -78,7 +78,7 @@ namespace VKernel
                                               Vector4(0.0, 1.0, 0.0, 1.0),
                                               Vector4(0.0, 0.0, 1.0, 1.0),
                                               Vector4(0.0, 0.0, 0.0, 1.0),
-                                              Transform(Vector3(-1.0, 0.0, 0.0),
+                                              Transform(Vector3(0.5, 0.0, -1.0),
                                                         Quaternion(Vector3(0.0, 0.0, 0.0)),
                                                         Vector3(0.5, 0.5, 0.5)),
                                               quad_indices);
@@ -169,8 +169,9 @@ namespace VKernel
             m_no_depth_test_quad_end_offset};
 
         // Begin RenderPass
-        VkClearValue clear_values[1];
+        VkClearValue clear_values[2];
         clear_values[0].color = {0.0f, 0.0f, 0.0f, 1.0f};
+        clear_values[1].depthStencil = {1.0f, 0};
 
         VkRenderPassBeginInfo renderpass_begin_info{};
         renderpass_begin_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
