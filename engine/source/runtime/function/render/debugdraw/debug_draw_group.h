@@ -27,7 +27,7 @@ namespace VKernel
                          const Vector4 &color1,
                          const Vector4 &color2,
                          const Transform &model,
-                         const uint8_t (&indices) [3]);
+                         const uint8_t (&indices)[3]);
 
         void addQuad(const Vector3 &point0,
                      const Vector3 &point1,
@@ -38,19 +38,35 @@ namespace VKernel
                      const Vector4 &color2,
                      const Vector4 &color3,
                      const Transform &model,
-                     const uint8_t (&indices) [6]);
+                     const uint8_t (&indices)[6]);
+
+        void addBox(const Vector3 &center_point,
+                    const Vector3 &half_extends,
+                    const Vector4 &color0,
+                    const Vector4 &color1,
+                    const Vector4 &color2,
+                    const Vector4 &color3,
+                    const Vector4 &color4,
+                    const Vector4 &color5,
+                    const Vector4 &color6,
+                    const Vector4 &color7,
+                    const Transform &model,
+                    const uint8_t (&indices)[36]);
 
         // get
         size_t getTriangleCount() const;
         size_t getQuadCount() const;
+        size_t getBoxCount() const;
 
         // The input parameter that writes the vertex data
         void writeTriangleData(std::vector<DebugDrawVertex> &vertexs);
         void writeQuadData(std::vector<DebugDrawVertex> &vertexs);
-        
+        void writeBoxData(std::vector<DebugDrawVertex> &vertexs);
+
         // The input parameter that writes the indice data
         void writeTriangleIndiceData(std::vector<uint8_t> &indices);
         void writeQuadIndiceData(std::vector<uint8_t> &indices);
+        void writeBoxIndiceData(std::vector<uint8_t> &indices);
 
         // The input parameter that writes the vertex data
         void writeUniformDynamicDataToCache(std::vector<Matrix4x4> &datas);
@@ -61,5 +77,6 @@ namespace VKernel
         // primitive group
         std::list<DebugDrawTriangle> m_triangles;
         std::list<DebugDrawQuad> m_quads;
+        std::list<DebugDrawBox> m_boxes;
     };
 }

@@ -74,9 +74,9 @@ namespace VKernel
     class DebugDrawTriangle : public DebugDrawPrimitive ///< Triangle Primitive derived class
     {
     public:
-        DebugDrawVertex m_vertex[3]; ///< Vertex data
+        DebugDrawVertex m_vertex[3]; ///< Vertex
 
-        uint8_t m_indices[3];
+        uint8_t m_indices[3]; ///< indice
 
         Transform m_model; ///< model
 
@@ -90,8 +90,20 @@ namespace VKernel
 
         uint8_t m_indices[6];
 
-        Transform m_model; ///< model
+        Transform m_model;
 
         static const DebugDrawPrimitiveType k_type_enum_value = _debug_draw_primitive_type_quad;
+    };
+
+    class DebugDrawBox : public DebugDrawPrimitive ///< box
+    {
+    public:
+        DebugDrawVertex m_vertex[8];
+
+        uint8_t m_indices[36];
+
+        Transform m_model;
+
+        static const DebugDrawPrimitiveType k_type_enum_value = _debug_draw_primitive_type_draw_box;
     };
 }

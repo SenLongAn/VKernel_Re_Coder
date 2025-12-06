@@ -56,9 +56,11 @@ namespace VKernel
         size_t m_no_depth_test_triangle_end_offset;
         size_t m_no_depth_test_quad_start_offset;
         size_t m_no_depth_test_quad_end_offset;
+        size_t m_no_depth_test_box_start_offset;
+        size_t m_no_depth_test_box_end_offset;
 
-        static constexpr uint8_t k_primitive_vertex_counts[] = {3, 4};
-        static constexpr uint8_t k_primitive_indice_counts[] = {3, 6};
+        static constexpr uint8_t k_primitive_vertex_counts[] = {3, 4, 8};
+        static constexpr uint8_t k_primitive_indice_counts[] = {3, 6, 36};
         
     };
 }

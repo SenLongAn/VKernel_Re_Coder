@@ -78,10 +78,48 @@ namespace VKernel
                                               Vector4(0.0, 1.0, 0.0, 1.0),
                                               Vector4(0.0, 0.0, 1.0, 1.0),
                                               Vector4(0.0, 0.0, 0.0, 1.0),
-                                              Transform(Vector3(0.5, 0.0, -1.0),
+                                              Transform(Vector3(0.5, 0.0, 1.0),
                                                         Quaternion(Vector3(0.0, 0.0, 0.0)),
                                                         Vector3(0.5, 0.5, 0.5)),
                                               quad_indices);
+        const uint8_t box_indices[36] = {0, 1, 2, 2, 3, 0,
+                                         4, 5, 6, 6, 7, 4,
+                                         0, 3, 7, 7, 4, 0,
+                                         1, 2, 6, 6, 5, 1,
+                                         0, 1, 5, 5, 4, 0,
+                                         3, 2, 6, 6, 7, 3};
+        m_debug_draw_group_for_render.addBox(Vector3(0.0, 0.0, 0.0),
+                                             Vector3(1.0, 1.0, 1.0),
+
+                                             Vector4(1.0, 0.0, 0.0, 1.0),
+                                             Vector4(0.0, 1.0, 0.0, 1.0),
+                                             Vector4(0.0, 0.0, 1.0, 1.0),
+                                             Vector4(1.0, 1.0, 1.0, 1.0),
+                                             Vector4(1.0, 0.0, 0.0, 1.0),
+                                             Vector4(0.0, 1.0, 0.0, 1.0),
+                                             Vector4(0.0, 0.0, 1.0, 1.0),
+                                             Vector4(1.0, 1.0, 1.0, 1.0),
+
+                                             Transform(Vector3(0.0, 0.0, 3.0),
+                                                       Quaternion(Vector3(0.0, 0.0, 0.0)),
+                                                       Vector3(0.5, 0.5, 0.5)),
+                                             box_indices);
+        m_debug_draw_group_for_render.addBox(Vector3(0.0, 0.0, 0.0),
+                                             Vector3(1.0, 1.0, 1.0),
+
+                                             Vector4(1.0, 0.0, 0.0, 1.0),
+                                             Vector4(0.0, 1.0, 0.0, 1.0),
+                                             Vector4(0.0, 0.0, 1.0, 1.0),
+                                             Vector4(1.0, 1.0, 1.0, 1.0),
+                                             Vector4(1.0, 0.0, 0.0, 1.0),
+                                             Vector4(0.0, 1.0, 0.0, 1.0),
+                                             Vector4(0.0, 0.0, 1.0, 1.0),
+                                             Vector4(1.0, 1.0, 1.0, 1.0),
+
+                                             Transform(Vector3(3.0, 0.0, 3.0),
+                                                       Quaternion(Vector3(0.0, 0.0, 0.0)),
+                                                       Vector3(0.5, 0.5, 0.5)),
+                                             box_indices);
     }
 
     void DebugDrawManager::updateAfterRecreateSwapchain()
@@ -127,11 +165,16 @@ namespace VKernel
         m_debug_draw_group_for_render.writeQuadData(vertexs);
         m_no_depth_test_quad_start_offset = m_buffer_allocator->cacheVertexs(vertexs);
         m_no_depth_test_quad_end_offset = m_buffer_allocator->getVertexCacheOffset();
+        m_debug_draw_group_for_render.writeBoxData(vertexs);
+        m_no_depth_test_box_start_offset = m_buffer_allocator->cacheVertexs(vertexs);
+        m_no_depth_test_box_end_offset = m_buffer_allocator->getVertexCacheOffset();
         // ibo
         std::vector<uint8_t> indices;
         m_debug_draw_group_for_render.writeTriangleIndiceData(indices);
         m_buffer_allocator->cacheIndices(indices);
         m_debug_draw_group_for_render.writeQuadIndiceData(indices);
+        m_buffer_allocator->cacheIndices(indices);
+        m_debug_draw_group_for_render.writeBoxIndiceData(indices);
         m_buffer_allocator->cacheIndices(indices);
         // ubo
         m_buffer_allocator->cacheUniformObject(m_proj_view_matrix); ///< vp
@@ -163,10 +206,12 @@ namespace VKernel
         // primitive vertex offsets
         std::vector<size_t> vc_start_offsets{
             m_no_depth_test_triangle_start_offset,
-            m_no_depth_test_quad_start_offset};
+            m_no_depth_test_quad_start_offset,
+            m_no_depth_test_box_start_offset};
         std::vector<size_t> vc_end_offsets{
             m_no_depth_test_triangle_end_offset,
-            m_no_depth_test_quad_end_offset};
+            m_no_depth_test_quad_end_offset,
+            m_no_depth_test_box_end_offset};
 
         // Begin RenderPass
         VkClearValue clear_values[2];
