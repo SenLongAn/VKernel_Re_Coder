@@ -120,6 +120,10 @@ namespace VKernel
                                                        Quaternion(Vector3(0.0, 0.0, 0.0)),
                                                        Vector3(0.5, 0.5, 0.5)),
                                              box_indices);
+        m_debug_draw_group_for_render.addSphere(Vector4(1.0, 0.0, 0.0, 1.0),
+                                                Transform(Vector3(0.0, 0.0, 5.0),
+                                                          Quaternion(Vector3(0.0, 0.0, 0.0)),
+                                                          Vector3(0.5, 0.5, 0.5)));
     }
 
     void DebugDrawManager::updateAfterRecreateSwapchain()
@@ -147,8 +151,8 @@ namespace VKernel
 
     void DebugDrawManager::drawDebugObject(uint32_t current_swapchain_image_index)
     {
-        prepareDrawBuffer();                                     ///< prepare buffer
-        drawPointLineTriangleBox(current_swapchain_image_index); ///< render
+        prepareDrawBuffer();                                  ///< prepare buffer
+        drawSolidObject(current_swapchain_image_index);       ///< render
     }
 
     void DebugDrawManager::prepareDrawBuffer()
@@ -168,6 +172,8 @@ namespace VKernel
         m_debug_draw_group_for_render.writeBoxData(vertexs);
         m_no_depth_test_box_start_offset = m_buffer_allocator->cacheVertexs(vertexs);
         m_no_depth_test_box_end_offset = m_buffer_allocator->getVertexCacheOffset();
+        m_debug_draw_group_for_render.writeSphereData(vertexs);
+        m_buffer_allocator->cacheSphereVertexs(vertexs);
         // ibo
         std::vector<uint8_t> indices;
         m_debug_draw_group_for_render.writeTriangleIndiceData(indices);
@@ -187,7 +193,7 @@ namespace VKernel
         m_buffer_allocator->allocator();
     }
 
-    void DebugDrawManager::drawPointLineTriangleBox(uint32_t current_swapchain_image_index)
+    void DebugDrawManager::drawSolidObject(uint32_t current_swapchain_image_index)
     {
         // bind vertex buffer
         VkBuffer vertex_buffers[] = {m_buffer_allocator->getVertexBuffer()};
@@ -233,7 +239,8 @@ namespace VKernel
         vkCmdBindPipeline(m_vulkan_api->getCurrentCommandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, m_debug_draw_pipeline->getPipeline().pipeline);
 
         // drawcall
-        uint32_t dynamicOffset = 0;
+        size_t uniform_dynamic_size = m_buffer_allocator->getSizeOfUniformBufferObject();
+        dynamicOffset = 0;
         size_t k = 0;
         int n = sizeof(k_primitive_vertex_counts) / sizeof(k_primitive_vertex_counts[0]);
         for (size_t i = 0; i < n; i++)
@@ -256,10 +263,39 @@ namespace VKernel
                                         &descriptorSet,
                                         1,
                                         &dynamicOffset);
-                dynamicOffset += 64;
+                dynamicOffset += uniform_dynamic_size;
 
                 // drawcall
                 vkCmdDrawIndexed(m_vulkan_api->getCurrentCommandBuffer(), k_primitive_indice_counts[i], 1, k, j, 0);
+            }
+        }
+
+        // sphere
+        size_t sphere_count = m_debug_draw_group_for_render.getSphereCount();
+
+        if (sphere_count > 0)
+        {
+            // // begin render pass
+            VkDeviceSize offsets[] = {0};
+            VkBuffer sphere_vertex_buffers[] = {m_buffer_allocator->getSphereVertexBuffer()};
+            vkCmdBindVertexBuffers(m_vulkan_api->getCurrentCommandBuffer(), 0, 1, sphere_vertex_buffers, offsets);
+
+            size_t uniform_dynamic_size = m_buffer_allocator->getSizeOfUniformBufferObject();
+            dynamicOffset = dynamicOffset;
+
+            for (size_t j = 0; j < sphere_count; j++)
+            {
+                VkDescriptorSet descriptorSet = m_buffer_allocator->getDescriptorSet();
+                vkCmdBindDescriptorSets(m_vulkan_api->getCurrentCommandBuffer(),
+                                        VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                        m_debug_draw_pipeline->getPipeline().layout,
+                                        0,
+                                        1,
+                                        &descriptorSet,
+                                        1,
+                                        &dynamicOffset);
+                vkCmdDraw(m_vulkan_api->getCurrentCommandBuffer(), m_buffer_allocator->getSphereVertexBufferSize(), 1, 0, 0);
+                dynamicOffset += uniform_dynamic_size;
             }
         }
 

@@ -21,6 +21,7 @@ namespace VKernel
 
         // Fill the data into the cache
         size_t cacheVertexs(const std::vector<DebugDrawVertex> &vertexs);      ///< vertex data
+        void cacheSphereVertexs(const std::vector<DebugDrawVertex> &vertexs);  ///< sphere vertex data
         void cacheIndices(const std::vector<uint8_t> &indices);                ///< indice data
         void cacheUniformObject(Matrix4x4 proj_view_matrix);                   ///< ubo
         size_t cacheUniformDynamicObject(const std::vector<Matrix4x4> &model); ///< udbo
@@ -32,6 +33,9 @@ namespace VKernel
         VkBuffer getVertexBuffer() const;
         VkBuffer getIndiceBuffer() const;
         VkDescriptorSet getDescriptorSet() const;
+        VkBuffer getSphereVertexBuffer() const;
+        const size_t getSizeOfUniformBufferObject() const;
+        const size_t getSphereVertexBufferSize() const;
 
     private:
         std::shared_ptr<VulkanAPI> m_vulkan_api; ///< Vulkan interface
@@ -45,20 +49,27 @@ namespace VKernel
             VkDeviceMemory memory;
         };
 
-        Resource m_vertex_resource; ///< vertex
+        // vertex
+        Resource m_vertex_resource;
         std::vector<DebugDrawVertex> m_vertex_cache;
 
-        Resource m_indice_resource; ///< indice
+        Resource m_sphere_resource;
+        std::vector<DebugDrawVertex> m_sphere_vertex_cache;
+
+        // indice
+        Resource m_indice_resource;
         std::vector<uint8_t> m_indice_cache;
 
-        struct UniformBufferObject ///< ubo
+        // ubo
+        struct UniformBufferObject
         {
             Matrix4x4 proj_view_matrix;
         };
         Resource m_uniform_resource;
         UniformBufferObject m_uniform_buffer_object;
 
-        struct alignas(64) UniformBufferDynamicObject ///< udbo
+        // udbo
+        struct alignas(64) UniformBufferDynamicObject
         {
             Matrix4x4 model_matrix;
         };

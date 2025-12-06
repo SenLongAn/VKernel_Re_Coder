@@ -53,15 +53,20 @@ namespace VKernel
                     const Transform &model,
                     const uint8_t (&indices)[36]);
 
+        void addSphere(const Vector4 &color,
+                       const Transform &model);
+
         // get
         size_t getTriangleCount() const;
         size_t getQuadCount() const;
         size_t getBoxCount() const;
+        size_t getSphereCount() const;
 
         // The input parameter that writes the vertex data
         void writeTriangleData(std::vector<DebugDrawVertex> &vertexs);
         void writeQuadData(std::vector<DebugDrawVertex> &vertexs);
         void writeBoxData(std::vector<DebugDrawVertex> &vertexs);
+        void writeSphereData(std::vector<DebugDrawVertex> &vertexs);
 
         // The input parameter that writes the indice data
         void writeTriangleIndiceData(std::vector<uint8_t> &indices);
@@ -78,5 +83,6 @@ namespace VKernel
         std::list<DebugDrawTriangle> m_triangles;
         std::list<DebugDrawQuad> m_quads;
         std::list<DebugDrawBox> m_boxes;
+        std::list<DebugDrawSphere> m_spheres;
     };
 }

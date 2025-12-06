@@ -165,6 +165,46 @@ namespace VKernel
         m_current_frame_index = (m_current_frame_index + 1) % k_max_frames_in_flight;
     }
 
+    VkCommandBuffer VulkanAPI::beginSingleTimeCommands()
+    {
+        // allocate cammand buffer
+        VkCommandBufferAllocateInfo allocInfo{};
+        allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+        allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+        allocInfo.commandPool = m_api_command_pool;
+        allocInfo.commandBufferCount = 1;
+
+        VkCommandBuffer command_buffer;
+        vkAllocateCommandBuffers(m_device, &allocInfo, &command_buffer);
+        
+        // begin command buffer
+        VkCommandBufferBeginInfo beginInfo{};
+        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+        vkBeginCommandBuffer(command_buffer, &beginInfo);
+
+        return command_buffer;
+    }
+
+    void VulkanAPI::endSingleTimeCommands(VkCommandBuffer command_buffer)
+    {
+        // end command buffer
+        vkEndCommandBuffer(command_buffer);
+
+        // submit
+        VkSubmitInfo submitInfo{};
+        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submitInfo.commandBufferCount = 1;
+        submitInfo.pCommandBuffers = &command_buffer;
+
+        vkQueueSubmit(m_graphics_queue, 1, &submitInfo, VK_NULL_HANDLE);
+        vkQueueWaitIdle(m_graphics_queue);
+
+        // free command buffer
+        vkFreeCommandBuffers(m_device, m_api_command_pool, 1, &command_buffer);
+    }
+
     VkShaderModule VulkanAPI::createShaderModule(const std::vector<unsigned char> &shader_code)
     {
         return VulkanUtil::createShaderModule(m_device, shader_code);
@@ -213,6 +253,13 @@ namespace VKernel
         createSwapchain();
         createSwapchainImageViews();
         createFramebufferImageAndView();
+    }
+
+    void VulkanAPI::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize srcOffset, VkDeviceSize dstOffset, VkDeviceSize size)
+    {
+        VkBuffer vk_src_buffer = srcBuffer;
+        VkBuffer vk_dst_buffer = dstBuffer;
+        VulkanUtil::copyBuffer(this, vk_src_buffer, vk_dst_buffer, srcOffset, dstOffset, size);
     }
 
     void VulkanAPI::createSwapchain()
@@ -849,6 +896,20 @@ namespace VKernel
 
     void VulkanAPI::createCommandPool()
     {
+        // create command pools
+        {
+            VkCommandPoolCreateInfo command_pool_create_info;
+            command_pool_create_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+            command_pool_create_info.pNext = NULL;
+            command_pool_create_info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT; ///< Allow resetting a single command buffer
+            command_pool_create_info.queueFamilyIndex = m_queue_indices.graphics_family.value();
+
+            if (vkCreateCommandPool(m_device, &command_pool_create_info, NULL, &m_api_command_pool) != VK_SUCCESS)
+            {
+                throw std::runtime_error("vk create command pool");
+            }
+        }
+
         // create command pools
         {
             VkCommandPoolCreateInfo command_pool_create_info;

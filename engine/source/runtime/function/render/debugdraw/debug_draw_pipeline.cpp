@@ -231,6 +231,9 @@ namespace VKernel
         rasterization_state_create_info.cullMode = VK_CULL_MODE_NONE;
         rasterization_state_create_info.frontFace = VK_FRONT_FACE_CLOCKWISE;
         rasterization_state_create_info.depthBiasEnable = VK_FALSE;
+        rasterization_state_create_info.depthBiasConstantFactor = 0.0f;
+        rasterization_state_create_info.depthBiasClamp = 0.0f;
+        rasterization_state_create_info.depthBiasSlopeFactor = 0.0f;
 
         // Multisample State
         VkPipelineMultisampleStateCreateInfo multisample_state_create_info{};

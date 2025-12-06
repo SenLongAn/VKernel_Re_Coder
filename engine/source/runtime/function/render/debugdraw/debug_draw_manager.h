@@ -38,7 +38,7 @@ namespace VKernel
         // draw
         void drawDebugObject(uint32_t current_swapchain_image_index); ///< Start rendering
         void prepareDrawBuffer(); ///< Establish a buffer zone for the data
-        void drawPointLineTriangleBox(uint32_t current_swapchain_image_index); ///< draw point, line ,triangle , triangle_without_depth_test
+        void drawSolidObject(uint32_t current_swapchain_image_index); ///< draw solid object, Use indexing method
         
     private:
         // object reference
@@ -59,8 +59,10 @@ namespace VKernel
         size_t m_no_depth_test_box_start_offset;
         size_t m_no_depth_test_box_end_offset;
 
+        // offset
         static constexpr uint8_t k_primitive_vertex_counts[] = {3, 4, 8};
         static constexpr uint8_t k_primitive_indice_counts[] = {3, 6, 36};
-        
+        uint32_t dynamicOffset = 0;
+
     };
 }

@@ -69,6 +69,8 @@ namespace VKernel
 
     class DebugDrawPrimitive ///< Primitive base class
     {
+    public:
+        static constexpr int BASIC_COUNT = 10; ///< basic vertex count
     };
 
     class DebugDrawTriangle : public DebugDrawPrimitive ///< Triangle Primitive derived class
@@ -105,5 +107,16 @@ namespace VKernel
         Transform m_model;
 
         static const DebugDrawPrimitiveType k_type_enum_value = _debug_draw_primitive_type_draw_box;
+    };
+
+    class DebugDrawSphere : public DebugDrawPrimitive
+    {
+    public:
+        static constexpr int SPHERE_BASIC_COUNT = (BASIC_COUNT * 2 + 2) * (BASIC_COUNT * 2) * 2 + (BASIC_COUNT * 2 + 1) * (BASIC_COUNT * 2) * 2;
+
+        DebugDrawVertex m_vertex[SPHERE_BASIC_COUNT];
+        Transform m_model;
+
+        static const DebugDrawPrimitiveType k_type_enum_value = _debug_draw_primitive_type_sphere;
     };
 }

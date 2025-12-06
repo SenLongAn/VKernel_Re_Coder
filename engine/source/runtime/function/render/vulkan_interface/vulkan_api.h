@@ -29,15 +29,18 @@ namespace VKernel
 
         void prepareContext(); ///< prepare Context，update m_current_command_buffer
 
-        // command write
+        // command
         bool prepareBeforePass(std::function<void()> passUpdateAfterRecreateSwapchain);
         void submitRendering(std::function<void()> passUpdateAfterRecreateSwapchain);
+        VkCommandBuffer beginSingleTimeCommands();
+        void endSingleTimeCommands(VkCommandBuffer command_buffer);
 
         // create(call vulkanUtil)
         VkShaderModule createShaderModule(const std::vector<unsigned char> &shader_code);
         void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties,
                           VkBuffer &buffer, VkDeviceMemory &buffer_memory);
         void recreateSwapchain();
+        void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize srcOffset, VkDeviceSize dstOffset, VkDeviceSize size);
 
         // query(get)
         VkDevice getLogicDevice() const;
@@ -68,6 +71,7 @@ namespace VKernel
         VkQueue m_graphics_queue{nullptr};
         VkQueue m_present_queue{nullptr};
         VkCommandPool m_command_pool;
+        VkCommandPool m_api_command_pool;
         VkCommandBuffer m_command_buffers[k_max_frames_in_flight];
         VkCommandBuffer m_current_command_buffer{nullptr};
         VkDescriptorPool m_descriptor_pool{nullptr};

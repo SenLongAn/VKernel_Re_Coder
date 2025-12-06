@@ -12,6 +12,7 @@ namespace VKernel
     {
         m_vulkan_api = g_runtime_global_context.m_render_system->getVulkanAPI();
 
+        // create DescriptorLayout and DescriptorSet
         setupDescriptorSet();
     }
 
@@ -22,14 +23,19 @@ namespace VKernel
 
     void DebugDrawAllocator::clear()
     {
+        // clear buffer
         clearBuffer();
+
+        // clear cache
         m_vertex_cache.clear();
+        m_sphere_vertex_cache.clear();
         m_uniform_buffer_object.proj_view_matrix = Matrix4x4::IDENTITY;
         m_uniform_buffer_dynamic_object_cache.clear();
     }
 
     void DebugDrawAllocator::clearBuffer()
     {
+        // clear buffer and memory
         if (m_vertex_resource.buffer)
         {
             m_vertex_resource.buffer = nullptr;
@@ -45,27 +51,31 @@ namespace VKernel
             m_uniform_dynamic_resource.buffer = nullptr;
             m_uniform_dynamic_resource.memory = nullptr;
         }
+        if (m_sphere_resource.buffer)
+        {
+            m_sphere_resource.buffer = nullptr;
+            m_sphere_resource.memory = nullptr;
+        }
     }
 
     size_t DebugDrawAllocator::cacheVertexs(const std::vector<DebugDrawVertex> &vertexs)
     {
-        size_t offset = m_vertex_cache.size(); ///< start offset
-        m_vertex_cache.resize(offset + vertexs.size());
-        for (size_t i = 0; i < vertexs.size(); i++)
-        {
-            m_vertex_cache[i + offset] = vertexs[i];
-        }
+        size_t offset = m_vertex_cache.size();
+        m_vertex_cache.insert(m_vertex_cache.end(),
+                              vertexs.begin(), vertexs.end());
         return offset;
+    }
+
+    void DebugDrawAllocator::cacheSphereVertexs(const std::vector<DebugDrawVertex> &vertexs)
+    {
+        m_sphere_vertex_cache.insert(m_sphere_vertex_cache.end(),
+                                     vertexs.begin(), vertexs.end());
     }
 
     void DebugDrawAllocator::cacheIndices(const std::vector<uint8_t> &indices)
     {
-        size_t offset = m_indice_cache.size(); ///< start offset
-        m_indice_cache.resize(offset + indices.size());
-        for (size_t i = 0; i < indices.size(); i++)
-        {
-            m_indice_cache[i + offset] = indices[i];
-        }
+        m_indice_cache.insert(m_indice_cache.end(),
+                              indices.begin(), indices.end());
     }
 
     void DebugDrawAllocator::cacheUniformObject(Matrix4x4 proj_view_matrix)
@@ -89,7 +99,7 @@ namespace VKernel
     {
         clearBuffer();
 
-        // vertex
+        // vertex cache
         uint64_t vertex_bufferSize = static_cast<uint64_t>(m_vertex_cache.size() * sizeof(DebugDrawVertex));
         if (vertex_bufferSize > 0)
         {
@@ -106,6 +116,35 @@ namespace VKernel
             vkMapMemory(m_vulkan_api->getLogicDevice(), m_vertex_resource.memory, 0, vertex_bufferSize, 0, &data);
             memcpy(data, m_vertex_cache.data(), vertex_bufferSize);
             vkUnmapMemory(m_vulkan_api->getLogicDevice(), m_vertex_resource.memory);
+        }
+
+        // vertex sphere
+        uint64_t bufferSize = static_cast<uint64_t>(m_sphere_vertex_cache.size() * sizeof(DebugDrawVertex));
+        if (bufferSize > 0)
+        {
+            m_vulkan_api->createBuffer(
+                bufferSize,
+                VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+                VMA_MEMORY_USAGE_GPU_ONLY,
+                m_sphere_resource.buffer,
+                m_sphere_resource.memory);
+
+            Resource stagingBuffer;
+            m_vulkan_api->createBuffer(
+                bufferSize,
+                VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                stagingBuffer.buffer,
+                stagingBuffer.memory);
+            void *data;
+            vkMapMemory(m_vulkan_api->getLogicDevice(), stagingBuffer.memory, 0, bufferSize, 0, &data);
+            memcpy(data, m_sphere_vertex_cache.data(), bufferSize);
+            vkUnmapMemory(m_vulkan_api->getLogicDevice(), stagingBuffer.memory);
+
+            m_vulkan_api->copyBuffer(stagingBuffer.buffer, m_sphere_resource.buffer, 0, 0, bufferSize);
+
+            vkDestroyBuffer(m_vulkan_api->getLogicDevice(), stagingBuffer.buffer, nullptr);
+            vkFreeMemory(m_vulkan_api->getLogicDevice(), stagingBuffer.memory, nullptr);
         }
 
         // indice
@@ -178,6 +217,18 @@ namespace VKernel
     VkBuffer DebugDrawAllocator::getIndiceBuffer() const { return m_indice_resource.buffer; }
 
     VkDescriptorSet DebugDrawAllocator::getDescriptorSet() const { return m_descriptor.descriptor_set[m_vulkan_api->getCurrentFrameIndex()]; }
+
+    VkBuffer DebugDrawAllocator::getSphereVertexBuffer() const { return m_sphere_resource.buffer; }
+
+    const size_t DebugDrawAllocator::getSizeOfUniformBufferObject() const
+    {
+        return sizeof(UniformBufferDynamicObject);
+    }
+
+    const size_t DebugDrawAllocator::getSphereVertexBufferSize() const
+    {
+        return DebugDrawSphere::SPHERE_BASIC_COUNT;
+    }
 
     void DebugDrawAllocator::setupDescriptorSet()
     {

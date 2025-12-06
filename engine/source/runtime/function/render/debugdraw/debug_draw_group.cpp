@@ -125,6 +125,50 @@ namespace VKernel
         m_boxes.push_back(box);
     }
 
+    void DebugDrawGroup::addSphere(const Vector4 &color, const Transform &model)
+    {
+        std::lock_guard<std::mutex> guard(m_mutex);
+        DebugDrawSphere sphere;
+
+        int32_t param = sphere.BASIC_COUNT;
+        float _2pi = 2.0f * Math_PI;
+        int32_t current_index = 0;
+        for (int32_t i = -param - 1; i < param + 1; i++)
+        {
+            float h = Math::sin(_2pi / 4.0f * i / (param + 1.0f));
+            float h1 = Math::sin(_2pi / 4.0f * (i + 1) / (param + 1.0f));
+            float r = Math::sqrt(1.0f - h * h);
+            float r1 = Math::sqrt(1.0f - h1 * h1);
+            for (int32_t j = 0; j < 2 * param; j++)
+            {
+                Vector3 p(Math::cos(_2pi / (2.0f * param) * j) * r, Math::sin(_2pi / (2.0f * param) * j) * r, h);
+                Vector3 p1(Math::cos(_2pi / (2.0f * param) * j) * r1, Math::sin(_2pi / (2.0f * param) * j) * r1, h1);
+                sphere.m_vertex[current_index].pos = p;
+                sphere.m_vertex[current_index++].color = Vector4(1.0f, 0.0f, 0.0f, 1.0f);
+
+                sphere.m_vertex[current_index].pos = p1;
+                sphere.m_vertex[current_index++].color = Vector4(0.0f, 1.0f, 0.0f, 1.0f);
+            }
+            if (i != -param - 1)
+            {
+                for (int32_t j = 0; j < 2 * param; j++)
+                {
+                    Vector3 p(Math::cos(_2pi / (2.0f * param) * j) * r, Math::sin(_2pi / (2.0f * param) * j) * r, h);
+                    Vector3 p1(Math::cos(_2pi / (2.0f * param) * (j + 1)) * r, Math::sin(_2pi / (2.0f * param) * (j + 1)) * r, h);
+                    sphere.m_vertex[current_index].pos = p;
+                    sphere.m_vertex[current_index++].color = Vector4(0.0f, 0.0f, 1.0f, 1.0f);
+
+                    sphere.m_vertex[current_index].pos = p1;
+                    sphere.m_vertex[current_index++].color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+                }
+            }
+        }
+
+        sphere.m_model = model;
+
+        m_spheres.push_back(sphere);
+    }
+
     size_t DebugDrawGroup::getTriangleCount() const
     {
         // The list needs to be traversed in order to obtain the number of nodes.
@@ -154,6 +198,16 @@ namespace VKernel
             box_count++;
         }
         return box_count;
+    }
+
+    size_t DebugDrawGroup::getSphereCount() const
+    {
+        size_t sphere_count = 0;
+        for (const DebugDrawSphere sphere : m_spheres)
+        {
+            sphere_count++;
+        }
+        return sphere_count;
     }
 
     void DebugDrawGroup::writeTriangleData(std::vector<DebugDrawVertex> &vertexs)
@@ -199,6 +253,21 @@ namespace VKernel
             for (int i = 0; i < 8; i++)
             {
                 vertexs[current_index++] = box.m_vertex[i];
+            }
+        }
+    }
+
+    void DebugDrawGroup::writeSphereData(std::vector<DebugDrawVertex> &vertexs)
+    {
+        size_t vertexs_count = getSphereCount() * DebugDrawSphere::SPHERE_BASIC_COUNT;
+        vertexs.resize(vertexs_count);
+
+        size_t current_index = 0;
+        for (DebugDrawSphere sphere : m_spheres)
+        {
+            for (int i = 0; i < DebugDrawSphere::SPHERE_BASIC_COUNT; i++)
+            {
+                vertexs[current_index++] = sphere.m_vertex[i];
             }
         }
     }
@@ -278,6 +347,16 @@ namespace VKernel
         for (DebugDrawBox box : m_boxes)
         {
             datas[current_index++] = box.m_model.getMatrix();
+        }
+
+        // sphere
+        size_t sphere_count = getSphereCount();
+        current_index = datas.size(); // last offset
+        datas.resize(datas.size() + sphere_count);
+
+        for (DebugDrawSphere sphere : m_spheres)
+        {
+            datas[current_index++] = sphere.m_model.getMatrix();
         }
     }
 }
