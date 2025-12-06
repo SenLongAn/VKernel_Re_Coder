@@ -129,14 +129,6 @@ namespace VKernel
         submit_info.signalSemaphoreCount = 1;
         submit_info.pSignalSemaphores = semaphores; ///< Signal Semaphores
 
-        VkResult res_reset_fences = vkResetFences(m_device, 1, &m_is_frame_in_flight_fences[m_current_frame_index]); ///< Cancel the use of CommandBuffer
-
-        if (VK_SUCCESS != res_reset_fences)
-        {
-            throw std::runtime_error("vkResetFences failed!");
-            return;
-        }
-
         VkResult res_queue_submit =
             vkQueueSubmit(m_graphics_queue, 1, &submit_info, m_is_frame_in_flight_fences[m_current_frame_index]); ///< Queue Submit
 
@@ -166,6 +158,7 @@ namespace VKernel
         else if (VK_SUCCESS != present_result)
         {
             throw std::runtime_error("vkQueuePresentKHR failed!");
+            return;
         }
 
         // update frame index
@@ -193,6 +186,15 @@ namespace VKernel
         {
             glfwGetFramebufferSize(m_window, &width, &height);
             glfwWaitEvents();
+        }
+
+        // wait fence, Ensure all command buffer/submit executions are completed
+        VkResult res_wait_for_fences =
+            vkWaitForFences(m_device, k_max_frames_in_flight, m_is_frame_in_flight_fences, VK_TRUE, UINT64_MAX);
+        if (VK_SUCCESS != res_wait_for_fences)
+        {
+            std::cerr << "vkWaitForFences failed" << std::endl;
+            return;
         }
 
         // destory (imageview, swapchain), depth
