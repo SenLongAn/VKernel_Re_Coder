@@ -124,6 +124,10 @@ namespace VKernel
                                                 Transform(Vector3(0.0, 0.0, 5.0),
                                                           Quaternion(Vector3(0.0, 0.0, 0.0)),
                                                           Vector3(0.5, 0.5, 0.5)));
+        m_debug_draw_group_for_render.addSphere(Vector4(1.0, 0.0, 0.0, 1.0),
+                                                Transform(Vector3(-5.0, 0.0, 5.0),
+                                                          Quaternion(Vector3(0.0, 0.0, 0.0)),
+                                                          Vector3(0.5, 0.5, 0.5)));
     }
 
     void DebugDrawManager::updateAfterRecreateSwapchain()
@@ -151,8 +155,8 @@ namespace VKernel
 
     void DebugDrawManager::drawDebugObject(uint32_t current_swapchain_image_index)
     {
-        prepareDrawBuffer();                                  ///< prepare buffer
-        drawSolidObject(current_swapchain_image_index);       ///< render
+        prepareDrawBuffer();                            ///< prepare buffer
+        drawSolidObject(current_swapchain_image_index); ///< render
     }
 
     void DebugDrawManager::prepareDrawBuffer()
@@ -163,17 +167,18 @@ namespace VKernel
         // Obtain the data and write it to the Cache
         // vbo
         std::vector<DebugDrawVertex> vertexs;
-        m_debug_draw_group_for_render.writeTriangleData(vertexs);                          ///< Write the "group" data to the "vertex"
-        m_no_depth_test_triangle_start_offset = m_buffer_allocator->cacheVertexs(vertexs); ///< Load vertex data
-        m_no_depth_test_triangle_end_offset = m_buffer_allocator->getVertexCacheOffset();  ///< get size
+        m_debug_draw_group_for_render.writeTriangleData(vertexs);                                   ///< Write the "group" data to the "vertex"
+        m_no_depth_test_triangle_start_offset = m_buffer_allocator->cacheVertexsHasIndice(vertexs); ///< Write the "vertex" data to the "cache"
+        m_no_depth_test_triangle_end_offset = m_buffer_allocator->getVertexHasIndiceCacheOffset();  ///< get offset
         m_debug_draw_group_for_render.writeQuadData(vertexs);
-        m_no_depth_test_quad_start_offset = m_buffer_allocator->cacheVertexs(vertexs);
-        m_no_depth_test_quad_end_offset = m_buffer_allocator->getVertexCacheOffset();
+        m_no_depth_test_quad_start_offset = m_buffer_allocator->cacheVertexsHasIndice(vertexs);
+        m_no_depth_test_quad_end_offset = m_buffer_allocator->getVertexHasIndiceCacheOffset();
         m_debug_draw_group_for_render.writeBoxData(vertexs);
-        m_no_depth_test_box_start_offset = m_buffer_allocator->cacheVertexs(vertexs);
-        m_no_depth_test_box_end_offset = m_buffer_allocator->getVertexCacheOffset();
+        m_no_depth_test_box_start_offset = m_buffer_allocator->cacheVertexsHasIndice(vertexs);
+        m_no_depth_test_box_end_offset = m_buffer_allocator->getVertexHasIndiceCacheOffset();
         m_debug_draw_group_for_render.writeSphereData(vertexs);
-        m_buffer_allocator->cacheSphereVertexs(vertexs);
+        m_no_depth_test_sphere_start_offset = m_buffer_allocator->cacheVertexs(vertexs);
+        m_no_depth_test_sphere_end_offset = m_buffer_allocator->getVertexCacheOffset();
         // ibo
         std::vector<uint8_t> indices;
         m_debug_draw_group_for_render.writeTriangleIndiceData(indices);
@@ -196,13 +201,13 @@ namespace VKernel
     void DebugDrawManager::drawSolidObject(uint32_t current_swapchain_image_index)
     {
         // bind vertex buffer
-        VkBuffer vertex_buffers[] = {m_buffer_allocator->getVertexBuffer()};
-        if (vertex_buffers[0] == nullptr)
+        VkBuffer vertex_has_indice_buffers[] = {m_buffer_allocator->getVertexHasIndiceBuffer()};
+        if (vertex_has_indice_buffers[0] == nullptr)
         {
             return;
         }
         VkDeviceSize offsets[] = {0};
-        vkCmdBindVertexBuffers(m_vulkan_api->getCurrentCommandBuffer(), 0, 1, vertex_buffers, offsets);
+        vkCmdBindVertexBuffers(m_vulkan_api->getCurrentCommandBuffer(), 0, 1, vertex_has_indice_buffers, offsets);
 
         // bind indice buffer
         VkBuffer indice_buffers = m_buffer_allocator->getIndiceBuffer();
@@ -213,11 +218,13 @@ namespace VKernel
         std::vector<size_t> vc_start_offsets{
             m_no_depth_test_triangle_start_offset,
             m_no_depth_test_quad_start_offset,
-            m_no_depth_test_box_start_offset};
+            m_no_depth_test_box_start_offset,
+            m_no_depth_test_sphere_start_offset};
         std::vector<size_t> vc_end_offsets{
             m_no_depth_test_triangle_end_offset,
             m_no_depth_test_quad_end_offset,
-            m_no_depth_test_box_end_offset};
+            m_no_depth_test_box_end_offset,
+            m_no_depth_test_sphere_end_offset};
 
         // Begin RenderPass
         VkClearValue clear_values[2];
@@ -238,12 +245,14 @@ namespace VKernel
         // Bind Pipeline
         vkCmdBindPipeline(m_vulkan_api->getCurrentCommandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, m_debug_draw_pipeline->getPipeline().pipeline);
 
-        // drawcall
+        // drawcall vertex has indice
         size_t uniform_dynamic_size = m_buffer_allocator->getSizeOfUniformBufferObject();
         dynamicOffset = 0;
+        size_t i = 0;
         size_t k = 0;
-        int n = sizeof(k_primitive_vertex_counts) / sizeof(k_primitive_vertex_counts[0]);
-        for (size_t i = 0; i < n; i++)
+        int n = sizeof(PRIMITIVE_HAS_INDICE_VERTEX_COUNT) / sizeof(PRIMITIVE_HAS_INDICE_VERTEX_COUNT[0]);
+
+        for (i; i < n; i++)
         {
             // If such primitives do not exist, skip this step.
             if (vc_end_offsets[i] - vc_start_offsets[i] == 0)
@@ -251,7 +260,7 @@ namespace VKernel
                 continue;
             }
 
-            for (size_t j = vc_start_offsets[i]; j < vc_end_offsets[i]; j += k_primitive_vertex_counts[i], k += k_primitive_indice_counts[i])
+            for (size_t j = vc_start_offsets[i]; j < vc_end_offsets[i]; j += PRIMITIVE_HAS_INDICE_VERTEX_COUNT[i], k += PRIMITIVE_INDICE_COUNT[i])
             {
                 // bind DescriptorSet
                 VkDescriptorSet descriptorSet = m_buffer_allocator->getDescriptorSet();
@@ -266,25 +275,29 @@ namespace VKernel
                 dynamicOffset += uniform_dynamic_size;
 
                 // drawcall
-                vkCmdDrawIndexed(m_vulkan_api->getCurrentCommandBuffer(), k_primitive_indice_counts[i], 1, k, j, 0);
+                vkCmdDrawIndexed(m_vulkan_api->getCurrentCommandBuffer(), PRIMITIVE_INDICE_COUNT[i], 1, k, j, 0);
             }
         }
 
-        // sphere
-        size_t sphere_count = m_debug_draw_group_for_render.getSphereCount();
+        // bind vertex buffer
+        VkBuffer vertex_buffers[] = {m_buffer_allocator->getVertexBuffer()};
+        vkCmdBindVertexBuffers(m_vulkan_api->getCurrentCommandBuffer(), 0, 1, vertex_buffers, offsets);
 
-        if (sphere_count > 0)
+        // drawcall vertex
+        dynamicOffset = dynamicOffset;
+        n += sizeof(PRIMITIVE_VERTEX_COUNT) / sizeof(PRIMITIVE_VERTEX_COUNT[0]);
+        k = 0;
+        for (i; i < n; i++, k++)
         {
-            // // begin render pass
-            VkDeviceSize offsets[] = {0};
-            VkBuffer sphere_vertex_buffers[] = {m_buffer_allocator->getSphereVertexBuffer()};
-            vkCmdBindVertexBuffers(m_vulkan_api->getCurrentCommandBuffer(), 0, 1, sphere_vertex_buffers, offsets);
-
-            size_t uniform_dynamic_size = m_buffer_allocator->getSizeOfUniformBufferObject();
-            dynamicOffset = dynamicOffset;
-
-            for (size_t j = 0; j < sphere_count; j++)
+            // If such primitives do not exist, skip this step.
+            if (vc_end_offsets[i] - vc_start_offsets[i] == 0)
             {
+                continue;
+            }
+
+            for (size_t j = vc_start_offsets[i]; j < vc_end_offsets[i]; j += PRIMITIVE_VERTEX_COUNT[k])
+            {
+                // bind DescriptorSet
                 VkDescriptorSet descriptorSet = m_buffer_allocator->getDescriptorSet();
                 vkCmdBindDescriptorSets(m_vulkan_api->getCurrentCommandBuffer(),
                                         VK_PIPELINE_BIND_POINT_GRAPHICS,
@@ -294,8 +307,10 @@ namespace VKernel
                                         &descriptorSet,
                                         1,
                                         &dynamicOffset);
-                vkCmdDraw(m_vulkan_api->getCurrentCommandBuffer(), m_buffer_allocator->getSphereVertexBufferSize(), 1, 0, 0);
                 dynamicOffset += uniform_dynamic_size;
+
+                // drawcall
+                vkCmdDraw(m_vulkan_api->getCurrentCommandBuffer(), vc_end_offsets[i] - vc_start_offsets[i], 1, vc_start_offsets[i], 0);
             }
         }
 

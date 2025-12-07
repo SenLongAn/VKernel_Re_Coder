@@ -20,23 +20,23 @@ namespace VKernel
         void clearBuffer();      ///< clear buffer
 
         // Fill the data into the cache
-        size_t cacheVertexs(const std::vector<DebugDrawVertex> &vertexs);      ///< vertex data
-        void cacheSphereVertexs(const std::vector<DebugDrawVertex> &vertexs);  ///< sphere vertex data
-        void cacheIndices(const std::vector<uint8_t> &indices);                ///< indice data
-        void cacheUniformObject(Matrix4x4 proj_view_matrix);                   ///< ubo
-        size_t cacheUniformDynamicObject(const std::vector<Matrix4x4> &model); ///< udbo
+        size_t cacheVertexsHasIndice(const std::vector<DebugDrawVertex> &vertexs); ///< vertex data has indice
+        size_t cacheVertexs(const std::vector<DebugDrawVertex> &vertexs);            ///< vertex data
+        void cacheIndices(const std::vector<uint8_t> &indices);                    ///< indice data
+        void cacheUniformObject(Matrix4x4 proj_view_matrix);                       ///< ubo
+        size_t cacheUniformDynamicObject(const std::vector<Matrix4x4> &model);     ///< udbo
 
         void allocator(); ///< Fill the memory and buffer with data
 
         // get
-        size_t getVertexCacheOffset() const; ///< get cache size
-        VkBuffer getVertexBuffer() const;
+        size_t getVertexHasIndiceCacheOffset() const;
+        VkBuffer getVertexHasIndiceBuffer() const;
         VkBuffer getIndiceBuffer() const;
         VkDescriptorSet getDescriptorSet() const;
-        VkBuffer getSphereVertexBuffer() const;
+        VkBuffer getVertexBuffer() const;
         const size_t getSizeOfUniformBufferObject() const;
-        const size_t getSphereVertexBufferSize() const;
-
+        size_t getVertexCacheOffset() const;
+        
     private:
         std::shared_ptr<VulkanAPI> m_vulkan_api; ///< Vulkan interface
 
@@ -50,11 +50,11 @@ namespace VKernel
         };
 
         // vertex
-        Resource m_vertex_resource;
-        std::vector<DebugDrawVertex> m_vertex_cache;
+        Resource m_vertex_has_indice_resource; ///< triangle, quad, box
+        std::vector<DebugDrawVertex> m_vertex_has_indice_cache;
 
-        Resource m_sphere_resource;
-        std::vector<DebugDrawVertex> m_sphere_vertex_cache;
+        Resource m_vertex_resource; ///< sphere
+        std::vector<DebugDrawVertex> m_vertex_cache;
 
         // indice
         Resource m_indice_resource;
