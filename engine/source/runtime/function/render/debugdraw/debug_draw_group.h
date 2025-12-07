@@ -27,7 +27,7 @@ namespace VKernel
                          const Vector4 &color1,
                          const Vector4 &color2,
                          const Transform &model,
-                         const uint8_t (&indices)[3]);
+                         const uint16_t (&indices)[3]);
 
         void addQuad(const Vector3 &point0,
                      const Vector3 &point1,
@@ -38,7 +38,7 @@ namespace VKernel
                      const Vector4 &color2,
                      const Vector4 &color3,
                      const Transform &model,
-                     const uint8_t (&indices)[6]);
+                     const uint16_t (&indices)[6]);
 
         void addBox(const Vector3 &center_point,
                     const Vector3 &half_extends,
@@ -51,7 +51,7 @@ namespace VKernel
                     const Vector4 &color6,
                     const Vector4 &color7,
                     const Transform &model,
-                    const uint8_t (&indices)[36]);
+                    const uint16_t (&indices)[36]);
 
         void addSphere(const Vector4 &color,
                        const Transform &model);
@@ -69,9 +69,9 @@ namespace VKernel
         void writeSphereData(std::vector<DebugDrawVertex> &vertexs);
 
         // The input parameter that writes the indice data
-        void writeTriangleIndiceData(std::vector<uint8_t> &indices);
-        void writeQuadIndiceData(std::vector<uint8_t> &indices);
-        void writeBoxIndiceData(std::vector<uint8_t> &indices);
+        void writeTriangleIndiceData(std::vector<uint16_t> &indices);
+        void writeQuadIndiceData(std::vector<uint16_t> &indices);
+        void writeBoxIndiceData(std::vector<uint16_t> &indices);
 
         // The input parameter that writes the vertex data
         void writeUniformDynamicDataToCache(std::vector<Matrix4x4> &datas);

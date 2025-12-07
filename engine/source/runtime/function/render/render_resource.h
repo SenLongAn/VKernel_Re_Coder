@@ -15,6 +15,8 @@ namespace VKernel
     class RenderResource : public RenderResourceBase
     {
     public:
+        void clear() override final;
+
         MeshPerframeStorageBufferObject m_mesh_perframe_storage_buffer_object;
 
         virtual void updatePerFrameBuffer(std::shared_ptr<RenderCamera> camera) override final;

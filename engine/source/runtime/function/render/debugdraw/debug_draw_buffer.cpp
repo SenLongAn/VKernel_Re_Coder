@@ -28,6 +28,7 @@ namespace VKernel
 
         // clear cache
         m_vertex_has_indice_cache.clear();
+        m_indice_cache.clear();
         m_vertex_cache.clear();
         m_uniform_buffer_object.proj_view_matrix = Matrix4x4::IDENTITY;
         m_uniform_buffer_dynamic_object_cache.clear();
@@ -40,6 +41,11 @@ namespace VKernel
         {
             m_vertex_has_indice_resource.buffer = nullptr;
             m_vertex_has_indice_resource.memory = nullptr;
+        }
+        if (m_indice_resource.buffer)
+        {
+            m_indice_resource.buffer = nullptr;
+            m_indice_resource.memory = nullptr;
         }
         if (m_uniform_resource.buffer)
         {
@@ -74,7 +80,7 @@ namespace VKernel
         return offset;
     }
 
-    void DebugDrawAllocator::cacheIndices(const std::vector<uint8_t> &indices)
+    void DebugDrawAllocator::cacheIndices(const std::vector<uint16_t> &indices)
     {
         m_indice_cache.insert(m_indice_cache.end(),
                               indices.begin(), indices.end());
@@ -150,7 +156,7 @@ namespace VKernel
         }
 
         // indice
-        uint64_t indice_bufferSize = static_cast<uint64_t>(m_indice_cache.size() * sizeof(uint8_t));
+        uint64_t indice_bufferSize = static_cast<uint64_t>(m_indice_cache.size() * sizeof(uint16_t));
         if (indice_bufferSize > 0)
         {
             // create memory and buffer

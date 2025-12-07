@@ -13,6 +13,8 @@ namespace VKernel
     public:
         virtual void initialize() override final {}
 
+        virtual void clear() {};
+
         virtual void forwardRender(std::shared_ptr<VulkanAPI> vulkan_api);
 
         void passUpdateAfterRecreateSwapchain(); ///< destory and recreate framebuffer

@@ -33,6 +33,7 @@ namespace VKernel
 
     void RuntimeGlobalContext::shutdownSystems()
     {
+        m_debugdraw_manager->destory();
         m_debugdraw_manager.reset();
 
         m_render_system->clear();

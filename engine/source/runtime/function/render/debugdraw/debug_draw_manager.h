@@ -62,8 +62,8 @@ namespace VKernel
         size_t m_no_depth_test_sphere_end_offset;
 
         // offset
-        static constexpr uint8_t PRIMITIVE_HAS_INDICE_VERTEX_COUNT[] = {3, 4, 8};
-        static constexpr uint8_t PRIMITIVE_INDICE_COUNT[] = {3, 6, 36};
+        static constexpr uint16_t PRIMITIVE_HAS_INDICE_VERTEX_COUNT[] = {3, 4, 8};
+        static constexpr uint16_t PRIMITIVE_INDICE_COUNT[] = {3, 6, 36};
         static constexpr int PRIMITIVE_VERTEX_COUNT[] = {DebugDrawSphere::SPHERE_BASIC_COUNT};
         uint32_t dynamicOffset = 0;
 

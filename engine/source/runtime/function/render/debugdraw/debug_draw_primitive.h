@@ -78,7 +78,7 @@ namespace VKernel
     public:
         DebugDrawVertex m_vertex[3]; ///< Vertex
 
-        uint8_t m_indices[3]; ///< indice
+        uint16_t m_indices[3]; ///< indice
 
         Transform m_model; ///< model
 
@@ -90,7 +90,7 @@ namespace VKernel
     public:
         DebugDrawVertex m_vertex[4];
 
-        uint8_t m_indices[6];
+        uint16_t m_indices[6];
 
         Transform m_model;
 
@@ -102,7 +102,7 @@ namespace VKernel
     public:
         DebugDrawVertex m_vertex[8];
 
-        uint8_t m_indices[36];
+        uint16_t m_indices[36];
 
         Transform m_model;
 

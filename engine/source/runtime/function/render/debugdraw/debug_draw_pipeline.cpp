@@ -66,7 +66,7 @@ namespace VKernel
         depth_attachment_description.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
         depth_attachment_description.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         depth_attachment_description.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        depth_attachment_description.initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+        depth_attachment_description.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         depth_attachment_description.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
         VkAttachmentReference depth_attachment_reference{};

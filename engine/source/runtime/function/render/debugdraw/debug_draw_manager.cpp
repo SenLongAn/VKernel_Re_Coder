@@ -19,6 +19,9 @@ namespace VKernel
 
     void DebugDrawManager::destory()
     {
+        m_debug_draw_pipeline->destory();
+        delete m_debug_draw_pipeline;
+
         m_buffer_allocator->destory();
         delete m_buffer_allocator;
     }
@@ -34,7 +37,7 @@ namespace VKernel
         m_buffer_allocator->initialize();
 
         // add primitive
-        const uint8_t triangle_indices[3] = {0, 1, 2};
+        const uint16_t triangle_indices[3] = {0, 1, 2};
         m_debug_draw_group_for_render.addTriangle(Vector3(0.0, -0.5, 0.0),
                                                   Vector3(0.5, 0.5, 0.0),
                                                   Vector3(-0.5, 0.5, 0.0),
@@ -55,7 +58,7 @@ namespace VKernel
                                                             Quaternion(Vector3(0.0, 0.0, 0.0)),
                                                             Vector3(0.5, 0.5, 0.5)),
                                                   triangle_indices);
-        const uint8_t quad_indices[6] = {0, 1, 2, 2, 3, 0};
+        const uint16_t quad_indices[6] = {0, 1, 2, 2, 3, 0};
         m_debug_draw_group_for_render.addQuad(Vector3(-0.5, -0.5, 0.0),
                                               Vector3(0.5, -0.5, 0.0),
                                               Vector3(0.5, 0.5, 0.0),
@@ -82,7 +85,7 @@ namespace VKernel
                                                         Quaternion(Vector3(0.0, 0.0, 0.0)),
                                                         Vector3(0.5, 0.5, 0.5)),
                                               quad_indices);
-        const uint8_t box_indices[36] = {0, 1, 2, 2, 3, 0,
+        const uint16_t box_indices[36] = {0, 1, 2, 2, 3, 0,
                                          4, 5, 6, 6, 7, 4,
                                          0, 3, 7, 7, 4, 0,
                                          1, 2, 6, 6, 5, 1,
@@ -180,7 +183,7 @@ namespace VKernel
         m_no_depth_test_sphere_start_offset = m_buffer_allocator->cacheVertexs(vertexs);
         m_no_depth_test_sphere_end_offset = m_buffer_allocator->getVertexCacheOffset();
         // ibo
-        std::vector<uint8_t> indices;
+        std::vector<uint16_t> indices;
         m_debug_draw_group_for_render.writeTriangleIndiceData(indices);
         m_buffer_allocator->cacheIndices(indices);
         m_debug_draw_group_for_render.writeQuadIndiceData(indices);
@@ -212,7 +215,7 @@ namespace VKernel
         // bind indice buffer
         VkBuffer indice_buffers = m_buffer_allocator->getIndiceBuffer();
         VkDeviceSize offset = 0;
-        vkCmdBindIndexBuffer(m_vulkan_api->getCurrentCommandBuffer(), indice_buffers, offset, VK_INDEX_TYPE_UINT8_EXT);
+        vkCmdBindIndexBuffer(m_vulkan_api->getCurrentCommandBuffer(), indice_buffers, offset, VK_INDEX_TYPE_UINT16);
 
         // primitive vertex offsets
         std::vector<size_t> vc_start_offsets{

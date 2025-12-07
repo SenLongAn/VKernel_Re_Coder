@@ -49,6 +49,7 @@ namespace VKernel
     public:
         DebugDrawPipeline(DebugDrawPipelineType pipelineType) {m_pipeline_type = pipelineType; }  ///< Constructor
         void initialize(); ///< init
+        void destory() {} /// clear
 
         // get
         const DebugDrawPipelineBase& getPipeline() const;

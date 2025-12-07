@@ -14,6 +14,8 @@ namespace VKernel
     public:
         virtual ~RenderResourceBase() {}
 
+        virtual void clear() = 0;
+
         virtual void updatePerFrameBuffer( std::shared_ptr<RenderCamera> camera) = 0;
     };
 }

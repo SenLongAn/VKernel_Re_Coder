@@ -22,7 +22,7 @@ namespace VKernel
         // Fill the data into the cache
         size_t cacheVertexsHasIndice(const std::vector<DebugDrawVertex> &vertexs); ///< vertex data has indice
         size_t cacheVertexs(const std::vector<DebugDrawVertex> &vertexs);            ///< vertex data
-        void cacheIndices(const std::vector<uint8_t> &indices);                    ///< indice data
+        void cacheIndices(const std::vector<uint16_t> &indices);                    ///< indice data
         void cacheUniformObject(Matrix4x4 proj_view_matrix);                       ///< ubo
         size_t cacheUniformDynamicObject(const std::vector<Matrix4x4> &model);     ///< udbo
 
@@ -58,7 +58,7 @@ namespace VKernel
 
         // indice
         Resource m_indice_resource;
-        std::vector<uint8_t> m_indice_cache;
+        std::vector<uint16_t> m_indice_cache;
 
         // ubo
         struct UniformBufferObject

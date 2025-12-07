@@ -81,6 +81,18 @@ namespace VKernel
             m_vulkan_api->clear();
         }
         m_vulkan_api.reset();
+
+        if (m_render_resource)
+        {
+            m_render_resource->clear();
+        }
+        m_render_resource.reset();
+
+        if (m_render_pipeline)
+        {
+            m_render_pipeline->clear();
+        }
+        m_render_pipeline.reset();
     }
 
     std::shared_ptr<VulkanAPI> RenderSystem::getVulkanAPI() const { return m_vulkan_api; }

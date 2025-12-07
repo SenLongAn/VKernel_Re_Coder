@@ -15,6 +15,7 @@ namespace VKernel
         m_triangles.clear();
         m_quads.clear();
         m_boxes.clear();
+        m_spheres.clear();
     }
 
     void DebugDrawGroup::addTriangle(const Vector3 &point0,
@@ -24,7 +25,7 @@ namespace VKernel
                                      const Vector4 &color1,
                                      const Vector4 &color2,
                                      const Transform &model,
-                                     const uint8_t (&indices)[3])
+                                     const uint16_t (&indices)[3])
     {
         std::lock_guard<std::mutex> guard(m_mutex);
 
@@ -55,7 +56,7 @@ namespace VKernel
                                  const Vector4 &color2,
                                  const Vector4 &color3,
                                  const Transform &model,
-                                 const uint8_t (&indices)[6])
+                                 const uint16_t (&indices)[6])
     {
         std::lock_guard<std::mutex> guard(m_mutex);
 
@@ -91,7 +92,7 @@ namespace VKernel
                                 const Vector4 &color6,
                                 const Vector4 &color7,
                                 const Transform &model,
-                                const uint8_t (&indices)[36])
+                                const uint16_t (&indices)[36])
     {
         std::lock_guard<std::mutex> guard(m_mutex);
         DebugDrawBox box;
@@ -272,7 +273,7 @@ namespace VKernel
         }
     }
 
-    void DebugDrawGroup::writeTriangleIndiceData(std::vector<uint8_t> &indices)
+    void DebugDrawGroup::writeTriangleIndiceData(std::vector<uint16_t> &indices)
     {
         size_t indices_count = getTriangleCount() * 3;
         indices.resize(indices_count);
@@ -287,7 +288,7 @@ namespace VKernel
         }
     }
 
-    void DebugDrawGroup::writeQuadIndiceData(std::vector<uint8_t> &indices)
+    void DebugDrawGroup::writeQuadIndiceData(std::vector<uint16_t> &indices)
     {
         size_t indices_count = getQuadCount() * 6;
         indices.resize(indices_count);
@@ -302,7 +303,7 @@ namespace VKernel
         }
     }
 
-    void DebugDrawGroup::writeBoxIndiceData(std::vector<uint8_t> &indices)
+    void DebugDrawGroup::writeBoxIndiceData(std::vector<uint16_t> &indices)
     {
         size_t indices_count = getBoxCount() * 36;
         indices.resize(indices_count);

@@ -6,6 +6,8 @@ namespace VKernel
 {
     WindowSystem::~WindowSystem()
     {
+        glfwDestroyWindow(m_window);
+        glfwTerminate();
     }
 
     void WindowSystem::initialize(WindowCreateInfo create_info)
