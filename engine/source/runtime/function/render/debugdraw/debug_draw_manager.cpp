@@ -21,78 +21,116 @@ namespace VKernel
         m_buffer_allocator->initialize();
 
         // add primitive
-        m_debug_draw_group_for_render.addTriangle(Vector4(1.000f, 0.647f, 0.000f, 1.0f),
-                                                  Transform(Vector3(-2.0, 0.0, 0.0),
+        m_debug_draw_group_for_render.addTriangle(Vector4(1.0f, 0.0f, 0.0f, 1.0f),
+                                                  Transform(Vector3(-4.0, 0.0, 0.0),
                                                             Quaternion(Vector3(0.0, 0.0, 0.0)),
                                                             Vector3(0.5, 0.5, 0.5)),
                                                   PrimitiveType::_Primitive_point,
                                                   true);
-        m_debug_draw_group_for_render.addQuad(Vector4(0.855f, 0.647f, 0.125f, 1.0f),
-                                              Transform(Vector3(-1.0, 0.0, 0.0),
+        m_debug_draw_group_for_render.addQuad(Vector4(1.0f, 0.0f, 0.0f, 1.0f),
+                                              Transform(Vector3(-2.0, 0.0, 0.0),
                                                         Quaternion(Vector3(0.0, 0.0, 0.0)),
                                                         Vector3(0.5, 0.5, 0.5)),
                                               PrimitiveType::_Primitive_point,
                                               true);
-        m_debug_draw_group_for_render.addBox(Vector4(1.0f, 0.0f, 1.0f, 1.0f),
+        m_debug_draw_group_for_render.addBox(Vector4(1.0f, 0.0f, 0.0f, 1.0f),
                                              Transform(Vector3(0.0, 0.0, 0.0),
                                                        Quaternion(Vector3(0.0, 0.0, 0.0)),
                                                        Vector3(0.5, 0.5, 0.5)),
                                              PrimitiveType::_Primitive_point,
                                              true);
-        m_debug_draw_group_for_render.addSphere(Vector4(0.641f, 0.502f, 0.502f, 1.0f),
-                                                Transform(Vector3(1.0, 0.0, 0.0),
+        m_debug_draw_group_for_render.addSphere(Vector4(1.0f, 0.0f, 0.0f, 1.0f),
+                                                Transform(Vector3(2.0, 0.0, 0.0),
                                                           Quaternion(Vector3(0.0, 0.0, 0.0)),
                                                           Vector3(0.5, 0.5, 0.5)),
                                                 PrimitiveType::_Primitive_point,
                                                 true);
-        m_debug_draw_group_for_render.addTriangle(Vector4(1.000f, 0.757f, 0.027f, 1.0f),
-                                                  Transform(Vector3(-2.0, 0.0, 1.0),
+        m_debug_draw_group_for_render.addCylinder(Vector4(1.0f, 0.0f, 0.0f, 1.0f),
+                                                  Transform(Vector3(4.0, 0.0, 0.0),
+                                                            Quaternion(Vector3(0.0, 0.0, 0.0)),
+                                                            Vector3(0.5, 0.5, 0.5)),
+                                                  PrimitiveType::_Primitive_point,
+                                                  true);
+        m_debug_draw_group_for_render.addCapsule(Vector4(1.0f, 0.0f, 0.0f, 1.0f),
+                                                 Transform(Vector3(6.0, 0.0, 0.0),
+                                                           Quaternion(Vector3(0.0, 0.0, 0.0)),
+                                                           Vector3(0.5, 0.5, 0.5)),
+                                                 PrimitiveType::_Primitive_point,
+                                                 true);
+
+        m_debug_draw_group_for_render.addTriangle(Vector4(1.0f, 0.0f, 0.0f, 1.0f),
+                                                  Transform(Vector3(-4.0, 0.0, 2.0),
                                                             Quaternion(Vector3(0.0, 0.0, 0.0)),
                                                             Vector3(0.5, 0.5, 0.5)),
                                                   PrimitiveType::_Primitive_line,
                                                   true);
-        m_debug_draw_group_for_render.addQuad(Vector4(1.0f, 0.0f, 1.0f, 1.0f),
-                                              Transform(Vector3(-1.0, 0.0, 1.0),
+        m_debug_draw_group_for_render.addQuad(Vector4(1.0f, 0.0f, 0.0f, 1.0f),
+                                              Transform(Vector3(-2.0, 0.0, 2.0),
                                                         Quaternion(Vector3(0.0, 0.0, 0.0)),
                                                         Vector3(0.5, 0.5, 0.5)),
                                               PrimitiveType::_Primitive_line,
                                               true);
-        m_debug_draw_group_for_render.addBox(Vector4(0.690f, 0.878f, 0.902f, 1.0f),
-                                             Transform(Vector3(0.0, 0.0, 1.0),
+        m_debug_draw_group_for_render.addBox(Vector4(1.0f, 0.0f, 0.0f, 1.0f),
+                                             Transform(Vector3(0.0, 0.0, 2.0),
                                                        Quaternion(Vector3(0.0, 0.0, 0.0)),
                                                        Vector3(0.5, 0.5, 0.5)),
                                              PrimitiveType::_Primitive_line,
                                              true);
-        m_debug_draw_group_for_render.addSphere(Vector4(0.400f, 0.804f, 0.667f, 1.0f),
-                                                Transform(Vector3(1.0, 0.0, 1.0),
+        m_debug_draw_group_for_render.addSphere(Vector4(1.0f, 0.0f, 0.0f, 1.0f),
+                                                Transform(Vector3(2.0, 0.0, 2.0),
                                                           Quaternion(Vector3(0.0, 0.0, 0.0)),
                                                           Vector3(0.5, 0.5, 0.5)),
                                                 PrimitiveType::_Primitive_line,
                                                 true);
-        m_debug_draw_group_for_render.addTriangle(Vector4(0.824f, 0.706f, 0.549f, 1.0f),
-                                                  Transform(Vector3(-2.0, 0.0, 2.0),
+        m_debug_draw_group_for_render.addCylinder(Vector4(1.0f, 0.0f, 0.0f, 1.0f),
+                                                  Transform(Vector3(4.0, 0.0, 2.0),
+                                                            Quaternion(Vector3(0.0, 0.0, 0.0)),
+                                                            Vector3(0.5, 0.5, 0.5)),
+                                                  PrimitiveType::_Primitive_line,
+                                                  true);
+        m_debug_draw_group_for_render.addCapsule(Vector4(1.0f, 0.0f, 0.0f, 1.0f),
+                                                 Transform(Vector3(6.0, 0.0, 2.0),
+                                                           Quaternion(Vector3(0.0, 0.0, 0.0)),
+                                                           Vector3(0.5, 0.5, 0.5)),
+                                                 PrimitiveType::_Primitive_line,
+                                                 true);
+
+        m_debug_draw_group_for_render.addTriangle(Vector4(1.0f, 0.0f, 0.0f, 1.0f),
+                                                  Transform(Vector3(-4.0, 0.0, 4.0),
                                                             Quaternion(Vector3(0.0, 0.0, 0.0)),
                                                             Vector3(0.5, 0.5, 0.5)),
                                                   PrimitiveType::_Primitive_triangle,
                                                   true);
-        m_debug_draw_group_for_render.addQuad(Vector4(0.678f, 0.847f, 0.902f, 1.0f),
-                                              Transform(Vector3(-1.0, 0.0, 2.0),
+        m_debug_draw_group_for_render.addQuad(Vector4(1.0f, 0.0f, 0.0f, 1.0f),
+                                              Transform(Vector3(-2.0, 0.0, 4.0),
                                                         Quaternion(Vector3(0.0, 0.0, 0.0)),
                                                         Vector3(0.5, 0.5, 0.5)),
                                               PrimitiveType::_Primitive_triangle,
                                               true);
-        m_debug_draw_group_for_render.addBox(Vector4(0.298f, 0.686f, 0.314f, 1.0f),
-                                              Transform(Vector3(0.0, 0.0, 2.0),
-                                                        Quaternion(Vector3(0.0, 0.0, 0.0)),
-                                                        Vector3(0.5, 0.5, 0.5)),
-                                              PrimitiveType::_Primitive_triangle,
-                                              true);
-        m_debug_draw_group_for_render.addSphere(Vector4(0.000f, 0.502f, 0.502f, 1.0f),
-                                              Transform(Vector3(1.0, 0.0, 2.0),
-                                                        Quaternion(Vector3(0.0, 0.0, 0.0)),
-                                                        Vector3(0.5, 0.5, 0.5)),
-                                              PrimitiveType::_Primitive_triangle,
-                                              true);
+        m_debug_draw_group_for_render.addBox(Vector4(1.0f, 0.0f, 0.0f, 1.0f),
+                                             Transform(Vector3(0.0, 0.0, 4.0),
+                                                       Quaternion(Vector3(0.0, 0.0, 0.0)),
+                                                       Vector3(0.5, 0.5, 0.5)),
+                                             PrimitiveType::_Primitive_triangle,
+                                             true);
+        m_debug_draw_group_for_render.addSphere(Vector4(1.0f, 0.0f, 0.0f, 1.0f),
+                                                Transform(Vector3(2.0, 0.0, 4.0),
+                                                          Quaternion(Vector3(0.0, 0.0, 0.0)),
+                                                          Vector3(0.5, 0.5, 0.5)),
+                                                PrimitiveType::_Primitive_triangle,
+                                                true);
+        m_debug_draw_group_for_render.addCylinder(Vector4(1.0f, 0.0f, 0.0f, 1.0f),
+                                                  Transform(Vector3(4.0, 0.0, 4.0),
+                                                            Quaternion(Vector3(0.0, 0.0, 0.0)),
+                                                            Vector3(0.5, 0.5, 0.5)),
+                                                  PrimitiveType::_Primitive_triangle,
+                                                  true);
+        m_debug_draw_group_for_render.addCapsule(Vector4(1.0f, 0.0f, 0.0f, 1.0f),
+                                                  Transform(Vector3(6.0, 0.0, 4.0),
+                                                            Quaternion(Vector3(0.0, 0.0, 0.0)),
+                                                            Vector3(0.5, 0.5, 0.5)),
+                                                  PrimitiveType::_Primitive_triangle,
+                                                  true);
     }
 
     void DebugDrawManager::destory()

@@ -102,4 +102,16 @@ namespace VKernel
     public:
         static const DebugDrawPrimitiveType k_type_enum_value = _debug_draw_primitive_type_sphere;
     };
+
+    class DebugDrawCylinder : public DebugDrawPrimitive
+    {
+    public:
+        static const DebugDrawPrimitiveType k_type_enum_value = _debug_draw_primitive_type_cylinder;
+    };
+
+    class DebugDrawCapsule : public DebugDrawPrimitive
+    {
+    public:
+        static const DebugDrawPrimitiveType k_type_enum_value = _debug_draw_primitive_type_capsule;
+    };
 }
