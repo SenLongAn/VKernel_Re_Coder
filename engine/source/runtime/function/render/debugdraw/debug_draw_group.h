@@ -20,41 +20,25 @@ namespace VKernel
         void clearData();              ///< clear
 
         // add
-        void addTriangle(const Vector3 &point0,
-                         const Vector3 &point1,
-                         const Vector3 &point2,
-                         const Vector4 &color0,
-                         const Vector4 &color1,
-                         const Vector4 &color2,
+        void addTriangle(const Vector4 &color,
                          const Transform &model,
-                         const uint16_t (&indices)[3]);
+                         const PrimitiveType &primitive_type,
+                         const bool &is_depth_test);
 
-        void addQuad(const Vector3 &point0,
-                     const Vector3 &point1,
-                     const Vector3 &point2,
-                     const Vector3 &point3,
-                     const Vector4 &color0,
-                     const Vector4 &color1,
-                     const Vector4 &color2,
-                     const Vector4 &color3,
+        void addQuad(const Vector4 &color,
                      const Transform &model,
-                     const uint16_t (&indices)[6]);
+                     const PrimitiveType &primitive_type,
+                     const bool &is_depth_test);
 
-        void addBox(const Vector3 &center_point,
-                    const Vector3 &half_extends,
-                    const Vector4 &color0,
-                    const Vector4 &color1,
-                    const Vector4 &color2,
-                    const Vector4 &color3,
-                    const Vector4 &color4,
-                    const Vector4 &color5,
-                    const Vector4 &color6,
-                    const Vector4 &color7,
+        void addBox(const Vector4 &color,
                     const Transform &model,
-                    const uint16_t (&indices)[36]);
+                    const PrimitiveType &primitive_type,
+                    const bool &is_depth_test);
 
         void addSphere(const Vector4 &color,
-                       const Transform &model);
+                       const Transform &model,
+                       const PrimitiveType &primitive_type,
+                       const bool &is_depth_test);
 
         // get
         size_t getTriangleCount() const;
@@ -63,18 +47,13 @@ namespace VKernel
         size_t getSphereCount() const;
 
         // The input parameter that writes the vertex data
-        void writeTriangleData(std::vector<DebugDrawVertex> &vertexs);
-        void writeQuadData(std::vector<DebugDrawVertex> &vertexs);
-        void writeBoxData(std::vector<DebugDrawVertex> &vertexs);
-        void writeSphereData(std::vector<DebugDrawVertex> &vertexs);
+        void writeVertexData(std::vector<DebugDrawVertex> &vertexs);
 
         // The input parameter that writes the indice data
-        void writeTriangleIndiceData(std::vector<uint16_t> &indices);
-        void writeQuadIndiceData(std::vector<uint16_t> &indices);
-        void writeBoxIndiceData(std::vector<uint16_t> &indices);
+        void writeIndiceData(std::vector<uint16_t> &indices);
 
-        // The input parameter that writes the vertex data
-        void writeUniformDynamicDataToCache(std::vector<Matrix4x4> &datas);
+        // The input parameter that writes the udbo data
+        std::vector<size_t> writeUniformDynamicDataToCache(std::vector<std::pair<Matrix4x4,Vector4>> &datas, const PrimitiveType& primity_type, const bool& is_depth_test);
 
     private:
         std::mutex m_mutex; ///< shared data

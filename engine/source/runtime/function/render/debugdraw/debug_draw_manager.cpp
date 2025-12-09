@@ -15,13 +15,96 @@ namespace VKernel
 
         // init
         setupPipelines();
+
+        // create buffer
+        m_buffer_allocator = new DebugDrawAllocator();
+        m_buffer_allocator->initialize();
+
+        // add primitive
+        m_debug_draw_group_for_render.addTriangle(Vector4(1.000f, 0.647f, 0.000f, 1.0f),
+                                                  Transform(Vector3(-2.0, 0.0, 0.0),
+                                                            Quaternion(Vector3(0.0, 0.0, 0.0)),
+                                                            Vector3(0.5, 0.5, 0.5)),
+                                                  PrimitiveType::_Primitive_point,
+                                                  true);
+        m_debug_draw_group_for_render.addQuad(Vector4(0.855f, 0.647f, 0.125f, 1.0f),
+                                              Transform(Vector3(-1.0, 0.0, 0.0),
+                                                        Quaternion(Vector3(0.0, 0.0, 0.0)),
+                                                        Vector3(0.5, 0.5, 0.5)),
+                                              PrimitiveType::_Primitive_point,
+                                              true);
+        m_debug_draw_group_for_render.addBox(Vector4(1.0f, 0.0f, 1.0f, 1.0f),
+                                             Transform(Vector3(0.0, 0.0, 0.0),
+                                                       Quaternion(Vector3(0.0, 0.0, 0.0)),
+                                                       Vector3(0.5, 0.5, 0.5)),
+                                             PrimitiveType::_Primitive_point,
+                                             true);
+        m_debug_draw_group_for_render.addSphere(Vector4(0.641f, 0.502f, 0.502f, 1.0f),
+                                                Transform(Vector3(1.0, 0.0, 0.0),
+                                                          Quaternion(Vector3(0.0, 0.0, 0.0)),
+                                                          Vector3(0.5, 0.5, 0.5)),
+                                                PrimitiveType::_Primitive_point,
+                                                true);
+        m_debug_draw_group_for_render.addTriangle(Vector4(1.000f, 0.757f, 0.027f, 1.0f),
+                                                  Transform(Vector3(-2.0, 0.0, 1.0),
+                                                            Quaternion(Vector3(0.0, 0.0, 0.0)),
+                                                            Vector3(0.5, 0.5, 0.5)),
+                                                  PrimitiveType::_Primitive_line,
+                                                  true);
+        m_debug_draw_group_for_render.addQuad(Vector4(1.0f, 0.0f, 1.0f, 1.0f),
+                                              Transform(Vector3(-1.0, 0.0, 1.0),
+                                                        Quaternion(Vector3(0.0, 0.0, 0.0)),
+                                                        Vector3(0.5, 0.5, 0.5)),
+                                              PrimitiveType::_Primitive_line,
+                                              true);
+        m_debug_draw_group_for_render.addBox(Vector4(0.690f, 0.878f, 0.902f, 1.0f),
+                                             Transform(Vector3(0.0, 0.0, 1.0),
+                                                       Quaternion(Vector3(0.0, 0.0, 0.0)),
+                                                       Vector3(0.5, 0.5, 0.5)),
+                                             PrimitiveType::_Primitive_line,
+                                             true);
+        m_debug_draw_group_for_render.addSphere(Vector4(0.400f, 0.804f, 0.667f, 1.0f),
+                                                Transform(Vector3(1.0, 0.0, 1.0),
+                                                          Quaternion(Vector3(0.0, 0.0, 0.0)),
+                                                          Vector3(0.5, 0.5, 0.5)),
+                                                PrimitiveType::_Primitive_line,
+                                                true);
+        m_debug_draw_group_for_render.addTriangle(Vector4(0.824f, 0.706f, 0.549f, 1.0f),
+                                                  Transform(Vector3(-2.0, 0.0, 2.0),
+                                                            Quaternion(Vector3(0.0, 0.0, 0.0)),
+                                                            Vector3(0.5, 0.5, 0.5)),
+                                                  PrimitiveType::_Primitive_triangle,
+                                                  true);
+        m_debug_draw_group_for_render.addQuad(Vector4(0.678f, 0.847f, 0.902f, 1.0f),
+                                              Transform(Vector3(-1.0, 0.0, 2.0),
+                                                        Quaternion(Vector3(0.0, 0.0, 0.0)),
+                                                        Vector3(0.5, 0.5, 0.5)),
+                                              PrimitiveType::_Primitive_triangle,
+                                              true);
+        m_debug_draw_group_for_render.addBox(Vector4(0.298f, 0.686f, 0.314f, 1.0f),
+                                              Transform(Vector3(0.0, 0.0, 2.0),
+                                                        Quaternion(Vector3(0.0, 0.0, 0.0)),
+                                                        Vector3(0.5, 0.5, 0.5)),
+                                              PrimitiveType::_Primitive_triangle,
+                                              true);
+        m_debug_draw_group_for_render.addSphere(Vector4(0.000f, 0.502f, 0.502f, 1.0f),
+                                              Transform(Vector3(1.0, 0.0, 2.0),
+                                                        Quaternion(Vector3(0.0, 0.0, 0.0)),
+                                                        Vector3(0.5, 0.5, 0.5)),
+                                              PrimitiveType::_Primitive_triangle,
+                                              true);
     }
 
     void DebugDrawManager::destory()
     {
-        m_debug_draw_pipeline->destory();
-        delete m_debug_draw_pipeline;
+        // pipline
+        for (uint8_t i = 0; i < DebugDrawPipelineType::_debug_draw_pipeline_type_count; i++)
+        {
+            m_debug_draw_pipeline[i]->destory();
+            delete m_debug_draw_pipeline[i];
+        }
 
+        // buffer
         m_buffer_allocator->destory();
         delete m_buffer_allocator;
     }
@@ -29,113 +112,26 @@ namespace VKernel
     void DebugDrawManager::setupPipelines()
     {
         // create pipelines
-        m_debug_draw_pipeline = new DebugDrawPipeline(DebugDrawPipelineType::_debug_draw_pipeline_type_triangle_no_depth_test);
-        m_debug_draw_pipeline->initialize();
-
-        // create buffer
-        m_buffer_allocator = new DebugDrawAllocator();
-        m_buffer_allocator->initialize();
-
-        // add primitive
-        const uint16_t triangle_indices[3] = {0, 1, 2};
-        m_debug_draw_group_for_render.addTriangle(Vector3(0.0, -0.5, 0.0),
-                                                  Vector3(0.5, 0.5, 0.0),
-                                                  Vector3(-0.5, 0.5, 0.0),
-                                                  Vector4(1.0, 0.0, 0.0, 1.0),
-                                                  Vector4(0.0, 1.0, 0.0, 1.0),
-                                                  Vector4(0.0, 0.0, 1.0, 1.0),
-                                                  Transform(Vector3(-0.5, 0.0, 0.0),
-                                                            Quaternion(Vector3(0.0, 0.0, 0.0)),
-                                                            Vector3(0.5, 0.5, 0.5)),
-                                                  triangle_indices);
-        m_debug_draw_group_for_render.addTriangle(Vector3(0.0, -0.5, 0.0),
-                                                  Vector3(0.5, 0.5, 0.0),
-                                                  Vector3(-0.5, 0.5, 0.0),
-                                                  Vector4(1.0, 0.0, 0.0, 1.0),
-                                                  Vector4(0.0, 1.0, 0.0, 1.0),
-                                                  Vector4(0.0, 0.0, 1.0, 1.0),
-                                                  Transform(Vector3(1.0, 0.0, 0.0),
-                                                            Quaternion(Vector3(0.0, 0.0, 0.0)),
-                                                            Vector3(0.5, 0.5, 0.5)),
-                                                  triangle_indices);
-        const uint16_t quad_indices[6] = {0, 1, 2, 2, 3, 0};
-        m_debug_draw_group_for_render.addQuad(Vector3(-0.5, -0.5, 0.0),
-                                              Vector3(0.5, -0.5, 0.0),
-                                              Vector3(0.5, 0.5, 0.0),
-                                              Vector3(-0.5, 0.5, 0.0),
-
-                                              Vector4(1.0, 0.0, 0.0, 1.0),
-                                              Vector4(0.0, 1.0, 0.0, 1.0),
-                                              Vector4(0.0, 0.0, 1.0, 1.0),
-                                              Vector4(1.0, 1.0, 1.0, 1.0),
-                                              Transform(Vector3(0.5, 0.0, 0.0),
-                                                        Quaternion(Vector3(0.0, 0.0, 0.0)),
-                                                        Vector3(0.5, 0.5, 0.5)),
-                                              quad_indices);
-        m_debug_draw_group_for_render.addQuad(Vector3(-0.5, -0.5, 0.0),
-                                              Vector3(0.5, -0.5, 0.0),
-                                              Vector3(0.5, 0.5, 0.0),
-                                              Vector3(-0.5, 0.5, 0.0),
-
-                                              Vector4(1.0, 0.0, 0.0, 1.0),
-                                              Vector4(0.0, 1.0, 0.0, 1.0),
-                                              Vector4(0.0, 0.0, 1.0, 1.0),
-                                              Vector4(0.0, 0.0, 0.0, 1.0),
-                                              Transform(Vector3(0.5, 0.0, 1.0),
-                                                        Quaternion(Vector3(0.0, 0.0, 0.0)),
-                                                        Vector3(0.5, 0.5, 0.5)),
-                                              quad_indices);
-        const uint16_t box_indices[36] = {0, 1, 2, 2, 3, 0,
-                                         4, 5, 6, 6, 7, 4,
-                                         0, 3, 7, 7, 4, 0,
-                                         1, 2, 6, 6, 5, 1,
-                                         0, 1, 5, 5, 4, 0,
-                                         3, 2, 6, 6, 7, 3};
-        m_debug_draw_group_for_render.addBox(Vector3(0.0, 0.0, 0.0),
-                                             Vector3(1.0, 1.0, 1.0),
-
-                                             Vector4(1.0, 0.0, 0.0, 1.0),
-                                             Vector4(0.0, 1.0, 0.0, 1.0),
-                                             Vector4(0.0, 0.0, 1.0, 1.0),
-                                             Vector4(1.0, 1.0, 1.0, 1.0),
-                                             Vector4(1.0, 0.0, 0.0, 1.0),
-                                             Vector4(0.0, 1.0, 0.0, 1.0),
-                                             Vector4(0.0, 0.0, 1.0, 1.0),
-                                             Vector4(1.0, 1.0, 1.0, 1.0),
-
-                                             Transform(Vector3(0.0, 0.0, 3.0),
-                                                       Quaternion(Vector3(0.0, 0.0, 0.0)),
-                                                       Vector3(0.5, 0.5, 0.5)),
-                                             box_indices);
-        m_debug_draw_group_for_render.addBox(Vector3(0.0, 0.0, 0.0),
-                                             Vector3(1.0, 1.0, 1.0),
-
-                                             Vector4(1.0, 0.0, 0.0, 1.0),
-                                             Vector4(0.0, 1.0, 0.0, 1.0),
-                                             Vector4(0.0, 0.0, 1.0, 1.0),
-                                             Vector4(1.0, 1.0, 1.0, 1.0),
-                                             Vector4(1.0, 0.0, 0.0, 1.0),
-                                             Vector4(0.0, 1.0, 0.0, 1.0),
-                                             Vector4(0.0, 0.0, 1.0, 1.0),
-                                             Vector4(1.0, 1.0, 1.0, 1.0),
-
-                                             Transform(Vector3(3.0, 0.0, 3.0),
-                                                       Quaternion(Vector3(0.0, 0.0, 0.0)),
-                                                       Vector3(0.5, 0.5, 0.5)),
-                                             box_indices);
-        m_debug_draw_group_for_render.addSphere(Vector4(1.0, 0.0, 0.0, 1.0),
-                                                Transform(Vector3(0.0, 0.0, 5.0),
-                                                          Quaternion(Vector3(0.0, 0.0, 0.0)),
-                                                          Vector3(0.5, 0.5, 0.5)));
-        m_debug_draw_group_for_render.addSphere(Vector4(1.0, 0.0, 0.0, 1.0),
-                                                Transform(Vector3(-5.0, 0.0, 5.0),
-                                                          Quaternion(Vector3(0.0, 0.0, 0.0)),
-                                                          Vector3(0.5, 0.5, 0.5)));
+        for (uint8_t i = 0; i < DebugDrawPipelineType::_debug_draw_pipeline_type_count; i++)
+        {
+            m_debug_draw_pipeline[i] = new DebugDrawPipeline((DebugDrawPipelineType)i);
+            if (i == 0)
+            {
+                m_debug_draw_pipeline[i]->initialize(VkAttachmentLoadOp::VK_ATTACHMENT_LOAD_OP_CLEAR, VkImageLayout::VK_IMAGE_LAYOUT_UNDEFINED, VkImageLayout::VK_IMAGE_LAYOUT_UNDEFINED);
+            }
+            else
+            {
+                m_debug_draw_pipeline[i]->initialize(VkAttachmentLoadOp::VK_ATTACHMENT_LOAD_OP_LOAD, VkImageLayout::VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, VkImageLayout::VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+            }
+        }
     }
 
     void DebugDrawManager::updateAfterRecreateSwapchain()
     {
-        m_debug_draw_pipeline->recreateAfterSwapchain();
+        for (uint8_t i = 0; i < DebugDrawPipelineType::_debug_draw_pipeline_type_count; i++)
+        {
+            m_debug_draw_pipeline[i]->recreateAfterSwapchain();
+        }
     }
 
     void DebugDrawManager::preparePassData(std::shared_ptr<RenderResourceBase> render_resource)
@@ -166,36 +162,42 @@ namespace VKernel
     {
         // clear buffer
         m_buffer_allocator->clear();
+        m_mesh_count.clear();
 
-        // Obtain the data and write it to the Cache
+        // write data to the cache
         // vbo
         std::vector<DebugDrawVertex> vertexs;
-        m_debug_draw_group_for_render.writeTriangleData(vertexs);                                   ///< Write the "group" data to the "vertex"
-        m_no_depth_test_triangle_start_offset = m_buffer_allocator->cacheVertexsHasIndice(vertexs); ///< Write the "vertex" data to the "cache"
-        m_no_depth_test_triangle_end_offset = m_buffer_allocator->getVertexHasIndiceCacheOffset();  ///< get offset
-        m_debug_draw_group_for_render.writeQuadData(vertexs);
-        m_no_depth_test_quad_start_offset = m_buffer_allocator->cacheVertexsHasIndice(vertexs);
-        m_no_depth_test_quad_end_offset = m_buffer_allocator->getVertexHasIndiceCacheOffset();
-        m_debug_draw_group_for_render.writeBoxData(vertexs);
-        m_no_depth_test_box_start_offset = m_buffer_allocator->cacheVertexsHasIndice(vertexs);
-        m_no_depth_test_box_end_offset = m_buffer_allocator->getVertexHasIndiceCacheOffset();
-        m_debug_draw_group_for_render.writeSphereData(vertexs);
-        m_no_depth_test_sphere_start_offset = m_buffer_allocator->cacheVertexs(vertexs);
-        m_no_depth_test_sphere_end_offset = m_buffer_allocator->getVertexCacheOffset();
+        m_debug_draw_group_for_render.writeVertexData(vertexs); ///< Write the "group" data to the "vertex"
+        m_buffer_allocator->cacheVertexs(vertexs);              ///< Write the "vertex" data to the "cache"
+
         // ibo
         std::vector<uint16_t> indices;
-        m_debug_draw_group_for_render.writeTriangleIndiceData(indices);
+        m_debug_draw_group_for_render.writeIndiceData(indices);
         m_buffer_allocator->cacheIndices(indices);
-        m_debug_draw_group_for_render.writeQuadIndiceData(indices);
-        m_buffer_allocator->cacheIndices(indices);
-        m_debug_draw_group_for_render.writeBoxIndiceData(indices);
-        m_buffer_allocator->cacheIndices(indices);
+
         // ubo
         m_buffer_allocator->cacheUniformObject(m_proj_view_matrix); ///< vp
+
         // udbo
-        std::vector<Matrix4x4> object = {};
-        m_debug_draw_group_for_render.writeUniformDynamicDataToCache(object); ///< m
-        m_buffer_allocator->cacheUniformDynamicObject(object);
+        std::vector<std::pair<Matrix4x4, Vector4>> dynamicObject = {};
+        m_mesh_count.push_back(m_debug_draw_group_for_render.writeUniformDynamicDataToCache(dynamicObject, PrimitiveType::_Primitive_point, true));
+        m_buffer_allocator->cacheUniformDynamicObject(dynamicObject);
+        dynamicObject.clear();
+        m_mesh_count.push_back(m_debug_draw_group_for_render.writeUniformDynamicDataToCache(dynamicObject, PrimitiveType::_Primitive_line, true));
+        m_buffer_allocator->cacheUniformDynamicObject(dynamicObject);
+        dynamicObject.clear();
+        m_mesh_count.push_back(m_debug_draw_group_for_render.writeUniformDynamicDataToCache(dynamicObject, PrimitiveType::_Primitive_triangle, true));
+        m_buffer_allocator->cacheUniformDynamicObject(dynamicObject);
+        dynamicObject.clear();
+        m_mesh_count.push_back(m_debug_draw_group_for_render.writeUniformDynamicDataToCache(dynamicObject, PrimitiveType::_Primitive_point, false));
+        m_buffer_allocator->cacheUniformDynamicObject(dynamicObject);
+        dynamicObject.clear();
+        m_mesh_count.push_back(m_debug_draw_group_for_render.writeUniformDynamicDataToCache(dynamicObject, PrimitiveType::_Primitive_line, false));
+        m_buffer_allocator->cacheUniformDynamicObject(dynamicObject);
+        dynamicObject.clear();
+        m_mesh_count.push_back(m_debug_draw_group_for_render.writeUniformDynamicDataToCache(dynamicObject, PrimitiveType::_Primitive_triangle, false));
+        m_buffer_allocator->cacheUniformDynamicObject(dynamicObject);
+        dynamicObject.clear();
 
         // Create a buffer and bind it to the description
         m_buffer_allocator->allocator();
@@ -204,7 +206,7 @@ namespace VKernel
     void DebugDrawManager::drawSolidObject(uint32_t current_swapchain_image_index)
     {
         // bind vertex buffer
-        VkBuffer vertex_has_indice_buffers[] = {m_buffer_allocator->getVertexHasIndiceBuffer()};
+        VkBuffer vertex_has_indice_buffers[] = {m_buffer_allocator->getVertexBuffer()};
         if (vertex_has_indice_buffers[0] == nullptr)
         {
             return;
@@ -217,17 +219,13 @@ namespace VKernel
         VkDeviceSize offset = 0;
         vkCmdBindIndexBuffer(m_vulkan_api->getCurrentCommandBuffer(), indice_buffers, offset, VK_INDEX_TYPE_UINT16);
 
-        // primitive vertex offsets
-        std::vector<size_t> vc_start_offsets{
-            m_no_depth_test_triangle_start_offset,
-            m_no_depth_test_quad_start_offset,
-            m_no_depth_test_box_start_offset,
-            m_no_depth_test_sphere_start_offset};
-        std::vector<size_t> vc_end_offsets{
-            m_no_depth_test_triangle_end_offset,
-            m_no_depth_test_quad_end_offset,
-            m_no_depth_test_box_end_offset,
-            m_no_depth_test_sphere_end_offset};
+        // piplines
+        std::vector<DebugDrawPipeline *> vc_pipelines{m_debug_draw_pipeline[DebugDrawPipelineType::_debug_draw_pipeline_type_point],
+                                                      m_debug_draw_pipeline[DebugDrawPipelineType::_debug_draw_pipeline_type_line],
+                                                      m_debug_draw_pipeline[DebugDrawPipelineType::_debug_draw_pipeline_type_triangle],
+                                                      m_debug_draw_pipeline[DebugDrawPipelineType::_debug_draw_pipeline_type_point_no_depth_test],
+                                                      m_debug_draw_pipeline[DebugDrawPipelineType::_debug_draw_pipeline_type_line_no_depth_test],
+                                                      m_debug_draw_pipeline[DebugDrawPipelineType::_debug_draw_pipeline_type_triangle_no_depth_test]};
 
         // Begin RenderPass
         VkClearValue clear_values[2];
@@ -241,83 +239,79 @@ namespace VKernel
         renderpass_begin_info.clearValueCount = (sizeof(clear_values) / sizeof(clear_values[0]));
         renderpass_begin_info.pClearValues = clear_values;
 
-        renderpass_begin_info.renderPass = m_debug_draw_pipeline->getFramebuffer().render_pass;
-        renderpass_begin_info.framebuffer = m_debug_draw_pipeline->getFramebuffer().framebuffers[current_swapchain_image_index];
-        vkCmdBeginRenderPass(m_vulkan_api->getCurrentCommandBuffer(), &renderpass_begin_info, VK_SUBPASS_CONTENTS_INLINE);
-
-        // Bind Pipeline
-        vkCmdBindPipeline(m_vulkan_api->getCurrentCommandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, m_debug_draw_pipeline->getPipeline().pipeline);
-
         // drawcall vertex has indice
         size_t uniform_dynamic_size = m_buffer_allocator->getSizeOfUniformBufferObject();
         dynamicOffset = 0;
-        size_t i = 0;
-        size_t k = 0;
-        int n = sizeof(PRIMITIVE_HAS_INDICE_VERTEX_COUNT) / sizeof(PRIMITIVE_HAS_INDICE_VERTEX_COUNT[0]);
+        size_t vertex_start_offset = 0, vertex_index = 0;
+        size_t indice_start_offset = 0, indice_index = 0;
 
-        for (i; i < n; i++)
+        for (size_t i = 0; i < vc_pipelines.size(); i++) ///< Iterative pipeline
         {
-            // If such primitives do not exist, skip this step.
-            if (vc_end_offsets[i] - vc_start_offsets[i] == 0)
+            // begin renderpass
+            renderpass_begin_info.renderPass = vc_pipelines[i]->getFramebuffer().render_pass;
+            renderpass_begin_info.framebuffer = vc_pipelines[i]->getFramebuffer().framebuffers[current_swapchain_image_index];
+            vkCmdBeginRenderPass(m_vulkan_api->getCurrentCommandBuffer(), &renderpass_begin_info, VK_SUBPASS_CONTENTS_INLINE);
+
+            // Bind Pipeline
+            vkCmdBindPipeline(m_vulkan_api->getCurrentCommandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, vc_pipelines[i]->getPipeline().pipeline);
+
+            for (size_t j = 0; j < m_mesh_count[i].size(); j++) ///< Iterative mesh type
             {
-                continue;
+                for (size_t k = 0; k < m_mesh_count[i][j]; k++) ///< Iterative mesh
+                {
+                    // bind DescriptorSet
+                    VkDescriptorSet descriptorSet = m_buffer_allocator->getDescriptorSet();
+                    vkCmdBindDescriptorSets(m_vulkan_api->getCurrentCommandBuffer(),
+                                            VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                            vc_pipelines[i]->getPipeline().layout,
+                                            0,
+                                            1,
+                                            &descriptorSet,
+                                            1,
+                                            &dynamicOffset);
+                    dynamicOffset += uniform_dynamic_size;
+
+                    // drawcall
+                    if (i == 2 || i == 5)
+                    {
+                        vkCmdDrawIndexed(m_vulkan_api->getCurrentCommandBuffer(), PRIMITIVE_INDICE_COUNT[indice_index], 1, indice_start_offset, vertex_start_offset, 0);
+                    }
+                    else
+                    {
+                        vkCmdDraw(m_vulkan_api->getCurrentCommandBuffer(), PRIMITIVE_VERTEX_COUNT[vertex_index], 1, vertex_start_offset, 0);
+                    }
+                }
+
+                // vertex offset
+                if (vertex_index >= (sizeof(PRIMITIVE_VERTEX_COUNT) / sizeof(PRIMITIVE_VERTEX_COUNT[0])))
+                {
+                    vertex_start_offset = 0;
+                    vertex_index = 0;
+                }
+                else
+                {
+                    vertex_start_offset += PRIMITIVE_VERTEX_COUNT[vertex_index];
+                    vertex_index++;
+                }
+
+                // indice offset
+                if (i == 2 || i == 5)
+                {
+                    if (indice_index >= (sizeof(PRIMITIVE_INDICE_COUNT) / sizeof(PRIMITIVE_INDICE_COUNT[0])))
+                    {
+                        indice_start_offset = 0;
+                        indice_index = 0;
+                    }
+                    else
+                    {
+                        indice_start_offset += PRIMITIVE_INDICE_COUNT[indice_index];
+                        indice_index++;
+                    }
+                }
             }
 
-            for (size_t j = vc_start_offsets[i]; j < vc_end_offsets[i]; j += PRIMITIVE_HAS_INDICE_VERTEX_COUNT[i], k += PRIMITIVE_INDICE_COUNT[i])
-            {
-                // bind DescriptorSet
-                VkDescriptorSet descriptorSet = m_buffer_allocator->getDescriptorSet();
-                vkCmdBindDescriptorSets(m_vulkan_api->getCurrentCommandBuffer(),
-                                        VK_PIPELINE_BIND_POINT_GRAPHICS,
-                                        m_debug_draw_pipeline->getPipeline().layout,
-                                        0,
-                                        1,
-                                        &descriptorSet,
-                                        1,
-                                        &dynamicOffset);
-                dynamicOffset += uniform_dynamic_size;
-
-                // drawcall
-                vkCmdDrawIndexed(m_vulkan_api->getCurrentCommandBuffer(), PRIMITIVE_INDICE_COUNT[i], 1, k, j, 0);
-            }
+            // end renderpass
+            vkCmdEndRenderPass(m_vulkan_api->getCurrentCommandBuffer());
         }
-
-        // bind vertex buffer
-        VkBuffer vertex_buffers[] = {m_buffer_allocator->getVertexBuffer()};
-        vkCmdBindVertexBuffers(m_vulkan_api->getCurrentCommandBuffer(), 0, 1, vertex_buffers, offsets);
-
-        // drawcall vertex
-        dynamicOffset = dynamicOffset;
-        n += sizeof(PRIMITIVE_VERTEX_COUNT) / sizeof(PRIMITIVE_VERTEX_COUNT[0]);
-        k = 0;
-        for (i; i < n; i++, k++)
-        {
-            // If such primitives do not exist, skip this step.
-            if (vc_end_offsets[i] - vc_start_offsets[i] == 0)
-            {
-                continue;
-            }
-
-            for (size_t j = vc_start_offsets[i]; j < vc_end_offsets[i]; j += PRIMITIVE_VERTEX_COUNT[k])
-            {
-                // bind DescriptorSet
-                VkDescriptorSet descriptorSet = m_buffer_allocator->getDescriptorSet();
-                vkCmdBindDescriptorSets(m_vulkan_api->getCurrentCommandBuffer(),
-                                        VK_PIPELINE_BIND_POINT_GRAPHICS,
-                                        m_debug_draw_pipeline->getPipeline().layout,
-                                        0,
-                                        1,
-                                        &descriptorSet,
-                                        1,
-                                        &dynamicOffset);
-                dynamicOffset += uniform_dynamic_size;
-
-                // drawcall
-                vkCmdDraw(m_vulkan_api->getCurrentCommandBuffer(), vc_end_offsets[i] - vc_start_offsets[i], 1, vc_start_offsets[i], 0);
-            }
-        }
-
-        // end renderpass
-        vkCmdEndRenderPass(m_vulkan_api->getCurrentCommandBuffer());
     }
 }

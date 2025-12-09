@@ -20,23 +20,20 @@ namespace VKernel
         void clearBuffer();      ///< clear buffer
 
         // Fill the data into the cache
-        size_t cacheVertexsHasIndice(const std::vector<DebugDrawVertex> &vertexs); ///< vertex data has indice
-        size_t cacheVertexs(const std::vector<DebugDrawVertex> &vertexs);            ///< vertex data
-        void cacheIndices(const std::vector<uint16_t> &indices);                    ///< indice data
-        void cacheUniformObject(Matrix4x4 proj_view_matrix);                       ///< ubo
-        size_t cacheUniformDynamicObject(const std::vector<Matrix4x4> &model);     ///< udbo
+        void cacheVertexs(const std::vector<DebugDrawVertex> &vertexs);                                   ///< vertex data
+        void cacheIndices(const std::vector<uint16_t> &indices);                                          ///< indice data
+        void cacheUniformObject(Matrix4x4 proj_view_matrix);                                              ///< ubo
+        size_t cacheUniformDynamicObject(const std::vector<std::pair<Matrix4x4, Vector4>> &model_colors); ///< udbo
 
         void allocator(); ///< Fill the memory and buffer with data
 
         // get
-        size_t getVertexHasIndiceCacheOffset() const;
-        VkBuffer getVertexHasIndiceBuffer() const;
         VkBuffer getIndiceBuffer() const;
         VkDescriptorSet getDescriptorSet() const;
         VkBuffer getVertexBuffer() const;
         const size_t getSizeOfUniformBufferObject() const;
         size_t getVertexCacheOffset() const;
-        
+
     private:
         std::shared_ptr<VulkanAPI> m_vulkan_api; ///< Vulkan interface
 
@@ -50,10 +47,7 @@ namespace VKernel
         };
 
         // vertex
-        Resource m_vertex_has_indice_resource; ///< triangle, quad, box
-        std::vector<DebugDrawVertex> m_vertex_has_indice_cache;
-
-        Resource m_vertex_resource; ///< sphere
+        Resource m_vertex_resource;
         std::vector<DebugDrawVertex> m_vertex_cache;
 
         // indice
@@ -69,9 +63,10 @@ namespace VKernel
         UniformBufferObject m_uniform_buffer_object;
 
         // udbo
-        struct alignas(64) UniformBufferDynamicObject
+        struct alignas(256) UniformBufferDynamicObject
         {
             Matrix4x4 model_matrix;
+            Vector4 color;
         };
         Resource m_uniform_dynamic_resource;
         std::vector<UniformBufferDynamicObject> m_uniform_buffer_dynamic_object_cache;

@@ -4,7 +4,6 @@
 #include "constants.h"
 
 layout(location = 0) in vec3 inPosition;
-layout(location = 1) in vec4 inColor;
 
 layout(set = 0, binding = 0) uniform UniformBufferObject {
     mat4 proj_view_matrix;
@@ -12,6 +11,7 @@ layout(set = 0, binding = 0) uniform UniformBufferObject {
 
 layout(set = 0, binding = 1) uniform UniformDynamicBufferObject {
     mat4 model;
+    vec4 color;
 } dynamic_ubo;
 
 layout(location = 0) out vec4 fragColor;
@@ -19,5 +19,7 @@ layout(location = 0) out vec4 fragColor;
 void main() {
     gl_Position = ubo.proj_view_matrix * dynamic_ubo.model * vec4(inPosition,1.0);
 
-    fragColor = inColor;
+    gl_PointSize = 5;
+    
+    fragColor = dynamic_ubo.color;
 }

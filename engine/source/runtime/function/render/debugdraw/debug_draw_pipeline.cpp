@@ -12,11 +12,11 @@
 
 namespace VKernel
 {
-    void DebugDrawPipeline::initialize()
+    void DebugDrawPipeline::initialize(const VkAttachmentLoadOp& load_op, const VkImageLayout& initial_layout, const VkImageLayout& initial_layout_depth)
     {
         m_vulkan_api = g_runtime_global_context.m_render_system->getVulkanAPI();
 
-        setupRenderPass();
+        setupRenderPass(load_op, initial_layout,initial_layout_depth);
         setupFramebuffer();
         setupDescriptorLayout();
         setupPipelines();
@@ -41,17 +41,17 @@ namespace VKernel
         setupFramebuffer();
     }
 
-    void DebugDrawPipeline::setupRenderPass()
+    void DebugDrawPipeline::setupRenderPass(const VkAttachmentLoadOp& load_op, const VkImageLayout& initial_layout, const VkImageLayout& initial_layout_depth)
     {
         // color attachment
         VkAttachmentDescription color_attachment_description{};
         color_attachment_description.format = m_vulkan_api->getSwapchainInfo().image_format;
         color_attachment_description.samples = VK_SAMPLE_COUNT_1_BIT;
-        color_attachment_description.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        color_attachment_description.loadOp = load_op;
         color_attachment_description.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
         color_attachment_description.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         color_attachment_description.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        color_attachment_description.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        color_attachment_description.initialLayout = initial_layout;
         color_attachment_description.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
         VkAttachmentReference color_attachment_reference{};
@@ -62,11 +62,11 @@ namespace VKernel
         VkAttachmentDescription depth_attachment_description{};
         depth_attachment_description.format = m_vulkan_api->getDepthImageInfo().depth_image_format;
         depth_attachment_description.samples = VK_SAMPLE_COUNT_1_BIT;
-        depth_attachment_description.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        depth_attachment_description.loadOp = load_op;
         depth_attachment_description.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
         depth_attachment_description.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         depth_attachment_description.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        depth_attachment_description.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        depth_attachment_description.initialLayout = initial_layout_depth;
         depth_attachment_description.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
         VkAttachmentReference depth_attachment_reference{};
@@ -83,8 +83,8 @@ namespace VKernel
         // Subpass Dependency
         VkSubpassDependency dependencies[1] = {};
         VkSubpassDependency &debug_draw_dependency = dependencies[0];
-        debug_draw_dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-        debug_draw_dependency.dstSubpass = 0;
+        debug_draw_dependency.srcSubpass = 0;
+        debug_draw_dependency.dstSubpass = VK_SUBPASS_EXTERNAL;
         debug_draw_dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
         debug_draw_dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
         debug_draw_dependency.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
@@ -293,17 +293,32 @@ namespace VKernel
         pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
         // Adjust according to the pipeline type
-        if (m_pipeline_type == _debug_draw_pipeline_type_point_no_depth_test)
+        if (m_pipeline_type == _debug_draw_pipeline_type_point)
         {
             input_assembly_create_info.topology = VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
+        }
+        else if (m_pipeline_type == _debug_draw_pipeline_type_line)
+        {
+            input_assembly_create_info.topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+        }
+        else if (m_pipeline_type == _debug_draw_pipeline_type_triangle)
+        {
+            input_assembly_create_info.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+        }
+        else if (m_pipeline_type == _debug_draw_pipeline_type_point_no_depth_test)
+        {
+            input_assembly_create_info.topology = VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
+            depth_stencil_create_info.depthTestEnable = VK_FALSE;
         }
         else if (m_pipeline_type == _debug_draw_pipeline_type_line_no_depth_test)
         {
             input_assembly_create_info.topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+            depth_stencil_create_info.depthTestEnable = VK_FALSE;
         }
         else if (m_pipeline_type == _debug_draw_pipeline_type_triangle_no_depth_test)
         {
             input_assembly_create_info.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+            depth_stencil_create_info.depthTestEnable = VK_FALSE;
         }
 
         // create Pipeline

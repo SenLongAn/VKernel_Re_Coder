@@ -24,16 +24,22 @@ namespace VKernel
         k_debug_draw_primitive_type_count
     };
 
+    enum PrimitiveType : uint8_t ///< primitive type
+    {
+        _Primitive_point = 0,
+        _Primitive_line = 1,
+        _Primitive_triangle = 2,
+        k_Primitive_count,
+    };
+
     struct DebugDrawVertex ///< Vertex data
     {
         // Vertex data
         Vector3 pos;
-        Vector4 color;
 
         DebugDrawVertex() ///< Default initialization Vertex data
         {
             pos = Vector3(-1.0f, -1.0f, -1.0f);
-            color = Vector4(-1.0f, -1.0f, -1.0f, -1.0f);
         }
 
         // Vertex Description
@@ -47,21 +53,15 @@ namespace VKernel
             return binding_descriptions;
         }
 
-        static std::array<VkVertexInputAttributeDescription, 2> getAttributeDescriptions()
+        static std::array<VkVertexInputAttributeDescription, 1> getAttributeDescriptions()
         {
-            std::array<VkVertexInputAttributeDescription, 2> attribute_descriptions{};
+            std::array<VkVertexInputAttributeDescription, 1> attribute_descriptions{};
 
             // position
             attribute_descriptions[0].binding = 0;
             attribute_descriptions[0].location = 0;
             attribute_descriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
             attribute_descriptions[0].offset = offsetof(DebugDrawVertex, pos);
-
-            // color
-            attribute_descriptions[1].binding = 0;
-            attribute_descriptions[1].location = 1;
-            attribute_descriptions[1].format = VK_FORMAT_R32G32B32A32_SFLOAT;
-            attribute_descriptions[1].offset = offsetof(DebugDrawVertex, color);
 
             return attribute_descriptions;
         }
@@ -70,53 +70,36 @@ namespace VKernel
     class DebugDrawPrimitive ///< Primitive base class
     {
     public:
-        static constexpr int BASIC_COUNT = 10; ///< basic vertex count
+        PrimitiveType m_primitive_type{k_Primitive_count}; ///< primitive type
+
+        bool m_is_depth_test = false; ///< Is there a depth test
+
+        Vector4 m_color; ///< color
+
+        Transform m_model; ///< model
     };
 
     class DebugDrawTriangle : public DebugDrawPrimitive ///< Triangle Primitive derived class
     {
     public:
-        DebugDrawVertex m_vertex[3]; ///< Vertex
-
-        uint16_t m_indices[3]; ///< indice
-
-        Transform m_model; ///< model
-
         static const DebugDrawPrimitiveType k_type_enum_value = _debug_draw_primitive_type_triangle; ///< Primitive Type
     };
 
     class DebugDrawQuad : public DebugDrawPrimitive ///< quad
     {
     public:
-        DebugDrawVertex m_vertex[4];
-
-        uint16_t m_indices[6];
-
-        Transform m_model;
-
         static const DebugDrawPrimitiveType k_type_enum_value = _debug_draw_primitive_type_quad;
     };
 
     class DebugDrawBox : public DebugDrawPrimitive ///< box
     {
     public:
-        DebugDrawVertex m_vertex[8];
-
-        uint16_t m_indices[36];
-
-        Transform m_model;
-
         static const DebugDrawPrimitiveType k_type_enum_value = _debug_draw_primitive_type_draw_box;
     };
 
     class DebugDrawSphere : public DebugDrawPrimitive
     {
     public:
-        static constexpr int SPHERE_BASIC_COUNT = (BASIC_COUNT * 2 + 2) * (BASIC_COUNT * 2) * 2 + (BASIC_COUNT * 2 + 1) * (BASIC_COUNT * 2) * 2;
-
-        DebugDrawVertex m_vertex[SPHERE_BASIC_COUNT];
-        Transform m_model;
-
         static const DebugDrawPrimitiveType k_type_enum_value = _debug_draw_primitive_type_sphere;
     };
 }

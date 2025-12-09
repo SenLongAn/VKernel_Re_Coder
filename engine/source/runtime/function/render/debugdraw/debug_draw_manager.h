@@ -20,10 +20,10 @@ namespace VKernel
     public:
         // base func
         DebugDrawManager() {}; ///< Constructor
-        ~DebugDrawManager() { } ///< Destructor
-        void initialize(); ///< init
-        void destory(); ///< clear
-        
+        ~DebugDrawManager() {} ///< Destructor
+        void initialize();     ///< init
+        void destory();        ///< clear
+
         // interface
         void setupPipelines(); ///< pipline and Allocator init
 
@@ -33,39 +33,34 @@ namespace VKernel
 
         // draw
         void draw(uint32_t current_swapchain_image_index); ///< Rendering interface
-        
+
     private:
         // draw
         void drawDebugObject(uint32_t current_swapchain_image_index); ///< Start rendering
-        void prepareDrawBuffer(); ///< Establish a buffer zone for the data
+        void prepareDrawBuffer();                                     ///< Establish a buffer zone for the data
         void drawSolidObject(uint32_t current_swapchain_image_index); ///< draw solid object, Use indexing method
-        
+
     private:
         // object reference
         std::shared_ptr<VulkanAPI> m_vulkan_api = nullptr; ///< Vulkan interface
-        
-        DebugDrawAllocator* m_buffer_allocator = nullptr; ///< buffer class
-        DebugDrawGroup m_debug_draw_group_for_render; ///< primitive group
-        DebugDrawPipeline* m_debug_draw_pipeline; ///< pipline
+
+        DebugDrawAllocator *m_buffer_allocator = nullptr;                                                      ///< buffer class
+        DebugDrawGroup m_debug_draw_group_for_render;                                                          ///< primitive group
+        DebugDrawPipeline *m_debug_draw_pipeline[DebugDrawPipelineType::_debug_draw_pipeline_type_count] = {}; ///< pipline
 
         // VP matrix
         Matrix4x4 m_proj_view_matrix;
-        
-        // The starting and ending offsets in the cache of the buffer class.
-        size_t m_no_depth_test_triangle_start_offset;
-        size_t m_no_depth_test_triangle_end_offset;
-        size_t m_no_depth_test_quad_start_offset;
-        size_t m_no_depth_test_quad_end_offset;
-        size_t m_no_depth_test_box_start_offset;
-        size_t m_no_depth_test_box_end_offset;
-        size_t m_no_depth_test_sphere_start_offset;
-        size_t m_no_depth_test_sphere_end_offset;
+
+        // mesh count offset
+        std::vector<std::vector<size_t>> m_mesh_count;
 
         // offset
-        static constexpr uint16_t PRIMITIVE_HAS_INDICE_VERTEX_COUNT[] = {3, 4, 8};
-        static constexpr uint16_t PRIMITIVE_INDICE_COUNT[] = {3, 6, 36};
-        static constexpr int PRIMITIVE_VERTEX_COUNT[] = {DebugDrawSphere::SPHERE_BASIC_COUNT};
+        static constexpr uint16_t PRIMITIVE_VERTEX_COUNT[] = {
+            3 , 4 , 8 , 4225 ,  // point
+            6 , 8 , 24 , 1720 , // line
+            3 , 4 , 8 , 4225    // triangle
+        };
+        static constexpr uint16_t PRIMITIVE_INDICE_COUNT[] = {3 , 6 , 36 , 24576};
         uint32_t dynamicOffset = 0;
-
     };
 }

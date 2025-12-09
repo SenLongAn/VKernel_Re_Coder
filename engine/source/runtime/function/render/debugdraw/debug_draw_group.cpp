@@ -18,154 +18,83 @@ namespace VKernel
         m_spheres.clear();
     }
 
-    void DebugDrawGroup::addTriangle(const Vector3 &point0,
-                                     const Vector3 &point1,
-                                     const Vector3 &point2,
-                                     const Vector4 &color0,
-                                     const Vector4 &color1,
-                                     const Vector4 &color2,
+    void DebugDrawGroup::addTriangle(const Vector4 &color,
                                      const Transform &model,
-                                     const uint16_t (&indices)[3])
+                                     const PrimitiveType &primitive_type,
+                                     const bool &is_depth_test)
     {
         std::lock_guard<std::mutex> guard(m_mutex);
 
         DebugDrawTriangle triangle;
 
-        triangle.m_vertex[0].pos = point0;
-        triangle.m_vertex[0].color = color0;
-
-        triangle.m_vertex[1].pos = point1;
-        triangle.m_vertex[1].color = color1;
-
-        triangle.m_vertex[2].pos = point2;
-        triangle.m_vertex[2].color = color2;
+        triangle.m_color = color,
 
         triangle.m_model = model;
 
-        std::memcpy(triangle.m_indices, indices, sizeof(indices));
+        triangle.m_primitive_type = primitive_type;
+
+        triangle.m_is_depth_test = is_depth_test;
 
         m_triangles.push_back(triangle);
     }
 
-    void DebugDrawGroup::addQuad(const Vector3 &point0,
-                                 const Vector3 &point1,
-                                 const Vector3 &point2,
-                                 const Vector3 &point3,
-                                 const Vector4 &color0,
-                                 const Vector4 &color1,
-                                 const Vector4 &color2,
-                                 const Vector4 &color3,
+    void DebugDrawGroup::addQuad(const Vector4 &color,
                                  const Transform &model,
-                                 const uint16_t (&indices)[6])
+                                 const PrimitiveType &primitive_type,
+                                 const bool &is_depth_test)
+
     {
         std::lock_guard<std::mutex> guard(m_mutex);
 
         DebugDrawQuad quad;
 
-        quad.m_vertex[0].pos = point0;
-        quad.m_vertex[0].color = color0;
-
-        quad.m_vertex[1].pos = point1;
-        quad.m_vertex[1].color = color1;
-
-        quad.m_vertex[2].pos = point2;
-        quad.m_vertex[2].color = color2;
-
-        quad.m_vertex[3].pos = point3;
-        quad.m_vertex[3].color = color3;
+        quad.m_color = color,
 
         quad.m_model = model;
 
-        std::memcpy(quad.m_indices, indices, sizeof(indices));
+        quad.m_primitive_type = primitive_type;
+
+        quad.m_is_depth_test = is_depth_test;
 
         m_quads.push_back(quad);
     }
 
-    void DebugDrawGroup::addBox(const Vector3 &center_point,
-                                const Vector3 &half_extends,
-                                const Vector4 &color0,
-                                const Vector4 &color1,
-                                const Vector4 &color2,
-                                const Vector4 &color3,
-                                const Vector4 &color4,
-                                const Vector4 &color5,
-                                const Vector4 &color6,
-                                const Vector4 &color7,
+    void DebugDrawGroup::addBox(const Vector4 &color,
                                 const Transform &model,
-                                const uint16_t (&indices)[36])
+                                const PrimitiveType &primitive_type,
+                                const bool &is_depth_test)
     {
         std::lock_guard<std::mutex> guard(m_mutex);
+
         DebugDrawBox box;
 
-        Vector3 vertices_local[8] = {
-            Vector3(-half_extends.x, -half_extends.y, -half_extends.z),
-            Vector3(half_extends.x, -half_extends.y, -half_extends.z),
-            Vector3(half_extends.x, half_extends.y, -half_extends.z),
-            Vector3(-half_extends.x, half_extends.y, -half_extends.z),
-            Vector3(-half_extends.x, -half_extends.y, half_extends.z),
-            Vector3(half_extends.x, -half_extends.y, half_extends.z),
-            Vector3(half_extends.x, half_extends.y, half_extends.z),
-            Vector3(-half_extends.x, half_extends.y, half_extends.z)};
-        for (size_t i = 0; i < 8; i++)
-        {
-            box.m_vertex[i].pos = vertices_local[i] + center_point;
-        }
-        box.m_vertex[0].color = color0;
-        box.m_vertex[1].color = color1;
-        box.m_vertex[2].color = color2;
-        box.m_vertex[3].color = color3;
-        box.m_vertex[4].color = color4;
-        box.m_vertex[5].color = color5;
-        box.m_vertex[6].color = color6;
-        box.m_vertex[7].color = color7;
+        box.m_color = color,
 
         box.m_model = model;
 
-        std::memcpy(box.m_indices, indices, sizeof(indices));
+        box.m_primitive_type = primitive_type;
+
+        box.m_is_depth_test = is_depth_test;
 
         m_boxes.push_back(box);
     }
 
-    void DebugDrawGroup::addSphere(const Vector4 &color, const Transform &model)
+    void DebugDrawGroup::addSphere(const Vector4 &color,
+                                   const Transform &model,
+                                   const PrimitiveType &primitive_type,
+                                   const bool &is_depth_test)
     {
         std::lock_guard<std::mutex> guard(m_mutex);
+
         DebugDrawSphere sphere;
 
-        int32_t param = sphere.BASIC_COUNT;
-        float _2pi = 2.0f * Math_PI;
-        int32_t current_index = 0;
-        for (int32_t i = -param - 1; i < param + 1; i++)
-        {
-            float h = Math::sin(_2pi / 4.0f * i / (param + 1.0f));
-            float h1 = Math::sin(_2pi / 4.0f * (i + 1) / (param + 1.0f));
-            float r = Math::sqrt(1.0f - h * h);
-            float r1 = Math::sqrt(1.0f - h1 * h1);
-            for (int32_t j = 0; j < 2 * param; j++)
-            {
-                Vector3 p(Math::cos(_2pi / (2.0f * param) * j) * r, Math::sin(_2pi / (2.0f * param) * j) * r, h);
-                Vector3 p1(Math::cos(_2pi / (2.0f * param) * j) * r1, Math::sin(_2pi / (2.0f * param) * j) * r1, h1);
-                sphere.m_vertex[current_index].pos = p;
-                sphere.m_vertex[current_index++].color = Vector4(1.0f, 0.0f, 0.0f, 1.0f);
-
-                sphere.m_vertex[current_index].pos = p1;
-                sphere.m_vertex[current_index++].color = Vector4(0.0f, 1.0f, 0.0f, 1.0f);
-            }
-            if (i != -param - 1)
-            {
-                for (int32_t j = 0; j < 2 * param; j++)
-                {
-                    Vector3 p(Math::cos(_2pi / (2.0f * param) * j) * r, Math::sin(_2pi / (2.0f * param) * j) * r, h);
-                    Vector3 p1(Math::cos(_2pi / (2.0f * param) * (j + 1)) * r, Math::sin(_2pi / (2.0f * param) * (j + 1)) * r, h);
-                    sphere.m_vertex[current_index].pos = p;
-                    sphere.m_vertex[current_index++].color = Vector4(0.0f, 0.0f, 1.0f, 1.0f);
-
-                    sphere.m_vertex[current_index].pos = p1;
-                    sphere.m_vertex[current_index++].color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
-                }
-            }
-        }
+        sphere.m_color = color,
 
         sphere.m_model = model;
+
+        sphere.m_primitive_type = primitive_type;
+
+        sphere.m_is_depth_test = is_depth_test;
 
         m_spheres.push_back(sphere);
     }
@@ -211,153 +140,276 @@ namespace VKernel
         return sphere_count;
     }
 
-    void DebugDrawGroup::writeTriangleData(std::vector<DebugDrawVertex> &vertexs)
+    void DebugDrawGroup::writeVertexData(std::vector<DebugDrawVertex> &vertexs)
     {
-        // resize
-        size_t vertexs_count = getTriangleCount() * 3;
-        vertexs.resize(vertexs_count);
+        // triangle, quad, box, sphere
+        vertexs.resize(
+            3 + 4 + 8 + 4225 +  // point
+            6 + 8 + 24 + 1720 + // line
+            3 + 4 + 8 + 4225    // triangle
+        );
 
-        // Traverse and write the data
-        size_t current_index = 0;
-        for (DebugDrawTriangle triangle : m_triangles)
+        int index = 0;
+
+        // ==================== point ====================
+
+        // triangle_point
+        vertexs[index++].pos = Vector3(0.0, -0.5, 0.0);
+        vertexs[index++].pos = Vector3(0.5, 0.5, 0.0);
+        vertexs[index++].pos = Vector3(-0.5, 0.5, 0.0);
+
+        // quad_point
+        vertexs[index++].pos = Vector3(-0.5f, 0.5f, 0.0f);
+        vertexs[index++].pos = Vector3(0.5f, 0.5f, 0.0f);
+        vertexs[index++].pos = Vector3(0.5f, -0.5f, 0.0f);
+        vertexs[index++].pos = Vector3(-0.5f, -0.5f, 0.0f);
+
+        // box_point
+        vertexs[index++].pos = Vector3(-0.5f, 0.5f, -0.5f);
+        vertexs[index++].pos = Vector3(0.5f, 0.5f, -0.5f);
+        vertexs[index++].pos = Vector3(0.5f, -0.5f, -0.5f);
+        vertexs[index++].pos = Vector3(-0.5f, -0.5f, -0.5f);
+        vertexs[index++].pos = Vector3(-0.5f, 0.5f, 0.5f);
+        vertexs[index++].pos = Vector3(0.5f, 0.5f, 0.5f);
+        vertexs[index++].pos = Vector3(0.5f, -0.5f, 0.5f);
+        vertexs[index++].pos = Vector3(-0.5f, -0.5f, 0.5f);
+
+        // sphere_point
+        const unsigned int X_SEGMENTS = 64;
+        const unsigned int Y_SEGMENTS = 64;
+        for (int y = 0; y <= Y_SEGMENTS; y++)
         {
-            for (int i = 0; i < 3; i++)
+            for (int x = 0; x <= X_SEGMENTS; x++)
             {
-                vertexs[current_index++] = triangle.m_vertex[i];
+                float xSegment = (float)x / (float)X_SEGMENTS; ///< 0 -- 1
+                float ySegment = (float)y / (float)Y_SEGMENTS;
+                float xPos = Math::cos(xSegment * 2.0f * Math_PI) * Math::sin(ySegment * Math_PI); ///< radians
+                float yPos = Math::cos(ySegment * Math_PI);
+                float zPos = Math::sin(xSegment * 2.0f * Math_PI) * Math::sin(ySegment * Math_PI);
+
+                vertexs[index++].pos = Vector3(xPos, yPos, zPos);
+            }
+        }
+
+        // ==================== line ====================
+
+        // triangle_line
+        vertexs[index++].pos = Vector3(-0.5, 0.5, 0.0);
+        vertexs[index++].pos = Vector3(0.5f, 0.5f, 0.0f);
+        vertexs[index++].pos = Vector3(0.5f, 0.5f, 0.0f);
+        vertexs[index++].pos = Vector3(0.0f, -0.5f, 0.0f);
+        vertexs[index++].pos = Vector3(0.0f, -0.5f, 0.0f);
+        vertexs[index++].pos = Vector3(-0.5f, 0.5f, 0.0f);
+
+        // quad_line
+        vertexs[index++].pos = Vector3(-0.5f, 0.5f, 0.0f);
+        vertexs[index++].pos = Vector3(0.5f, 0.5f, 0.0f);
+        vertexs[index++].pos = Vector3(0.5f, 0.5f, 0.0f);
+        vertexs[index++].pos = Vector3(0.5f, -0.5f, 0.0f);
+        vertexs[index++].pos = Vector3(0.5f, -0.5f, 0.0f);
+        vertexs[index++].pos = Vector3(-0.5f, -0.5f, 0.0f);
+        vertexs[index++].pos = Vector3(-0.5f, -0.5f, 0.0f);
+        vertexs[index++].pos = Vector3(-0.5f, 0.5f, 0.0f);
+
+        // box_line
+        vertexs[index++].pos = Vector3(-0.5f, 0.5f, -0.5f);
+        vertexs[index++].pos = Vector3(0.5f, 0.5f, -0.5f);
+        vertexs[index++].pos = Vector3(0.5f, 0.5f, -0.5f);
+        vertexs[index++].pos = Vector3(0.5f, -0.5f, -0.5f);
+        vertexs[index++].pos = Vector3(0.5f, -0.5f, -0.5f);
+        vertexs[index++].pos = Vector3(-0.5f, -0.5f, -0.5f);
+        vertexs[index++].pos = Vector3(-0.5f, -0.5f, -0.5f);
+        vertexs[index++].pos = Vector3(-0.5f, 0.5f, -0.5f);
+        vertexs[index++].pos = Vector3(-0.5f, 0.5f, 0.5f);
+        vertexs[index++].pos = Vector3(0.5f, 0.5f, 0.5f);
+        vertexs[index++].pos = Vector3(0.5f, 0.5f, 0.5f);
+        vertexs[index++].pos = Vector3(0.5f, -0.5f, 0.5f);
+        vertexs[index++].pos = Vector3(0.5f, -0.5f, 0.5f);
+        vertexs[index++].pos = Vector3(-0.5f, -0.5f, 0.5f);
+        vertexs[index++].pos = Vector3(-0.5f, -0.5f, 0.5f);
+        vertexs[index++].pos = Vector3(-0.5f, 0.5f, 0.5f);
+        vertexs[index++].pos = Vector3(-0.5f, 0.5f, -0.5f);
+        vertexs[index++].pos = Vector3(-0.5f, 0.5f, 0.5f);
+        vertexs[index++].pos = Vector3(0.5f, 0.5f, -0.5f);
+        vertexs[index++].pos = Vector3(0.5f, 0.5f, 0.5f);
+        vertexs[index++].pos = Vector3(0.5f, -0.5f, -0.5f);
+        vertexs[index++].pos = Vector3(0.5f, -0.5f, 0.5f);
+        vertexs[index++].pos = Vector3(-0.5f, -0.5f, -0.5f);
+        vertexs[index++].pos = Vector3(-0.5f, -0.5f, 0.5f);
+
+        // sphere_line
+        int32_t param = 10;
+        float _2pi = 2.0f * Math_PI;
+        for (int32_t i = -param - 1; i < param + 1; i++)
+        {
+            float h = Math::sin(_2pi / 4.0f * i / (param + 1.0f));
+            float h1 = Math::sin(_2pi / 4.0f * (i + 1) / (param + 1.0f));
+            float r = Math::sqrt(1.0f - h * h);
+            float r1 = Math::sqrt(1.0f - h1 * h1);
+            for (int32_t j = 0; j < 2 * param; j++)
+            {
+                Vector3 p(Math::cos(_2pi / (2.0f * param) * j) * r, Math::sin(_2pi / (2.0f * param) * j) * r, h);
+                Vector3 p1(Math::cos(_2pi / (2.0f * param) * j) * r1, Math::sin(_2pi / (2.0f * param) * j) * r1, h1);
+                vertexs[index++].pos = p;
+                vertexs[index++].pos = p1;
+            }
+            if (i != -param - 1)
+            {
+                for (int32_t j = 0; j < 2 * param; j++)
+                {
+                    Vector3 p(Math::cos(_2pi / (2.0f * param) * j) * r, Math::sin(_2pi / (2.0f * param) * j) * r, h);
+                    Vector3 p1(Math::cos(_2pi / (2.0f * param) * (j + 1)) * r, Math::sin(_2pi / (2.0f * param) * (j + 1)) * r, h);
+                    vertexs[index++].pos = p;
+                    vertexs[index++].pos = p1;
+                }
+            }
+        }
+
+        // // ==================== triangle ====================
+        // triangle_triangle
+        vertexs[index++].pos = Vector3(0.0, -0.5, 0.0);
+        vertexs[index++].pos = Vector3(0.5, 0.5, 0.0);
+        vertexs[index++].pos = Vector3(-0.5, 0.5, 0.0);
+
+        // quad_triangle
+        vertexs[index++].pos = Vector3(-0.5, -0.5, 0.0);
+        vertexs[index++].pos = Vector3(0.5, -0.5, 0.0);
+        vertexs[index++].pos = Vector3(0.5, 0.5, 0.0);
+        vertexs[index++].pos = Vector3(-0.5, 0.5, 0.0);
+
+        // box_triangle
+        Vector3 half_extends = Vector3(0.5, 0.5, 0.5);
+        Vector3 center_point = Vector3(0.0, 0.0, 0.0);
+        Vector3 vertices_local[8] = {
+            Vector3(-half_extends.x, -half_extends.y, -half_extends.z),
+            Vector3(half_extends.x, -half_extends.y, -half_extends.z),
+            Vector3(half_extends.x, half_extends.y, -half_extends.z),
+            Vector3(-half_extends.x, half_extends.y, -half_extends.z),
+            Vector3(-half_extends.x, -half_extends.y, half_extends.z),
+            Vector3(half_extends.x, -half_extends.y, half_extends.z),
+            Vector3(half_extends.x, half_extends.y, half_extends.z),
+            Vector3(-half_extends.x, half_extends.y, half_extends.z)};
+        for (size_t i = 0; i < 8; i++)
+        {
+            vertexs[index++].pos = vertices_local[i] + center_point;
+        }
+
+        // sphere_triangle
+        for (int y = 0; y <= Y_SEGMENTS; y++)
+        {
+            for (int x = 0; x <= X_SEGMENTS; x++)
+            {
+                float xSegment = (float)x / (float)X_SEGMENTS; ///< 0 -- 1
+                float ySegment = (float)y / (float)Y_SEGMENTS;
+                float xPos = Math::cos(xSegment * 2.0f * Math_PI) * Math::sin(ySegment * Math_PI); ///< radians
+                float yPos = Math::cos(ySegment * Math_PI);
+                float zPos = Math::sin(xSegment * 2.0f * Math_PI) * Math::sin(ySegment * Math_PI);
+
+                vertexs[index++].pos = Vector3(xPos, yPos, zPos);
             }
         }
     }
 
-    void DebugDrawGroup::writeQuadData(std::vector<DebugDrawVertex> &vertexs)
+    void DebugDrawGroup::writeIndiceData(std::vector<uint16_t> &indices)
     {
-        size_t vertexs_count = getQuadCount() * 4;
-        vertexs.resize(vertexs_count);
+        // This is only used for triangle primitives, not for point and line primitives.
+        indices.resize(3);
+        indices.resize(3 + 6 + 36 + 24576);
 
-        size_t current_index = 0;
-        for (DebugDrawQuad quad : m_quads)
+        int index = 0;
+
+        // triangle
+        indices[index++] = 0;
+        indices[index++] = 1;
+        indices[index++] = 2;
+
+        // quad
+        indices[index++] = 0;
+        indices[index++] = 1;
+        indices[index++] = 2;
+        indices[index++] = 2;
+        indices[index++] = 3;
+        indices[index++] = 0;
+
+        // box
+        uint16_t box_indices[36] = {0, 1, 2, 2, 3, 0, 4, 5, 6, 6, 7, 4,
+                                    0, 3, 7, 7, 4, 0, 1, 2, 6, 6, 5, 1,
+                                    0, 1, 5, 5, 4, 0, 3, 2, 6, 6, 7, 3};
+        for (int i = 0; i < 36; i++)
+            indices[index++] = box_indices[i];
+
+        // sphere
+        const unsigned int X_SEGMENTS = 64;
+        const unsigned int Y_SEGMENTS = 64;
+        for (int i = 0; i < Y_SEGMENTS; i++)
         {
-            for (int i = 0; i < 4; i++)
+            for (int j = 0; j < X_SEGMENTS; j++)
             {
-                vertexs[current_index++] = quad.m_vertex[i];
+
+                indices[index++] = (i * (X_SEGMENTS + 1) + j);
+                indices[index++] = ((i + 1) * (X_SEGMENTS + 1) + j);
+                indices[index++] = ((i + 1) * (X_SEGMENTS + 1) + j + 1);
+
+                indices[index++] = (i * (X_SEGMENTS + 1) + j);
+                indices[index++] = ((i + 1) * (X_SEGMENTS + 1) + j + 1);
+                indices[index++] = (i * (X_SEGMENTS + 1) + j + 1);
             }
         }
     }
 
-    void DebugDrawGroup::writeBoxData(std::vector<DebugDrawVertex> &vertexs)
+    std::vector<size_t> DebugDrawGroup::writeUniformDynamicDataToCache(std::vector<std::pair<Matrix4x4, Vector4>> &datas, const PrimitiveType &primity_type, const bool &is_depth_test)
     {
-        size_t vertexs_count = getBoxCount() * 8;
-        vertexs.resize(vertexs_count);
+        std::vector<size_t> mesh_count;
+        size_t last_size = 0;
 
-        size_t current_index = 0;
-        for (DebugDrawBox box : m_boxes)
-        {
-            for (int i = 0; i < 8; i++)
-            {
-                vertexs[current_index++] = box.m_vertex[i];
-            }
-        }
-    }
-
-    void DebugDrawGroup::writeSphereData(std::vector<DebugDrawVertex> &vertexs)
-    {
-        size_t vertexs_count = getSphereCount() * DebugDrawSphere::SPHERE_BASIC_COUNT;
-        vertexs.resize(vertexs_count);
-
-        size_t current_index = 0;
-        for (DebugDrawSphere sphere : m_spheres)
-        {
-            for (int i = 0; i < DebugDrawSphere::SPHERE_BASIC_COUNT; i++)
-            {
-                vertexs[current_index++] = sphere.m_vertex[i];
-            }
-        }
-    }
-
-    void DebugDrawGroup::writeTriangleIndiceData(std::vector<uint16_t> &indices)
-    {
-        size_t indices_count = getTriangleCount() * 3;
-        indices.resize(indices_count);
-
-        size_t current_index = 0;
-        for (DebugDrawTriangle triangle : m_triangles)
-        {
-            for (int i = 0; i < 3; i++)
-            {
-                indices[current_index++] = triangle.m_indices[i];
-            }
-        }
-    }
-
-    void DebugDrawGroup::writeQuadIndiceData(std::vector<uint16_t> &indices)
-    {
-        size_t indices_count = getQuadCount() * 6;
-        indices.resize(indices_count);
-
-        size_t current_index = 0;
-        for (DebugDrawQuad quad : m_quads)
-        {
-            for (int i = 0; i < 6; i++)
-            {
-                indices[current_index++] = quad.m_indices[i];
-            }
-        }
-    }
-
-    void DebugDrawGroup::writeBoxIndiceData(std::vector<uint16_t> &indices)
-    {
-        size_t indices_count = getBoxCount() * 36;
-        indices.resize(indices_count);
-
-        size_t current_index = 0;
-        for (DebugDrawBox box : m_boxes)
-        {
-            for (int i = 0; i < 36; i++)
-            {
-                indices[current_index++] = box.m_indices[i];
-            }
-        }
-    }
-
-    void DebugDrawGroup::writeUniformDynamicDataToCache(std::vector<Matrix4x4> &datas)
-    {
         // triangle
         size_t triangle_count = getTriangleCount();
-        datas.resize(triangle_count);
-
-        size_t current_index = 0;
         for (DebugDrawTriangle triangle : m_triangles)
         {
-            datas[current_index++] = triangle.m_model.getMatrix();
+            if (triangle.m_primitive_type == primity_type && triangle.m_is_depth_test == is_depth_test)
+            {
+                datas.push_back(std::make_pair(triangle.m_model.getMatrix(), triangle.m_color));
+            }
         }
+        mesh_count.push_back(datas.size() - last_size);
+        last_size = datas.size();
 
         // quad
         size_t quad_count = getQuadCount();
-        current_index = datas.size(); // last offset
-        datas.resize(datas.size() + quad_count);
-
         for (DebugDrawQuad quad : m_quads)
         {
-            datas[current_index++] = quad.m_model.getMatrix();
+            if (quad.m_primitive_type == primity_type && quad.m_is_depth_test == is_depth_test)
+            {
+                datas.push_back(std::make_pair(quad.m_model.getMatrix(), quad.m_color));
+            }
         }
+        mesh_count.push_back(datas.size() - last_size);
+        last_size = datas.size();
 
         // box
         size_t box_count = getBoxCount();
-        current_index = datas.size(); // last offset
-        datas.resize(datas.size() + box_count);
-
         for (DebugDrawBox box : m_boxes)
         {
-            datas[current_index++] = box.m_model.getMatrix();
+            if (box.m_primitive_type == primity_type && box.m_is_depth_test == is_depth_test)
+            {
+                datas.push_back(std::make_pair(box.m_model.getMatrix(), box.m_color));
+            }
         }
+        mesh_count.push_back(datas.size() - last_size);
+        last_size = datas.size();
 
         // sphere
         size_t sphere_count = getSphereCount();
-        current_index = datas.size(); // last offset
-        datas.resize(datas.size() + sphere_count);
-
         for (DebugDrawSphere sphere : m_spheres)
         {
-            datas[current_index++] = sphere.m_model.getMatrix();
+            if (sphere.m_primitive_type == primity_type && sphere.m_is_depth_test == is_depth_test)
+            {
+                datas.push_back(std::make_pair(sphere.m_model.getMatrix(), sphere.m_color));
+            }
         }
+        mesh_count.push_back(datas.size() - last_size);
+        last_size = datas.size();
+
+        return mesh_count;
     }
 }

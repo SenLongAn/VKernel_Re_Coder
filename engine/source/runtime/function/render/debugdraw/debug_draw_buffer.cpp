@@ -27,9 +27,8 @@ namespace VKernel
         clearBuffer();
 
         // clear cache
-        m_vertex_has_indice_cache.clear();
-        m_indice_cache.clear();
         m_vertex_cache.clear();
+        m_indice_cache.clear();
         m_uniform_buffer_object.proj_view_matrix = Matrix4x4::IDENTITY;
         m_uniform_buffer_dynamic_object_cache.clear();
     }
@@ -37,11 +36,6 @@ namespace VKernel
     void DebugDrawAllocator::clearBuffer()
     {
         // clear buffer and memory
-        if (m_vertex_has_indice_resource.buffer)
-        {
-            m_vertex_has_indice_resource.buffer = nullptr;
-            m_vertex_has_indice_resource.memory = nullptr;
-        }
         if (m_indice_resource.buffer)
         {
             m_indice_resource.buffer = nullptr;
@@ -64,20 +58,10 @@ namespace VKernel
         }
     }
 
-    size_t DebugDrawAllocator::cacheVertexsHasIndice(const std::vector<DebugDrawVertex> &vertexs)
+    void DebugDrawAllocator::cacheVertexs(const std::vector<DebugDrawVertex> &vertexs)
     {
-        size_t offset = m_vertex_has_indice_cache.size();
-        m_vertex_has_indice_cache.insert(m_vertex_has_indice_cache.end(),
-                                         vertexs.begin(), vertexs.end());
-        return offset;
-    }
-
-    size_t DebugDrawAllocator::cacheVertexs(const std::vector<DebugDrawVertex> &vertexs)
-    {
-        size_t offset = m_vertex_cache.size();
         m_vertex_cache.insert(m_vertex_cache.end(),
                               vertexs.begin(), vertexs.end());
-        return offset;
     }
 
     void DebugDrawAllocator::cacheIndices(const std::vector<uint16_t> &indices)
@@ -91,40 +75,21 @@ namespace VKernel
         m_uniform_buffer_object.proj_view_matrix = proj_view_matrix;
     }
 
-    size_t DebugDrawAllocator::cacheUniformDynamicObject(const std::vector<Matrix4x4> &model)
+    size_t DebugDrawAllocator::cacheUniformDynamicObject(const std::vector<std::pair<Matrix4x4, Vector4>> &model_colors)
     {
         size_t offset = m_uniform_buffer_dynamic_object_cache.size(); ///< start offset
-        m_uniform_buffer_dynamic_object_cache.resize(offset + model.size());
-        for (size_t i = 0; i < model.size(); i++)
+        m_uniform_buffer_dynamic_object_cache.resize(offset + model_colors.size());
+        for (size_t i = 0; i < model_colors.size(); i++)
         {
-            m_uniform_buffer_dynamic_object_cache[offset + i].model_matrix = model[i];
+            m_uniform_buffer_dynamic_object_cache[i + offset].model_matrix = model_colors[i].first;
+            m_uniform_buffer_dynamic_object_cache[i + offset].color = model_colors[i].second;
         }
-
         return offset;
     }
 
     void DebugDrawAllocator::allocator()
     {
         clearBuffer();
-
-        // vertex has indice
-        uint64_t vertex_bufferSize = static_cast<uint64_t>(m_vertex_has_indice_cache.size() * sizeof(DebugDrawVertex));
-        if (vertex_bufferSize > 0)
-        {
-            // create memory and buffer
-            m_vulkan_api->createBuffer(
-                vertex_bufferSize,
-                VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                m_vertex_has_indice_resource.buffer,
-                m_vertex_has_indice_resource.memory);
-
-            // Fill the vertex data into the memory
-            void *data;
-            vkMapMemory(m_vulkan_api->getLogicDevice(), m_vertex_has_indice_resource.memory, 0, vertex_bufferSize, 0, &data);
-            memcpy(data, m_vertex_has_indice_cache.data(), vertex_bufferSize);
-            vkUnmapMemory(m_vulkan_api->getLogicDevice(), m_vertex_has_indice_resource.memory);
-        }
 
         // vertex
         uint64_t bufferSize = static_cast<uint64_t>(m_vertex_cache.size() * sizeof(DebugDrawVertex));
@@ -214,13 +179,6 @@ namespace VKernel
 
         updateDescriptorSet();
     }
-
-    size_t DebugDrawAllocator::getVertexHasIndiceCacheOffset() const
-    {
-        return m_vertex_has_indice_cache.size();
-    }
-
-    VkBuffer DebugDrawAllocator::getVertexHasIndiceBuffer() const { return m_vertex_has_indice_resource.buffer; }
 
     VkBuffer DebugDrawAllocator::getIndiceBuffer() const { return m_indice_resource.buffer; }
 

@@ -17,8 +17,8 @@ namespace VKernel
 
     struct DebugDrawFramebuffer ///< renderpass, framebuffer, attachment
     {
-        int           width;
-        int           height;
+        int width;
+        int height;
         VkRenderPass render_pass = nullptr; ///< render pass
 
         ///< A render pass can have multiple framebuffer and attachment
@@ -31,10 +31,13 @@ namespace VKernel
         VkPipelineLayout layout = nullptr;
         VkPipeline pipeline = nullptr;
     };
-    
+
     enum DebugDrawPipelineType : uint8_t ///< pipline type (AssemblyState and DepthStencilState)
     {
-        _debug_draw_pipeline_type_point_no_depth_test = 0,
+        _debug_draw_pipeline_type_point = 0,
+        _debug_draw_pipeline_type_line,
+        _debug_draw_pipeline_type_triangle,
+        _debug_draw_pipeline_type_point_no_depth_test,
         _debug_draw_pipeline_type_line_no_depth_test,
         _debug_draw_pipeline_type_triangle_no_depth_test,
         _debug_draw_pipeline_type_count,
@@ -47,20 +50,20 @@ namespace VKernel
         DebugDrawPipelineType m_pipeline_type; ///<  pipline type
 
     public:
-        DebugDrawPipeline(DebugDrawPipelineType pipelineType) {m_pipeline_type = pipelineType; }  ///< Constructor
-        void initialize(); ///< init
-        void destory() {} /// clear
+        DebugDrawPipeline(DebugDrawPipelineType pipelineType) { m_pipeline_type = pipelineType; } ///< Constructor
+        void initialize(const VkAttachmentLoadOp& load_op, const VkImageLayout& initial_layout, const VkImageLayout& initial_layout_depth);                                                                        ///< init
+        void destory() {}                                                                         /// clear
 
         // get
-        const DebugDrawPipelineBase& getPipeline() const;
-        const DebugDrawFramebuffer& getFramebuffer() const;
+        const DebugDrawPipelineBase &getPipeline() const;
+        const DebugDrawFramebuffer &getFramebuffer() const;
 
         void recreateAfterSwapchain(); ///< destory and recreate framebuffer
 
     private:
         // What needs to be accomplished in the pipeline class
         void setupFramebuffer();
-        void setupRenderPass();
+        void setupRenderPass(const VkAttachmentLoadOp& load_op, const VkImageLayout& initial_layout, const VkImageLayout& initial_layout_depth);
         void setupDescriptorLayout();
         void setupPipelines();
 
