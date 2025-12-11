@@ -12,4 +12,9 @@ set_target_properties(${TARGET_NAME} PROPERTIES CXX_STANDARD 17 OUTPUT_NAME "ReC
 set_target_properties(${TARGET_NAME} PROPERTIES FOLDER "Engine") ##< Display by directory structure
 target_compile_options(${TARGET_NAME} PUBLIC "$<$<COMPILE_LANG_AND_ID:CXX,MSVC>:/WX->") ##< When compiling C++ code using the MSVC compiler, Disable "Treat warnings as errors"
 
-target_link_libraries(${TARGET_NAME} VKernelEngine) ##< Link Library
+# Link library, including directory
+target_link_libraries(${TARGET_NAME} VKernelEngine)
+target_include_directories(
+  ${TARGET_NAME} 
+  PUBLIC $<BUILD_INTERFACE:${THIRD_PARTY_DIR}/stb>
+)

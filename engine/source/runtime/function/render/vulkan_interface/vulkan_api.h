@@ -1,6 +1,7 @@
 #pragma once
 
 #include "runtime/function/render/vulkan_interface/vulkan_struct.h"
+#include "runtime/function/render/render_type.h"
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -41,6 +42,9 @@ namespace VKernel
                           VkBuffer &buffer, VkDeviceMemory &buffer_memory);
         void recreateSwapchain();
         void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize srcOffset, VkDeviceSize dstOffset, VkDeviceSize size);
+        VkSampler getOrCreateDefaultSampler(DefaultSamplerType type);
+        void createGlobalImage(VkImage &image, VkImageView &image_view, VmaAllocation &image_allocation, uint32_t texture_image_width,
+                               uint32_t texture_image_height, void *texture_image_pixels, VkFormat texture_image_format, uint32_t miplevels = 0);
 
         // query(get)
         VkDevice getLogicDevice() const;
@@ -54,6 +58,8 @@ namespace VKernel
         VkCommandPool getCommandPool() const;
         uint8_t getCurrentSwapchainImageIndex() const;
         DepthImageDesc getDepthImageInfo() const;
+        VkPhysicalDevice getPhysicalDevice() const;
+        VmaAllocator getVmaAllocator() const;
 
     private:
         // Maximum parallel frame count
@@ -84,6 +90,8 @@ namespace VKernel
         VkImageView m_depth_image_view{nullptr};
         VkImage m_depth_image{nullptr};
         VkDeviceMemory m_depth_image_memory{nullptr};
+        VkSampler m_nearest_sampler;
+        VkSampler m_linear_sampler;
 
     private:
         // auxiliary configuration

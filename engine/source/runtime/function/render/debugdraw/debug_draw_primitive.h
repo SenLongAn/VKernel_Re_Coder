@@ -36,10 +36,12 @@ namespace VKernel
     {
         // Vertex data
         Vector3 pos;
+        Vector2 texcoord;
 
         DebugDrawVertex() ///< Default initialization Vertex data
         {
             pos = Vector3(-1.0f, -1.0f, -1.0f);
+            texcoord = Vector2(-1.0f, -1.0f);
         }
 
         // Vertex Description
@@ -53,15 +55,21 @@ namespace VKernel
             return binding_descriptions;
         }
 
-        static std::array<VkVertexInputAttributeDescription, 1> getAttributeDescriptions()
+        static std::array<VkVertexInputAttributeDescription, 2> getAttributeDescriptions()
         {
-            std::array<VkVertexInputAttributeDescription, 1> attribute_descriptions{};
+            std::array<VkVertexInputAttributeDescription, 2> attribute_descriptions{};
 
             // position
             attribute_descriptions[0].binding = 0;
             attribute_descriptions[0].location = 0;
             attribute_descriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
             attribute_descriptions[0].offset = offsetof(DebugDrawVertex, pos);
+
+            // texcoord
+            attribute_descriptions[1].binding = 0;
+            attribute_descriptions[1].location = 1;
+            attribute_descriptions[1].format = VK_FORMAT_R32G32_SFLOAT;
+            attribute_descriptions[1].offset = offsetof(DebugDrawVertex, texcoord);
 
             return attribute_descriptions;
         }

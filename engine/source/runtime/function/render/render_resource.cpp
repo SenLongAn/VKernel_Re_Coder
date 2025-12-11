@@ -11,6 +11,7 @@ namespace VKernel
 
     void RenderResource::updatePerFrameBuffer(std::shared_ptr<RenderCamera> camera)
     {
+        // Get proj view matrix from the camera
         Matrix4x4 view_matrix = camera->getViewMatrix();
         Matrix4x4 proj_matrix = camera->getPersProjMatrix();
         Vector3 camera_position = camera->position();

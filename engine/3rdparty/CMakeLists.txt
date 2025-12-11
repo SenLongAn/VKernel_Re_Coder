@@ -12,5 +12,9 @@ if(NOT TARGET glfw) ##< If there is no cmakefile target
     set_target_properties(update_mappings PROPERTIES FOLDER ${third_party_folder}/glfw) ##< Display by directory structure
 endif()
 
+if(NOT TARGET stb) ##< If there is no cmakefile target
+    include(stb.cmake) ##< Include and execute the stb.cmake file
+    set_target_properties(stb PROPERTIES FOLDER ${third_party_folder}/stb) ##< Display by directory structure
+endif()
 
 

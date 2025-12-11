@@ -58,7 +58,7 @@ namespace VKernel
         static constexpr uint16_t PRIMITIVE_VERTEX_COUNT[] = {
             3, 4, 8, 4225, 44, 506,    // point
             6, 8, 24, 1720, 200, 1640, // line
-            3, 4, 8, 4225, 44, 506     // triangle
+            3, 4, 24, 4225, 44, 506     // triangle
         };
         static constexpr uint16_t PRIMITIVE_INDICE_COUNT[] = {3, 6, 36, 24576, 240, 2640};
         uint32_t dynamicOffset = 0;

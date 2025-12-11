@@ -4,6 +4,7 @@
 #include "runtime/function/render/render_pipeline.h"
 #include "runtime/function/render/render_camera.h"
 #include "runtime/function/render/render_resource.h"
+#include "runtime/function/render/render_resource_base.h"
 
 #include "runtime/resource/res_type/global/global_rendering.h"
 
@@ -100,6 +101,8 @@ namespace VKernel
     RenderSwapContext &RenderSystem::getSwapContext() { return m_swap_context; }
 
     std::shared_ptr<RenderCamera> RenderSystem::getRenderCamera() const { return m_render_camera; }
+
+    std::shared_ptr<RenderResourceBase> RenderSystem::getRenderResource() const { return m_render_resource; }
 
     void RenderSystem::swapLogicRenderData() { m_swap_context.swapLogicRenderData(); }
 

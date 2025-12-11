@@ -12,11 +12,11 @@
 
 namespace VKernel
 {
-    void DebugDrawPipeline::initialize(const VkAttachmentLoadOp& load_op, const VkImageLayout& initial_layout, const VkImageLayout& initial_layout_depth)
+    void DebugDrawPipeline::initialize(const VkAttachmentLoadOp &load_op, const VkImageLayout &initial_layout, const VkImageLayout &initial_layout_depth)
     {
         m_vulkan_api = g_runtime_global_context.m_render_system->getVulkanAPI();
 
-        setupRenderPass(load_op, initial_layout,initial_layout_depth);
+        setupRenderPass(load_op, initial_layout, initial_layout_depth);
         setupFramebuffer();
         setupDescriptorLayout();
         setupPipelines();
@@ -41,7 +41,7 @@ namespace VKernel
         setupFramebuffer();
     }
 
-    void DebugDrawPipeline::setupRenderPass(const VkAttachmentLoadOp& load_op, const VkImageLayout& initial_layout, const VkImageLayout& initial_layout_depth)
+    void DebugDrawPipeline::setupRenderPass(const VkAttachmentLoadOp &load_op, const VkImageLayout &initial_layout, const VkImageLayout &initial_layout_depth)
     {
         // color attachment
         VkAttachmentDescription color_attachment_description{};
@@ -137,7 +137,7 @@ namespace VKernel
 
     void DebugDrawPipeline::setupDescriptorLayout()
     {
-        VkDescriptorSetLayoutBinding uboLayoutBinding[2];
+        VkDescriptorSetLayoutBinding uboLayoutBinding[3];
         uboLayoutBinding[0].binding = 0;
         uboLayoutBinding[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         uboLayoutBinding[0].descriptorCount = 1;
@@ -150,9 +150,15 @@ namespace VKernel
         uboLayoutBinding[1].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
         uboLayoutBinding[1].pImmutableSamplers = nullptr;
 
+        uboLayoutBinding[2].binding = 2;
+        uboLayoutBinding[2].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        uboLayoutBinding[2].descriptorCount = 1;
+        uboLayoutBinding[2].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+        uboLayoutBinding[2].pImmutableSamplers = nullptr;
+
         VkDescriptorSetLayoutCreateInfo layoutInfo{};
         layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-        layoutInfo.bindingCount = 2;
+        layoutInfo.bindingCount = 3;
         layoutInfo.pBindings = uboLayoutBinding;
 
         if (vkCreateDescriptorSetLayout(m_vulkan_api->getLogicDevice(), &layoutInfo, nullptr, &m_descriptor_layout) != VK_SUCCESS)

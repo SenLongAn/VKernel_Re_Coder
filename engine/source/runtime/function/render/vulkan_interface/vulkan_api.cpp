@@ -176,7 +176,7 @@ namespace VKernel
 
         VkCommandBuffer command_buffer;
         vkAllocateCommandBuffers(m_device, &allocInfo, &command_buffer);
-        
+
         // begin command buffer
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -260,6 +260,37 @@ namespace VKernel
         VkBuffer vk_src_buffer = srcBuffer;
         VkBuffer vk_dst_buffer = dstBuffer;
         VulkanUtil::copyBuffer(this, vk_src_buffer, vk_dst_buffer, srcOffset, dstOffset, size);
+    }
+
+    VkSampler VulkanAPI::getOrCreateDefaultSampler(DefaultSamplerType type)
+    {
+        switch (type) ///< Determine Type
+        {
+        case VKernel::Default_Sampler_Linear:
+            if (m_linear_sampler == VK_NULL_HANDLE) ///< If not created first
+            {
+                m_linear_sampler = VulkanUtil::createSampler(m_physical_device, m_device, VK_FILTER_LINEAR);
+            }
+            return m_linear_sampler;
+            break;
+
+        case VKernel::Default_Sampler_Nearest:
+            if (m_nearest_sampler == VK_NULL_HANDLE)
+            {
+                m_nearest_sampler = VulkanUtil::createSampler(m_physical_device, m_device, VK_FILTER_NEAREST);
+            }
+            return m_nearest_sampler;
+            break;
+
+        default:
+            return nullptr;
+            break;
+        }
+    }
+
+    void VulkanAPI::createGlobalImage(VkImage &image, VkImageView &image_view, VmaAllocation &image_allocation, uint32_t texture_image_width, uint32_t texture_image_height, void *texture_image_pixels, VkFormat texture_image_format, uint32_t miplevels)
+    {
+        VulkanUtil::createGlobalImage(this, image, image_view, image_allocation, texture_image_width, texture_image_height, texture_image_pixels, texture_image_format, miplevels);
     }
 
     void VulkanAPI::createSwapchain()
@@ -438,6 +469,16 @@ namespace VKernel
         desc.depth_image_view = m_depth_image_view;
         desc.depth_image = m_depth_image;
         return desc;
+    }
+
+    VkPhysicalDevice VulkanAPI::getPhysicalDevice() const
+    {
+        return m_physical_device;
+    }
+
+    VmaAllocator VulkanAPI::getVmaAllocator() const
+    {
+        return m_assets_allocator;
     }
 
     bool VulkanAPI::checkValidationLayerSupport()
@@ -863,6 +904,7 @@ namespace VKernel
 
         // device create info
         VkPhysicalDeviceFeatures physical_device_features = {};
+        physical_device_features.samplerAnisotropy = VK_TRUE;
         VkDeviceCreateInfo device_create_info{};
         device_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
         device_create_info.pQueueCreateInfos = queue_create_infos.data();

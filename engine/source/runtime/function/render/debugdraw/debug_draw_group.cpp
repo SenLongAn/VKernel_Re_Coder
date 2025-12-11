@@ -16,6 +16,8 @@ namespace VKernel
         m_quads.clear();
         m_boxes.clear();
         m_spheres.clear();
+        m_cylinders.clear();
+        m_capsules.clear();
     }
 
     void DebugDrawGroup::addTriangle(const Vector4 &color,
@@ -200,7 +202,7 @@ namespace VKernel
         vertexs.resize(
             3 + 4 + 8 + 4225 + 44 + 506 +    // point
             6 + 8 + 24 + 1720 + 200 + 1640 + // line
-            3 + 4 + 8 + 4225 + 44 + 506      // triangle
+            3 + 4 + 24 + 4225 + 44 + 506     // triangle
         );
 
         int index = 0;
@@ -453,32 +455,74 @@ namespace VKernel
 
         // // ==================== triangle ====================
         // triangle_triangle
+        vertexs[index].texcoord = Vector2(0.5, 1.0);
         vertexs[index++].pos = Vector3(0.0, -0.5, 0.0);
+        vertexs[index].texcoord = Vector2(0.0, 0.0);
         vertexs[index++].pos = Vector3(0.5, 0.5, 0.0);
+        vertexs[index].texcoord = Vector2(1.0, 0.0);
         vertexs[index++].pos = Vector3(-0.5, 0.5, 0.0);
 
         // quad_triangle
+        vertexs[index].texcoord = Vector2(0.0, 0.0);
         vertexs[index++].pos = Vector3(-0.5, -0.5, 0.0);
+        vertexs[index].texcoord = Vector2(1.0, 0.0);
         vertexs[index++].pos = Vector3(0.5, -0.5, 0.0);
+        vertexs[index].texcoord = Vector2(1.0, 1.0);
         vertexs[index++].pos = Vector3(0.5, 0.5, 0.0);
+        vertexs[index].texcoord = Vector2(0.0, 1.0);
         vertexs[index++].pos = Vector3(-0.5, 0.5, 0.0);
 
         // box_triangle
-        Vector3 half_extends = Vector3(0.5, 0.5, 0.5);
         Vector3 center_point = Vector3(0.0, 0.0, 0.0);
-        Vector3 vertices_local[8] = {
-            Vector3(-half_extends.x, -half_extends.y, -half_extends.z),
-            Vector3(half_extends.x, -half_extends.y, -half_extends.z),
-            Vector3(half_extends.x, half_extends.y, -half_extends.z),
-            Vector3(-half_extends.x, half_extends.y, -half_extends.z),
-            Vector3(-half_extends.x, -half_extends.y, half_extends.z),
-            Vector3(half_extends.x, -half_extends.y, half_extends.z),
-            Vector3(half_extends.x, half_extends.y, half_extends.z),
-            Vector3(-half_extends.x, half_extends.y, half_extends.z)};
-        for (size_t i = 0; i < 8; i++)
-        {
-            vertexs[index++].pos = vertices_local[i] + center_point;
-        }
+        float half_size = 0.5f;
+        vertexs[index].pos = Vector3(-half_size, -half_size, half_size) + center_point;
+        vertexs[index++].texcoord = Vector2(0.0f, 0.0f);
+        vertexs[index].pos = Vector3(half_size, -half_size, half_size) + center_point;
+        vertexs[index++].texcoord = Vector2(1.0f, 0.0f);
+        vertexs[index].pos = Vector3(half_size, half_size, half_size) + center_point;
+        vertexs[index++].texcoord = Vector2(1.0f, 1.0f);
+        vertexs[index].pos = Vector3(-half_size, half_size, half_size) + center_point;
+        vertexs[index++].texcoord = Vector2(0.0f, 1.0f);
+        vertexs[index].pos = Vector3(half_size, -half_size, -half_size) + center_point;
+        vertexs[index++].texcoord = Vector2(0.0f, 0.0f);
+        vertexs[index].pos = Vector3(-half_size, -half_size, -half_size) + center_point;
+        vertexs[index++].texcoord = Vector2(1.0f, 0.0f);
+        vertexs[index].pos = Vector3(-half_size, half_size, -half_size) + center_point;
+        vertexs[index++].texcoord = Vector2(1.0f, 1.0f);
+        vertexs[index].pos = Vector3(half_size, half_size, -half_size) + center_point;
+        vertexs[index++].texcoord = Vector2(0.0f, 1.0f);
+        vertexs[index].pos = Vector3(half_size, -half_size, half_size) + center_point;
+        vertexs[index++].texcoord = Vector2(0.0f, 0.0f);
+        vertexs[index].pos = Vector3(half_size, -half_size, -half_size) + center_point;
+        vertexs[index++].texcoord = Vector2(1.0f, 0.0f);
+        vertexs[index].pos = Vector3(half_size, half_size, -half_size) + center_point;
+        vertexs[index++].texcoord = Vector2(1.0f, 1.0f);
+        vertexs[index].pos = Vector3(half_size, half_size, half_size) + center_point;
+        vertexs[index++].texcoord = Vector2(0.0f, 1.0f);
+        vertexs[index].pos = Vector3(-half_size, -half_size, -half_size) + center_point;
+        vertexs[index++].texcoord = Vector2(0.0f, 0.0f);
+        vertexs[index].pos = Vector3(-half_size, -half_size, half_size) + center_point;
+        vertexs[index++].texcoord = Vector2(1.0f, 0.0f);
+        vertexs[index].pos = Vector3(-half_size, half_size, half_size) + center_point;
+        vertexs[index++].texcoord = Vector2(1.0f, 1.0f);
+        vertexs[index].pos = Vector3(-half_size, half_size, -half_size) + center_point;
+        vertexs[index++].texcoord = Vector2(0.0f, 1.0f);
+        vertexs[index].pos = Vector3(-half_size, half_size, half_size) + center_point;
+        vertexs[index++].texcoord = Vector2(0.0f, 0.0f);
+        vertexs[index].pos = Vector3(half_size, half_size, half_size) + center_point;
+        vertexs[index++].texcoord = Vector2(1.0f, 0.0f);
+        vertexs[index].pos = Vector3(half_size, half_size, -half_size) + center_point;
+        vertexs[index++].texcoord = Vector2(1.0f, 1.0f);
+        vertexs[index].pos = Vector3(-half_size, half_size, -half_size) + center_point;
+        vertexs[index++].texcoord = Vector2(0.0f, 1.0f);
+        vertexs[index].pos = Vector3(-half_size, -half_size, -half_size) + center_point;
+        vertexs[index++].texcoord = Vector2(0.0f, 0.0f);
+        vertexs[index].pos = Vector3(half_size, -half_size, -half_size) + center_point;
+        vertexs[index++].texcoord = Vector2(1.0f, 0.0f);
+        vertexs[index].pos = Vector3(half_size, -half_size, half_size) + center_point;
+        vertexs[index++].texcoord = Vector2(1.0f, 1.0f);
+        vertexs[index].pos = Vector3(-half_size, -half_size, half_size) + center_point;
+        vertexs[index++].texcoord = Vector2(0.0f, 1.0f);
 
         // sphere_triangle
         for (int y = 0; y <= Y_SEGMENTS; y++)
@@ -581,9 +625,13 @@ namespace VKernel
         indices[index++] = 0;
 
         // box
-        uint16_t box_indices[36] = {0, 1, 2, 2, 3, 0, 4, 5, 6, 6, 7, 4,
-                                    0, 3, 7, 7, 4, 0, 1, 2, 6, 6, 5, 1,
-                                    0, 1, 5, 5, 4, 0, 3, 2, 6, 6, 7, 3};
+        uint16_t box_indices[36] = {
+            0, 1, 2, 2, 3, 0,
+            4, 5, 6, 6, 7, 4,
+            8, 9, 10, 10, 11, 8,
+            12, 13, 14, 14, 15, 12,
+            16, 17, 18, 18, 19, 16,
+            20, 21, 22, 22, 23, 20};
         for (int i = 0; i < 36; i++)
             indices[index++] = box_indices[i];
 

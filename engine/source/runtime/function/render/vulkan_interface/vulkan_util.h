@@ -44,6 +44,7 @@ namespace VKernel
                                 VkImageCreateFlags image_create_flags,
                                 uint32_t array_layers,
                                 uint32_t miplevels);
+
         static VkImageView createImageView(VkDevice device,
                                            VkImage &image,
                                            VkFormat format,
@@ -52,6 +53,28 @@ namespace VKernel
                                            uint32_t layout_count,
                                            uint32_t miplevels);
 
+        static VkSampler createSampler(VkPhysicalDevice physical_device, VkDevice device, const VkFilter &filter); ///< Create a sampler based on the filter
+
+        static void createGlobalImage(VulkanAPI *vulkan_api,
+                                      VkImage &image,
+                                      VkImageView &image_view,
+                                      VmaAllocation &image_allocation,
+                                      uint32_t texture_image_width,
+                                      uint32_t texture_image_height,
+                                      void *texture_image_pixels,
+                                      VkFormat texture_image_format,
+                                      uint32_t miplevels = 0); ///< Create a image, You can specify the number of mipmaps, and if set to 0, it will be calculated automatically.
+
+        static void genMipmappedImage(VulkanAPI *vulkan_api, VkImage image, uint32_t width, uint32_t height, uint32_t mip_levels); ///< create mipmap image
+
+        // transition
+        static void transitionImageLayout(VulkanAPI *vulkan_api,
+                                          VkImage image,
+                                          VkImageLayout old_layout,
+                                          VkImageLayout new_layout,
+                                          uint32_t layer_count,
+                                          uint32_t miplevels,
+                                          VkImageAspectFlags aspect_mask_bits); ///< transition Image Layout
         // copy
         static void copyBuffer(VulkanAPI *vulkan_api,
                                VkBuffer srcBuffer,
@@ -59,5 +82,12 @@ namespace VKernel
                                VkDeviceSize srcOffset,
                                VkDeviceSize dstOffset,
                                VkDeviceSize size);
+
+        static void copyBufferToImage(VulkanAPI *vulkan_api,
+                                      VkBuffer buffer,
+                                      VkImage image,
+                                      uint32_t width,
+                                      uint32_t height,
+                                      uint32_t layer_count);
     };
 }

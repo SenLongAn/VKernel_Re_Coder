@@ -80,9 +80,15 @@ namespace VKernel
 
         Descriptor m_descriptor;
 
+        // texture
+        VkImage image;
+        VkImageView imageView;
+        VmaAllocation m_allocation;
+
     private:
         // What needs to be accomplished in the buffer class
         void setupDescriptorSet();
+        void prepareDescriptorSet();
         void updateDescriptorSet();
     };
 }

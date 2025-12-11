@@ -2,6 +2,7 @@
 
 #include "runtime/function/global/global_context.h"
 #include "runtime/function/render/render_system.h"
+#include "runtime/function/render/render_resource_base.h"
 
 #include <iostream>
 #include "debug_draw_buffer.h"
@@ -14,6 +15,7 @@ namespace VKernel
 
         // create DescriptorLayout and DescriptorSet
         setupDescriptorSet();
+        prepareDescriptorSet();
     }
 
     void DebugDrawAllocator::destory()
@@ -199,7 +201,7 @@ namespace VKernel
     void DebugDrawAllocator::setupDescriptorSet()
     {
         // create DescriptorSetLayout
-        VkDescriptorSetLayoutBinding uboLayoutBinding[2];
+        VkDescriptorSetLayoutBinding uboLayoutBinding[3];
         uboLayoutBinding[0].binding = 0;
         uboLayoutBinding[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         uboLayoutBinding[0].descriptorCount = 1;
@@ -212,9 +214,15 @@ namespace VKernel
         uboLayoutBinding[1].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
         uboLayoutBinding[1].pImmutableSamplers = nullptr;
 
+        uboLayoutBinding[2].binding = 2;
+        uboLayoutBinding[2].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        uboLayoutBinding[2].descriptorCount = 1;
+        uboLayoutBinding[2].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+        uboLayoutBinding[2].pImmutableSamplers = nullptr;
+
         VkDescriptorSetLayoutCreateInfo layoutInfo{};
         layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-        layoutInfo.bindingCount = 2;
+        layoutInfo.bindingCount = 3;
         layoutInfo.pBindings = uboLayoutBinding;
 
         if (vkCreateDescriptorSetLayout(m_vulkan_api->getLogicDevice(), &layoutInfo, nullptr, &m_descriptor.layout) != VK_SUCCESS)
@@ -237,6 +245,40 @@ namespace VKernel
             {
                 throw std::runtime_error("debug draw descriptor set");
             }
+        }
+    }
+
+    void DebugDrawAllocator::prepareDescriptorSet()
+    {
+        // load texture data
+        std::shared_ptr<TextureData> base_color_texture =
+            g_runtime_global_context.m_render_system->getRenderResource()->loadTexture("engine/asset/objects/_textures/gold.tga", false);
+
+        // create global image
+        m_vulkan_api->createGlobalImage(image, imageView, m_allocation, base_color_texture->m_width, base_color_texture->m_height,
+                                        base_color_texture->m_pixels, base_color_texture->m_format);
+
+        // DescriptorSet bind buffer
+        VkDescriptorImageInfo image_info[1];
+        image_info[0].imageView = imageView;
+        image_info[0].sampler = m_vulkan_api->getOrCreateDefaultSampler(Default_Sampler_Linear);
+        image_info[0].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+        for (size_t i = 0; i < m_vulkan_api->getMaxFramesInFlight(); i++)
+        {
+            VkWriteDescriptorSet descriptor_write[1];
+            descriptor_write[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+            descriptor_write[0].dstSet = m_descriptor.descriptor_set[i];
+            descriptor_write[0].dstBinding = 2;
+            descriptor_write[0].dstArrayElement = 0;
+            descriptor_write[0].pNext = nullptr;
+            descriptor_write[0].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+            descriptor_write[0].descriptorCount = 1;
+            descriptor_write[0].pBufferInfo = nullptr;
+            descriptor_write[0].pImageInfo = &image_info[0];
+            descriptor_write[0].pTexelBufferView = nullptr;
+
+            vkUpdateDescriptorSets(m_vulkan_api->getLogicDevice(), 1, descriptor_write, 0, nullptr);
         }
     }
 

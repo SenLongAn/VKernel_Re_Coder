@@ -16,6 +16,7 @@ target_compile_options(${TARGET_NAME} PUBLIC "$<$<COMPILE_LANG_AND_ID:CXX,MSVC>:
 # Link library, including directory
 target_link_libraries(${TARGET_NAME} PUBLIC glfw)
 target_link_libraries(${TARGET_NAME} PUBLIC ${vulkan_lib})
+target_link_libraries(${TARGET_NAME} PRIVATE stb)
 
 target_include_directories(
   ${TARGET_NAME}
@@ -33,6 +34,12 @@ target_include_directories(
   ${TARGET_NAME} 
   PUBLIC 
   $<BUILD_INTERFACE:${ENGINE_ROOT_DIR}/source>
+)
+
+target_include_directories(
+  ${TARGET_NAME} 
+  PUBLIC 
+  $<BUILD_INTERFACE:${ENGINE_ROOT_DIR}>
 )
 
 add_dependencies(${TARGET_NAME} ${SHADER_COMPILE_TARGET}) ##< Establish the dependency relationship between the targets, ensuring that target TARGET_NAME is constructed after target SHADER_COMPILE_TARGET.
