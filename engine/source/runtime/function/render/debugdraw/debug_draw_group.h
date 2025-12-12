@@ -80,5 +80,7 @@ namespace VKernel
 
         int32_t top_center_idx = 0;
         int32_t bottom_center_idx = 0;
+        int32_t top_circle_start = 0;
+        int32_t bottom_circle_start = 0;
     };
 }

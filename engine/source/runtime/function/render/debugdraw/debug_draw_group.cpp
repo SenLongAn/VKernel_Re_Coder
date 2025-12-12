@@ -202,7 +202,7 @@ namespace VKernel
         vertexs.resize(
             3 + 4 + 8 + 4225 + 44 + 506 +    // point
             6 + 8 + 24 + 1720 + 200 + 1640 + // line
-            3 + 4 + 24 + 4225 + 44 + 506     // triangle
+            3 + 4 + 24 + 4225 + 42 + 506     // triangle
         );
 
         int index = 0;
@@ -535,79 +535,108 @@ namespace VKernel
                 float yPos = Math::cos(ySegment * Math_PI);
                 float zPos = Math::sin(xSegment * 2.0f * Math_PI) * Math::sin(ySegment * Math_PI);
 
-                vertexs[index++].pos = Vector3(xPos, yPos, zPos);
+                vertexs[index].pos = Vector3(xPos, yPos, zPos);
+                vertexs[index].texcoord = Vector2(xSegment, 1.0f - ySegment);
+                index++;
             }
         }
 
         // cylinder_triangle
-        for (int32_t i = 0; i <= 2 * param; i++)
+        int32_t segments = 20;
+        float radius = 1.0f;
+        float halfHeight = 1.0f;
+
+        for (int32_t i = 0; i < segments; i++)
         {
-            Vector3 top_point(Math::cos(_2pi / (2.0f * param) * i),
-                              Math::sin(_2pi / (2.0f * param) * i),
-                              1.0f);
-
-            Vector3 bottom_point(Math::cos(_2pi / (2.0f * param) * i),
-                                 Math::sin(_2pi / (2.0f * param) * i),
-                                 -1.0f);
-
-            vertexs[index++].pos = top_point;
-            vertexs[index++].pos = bottom_point;
+            float angle = _2pi * i / segments;
+            vertexs[index].pos = Vector3(Math::cos(angle) * radius, -halfHeight, Math::sin(angle) * radius);
+            vertexs[index++].texcoord = Vector2((float)i / segments, 1.0f);
         }
-        top_center_idx = index;
-        vertexs[index++].pos = Vector3(0.0f, 0.0f, 1.0f);
-        bottom_center_idx = index;
-        vertexs[index++].pos = Vector3(0.0f, 0.0f, -1.0f);
+
+        for (int32_t i = 0; i < segments; i++)
+        {
+            float angle = _2pi * i / segments;
+            vertexs[index].pos = Vector3(Math::cos(angle) * radius, halfHeight, Math::sin(angle) * radius);
+            vertexs[index++].texcoord = Vector2((float)i / segments, 0.0f);
+        }
+
+        vertexs[index].pos = Vector3(0.0f, -halfHeight, 0.0f);
+        vertexs[index++].texcoord = Vector2(0.5f, 0.5f);
+        bottom_center_idx = segments * 2;
+
+        vertexs[index].pos = Vector3(0.0f, halfHeight, 0.0f);
+        vertexs[index++].texcoord = Vector2(0.5f, 0.5f);
+        top_center_idx = segments * 2 + 1;
 
         // capluse_triangle
+        float height = 2.0f;                        
+        float totalHeight = height + 2.0f * radius; 
+
+        vertexs[index].pos = Vector3(0.0f, 0.0f, totalHeight / 2);
+        vertexs[index++].texcoord = Vector2(0.5f, 0.0f);
+
         for (int32_t i = 0; i <= param; i++)
         {
             float h = Math::sin(_2pi / 4.0f / param * i);
             float r = Math::sqrt(1 - h * h);
+            float v = 0.25f * (float)i / param; 
 
             for (int32_t j = 0; j <= 2 * param; j++)
             {
+                float u = (float)j / (2 * param);
                 Vector3 p(Math::cos(_2pi / (2.0f * param) * j) * r,
                           Math::sin(_2pi / (2.0f * param) * j) * r,
-                          h + 1.0f);
-                vertexs[index++].pos = p;
+                          h * radius + height / 2);
+                vertexs[index].pos = p;
+                vertexs[index++].texcoord = Vector2(u, v);
             }
         }
 
         for (int32_t j = 0; j <= 2 * param; j++)
         {
+            float u = (float)j / (2 * param);
             Vector3 p(Math::cos(_2pi / (2.0f * param) * j),
                       Math::sin(_2pi / (2.0f * param) * j),
-                      1.0f);
-            vertexs[index++].pos = p;
+                      height / 2);
+            vertexs[index].pos = p;
+            vertexs[index++].texcoord = Vector2(u, 0.25f);
+        }
 
-            Vector3 p1(Math::cos(_2pi / (2.0f * param) * j),
-                       Math::sin(_2pi / (2.0f * param) * j),
-                       -1.0f);
-            vertexs[index++].pos = p1;
+        for (int32_t j = 0; j <= 2 * param; j++)
+        {
+            float u = (float)j / (2 * param);
+            Vector3 p(Math::cos(_2pi / (2.0f * param) * j),
+                      Math::sin(_2pi / (2.0f * param) * j),
+                      -height / 2);
+            vertexs[index].pos = p;
+            vertexs[index++].texcoord = Vector2(u, 0.75f);
         }
 
         for (int32_t i = 0; i >= -param; i--)
         {
             float h = Math::sin(_2pi / 4.0f / param * i);
             float r = Math::sqrt(1 - h * h);
+            float v = 0.75f + 0.25f * (float)(-i) / param; 
 
             for (int32_t j = 0; j <= 2 * param; j++)
             {
+                float u = (float)j / (2 * param);
                 Vector3 p(Math::cos(_2pi / (2.0f * param) * j) * r,
                           Math::sin(_2pi / (2.0f * param) * j) * r,
-                          h - 1.0f);
-                vertexs[index++].pos = p;
+                          h * radius - height / 2);
+                vertexs[index].pos = p;
+                vertexs[index++].texcoord = Vector2(u, v);
             }
         }
 
-        vertexs[index++].pos = Vector3(0.0f, 0.0f, 2.0f);
-        vertexs[index++].pos = Vector3(0.0f, 0.0f, -2.0f);
+        vertexs[index].pos = Vector3(0.0f, 0.0f, -totalHeight / 2);
+        vertexs[index++].texcoord = Vector2(0.5f, 1.0f);
     }
 
     void DebugDrawGroup::writeIndiceData(std::vector<uint16_t> &indices)
     {
         // This is only used for triangle primitives, not for point and line primitives.
-        indices.resize(3 + 6 + 36 + 24576 + 240 + 2640);
+        indices.resize(3 + 6 + 36 + 24576 + 240 + 2760);
 
         int index = 0;
 
@@ -638,6 +667,8 @@ namespace VKernel
         // sphere
         const unsigned int X_SEGMENTS = 64;
         const unsigned int Y_SEGMENTS = 64;
+        std::vector<Vector3> positions;
+        std::vector<Vector2> texcoords;
         for (int i = 0; i < Y_SEGMENTS; i++)
         {
             for (int j = 0; j < X_SEGMENTS; j++)
@@ -656,84 +687,86 @@ namespace VKernel
         // cylinder
         for (int32_t i = 0; i < 20; i++)
         {
-            int32_t t0 = 2 * i;
-            int32_t t1 = 2 * (i + 1);
-            int32_t b0 = 2 * i + 1;
-            int32_t b1 = 2 * (i + 1) + 1;
+            int32_t next = (i + 1) % 20;
 
-            indices[index++] = t0;
-            indices[index++] = b0;
-            indices[index++] = t1;
+            indices[index++] = i;
+            indices[index++] = next;
+            indices[index++] = 20 + i;
 
-            indices[index++] = b0;
-            indices[index++] = b1;
-            indices[index++] = t1;
+            indices[index++] = 20 + i;
+            indices[index++] = next;
+            indices[index++] = 20 + next;
         }
 
         for (int32_t i = 0; i < 20; i++)
         {
-            indices[index++] = top_center_idx;
-            indices[index++] = 2 * i;
-            indices[index++] = 2 * (i + 1);
-        }
-
-        for (int32_t i = 0; i < 20; i++)
-        {
+            int32_t next = (i + 1) % 20;
             indices[index++] = bottom_center_idx;
-            indices[index++] = 2 * (i + 1) + 1;
-            indices[index++] = 2 * i + 1;
+            indices[index++] = i;
+            indices[index++] = next;
+        }
+
+        for (int32_t i = 0; i < 20; i++)
+        {
+            int32_t next = (i + 1) % 20;
+            indices[index++] = top_center_idx;
+            indices[index++] = 20 + next;
+            indices[index++] = 20 + i;
         }
 
         // capluse
-        int32_t vert_per_layer = 2 * 10 + 1;
-        int32_t top_sphere_layers = 10 + 1;
-        int32_t cylinder_top_start = top_sphere_layers * vert_per_layer;
-        int32_t cylinder_bottom_start = cylinder_top_start + vert_per_layer;
-        int32_t bottom_sphere_start = cylinder_bottom_start + vert_per_layer;
-        int32_t top_pole = 506 - 2;
-        int32_t bottom_pole = 506 - 1;
+        int32_t param = 10; 
 
-        for (int32_t i = 0; i < top_sphere_layers - 1; i++)
+        int32_t vert_per_layer = 2 * param + 1;
+        int32_t top_sphere_layers = param + 1;
+        int32_t bottom_sphere_layers = param + 1;
+        int32_t top_pole = 0;
+        int32_t bottom_pole = 505; 
+
+        for (int32_t i = 0; i < param; i++)
         {
-            for (int32_t j = 0; j < 2 * 10; j++)
+            for (int32_t j = 0; j < 2 * param; j++)
             {
-                int32_t current = i * vert_per_layer + j;
-                int32_t next = i * vert_per_layer + j + 1;
-                int32_t below = (i + 1) * vert_per_layer + j;
-                int32_t below_next = (i + 1) * vert_per_layer + j + 1;
+                int32_t current = i * vert_per_layer + 1 + j;
+                int32_t next = i * vert_per_layer + 1 + j + 1;
+                int32_t below = (i + 1) * vert_per_layer + 1 + j;
+                int32_t below_next = (i + 1) * vert_per_layer + 1 + j + 1;
 
                 indices[index++] = current;
-                indices[index++] = below;
-                indices[index++] = next;
-
-                indices[index++] = below;
                 indices[index++] = below_next;
+                indices[index++] = below;
+
+                indices[index++] = current;
                 indices[index++] = next;
+                indices[index++] = below_next;
             }
         }
 
-        for (int32_t i = 0; i < 2 * 10; i++)
+        int32_t cylinder_top_start = top_sphere_layers * vert_per_layer + 1;
+        int32_t cylinder_bottom_start = cylinder_top_start + vert_per_layer;
+
+        for (int32_t j = 0; j < 2 * param; j++)
         {
-            int32_t top_current = cylinder_top_start + i;
-            int32_t top_next = cylinder_top_start + i + 1;
-            int32_t bottom_current = cylinder_bottom_start + i;
-            int32_t bottom_next = cylinder_bottom_start + i + 1;
+            int32_t top_current = cylinder_top_start + j;
+            int32_t top_next = cylinder_top_start + j + 1;
+            int32_t bottom_current = cylinder_bottom_start + j;
+            int32_t bottom_next = cylinder_bottom_start + j + 1;
 
             indices[index++] = top_current;
             indices[index++] = bottom_current;
             indices[index++] = top_next;
 
+            indices[index++] = top_next;
             indices[index++] = bottom_current;
             indices[index++] = bottom_next;
-            indices[index++] = top_next;
         }
 
-        int32_t bottom_sphere_layers = 10 + 1;
+        int32_t bottom_sphere_start = cylinder_bottom_start + vert_per_layer;
         int32_t bottom_sphere_base = bottom_sphere_start;
 
-        for (int32_t i = 0; i < bottom_sphere_layers - 1; i++)
+        for (int32_t i = 0; i < param; i++)
         {
-            for (int32_t j = 0; j < 2 * 10; j++)
+            for (int32_t j = 0; j < 2 * param; j++)
             {
                 int32_t current = bottom_sphere_base + i * vert_per_layer + j;
                 int32_t next = bottom_sphere_base + i * vert_per_layer + j + 1;
@@ -750,21 +783,23 @@ namespace VKernel
             }
         }
 
-        for (int32_t j = 0; j < 2 * 10; j++)
+        for (int32_t j = 0; j < 2 * param; j++)
         {
-            int32_t top_current = vert_per_layer * (top_sphere_layers - 1) + j;
-            int32_t top_next = vert_per_layer * (top_sphere_layers - 1) + j + 1;
-
+            int32_t current = 1 + j; 
+            int32_t next = 1 + j + 1;
             indices[index++] = top_pole;
-            indices[index++] = top_next;
-            indices[index++] = top_current;
+            indices[index++] = next;
+            indices[index++] = current;
+        }
 
-            int32_t bottom_current = bottom_sphere_base + vert_per_layer * (bottom_sphere_layers - 1) + j;
-            int32_t bottom_next = bottom_sphere_base + vert_per_layer * (bottom_sphere_layers - 1) + j + 1;
-
+        int32_t bottom_last_layer = bottom_sphere_base + param * vert_per_layer;
+        for (int32_t j = 0; j < 2 * param; j++)
+        {
+            int32_t current = bottom_last_layer + j;
+            int32_t next = bottom_last_layer + j + 1;
             indices[index++] = bottom_pole;
-            indices[index++] = bottom_current;
-            indices[index++] = bottom_next;
+            indices[index++] = current;
+            indices[index++] = next;
         }
     }
 
