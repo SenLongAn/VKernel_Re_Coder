@@ -23,7 +23,8 @@ namespace VKernel
     void DebugDrawGroup::addTriangle(const Vector4 &color,
                                      const Transform &model,
                                      const PrimitiveType &primitive_type,
-                                     const bool &is_depth_test)
+                                     const bool &is_depth_test,
+                                     const TextureType &texture_type)
     {
         std::lock_guard<std::mutex> guard(m_mutex);
 
@@ -37,13 +38,16 @@ namespace VKernel
 
         triangle.m_is_depth_test = is_depth_test;
 
+        triangle.m_texture_type = texture_type;
+
         m_triangles.push_back(triangle);
     }
 
     void DebugDrawGroup::addQuad(const Vector4 &color,
                                  const Transform &model,
                                  const PrimitiveType &primitive_type,
-                                 const bool &is_depth_test)
+                                 const bool &is_depth_test,
+                                 const TextureType &texture_type)
 
     {
         std::lock_guard<std::mutex> guard(m_mutex);
@@ -58,13 +62,16 @@ namespace VKernel
 
         quad.m_is_depth_test = is_depth_test;
 
+        quad.m_texture_type = texture_type;
+
         m_quads.push_back(quad);
     }
 
     void DebugDrawGroup::addBox(const Vector4 &color,
                                 const Transform &model,
                                 const PrimitiveType &primitive_type,
-                                const bool &is_depth_test)
+                                const bool &is_depth_test,
+                                const TextureType &texture_type)
     {
         std::lock_guard<std::mutex> guard(m_mutex);
 
@@ -78,13 +85,16 @@ namespace VKernel
 
         box.m_is_depth_test = is_depth_test;
 
+        box.m_texture_type = texture_type;
+
         m_boxes.push_back(box);
     }
 
     void DebugDrawGroup::addSphere(const Vector4 &color,
                                    const Transform &model,
                                    const PrimitiveType &primitive_type,
-                                   const bool &is_depth_test)
+                                   const bool &is_depth_test,
+                                   const TextureType &texture_type)
     {
         std::lock_guard<std::mutex> guard(m_mutex);
 
@@ -98,10 +108,16 @@ namespace VKernel
 
         sphere.m_is_depth_test = is_depth_test;
 
+        sphere.m_texture_type = texture_type;
+
         m_spheres.push_back(sphere);
     }
 
-    void DebugDrawGroup::addCylinder(const Vector4 &color, const Transform &model, const PrimitiveType &primitive_type, const bool &is_depth_test)
+    void DebugDrawGroup::addCylinder(const Vector4 &color,
+                                     const Transform &model,
+                                     const PrimitiveType &primitive_type,
+                                     const bool &is_depth_test,
+                                     const TextureType &texture_type)
     {
         std::lock_guard<std::mutex> guard(m_mutex);
 
@@ -115,10 +131,16 @@ namespace VKernel
 
         cylinder.m_is_depth_test = is_depth_test;
 
+        cylinder.m_texture_type = texture_type;
+
         m_cylinders.push_back(cylinder);
     }
 
-    void DebugDrawGroup::addCapsule(const Vector4 &color, const Transform &model, const PrimitiveType &primitive_type, const bool &is_depth_test)
+    void DebugDrawGroup::addCapsule(const Vector4 &color,
+                                    const Transform &model,
+                                    const PrimitiveType &primitive_type,
+                                    const bool &is_depth_test,
+                                    const TextureType &texture_type)
     {
         std::lock_guard<std::mutex> guard(m_mutex);
 
@@ -131,6 +153,8 @@ namespace VKernel
         capsule.m_primitive_type = primitive_type;
 
         capsule.m_is_depth_test = is_depth_test;
+
+        capsule.m_texture_type = texture_type;
 
         m_capsules.push_back(capsule);
     }
@@ -569,8 +593,8 @@ namespace VKernel
         top_center_idx = segments * 2 + 1;
 
         // capluse_triangle
-        float height = 2.0f;                        
-        float totalHeight = height + 2.0f * radius; 
+        float height = 2.0f;
+        float totalHeight = height + 2.0f * radius;
 
         vertexs[index].pos = Vector3(0.0f, 0.0f, totalHeight / 2);
         vertexs[index++].texcoord = Vector2(0.5f, 0.0f);
@@ -579,7 +603,7 @@ namespace VKernel
         {
             float h = Math::sin(_2pi / 4.0f / param * i);
             float r = Math::sqrt(1 - h * h);
-            float v = 0.25f * (float)i / param; 
+            float v = 0.25f * (float)i / param;
 
             for (int32_t j = 0; j <= 2 * param; j++)
             {
@@ -616,7 +640,7 @@ namespace VKernel
         {
             float h = Math::sin(_2pi / 4.0f / param * i);
             float r = Math::sqrt(1 - h * h);
-            float v = 0.75f + 0.25f * (float)(-i) / param; 
+            float v = 0.75f + 0.25f * (float)(-i) / param;
 
             for (int32_t j = 0; j <= 2 * param; j++)
             {
@@ -715,13 +739,13 @@ namespace VKernel
         }
 
         // capluse
-        int32_t param = 10; 
+        int32_t param = 10;
 
         int32_t vert_per_layer = 2 * param + 1;
         int32_t top_sphere_layers = param + 1;
         int32_t bottom_sphere_layers = param + 1;
         int32_t top_pole = 0;
-        int32_t bottom_pole = 505; 
+        int32_t bottom_pole = 505;
 
         for (int32_t i = 0; i < param; i++)
         {
@@ -785,7 +809,7 @@ namespace VKernel
 
         for (int32_t j = 0; j < 2 * param; j++)
         {
-            int32_t current = 1 + j; 
+            int32_t current = 1 + j;
             int32_t next = 1 + j + 1;
             indices[index++] = top_pole;
             indices[index++] = next;
@@ -803,7 +827,9 @@ namespace VKernel
         }
     }
 
-    std::vector<size_t> DebugDrawGroup::writeUniformDynamicDataToCache(std::vector<std::pair<Matrix4x4, Vector4>> &datas, const PrimitiveType &primity_type, const bool &is_depth_test)
+    std::vector<size_t> DebugDrawGroup::writeUniformDynamicDataToCache(std::vector<std::tuple<Matrix4x4, Vector4, uint32_t>> &datas,
+                                                                       const PrimitiveType &primity_type,
+                                                                       const bool &is_depth_test)
     {
         std::vector<size_t> mesh_count;
         size_t last_size = 0;
@@ -814,7 +840,7 @@ namespace VKernel
         {
             if (triangle.m_primitive_type == primity_type && triangle.m_is_depth_test == is_depth_test)
             {
-                datas.push_back(std::make_pair(triangle.m_model.getMatrix(), triangle.m_color));
+                datas.push_back(std::make_tuple(triangle.m_model.getMatrix(), triangle.m_color, triangle.m_texture_type));
             }
         }
         mesh_count.push_back(datas.size() - last_size);
@@ -826,7 +852,7 @@ namespace VKernel
         {
             if (quad.m_primitive_type == primity_type && quad.m_is_depth_test == is_depth_test)
             {
-                datas.push_back(std::make_pair(quad.m_model.getMatrix(), quad.m_color));
+                datas.push_back(std::make_tuple(quad.m_model.getMatrix(), quad.m_color, quad.m_texture_type));
             }
         }
         mesh_count.push_back(datas.size() - last_size);
@@ -838,7 +864,7 @@ namespace VKernel
         {
             if (box.m_primitive_type == primity_type && box.m_is_depth_test == is_depth_test)
             {
-                datas.push_back(std::make_pair(box.m_model.getMatrix(), box.m_color));
+                datas.push_back(std::make_tuple(box.m_model.getMatrix(), box.m_color, box.m_texture_type));
             }
         }
         mesh_count.push_back(datas.size() - last_size);
@@ -850,7 +876,7 @@ namespace VKernel
         {
             if (sphere.m_primitive_type == primity_type && sphere.m_is_depth_test == is_depth_test)
             {
-                datas.push_back(std::make_pair(sphere.m_model.getMatrix(), sphere.m_color));
+                datas.push_back(std::make_tuple(sphere.m_model.getMatrix(), sphere.m_color, sphere.m_texture_type));
             }
         }
         mesh_count.push_back(datas.size() - last_size);
@@ -862,7 +888,7 @@ namespace VKernel
         {
             if (cylinder.m_primitive_type == primity_type && cylinder.m_is_depth_test == is_depth_test)
             {
-                datas.push_back(std::make_pair(cylinder.m_model.getMatrix(), cylinder.m_color));
+                datas.push_back(std::make_tuple(cylinder.m_model.getMatrix(), cylinder.m_color, cylinder.m_texture_type));
             }
         }
         mesh_count.push_back(datas.size() - last_size);
@@ -874,7 +900,7 @@ namespace VKernel
         {
             if (capsule.m_primitive_type == primity_type && capsule.m_is_depth_test == is_depth_test)
             {
-                datas.push_back(std::make_pair(capsule.m_model.getMatrix(), capsule.m_color));
+                datas.push_back(std::make_tuple(capsule.m_model.getMatrix(), capsule.m_color, capsule.m_texture_type));
             }
         }
         mesh_count.push_back(datas.size() - last_size);

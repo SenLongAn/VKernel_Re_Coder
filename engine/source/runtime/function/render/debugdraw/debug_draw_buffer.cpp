@@ -77,14 +77,15 @@ namespace VKernel
         m_uniform_buffer_object.proj_view_matrix = proj_view_matrix;
     }
 
-    size_t DebugDrawAllocator::cacheUniformDynamicObject(const std::vector<std::pair<Matrix4x4, Vector4>> &model_colors)
+    size_t DebugDrawAllocator::cacheUniformDynamicObject(const std::vector<std::tuple<Matrix4x4, Vector4, uint32_t>> &datas)
     {
         size_t offset = m_uniform_buffer_dynamic_object_cache.size(); ///< start offset
-        m_uniform_buffer_dynamic_object_cache.resize(offset + model_colors.size());
-        for (size_t i = 0; i < model_colors.size(); i++)
+        m_uniform_buffer_dynamic_object_cache.resize(offset + datas.size());
+        for (size_t i = 0; i < datas.size(); i++)
         {
-            m_uniform_buffer_dynamic_object_cache[i + offset].model_matrix = model_colors[i].first;
-            m_uniform_buffer_dynamic_object_cache[i + offset].color = model_colors[i].second;
+            m_uniform_buffer_dynamic_object_cache[i + offset].model_matrix = std::get<0>(datas[i]);
+            m_uniform_buffer_dynamic_object_cache[i + offset].color = std::get<1>(datas[i]);
+            m_uniform_buffer_dynamic_object_cache[i + offset].texture_type = std::get<2>(datas[i]);
         }
         return offset;
     }
@@ -216,7 +217,7 @@ namespace VKernel
 
         uboLayoutBinding[2].binding = 2;
         uboLayoutBinding[2].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        uboLayoutBinding[2].descriptorCount = 1;
+        uboLayoutBinding[2].descriptorCount = TextureType::TEXTURE_TYPE_COUNT - 1;
         uboLayoutBinding[2].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
         uboLayoutBinding[2].pImmutableSamplers = nullptr;
 
@@ -251,18 +252,34 @@ namespace VKernel
     void DebugDrawAllocator::prepareDescriptorSet()
     {
         // load texture data
-        std::shared_ptr<TextureData> base_color_texture =
+        std::shared_ptr<TextureData> base_color_texture[TextureType::TEXTURE_TYPE_COUNT];
+        base_color_texture[0] =
             g_runtime_global_context.m_render_system->getRenderResource()->loadTexture("engine/asset/objects/_textures/gold.tga", false);
+        base_color_texture[1] =
+            g_runtime_global_context.m_render_system->getRenderResource()->loadTexture("engine/asset/objects/_textures/floor.jpg", false);
+        base_color_texture[2] =
+            g_runtime_global_context.m_render_system->getRenderResource()->loadTexture("engine/asset/objects/_textures/wood.png", false);
+        base_color_texture[3] =
+            g_runtime_global_context.m_render_system->getRenderResource()->loadTexture("engine/asset/objects/_textures/block.png", false);
+        base_color_texture[4] =
+            g_runtime_global_context.m_render_system->getRenderResource()->loadTexture("engine/asset/objects/_textures/brickwall.jpg", false);
+        base_color_texture[5] =
+            g_runtime_global_context.m_render_system->getRenderResource()->loadTexture("engine/asset/objects/_textures/bricks2.jpg", false);
 
-        // create global image
-        m_vulkan_api->createGlobalImage(image, imageView, m_allocation, base_color_texture->m_width, base_color_texture->m_height,
-                                        base_color_texture->m_pixels, base_color_texture->m_format);
+        // image and DescriptorImageInfo 
+        VkDescriptorImageInfo image_info[TextureType::TEXTURE_TYPE_COUNT];
+        for (size_t i = 0; i < (TextureType::TEXTURE_TYPE_COUNT - 1); i++)
+        {
+            // create global image
 
-        // DescriptorSet bind buffer
-        VkDescriptorImageInfo image_info[1];
-        image_info[0].imageView = imageView;
-        image_info[0].sampler = m_vulkan_api->getOrCreateDefaultSampler(Default_Sampler_Linear);
-        image_info[0].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+            m_vulkan_api->createGlobalImage(image[i], imageView[i], m_allocation[i], base_color_texture[i]->m_width, base_color_texture[i]->m_height,
+                                            base_color_texture[i]->m_pixels, base_color_texture[i]->m_format);
+
+            // DescriptorSet bind buffer
+            image_info[i].imageView = imageView[i];
+            image_info[i].sampler = m_vulkan_api->getOrCreateDefaultSampler(Default_Sampler_Linear);
+            image_info[i].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        }
 
         for (size_t i = 0; i < m_vulkan_api->getMaxFramesInFlight(); i++)
         {
@@ -273,9 +290,9 @@ namespace VKernel
             descriptor_write[0].dstArrayElement = 0;
             descriptor_write[0].pNext = nullptr;
             descriptor_write[0].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-            descriptor_write[0].descriptorCount = 1;
+            descriptor_write[0].descriptorCount = TextureType::TEXTURE_TYPE_COUNT - 1;
             descriptor_write[0].pBufferInfo = nullptr;
-            descriptor_write[0].pImageInfo = &image_info[0];
+            descriptor_write[0].pImageInfo = image_info;
             descriptor_write[0].pTexelBufferView = nullptr;
 
             vkUpdateDescriptorSets(m_vulkan_api->getLogicDevice(), 1, descriptor_write, 0, nullptr);

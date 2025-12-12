@@ -15,11 +15,13 @@ layout(set = 0, binding = 0) uniform UniformBufferObject {
 layout(set = 0, binding = 1) uniform UniformDynamicBufferObject {
     mat4 model;
     vec4 color;
+    uint texture_type;
 } dynamic_ubo;
 
 // out
 layout(location = 0) out vec4 fragColor;
 layout(location = 1) out vec2 fragTexCoord;
+layout(location = 2) flat out uint textureType;
 
 void main() {
     // position
@@ -31,4 +33,5 @@ void main() {
     // out
     fragColor = dynamic_ubo.color;
     fragTexCoord = texcoord;
+    textureType = dynamic_ubo.texture_type;
 }

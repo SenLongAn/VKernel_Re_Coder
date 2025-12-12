@@ -100,37 +100,43 @@ namespace VKernel
                                                             Quaternion(Vector3(0.0, 0.0, 0.0)),
                                                             Vector3(0.5, 0.5, 0.5)),
                                                   PrimitiveType::_Primitive_triangle,
-                                                  true);
+                                                  true,
+                                                  TextureType::GOLD);
         m_debug_draw_group_for_render.addQuad(Vector4(1.0f, 1.0f, 1.0f, 1.0f),
                                               Transform(Vector3(-2.0, 0.0, 4.0),
                                                         Quaternion(Vector3(0.0, 0.0, 0.0)),
                                                         Vector3(0.5, 0.5, 0.5)),
                                               PrimitiveType::_Primitive_triangle,
-                                              true);
+                                              true,
+                                              TextureType::FLOOR);
         m_debug_draw_group_for_render.addBox(Vector4(1.0f, 1.0f, 1.0f, 1.0f),
                                              Transform(Vector3(0.0, 0.0, 4.0),
                                                        Quaternion(Vector3(0.0, 0.0, 0.0)),
                                                        Vector3(0.5, 0.5, 0.5)),
                                              PrimitiveType::_Primitive_triangle,
-                                             true);
+                                             true,
+                                             TextureType::WOOD);
         m_debug_draw_group_for_render.addSphere(Vector4(1.0f, 1.0f, 1.0f, 1.0f),
                                                 Transform(Vector3(2.0, 0.0, 4.0),
                                                           Quaternion(Vector3(0.0, 0.0, 0.0)),
                                                           Vector3(0.5, 0.5, 0.5)),
                                                 PrimitiveType::_Primitive_triangle,
-                                                true);
+                                                true,
+                                                TextureType::BLOCK);
         m_debug_draw_group_for_render.addCylinder(Vector4(1.0f, 1.0f, 1.0f, 1.0f),
                                                   Transform(Vector3(4.0, 0.0, 4.0),
                                                             Quaternion(Vector3(0.0, 0.0, 0.0)),
                                                             Vector3(0.5, 0.5, 0.5)),
                                                   PrimitiveType::_Primitive_triangle,
-                                                  true);
+                                                  true,
+                                                  TextureType::BRICKWALL);
         m_debug_draw_group_for_render.addCapsule(Vector4(1.0f, 1.0f, 1.0f, 1.0f),
-                                                  Transform(Vector3(6.0, 0.0, 4.0),
-                                                            Quaternion(Vector3(0.0, 0.0, 0.0)),
-                                                            Vector3(0.5, 0.5, 0.5)),
-                                                  PrimitiveType::_Primitive_triangle,
-                                                  true);
+                                                 Transform(Vector3(6.0, 0.0, 4.0),
+                                                           Quaternion(Vector3(0.0, 0.0, 0.0)),
+                                                           Vector3(0.5, 0.5, 0.5)),
+                                                 PrimitiveType::_Primitive_triangle,
+                                                 true,
+                                                 TextureType::CONTAINER);
     }
 
     void DebugDrawManager::destory()
@@ -217,7 +223,7 @@ namespace VKernel
         m_buffer_allocator->cacheUniformObject(m_proj_view_matrix); ///< vp
 
         // udbo
-        std::vector<std::pair<Matrix4x4, Vector4>> dynamicObject = {};
+        std::vector<std::tuple<Matrix4x4, Vector4, uint32_t>> dynamicObject = {};
         m_mesh_count.push_back(m_debug_draw_group_for_render.writeUniformDynamicDataToCache(dynamicObject, PrimitiveType::_Primitive_point, true));
         m_buffer_allocator->cacheUniformDynamicObject(dynamicObject);
         dynamicObject.clear();

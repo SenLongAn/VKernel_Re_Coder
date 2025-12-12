@@ -22,33 +22,39 @@ namespace VKernel
         // add
         void addTriangle(const Vector4 &color,
                          const Transform &model,
-                         const PrimitiveType &primitive_type,
-                         const bool &is_depth_test);
+                         const PrimitiveType &primitive_type = PrimitiveType::_Primitive_triangle,
+                         const bool &is_depth_test = true,
+                         const TextureType &texture_type = TextureType::UNDEFINED);
 
         void addQuad(const Vector4 &color,
                      const Transform &model,
-                     const PrimitiveType &primitive_type,
-                     const bool &is_depth_test);
+                     const PrimitiveType &primitive_type = PrimitiveType::_Primitive_triangle,
+                     const bool &is_depth_test = true,
+                     const TextureType &texture_type = TextureType::UNDEFINED);
 
         void addBox(const Vector4 &color,
                     const Transform &model,
-                    const PrimitiveType &primitive_type,
-                    const bool &is_depth_test);
+                    const PrimitiveType &primitive_type = PrimitiveType::_Primitive_triangle,
+                    const bool &is_depth_test = true,
+                    const TextureType &texture_type = TextureType::UNDEFINED);
 
         void addSphere(const Vector4 &color,
                        const Transform &model,
-                       const PrimitiveType &primitive_type,
-                       const bool &is_depth_test);
+                       const PrimitiveType &primitive_type = PrimitiveType::_Primitive_triangle,
+                       const bool &is_depth_test = true,
+                       const TextureType &texture_type = TextureType::UNDEFINED);
 
         void addCylinder(const Vector4 &color,
                          const Transform &model,
-                         const PrimitiveType &primitive_type,
-                         const bool &is_depth_test);
+                         const PrimitiveType &primitive_type = PrimitiveType::_Primitive_triangle,
+                         const bool &is_depth_test = true,
+                         const TextureType &texture_type = TextureType::UNDEFINED);
 
         void addCapsule(const Vector4 &color,
-                         const Transform &model,
-                         const PrimitiveType &primitive_type,
-                         const bool &is_depth_test);
+                        const Transform &model,
+                        const PrimitiveType &primitive_type = PrimitiveType::_Primitive_triangle,
+                        const bool &is_depth_test = true,
+                        const TextureType &texture_type = TextureType::UNDEFINED);
 
         // get
         size_t getTriangleCount() const;
@@ -65,7 +71,9 @@ namespace VKernel
         void writeIndiceData(std::vector<uint16_t> &indices);
 
         // The input parameter that writes the udbo data
-        std::vector<size_t> writeUniformDynamicDataToCache(std::vector<std::pair<Matrix4x4, Vector4>> &datas, const PrimitiveType &primity_type, const bool &is_depth_test);
+        std::vector<size_t> writeUniformDynamicDataToCache(std::vector<std::tuple<Matrix4x4, Vector4, uint32_t>> &datas,
+                                                           const PrimitiveType &primity_type,
+                                                           const bool &is_depth_test);
 
     private:
         std::mutex m_mutex; ///< shared data

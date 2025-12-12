@@ -23,7 +23,7 @@ namespace VKernel
         void cacheVertexs(const std::vector<DebugDrawVertex> &vertexs);                                   ///< vertex data
         void cacheIndices(const std::vector<uint16_t> &indices);                                          ///< indice data
         void cacheUniformObject(Matrix4x4 proj_view_matrix);                                              ///< ubo
-        size_t cacheUniformDynamicObject(const std::vector<std::pair<Matrix4x4, Vector4>> &model_colors); ///< udbo
+        size_t cacheUniformDynamicObject(const std::vector<std::tuple<Matrix4x4, Vector4, uint32_t>> &datas); ///< udbo
 
         void allocator(); ///< Fill the memory and buffer with data
 
@@ -67,6 +67,7 @@ namespace VKernel
         {
             Matrix4x4 model_matrix;
             Vector4 color;
+            uint32_t texture_type;
         };
         Resource m_uniform_dynamic_resource;
         std::vector<UniformBufferDynamicObject> m_uniform_buffer_dynamic_object_cache;
@@ -80,10 +81,10 @@ namespace VKernel
 
         Descriptor m_descriptor;
 
-        // texture
-        VkImage image;
-        VkImageView imageView;
-        VmaAllocation m_allocation;
+        // image
+        VkImage image[TextureType::TEXTURE_TYPE_COUNT - 1];
+        VkImageView imageView[TextureType::TEXTURE_TYPE_COUNT - 1];
+        VmaAllocation m_allocation[TextureType::TEXTURE_TYPE_COUNT - 1];
 
     private:
         // What needs to be accomplished in the buffer class

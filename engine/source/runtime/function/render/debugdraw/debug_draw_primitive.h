@@ -32,6 +32,18 @@ namespace VKernel
         k_Primitive_count,
     };
 
+    enum TextureType : uint32_t ///< texture type
+    {
+        UNDEFINED = 0,
+        GOLD = 1,
+        FLOOR = 2,
+        WOOD = 3,
+        BLOCK = 4,
+        BRICKWALL = 5,
+        CONTAINER = 6,
+        TEXTURE_TYPE_COUNT = 7
+    };
+
     struct DebugDrawVertex ///< Vertex data
     {
         // Vertex data
@@ -85,6 +97,8 @@ namespace VKernel
         Vector4 m_color; ///< color
 
         Transform m_model; ///< model
+
+        TextureType m_texture_type; ///< texture type
     };
 
     class DebugDrawTriangle : public DebugDrawPrimitive ///< Triangle Primitive derived class

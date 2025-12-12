@@ -152,7 +152,7 @@ namespace VKernel
 
         uboLayoutBinding[2].binding = 2;
         uboLayoutBinding[2].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        uboLayoutBinding[2].descriptorCount = 1;
+        uboLayoutBinding[2].descriptorCount = TextureType::TEXTURE_TYPE_COUNT - 1;
         uboLayoutBinding[2].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
         uboLayoutBinding[2].pImmutableSamplers = nullptr;
 
