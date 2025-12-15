@@ -24,11 +24,12 @@ namespace VKernel
         VkBuffer       _global_upload_ringbuffer; ///< buffer, ring: Multiple sets of data placed in the same buffer
         VkDeviceMemory _global_upload_ringbuffer_memory; ///< memory
 
-        void* _global_upload_ringbuffer_memory_pointer; ///< gpu map memory
+        void* _global_upload_ringbuffer_memory_pointer; ///< gpu map memory, We will write data here.
 
+        // The end position of a data set , vector is because of synchronization primitives
         std::vector<uint32_t> _global_upload_ringbuffers_begin;
-        std::vector<uint32_t> _global_upload_ringbuffers_end; ///< The end position of a data set , vector is
-                                                              ///< because of synchronization primitives
+        std::vector<uint32_t> _global_upload_ringbuffers_end;
+        std::vector<uint32_t> _global_upload_ringbuffers_size;
     };
 
     struct GlobalRenderResource
@@ -54,16 +55,20 @@ namespace VKernel
 
         // create buffer and descriptor
         virtual void uploadGameObjectRenderResource(std::shared_ptr<VulkanAPI> vulkan_api,
+                                                    RenderEntity               render_entity,
                                                     RenderMeshData             mesh_data) override final;
 
+        void resetRingBufferOffset(uint8_t current_frame_index); // reset Ring Buffer Offset
+
         // get
-        VulkanMesh& getEntityMesh(size_t id);
+        VulkanMesh& getEntityMesh(RenderEntity entity);
 
     private:
         // create buffer and descriptor
         void createAndMapStorageBuffer(std::shared_ptr<VulkanAPI> vulkan_api); ///< Storage
 
         VulkanMesh& getOrCreateVulkanMesh(std::shared_ptr<VulkanAPI> vulkan_api,
+                                          RenderEntity               entity,
                                           RenderMeshData             mesh_data); ///< vertex and indice
 
         void updateMeshData(std::shared_ptr<VulkanAPI>             vulkan_api,

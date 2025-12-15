@@ -27,7 +27,8 @@ namespace VKernel
 
         virtual void preparePassData(std::shared_ptr<RenderResourceBase> render_resource); ///< prepare processing data
 
-        virtual void forwardRender(std::shared_ptr<VulkanAPI> vulkan_api) = 0; ///< forward render core
+        virtual void forwardRender(std::shared_ptr<VulkanAPI>          vulkan_api,
+                                   std::shared_ptr<RenderResourceBase> render_resource) = 0; ///< forward render core
 
     protected:
         std::shared_ptr<VulkanAPI> m_vulkan_api; ///< Vulkan interface

@@ -24,14 +24,24 @@ namespace VKernel
         createAndMapStorageBuffer(vulkan_api);
     }
 
-    void RenderResource::uploadGameObjectRenderResource(std::shared_ptr<VulkanAPI> vulkan_api, RenderMeshData mesh_data)
+    void RenderResource::uploadGameObjectRenderResource(std::shared_ptr<VulkanAPI> vulkan_api,
+                                                        RenderEntity               render_entity,
+                                                        RenderMeshData             mesh_data)
     {
-        getOrCreateVulkanMesh(vulkan_api, mesh_data);
+        getOrCreateVulkanMesh(vulkan_api, render_entity, mesh_data);
     }
 
-    VulkanMesh& RenderResource::getEntityMesh(size_t id)
+    void RenderResource::resetRingBufferOffset(uint8_t current_frame_index)
     {
-        auto it = m_vulkan_meshes.find(id);
+        m_global_render_resource._storage_buffer._global_upload_ringbuffers_end[current_frame_index] =
+            m_global_render_resource._storage_buffer
+                ._global_upload_ringbuffers_begin[current_frame_index]; ///< end offset to start offset
+    }
+
+    VulkanMesh& RenderResource::getEntityMesh(RenderEntity entity)
+    {
+        size_t assetid = entity.m_instance_id;
+        auto   it      = m_vulkan_meshes.find(assetid);
         if (it != m_vulkan_meshes.end()) ///< If found, return the mesh
         {
             return it->second;
@@ -44,9 +54,10 @@ namespace VKernel
 
     void RenderResource::createAndMapStorageBuffer(std::shared_ptr<VulkanAPI> vulkan_api)
     {
-        // createBuffer
-        StorageBuffer& _storage_buffer = m_global_render_resource._storage_buffer;
+        StorageBuffer& _storage_buffer  = m_global_render_resource._storage_buffer;
+        uint32_t       frames_in_flight = vulkan_api->getMaxFramesInFlight();
 
+        // createBuffer
         uint32_t global_storage_buffer_size = 1024 * 1024 * 128;
         vulkan_api->createBuffer(global_storage_buffer_size,
                                  VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
@@ -61,33 +72,62 @@ namespace VKernel
                     VK_WHOLE_SIZE,
                     0,
                     &_storage_buffer._global_upload_ringbuffer_memory_pointer);
+
+        // init storage buffer offset
+        _storage_buffer._global_upload_ringbuffers_begin.resize(frames_in_flight);
+        _storage_buffer._global_upload_ringbuffers_end.resize(frames_in_flight);
+        _storage_buffer._global_upload_ringbuffers_size.resize(frames_in_flight);
+
+        for (uint32_t i = 0; i < frames_in_flight; ++i)
+        {
+            _storage_buffer._global_upload_ringbuffers_begin[i] =
+                (global_storage_buffer_size * i) /
+                frames_in_flight; ///< Divide the global_storage_buffer_size into starting offsets for frames_in_flight
+            _storage_buffer._global_upload_ringbuffers_size[i] =
+                (global_storage_buffer_size * (i + 1)) / frames_in_flight -
+                (global_storage_buffer_size * i) / frames_in_flight; ///< Serving size
+        }
     }
 
-    VulkanMesh& RenderResource::getOrCreateVulkanMesh(std::shared_ptr<VulkanAPI> vulkan_api, RenderMeshData mesh_data)
+    VulkanMesh& RenderResource::getOrCreateVulkanMesh(std::shared_ptr<VulkanAPI> vulkan_api,
+                                                      RenderEntity               entity,
+                                                      RenderMeshData             mesh_data)
     {
-        // insert nullptr data
-        VulkanMesh temp;
-        auto       res = m_vulkan_meshes.insert(std::make_pair(0, std::move(temp)));
-        assert(res.second);
+        // Check if it has been added
+        size_t assetid = entity.m_instance_id;
+        auto   it      = m_vulkan_meshes.find(assetid);
+        if (it != m_vulkan_meshes.end())
+        {
+            return it->second;
+        }
+        else
+        {
+            // insert nullptr data
+            VulkanMesh temp;
+            auto       res = m_vulkan_meshes.insert(std::make_pair(assetid, std::move(temp)));
+            assert(res.second);
 
-        // get index and vertex data
-        uint32_t index_index_buffer_size  = static_cast<uint32_t>(mesh_data.m_static_mesh_data.m_index_buffer->m_size);
-        void*    index_buffer_data        = mesh_data.m_static_mesh_data.m_index_buffer->m_data;
-        uint32_t vertex_index_buffer_size = static_cast<uint32_t>(mesh_data.m_static_mesh_data.m_vertex_buffer->m_size);
-        MeshVertexDataDefinition* vertex_buffer_data = reinterpret_cast<MeshVertexDataDefinition*>(
-            mesh_data.m_static_mesh_data.m_vertex_buffer->m_data); ///< Type cast to MeshVertexDataDefinition
+            // get index and vertex data
+            uint32_t index_index_buffer_size =
+                static_cast<uint32_t>(mesh_data.m_static_mesh_data.m_index_buffer->m_size);
+            void*    index_buffer_data = mesh_data.m_static_mesh_data.m_index_buffer->m_data;
+            uint32_t vertex_index_buffer_size =
+                static_cast<uint32_t>(mesh_data.m_static_mesh_data.m_vertex_buffer->m_size);
+            MeshVertexDataDefinition* vertex_buffer_data = reinterpret_cast<MeshVertexDataDefinition*>(
+                mesh_data.m_static_mesh_data.m_vertex_buffer->m_data); ///< Type cast to MeshVertexDataDefinition
 
-        // create buffer and descriptor
-        VulkanMesh& now_mesh = res.first->second; ///< Return the second item of the inserted data
+            // create buffer and descriptor
+            VulkanMesh& now_mesh = res.first->second; ///< Return the second item of the inserted data
 
-        updateMeshData(vulkan_api,
-                       index_index_buffer_size,
-                       index_buffer_data,
-                       vertex_index_buffer_size,
-                       vertex_buffer_data,
-                       now_mesh);
+            updateMeshData(vulkan_api,
+                           index_index_buffer_size,
+                           index_buffer_data,
+                           vertex_index_buffer_size,
+                           vertex_buffer_data,
+                           now_mesh);
 
-        return now_mesh;
+            return now_mesh;
+        }
     }
 
     void RenderResource::updateMeshData(std::shared_ptr<VulkanAPI>      vulkan_api,
@@ -151,8 +191,8 @@ namespace VKernel
 
         MeshVertex::VulkanMeshVertexPostition* mesh_vertex_positions = ///< The starting position of data in MapMemory =
                                                                        ///< MapMemory starting address + data offset
-            reinterpret_cast<MeshVertex::VulkanMeshVertexPostition*>( ///< Convert a pointer to an integer to obtain the
-                                                                      ///< memory address value of the pointer
+            reinterpret_cast<MeshVertex::VulkanMeshVertexPostition*>(  ///< Convert a pointer to an integer to obtain
+                                                                       ///< the memory address value of the pointer
                 reinterpret_cast<uintptr_t>(inefficient_staging_buffer_data) +
                 vertex_position_buffer_offset); ///< Conversion between pointers and integers
 

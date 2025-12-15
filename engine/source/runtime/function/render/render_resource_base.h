@@ -1,5 +1,6 @@
 #pragma once
 
+#include "runtime/function/render/render_entity.h"
 #include "runtime/function/render/render_type.h"
 
 #include <memory>
@@ -26,6 +27,7 @@ namespace VKernel
         virtual void uploadGlobalRenderResource(std::shared_ptr<VulkanAPI> vulkan_api) = 0;
 
         virtual void uploadGameObjectRenderResource(std::shared_ptr<VulkanAPI> vulkan_api,
+                                                    RenderEntity               render_entity,
                                                     RenderMeshData             mesh_data) = 0;
 
         std::shared_ptr<TextureData> loadTexture(std::string file, bool is_srgb = false); ///< texture

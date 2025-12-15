@@ -15,7 +15,8 @@ namespace VKernel
 
         virtual void clear() {};
 
-        virtual void forwardRender(std::shared_ptr<VulkanAPI> vulkan_api);
+        virtual void forwardRender(std::shared_ptr<VulkanAPI>          vulkan_api,
+                                   std::shared_ptr<RenderResourceBase> render_resource);
 
         void passUpdateAfterRecreateSwapchain(); ///< destory and recreate framebuffer
     };

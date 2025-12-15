@@ -45,6 +45,7 @@ namespace VKernel
 
     struct RenderMeshNode
     {
-        VulkanMesh* ref_mesh {nullptr};
+        const Matrix4x4* model_matrix {nullptr};
+        VulkanMesh*      ref_mesh {nullptr};
     };
 } // namespace VKernel

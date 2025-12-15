@@ -1,6 +1,7 @@
 #pragma once
 
 #include "runtime/function/render/render_common.h"
+#include "runtime/function/render/render_entity.h"
 
 #include <memory>
 #include <vector>
@@ -18,6 +19,9 @@ namespace VKernel
     public:
         // visible objects
         std::vector<RenderMeshNode> m_main_camera_visible_mesh_nodes;
+
+        // render entities
+        std::vector<RenderEntity> m_render_entities;
 
     public:
         // update visible objects in each frame

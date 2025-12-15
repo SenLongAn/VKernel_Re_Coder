@@ -23,8 +23,14 @@ namespace VKernel
         m_main_camera_pass->initialize();
     }
 
-    void RenderPipeline::forwardRender(std::shared_ptr<VulkanAPI> vulkan_api)
+    void RenderPipeline::forwardRender(std::shared_ptr<VulkanAPI>          vulkan_api,
+                                       std::shared_ptr<RenderResourceBase> render_resource)
     {
+        // reset ring buffer offset
+        RenderResource* vulkan_resource = static_cast<RenderResource*>(render_resource.get());
+
+        vulkan_resource->resetRingBufferOffset(vulkan_api->getCurrentFrameIndex());
+
         // wait fence
         vkWaitForFences(vulkan_api->getLogicDevice(),
                         1,

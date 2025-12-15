@@ -486,6 +486,24 @@ namespace VKernel
 
     void MainCameraPass::drawMeshLighting()
     {
+        // write data
+        struct MeshNode
+        {
+            const Matrix4x4* model_matrix {nullptr};
+        };
+
+        std::map<VulkanMesh*, std::vector<MeshNode>> main_camera_mesh_drawcall_batch;
+
+        for (RenderMeshNode& node : *(m_visiable_nodes.p_main_camera_visible_mesh_nodes))
+        {
+            auto& mesh_nodes = main_camera_mesh_drawcall_batch[node.ref_mesh];
+
+            MeshNode temp;
+            temp.model_matrix = node.model_matrix;
+
+            mesh_nodes.push_back(temp);
+        }
+
         // Bind Pipeline
         vkCmdBindPipeline(m_vulkan_api->getCurrentCommandBuffer(),
                           VK_PIPELINE_BIND_POINT_GRAPHICS,
@@ -497,89 +515,118 @@ namespace VKernel
         vkCmdSetScissor(m_vulkan_api->getCurrentCommandBuffer(), 0, 1, &swap_chain_desc.scissor);
 
         // perframe storage buffer
-        // uint32_t perframe_dynamic_offset =
-        //     roundUp(m_global_render_resource->_storage_buffer
-        //                 ._global_upload_ringbuffers_end[m_vulkan_api->getCurrentFrameIndex()],
-        //             m_global_render_resource->_storage_buffer._min_storage_buffer_offset_alignment); ///< alignment
-        //             data
+        uint32_t perframe_dynamic_offset =
+            roundUp(m_global_render_resource->_storage_buffer
+                        ._global_upload_ringbuffers_end[m_vulkan_api->getCurrentFrameIndex()],
+                    m_global_render_resource->_storage_buffer._min_storage_buffer_offset_alignment); ///< alignment data
 
-        // m_global_render_resource->_storage_buffer._global_upload_ringbuffers_end[m_vulkan_api->getCurrentFrameIndex()]
-        // =
-        //     perframe_dynamic_offset + sizeof(MeshPerframeStorageBufferObject); ///< Next starting offset
+        m_global_render_resource->_storage_buffer._global_upload_ringbuffers_end[m_vulkan_api->getCurrentFrameIndex()] =
+            perframe_dynamic_offset + sizeof(MeshPerframeStorageBufferObject); ///< Next starting offset
 
-        // assert(m_global_render_resource->_storage_buffer
-        //            ._global_upload_ringbuffers_end[m_vulkan_api->getCurrentFrameIndex()] <=
-        //        (m_global_render_resource->_storage_buffer
-        //             ._global_upload_ringbuffers_begin[m_vulkan_api->getCurrentFrameIndex()] +
-        //         m_global_render_resource->_storage_buffer
-        //             ._global_upload_ringbuffers_size[m_vulkan_api->getCurrentFrameIndex()])); ///< Assert whether the
-        //                                                                                       ///< bias is
-        //                                                                                       unreasonable
+        assert(m_global_render_resource->_storage_buffer
+                   ._global_upload_ringbuffers_end[m_vulkan_api->getCurrentFrameIndex()] <=
+               (m_global_render_resource->_storage_buffer
+                    ._global_upload_ringbuffers_begin[m_vulkan_api->getCurrentFrameIndex()] +
+                m_global_render_resource->_storage_buffer
+                    ._global_upload_ringbuffers_size[m_vulkan_api->getCurrentFrameIndex()])); ///< Assert whether the
+                                                                                              ///< bias is
+                                                                                              //   unreasonable
 
         (*reinterpret_cast<MeshPerframeStorageBufferObject*>(
             reinterpret_cast<uintptr_t>(
                 m_global_render_resource->_storage_buffer._global_upload_ringbuffer_memory_pointer) +
-            0)) = m_mesh_perframe_storage_buffer_object; ///< write data to buffer
+            perframe_dynamic_offset)) = m_mesh_perframe_storage_buffer_object; ///< write data to buffer
 
         // render
-        for (auto& val : *(m_visiable_nodes.p_main_camera_visible_mesh_nodes))
+        for (auto& pair1 : main_camera_mesh_drawcall_batch)
         {
-            // per drawcall storage buffer
-            // uint32_t perdrawcall_dynamic_offset = roundUp(
-            //     m_global_render_resource->_storage_buffer
-            //         ._global_upload_ringbuffers_end[m_vulkan_api->getCurrentFrameIndex()],
-            //     m_global_render_resource->_storage_buffer._min_storage_buffer_offset_alignment); ///< alignment data
+            VulkanMesh& mesh                 = (*pair1.first);
+            auto&       mesh_nodes           = pair1.second;
+            uint32_t    total_instance_count = static_cast<uint32_t>(mesh_nodes.size()); ///< mesh count
 
-            // m_global_render_resource->_storage_buffer
-            //     ._global_upload_ringbuffers_end[m_vulkan_api->getCurrentFrameIndex()] =
-            //     perdrawcall_dynamic_offset + sizeof(MeshPerdrawcallStorageBufferObject); ///< Next starting offset
+            if (total_instance_count > 0)
+            {
+                // bind vertex buffer
+                VkBuffer     vertex_buffers[1] = {mesh.mesh_vertex_position_buffer};
+                VkDeviceSize offsets[]         = {0};
+                vkCmdBindVertexBuffers(m_vulkan_api->getCurrentCommandBuffer(),
+                                       0,
+                                       (sizeof(vertex_buffers) / sizeof(vertex_buffers[0])),
+                                       vertex_buffers,
+                                       offsets);
+                // bind indice buffer
+                vkCmdBindIndexBuffer(
+                    m_vulkan_api->getCurrentCommandBuffer(), mesh.mesh_index_buffer, 0, VK_INDEX_TYPE_UINT32);
 
-            // assert(
-            //     m_global_render_resource->_storage_buffer
-            //         ._global_upload_ringbuffers_end[m_vulkan_api->getCurrentFrameIndex()] <=
-            //     (m_global_render_resource->_storage_buffer
-            //          ._global_upload_ringbuffers_begin[m_vulkan_api->getCurrentFrameIndex()] +
-            //      m_global_render_resource->_storage_buffer
-            //          ._global_upload_ringbuffers_size[m_vulkan_api->getCurrentFrameIndex()])); ///< Assert whether
-            //          the
-            //                                                                                    ///< bias is
-            //                                                                                    unreasonable
+                // Calculate the number of draw calls required for instance rendering
+                uint32_t drawcall_max_instance_count =
+                    (sizeof(MeshPerdrawcallStorageBufferObject::mesh_instances) /
+                     sizeof(MeshPerdrawcallStorageBufferObject::mesh_instances[0])); ///< Maximum number of instances
+                                                                                     ///< that can be rendered at a time
+                uint32_t drawcall_count = roundUp(total_instance_count, drawcall_max_instance_count) /
+                                          drawcall_max_instance_count; ///< drawcall count
 
-            MeshPerdrawcallStorageBufferObject& perdrawcall_storage_buffer_object =
-                (*reinterpret_cast<MeshPerdrawcallStorageBufferObject*>(
-                    reinterpret_cast<uintptr_t>(
-                        m_global_render_resource->_storage_buffer._global_upload_ringbuffer_memory_pointer) +
-                    sizeof(MeshPerframeStorageBufferObject)));
-            perdrawcall_storage_buffer_object.mesh_instances[0].model_matrix =
-                Matrix4x4(Vector3(0.0, 0.0, 0.0),
-                          Vector3(0.5, 0.5, 0.5),
-                          Quaternion(Vector3(180.0, 0.0, 0.0))); ///< write data to buffer
+                for (uint32_t drawcall_index = 0; drawcall_index < drawcall_count; ++drawcall_index)
+                {
+                    // Calculate the number of instances to be rendered this time
+                    uint32_t current_instance_count =
+                        ((total_instance_count - drawcall_max_instance_count * drawcall_index) <
+                         drawcall_max_instance_count) ?
+                            (total_instance_count - drawcall_max_instance_count * drawcall_index) :
+                            drawcall_max_instance_count;
 
-            // Bind DescriptorSet
-            uint32_t dynamic_offsets[2] = {0, sizeof(MeshPerframeStorageBufferObject)};
-            vkCmdBindDescriptorSets(m_vulkan_api->getCurrentCommandBuffer(),
-                                    VK_PIPELINE_BIND_POINT_GRAPHICS,
-                                    m_render_pipelines[_render_pipeline_type_mesh_lighting].layout,
-                                    0,
-                                    1,
-                                    &m_descriptor_infos[_mesh_global].descriptor_set,
-                                    2,
-                                    dynamic_offsets);
+                    // per drawcall storage buffer
+                    uint32_t perdrawcall_dynamic_offset =
+                        roundUp(m_global_render_resource->_storage_buffer
+                                    ._global_upload_ringbuffers_end[m_vulkan_api->getCurrentFrameIndex()],
+                                m_global_render_resource->_storage_buffer
+                                    ._min_storage_buffer_offset_alignment); ///< alignment data
 
-            VulkanMesh* mesh = val.ref_mesh;
-            // bind vertex buffer
-            VkBuffer     vertex_buffers[1] = {mesh->mesh_vertex_position_buffer};
-            VkDeviceSize offsets[]         = {0};
-            vkCmdBindVertexBuffers(m_vulkan_api->getCurrentCommandBuffer(),
-                                   0,
-                                   (sizeof(vertex_buffers) / sizeof(vertex_buffers[0])),
-                                   vertex_buffers,
-                                   offsets);
-            // bind indice buffer
-            vkCmdBindIndexBuffer(
-                m_vulkan_api->getCurrentCommandBuffer(), mesh->mesh_index_buffer, 0, VK_INDEX_TYPE_UINT32);
+                    m_global_render_resource->_storage_buffer
+                        ._global_upload_ringbuffers_end[m_vulkan_api->getCurrentFrameIndex()] =
+                        perdrawcall_dynamic_offset +
+                        sizeof(MeshPerdrawcallStorageBufferObject); ///< Next starting offset
 
-            vkCmdDrawIndexed(m_vulkan_api->getCurrentCommandBuffer(), mesh->mesh_index_count, 1, 0, 0, 0);
+                    assert(m_global_render_resource->_storage_buffer
+                               ._global_upload_ringbuffers_end[m_vulkan_api->getCurrentFrameIndex()] <=
+                           (m_global_render_resource->_storage_buffer
+                                ._global_upload_ringbuffers_begin[m_vulkan_api->getCurrentFrameIndex()] +
+                            m_global_render_resource->_storage_buffer._global_upload_ringbuffers_size
+                                [m_vulkan_api->getCurrentFrameIndex()])); ///< Assert whether
+                                                                          ///< the bias is
+                                                                          ///<    unreasonable
+
+                    MeshPerdrawcallStorageBufferObject& perdrawcall_storage_buffer_object =
+                        (*reinterpret_cast<MeshPerdrawcallStorageBufferObject*>(
+                            reinterpret_cast<uintptr_t>(
+                                m_global_render_resource->_storage_buffer._global_upload_ringbuffer_memory_pointer) +
+                            perdrawcall_dynamic_offset));
+                    for (uint32_t i = 0; i < current_instance_count; ++i)
+                    {
+                        perdrawcall_storage_buffer_object.mesh_instances[i].model_matrix =
+                            *mesh_nodes[drawcall_max_instance_count * drawcall_index + i]
+                                 .model_matrix; ///< write data to buffer
+                    }
+
+                    // Bind DescriptorSet
+                    uint32_t dynamic_offsets[2] = {perframe_dynamic_offset, perdrawcall_dynamic_offset};
+                    vkCmdBindDescriptorSets(m_vulkan_api->getCurrentCommandBuffer(),
+                                            VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                            m_render_pipelines[_render_pipeline_type_mesh_lighting].layout,
+                                            0,
+                                            1,
+                                            &m_descriptor_infos[_mesh_global].descriptor_set,
+                                            2,
+                                            dynamic_offsets);
+
+                    vkCmdDrawIndexed(m_vulkan_api->getCurrentCommandBuffer(),
+                                     mesh.mesh_index_count,
+                                     current_instance_count,
+                                     0,
+                                     0,
+                                     0);
+                }
+            }
         }
     }
 
