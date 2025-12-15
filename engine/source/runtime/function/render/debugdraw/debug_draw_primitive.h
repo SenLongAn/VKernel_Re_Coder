@@ -6,11 +6,11 @@
 #include <array>
 
 /**
- * Basic primitive: Vertex data, vertex description
+ * Basic mesh
  */
 namespace VKernel
 {
-    enum DebugDrawPrimitiveType : uint8_t ///< Primitive Type
+    enum DebugDrawPrimitiveType : uint8_t ///< Basic mesh Type
     {
         _debug_draw_primitive_type_point = 0,
         _debug_draw_primitive_type_line,
@@ -44,7 +44,8 @@ namespace VKernel
         TEXTURE_TYPE_COUNT = 7
     };
 
-    struct DebugDrawVertex ///< Vertex data
+    // Vertex data Layout and Descriptions
+    struct DebugDrawVertex
     {
         // Vertex data
         Vector3 pos;
@@ -87,7 +88,7 @@ namespace VKernel
         }
     };
 
-    class DebugDrawPrimitive ///< Primitive base class
+    class DebugDrawPrimitive ///< Basic mesh _base class
     {
     public:
         PrimitiveType m_primitive_type{k_Primitive_count}; ///< primitive type

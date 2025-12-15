@@ -3,15 +3,15 @@
 #include "runtime/function/render/vulkan_interface/vulkan_api.h"
 
 /**
- * Equivalent to the renderpass in Vulkan
+ * debug draw renderpass related
  */
 namespace VKernel
 {
     struct DebugDrawFrameBufferAttachment ///< attachment-related
     {
-        VkImage image = nullptr;
-        VkDeviceMemory mem = nullptr;
-        VkImageView view = nullptr;
+        VkImage image = VK_NULL_HANDLE;
+        VkDeviceMemory mem = VK_NULL_HANDLE;
+        VkImageView view = VK_NULL_HANDLE;
         VkFormat format;
     };
 
@@ -19,7 +19,7 @@ namespace VKernel
     {
         int width;
         int height;
-        VkRenderPass render_pass = nullptr; ///< render pass
+        VkRenderPass render_pass = VK_NULL_HANDLE; ///< render pass
 
         ///< A render pass can have multiple framebuffer and attachment
         std::vector<VkFramebuffer> framebuffers;
@@ -28,8 +28,8 @@ namespace VKernel
 
     struct DebugDrawPipelineBase ///< pipelineLayout, pipline
     {
-        VkPipelineLayout layout = nullptr;
-        VkPipeline pipeline = nullptr;
+        VkPipelineLayout layout = VK_NULL_HANDLE;
+        VkPipeline pipeline = VK_NULL_HANDLE;
     };
 
     enum DebugDrawPipelineType : uint8_t ///< pipline type (AssemblyState and DepthStencilState)

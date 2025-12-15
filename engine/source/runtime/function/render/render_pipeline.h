@@ -11,7 +11,7 @@ namespace VKernel
     {
 
     public:
-        virtual void initialize() override final {}
+        virtual void initialize(RenderPipelineInitInfo init_info) override final;
 
         virtual void clear() {};
 
@@ -19,4 +19,4 @@ namespace VKernel
 
         void passUpdateAfterRecreateSwapchain(); ///< destory and recreate framebuffer
     };
-}
+} // namespace VKernel

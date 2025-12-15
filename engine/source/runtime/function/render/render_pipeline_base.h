@@ -1,5 +1,6 @@
 #pragma once
 
+#include "runtime/function/render/render_pass_base.h"
 #include "runtime/function/render/vulkan_interface/vulkan_api.h"
 
 /**
@@ -9,15 +10,20 @@ namespace VKernel
 {
     class RenderResourceBase;
 
+    struct RenderPipelineInitInfo
+    {
+        std::shared_ptr<RenderResourceBase> render_resource;
+    };
+
     class RenderPipelineBase
     {
 
         friend class RenderSystem;
-        
+
     public:
-        virtual ~RenderPipelineBase() {} ///< Constructor
-        virtual void clear() {}; ///< clear
-        virtual void initialize() = 0; ///< init
+        virtual ~RenderPipelineBase() {}                               ///< Constructor
+        virtual void clear() {};                                       ///< clear
+        virtual void initialize(RenderPipelineInitInfo init_info) = 0; ///< init
 
         virtual void preparePassData(std::shared_ptr<RenderResourceBase> render_resource); ///< prepare processing data
 
@@ -25,5 +31,8 @@ namespace VKernel
 
     protected:
         std::shared_ptr<VulkanAPI> m_vulkan_api; ///< Vulkan interface
+
+        // pass
+        std::shared_ptr<RenderPassBase> m_main_camera_pass;
     };
-}
+} // namespace VKernel

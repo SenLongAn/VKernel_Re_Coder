@@ -10,6 +10,7 @@
 namespace VKernel
 {
     class RenderCamera;
+    class VulkanAPI;
 
     class RenderResourceBase
     {
@@ -20,6 +21,17 @@ namespace VKernel
 
         virtual void updatePerFrameBuffer(std::shared_ptr<RenderCamera> camera) = 0;
 
-        std::shared_ptr<TextureData> loadTexture(std::string file, bool is_srgb = false); ///< load texture
+        // load
+
+        virtual void uploadGlobalRenderResource(std::shared_ptr<VulkanAPI> vulkan_api) = 0;
+
+        virtual void uploadGameObjectRenderResource(std::shared_ptr<VulkanAPI> vulkan_api,
+                                                    RenderMeshData             mesh_data) = 0;
+
+        std::shared_ptr<TextureData> loadTexture(std::string file, bool is_srgb = false); ///< texture
+        RenderMeshData               loadMeshData(const MeshSourceDesc& source);          ///< mesh
+
+    private:
+        StaticMeshData loadStaticMesh(std::string mesh_file); ///< mesh
     };
-}
+} // namespace VKernel

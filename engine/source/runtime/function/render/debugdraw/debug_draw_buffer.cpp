@@ -98,6 +98,7 @@ namespace VKernel
         uint64_t bufferSize = static_cast<uint64_t>(m_vertex_cache.size() * sizeof(DebugDrawVertex));
         if (bufferSize > 0)
         {
+            // create buffer
             m_vulkan_api->createBuffer(
                 bufferSize,
                 VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
@@ -105,6 +106,7 @@ namespace VKernel
                 m_vertex_resource.buffer,
                 m_vertex_resource.memory);
 
+            // create temporary staging buffer
             Resource stagingBuffer;
             m_vulkan_api->createBuffer(
                 bufferSize,
@@ -117,8 +119,10 @@ namespace VKernel
             memcpy(data, m_vertex_cache.data(), bufferSize);
             vkUnmapMemory(m_vulkan_api->getLogicDevice(), stagingBuffer.memory);
 
+            // copy data from staging buffer
             m_vulkan_api->copyBuffer(stagingBuffer.buffer, m_vertex_resource.buffer, 0, 0, bufferSize);
 
+            // release staging buffer
             vkDestroyBuffer(m_vulkan_api->getLogicDevice(), stagingBuffer.buffer, nullptr);
             vkFreeMemory(m_vulkan_api->getLogicDevice(), stagingBuffer.memory, nullptr);
         }
@@ -266,7 +270,7 @@ namespace VKernel
         base_color_texture[5] =
             g_runtime_global_context.m_render_system->getRenderResource()->loadTexture("engine/asset/objects/_textures/bricks2.jpg", false);
 
-        // image and DescriptorImageInfo 
+        // image and DescriptorImageInfo
         VkDescriptorImageInfo image_info[TextureType::TEXTURE_TYPE_COUNT];
         for (size_t i = 0; i < (TextureType::TEXTURE_TYPE_COUNT - 1); i++)
         {

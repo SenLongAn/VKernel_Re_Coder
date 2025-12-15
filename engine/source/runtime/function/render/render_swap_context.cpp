@@ -2,9 +2,9 @@
 
 namespace VKernel
 {
-    RenderSwapData& RenderSwapContext::getLogicSwapData() { return m_swap_data[m_logic_swap_data_index]; }
+    RenderSwapData &RenderSwapContext::getLogicSwapData() { return m_swap_data[m_logic_swap_data_index]; }
 
-    RenderSwapData& RenderSwapContext::getRenderSwapData() { return m_swap_data[m_render_swap_data_index]; }
+    RenderSwapData &RenderSwapContext::getRenderSwapData() { return m_swap_data[m_render_swap_data_index]; }
 
     void RenderSwapContext::resetCameraSwapData() { m_swap_data[m_render_swap_data_index].m_camera_swap_data.reset(); }
 
@@ -20,7 +20,7 @@ namespace VKernel
     {
         return !(m_swap_data[m_render_swap_data_index].m_camera_swap_data.has_value());
     }
-    
+
     void RenderSwapContext::swap()
     {
         resetCameraSwapData();

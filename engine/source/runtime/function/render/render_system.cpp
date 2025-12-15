@@ -1,20 +1,18 @@
 #include "runtime/function/render/render_system.h"
 
-#include "runtime/function/render/vulkan_interface/vulkan_api.h"
-#include "runtime/function/render/render_pipeline.h"
 #include "runtime/function/render/render_camera.h"
+#include "runtime/function/render/render_pipeline.h"
 #include "runtime/function/render/render_resource.h"
 #include "runtime/function/render/render_resource_base.h"
+#include "runtime/function/render/render_scene.h"
+#include "runtime/function/render/vulkan_interface/vulkan_api.h"
 
 #include "runtime/resource/res_type/global/global_rendering.h"
 
 namespace VKernel
 {
 
-    RenderSystem::~RenderSystem()
-    {
-        clear();
-    }
+    RenderSystem::~RenderSystem() { clear(); }
 
     void RenderSystem::initialize(std::shared_ptr<WindowSystem> window_system)
     {
@@ -23,38 +21,42 @@ namespace VKernel
         m_vulkan_api = std::make_shared<VulkanAPI>();
         m_vulkan_api->initialize(window_system);
 
-        // pipline
-        m_render_pipeline = std::make_shared<RenderPipeline>();
-        m_render_pipeline->m_vulkan_api = m_vulkan_api;
-        m_render_pipeline->initialize();
-
         // resource
         m_render_resource = std::make_shared<RenderResource>();
+        m_render_resource->uploadGlobalRenderResource(m_vulkan_api);
 
         // camera
-        // temp
-        GlobalRenderingRes global_rendering_res =
+        GlobalRenderingRes global_rendering_res = {{
+            ///< camera_config
             {
-                {
-                    ///< camera_config
-                    {
-                        ///< pose
-                        {0.0f, 0.0f, -1.0f}, ///< position
-                        {0.0f, 0.0f, 0.0f},  ///< target
-                        {0.0f, 0.0f, 1.0f}   ///< up
-                    },
-                    {640.0f, 400.0f}, ///< aspect
-                    1000.0f,          ///< far
-                    0.1f              ///< near
-                }};
+                ///< pose
+                {0.0f, 0.0f, -1.0f}, ///< position
+                {0.0f, 0.0f, 0.0f},  ///< target
+                {0.0f, 0.0f, 1.0f}   ///< up
+            },
+            {640.0f, 400.0f}, ///< aspect
+            1000.0f,          ///< far
+            0.1f              ///< near
+        }};
 
-        const CameraPose &camera_pose = global_rendering_res.m_camera_config.m_pose;
-        m_render_camera = std::make_shared<RenderCamera>();
+        const CameraPose& camera_pose = global_rendering_res.m_camera_config.m_pose;
+        m_render_camera               = std::make_shared<RenderCamera>();
         m_render_camera->lookAt(camera_pose.m_position, camera_pose.m_target, camera_pose.m_up);
         m_render_camera->setZFar(global_rendering_res.m_camera_config.m_z_far);
         m_render_camera->setZNear(global_rendering_res.m_camera_config.m_z_near);
         m_render_camera->setAspect(global_rendering_res.m_camera_config.m_aspect.x /
                                    global_rendering_res.m_camera_config.m_aspect.y);
+
+        // setup render scene
+        m_render_scene = std::make_shared<RenderScene>();
+        m_render_scene->setVisibleNodesReference();
+
+        // pipline
+        RenderPipelineInitInfo pipeline_init_info;
+        pipeline_init_info.render_resource = m_render_resource;
+        m_render_pipeline                  = std::make_shared<RenderPipeline>();
+        m_render_pipeline->m_vulkan_api    = m_vulkan_api;
+        m_render_pipeline->initialize(pipeline_init_info);
     }
 
     void RenderSystem::tick(float delta_time)
@@ -64,6 +66,10 @@ namespace VKernel
 
         // Set the "resource" data
         m_render_resource->updatePerFrameBuffer(m_render_camera);
+
+        // update visible objects
+        m_render_scene->updateVisibleObjects(std::static_pointer_cast<RenderResource>(m_render_resource),
+                                             m_render_camera);
 
         // prepare processing data
         m_render_pipeline->preparePassData(m_render_resource);
@@ -98,7 +104,7 @@ namespace VKernel
 
     std::shared_ptr<VulkanAPI> RenderSystem::getVulkanAPI() const { return m_vulkan_api; }
 
-    RenderSwapContext &RenderSystem::getSwapContext() { return m_swap_context; }
+    RenderSwapContext& RenderSystem::getSwapContext() { return m_swap_context; }
 
     std::shared_ptr<RenderCamera> RenderSystem::getRenderCamera() const { return m_render_camera; }
 
@@ -108,7 +114,22 @@ namespace VKernel
 
     void RenderSystem::processSwapData()
     {
-        RenderSwapData &swap_data = m_swap_context.getRenderSwapData();
+        RenderSwapData& swap_data = m_swap_context.getRenderSwapData();
+
+        // update global resources if needed
+        // m_render_resource->uploadGlobalRenderResource(m_vulkan_api);
+
+        // update game object if needed
+        static bool is_mesh_loaded = false;
+        if (is_mesh_loaded == false)
+        {
+            MeshSourceDesc mesh_source = {"engine/asset/objects/basic/MAC-10.obj"};
+            RenderMeshData mesh_data   = m_render_resource->loadMeshData(mesh_source); ///< load vertex and indice data
+
+            m_render_resource->uploadGameObjectRenderResource(m_vulkan_api, mesh_data); ///< load buffer and descriptor
+
+            is_mesh_loaded = true;
+        }
 
         // process camera swap data
         if (swap_data.m_camera_swap_data.has_value())
@@ -118,14 +139,10 @@ namespace VKernel
                 m_render_camera->setFOVx(*swap_data.m_camera_swap_data->m_fov_x);
             }
 
-            m_render_camera->setAspect(m_vulkan_api->getSwapchainInfo().viewport.width / m_vulkan_api->getSwapchainInfo().viewport.height);
-
-            // if (swap_data.m_camera_swap_data->m_view_matrix.has_value())
-            // {
-            //     m_render_camera->setMainViewMatrix(*swap_data.m_camera_swap_data->m_view_matrix);
-            // }
+            m_render_camera->setAspect(m_vulkan_api->getSwapchainInfo().viewport.width /
+                                       m_vulkan_api->getSwapchainInfo().viewport.height);
 
             m_swap_context.resetCameraSwapData();
         }
     }
-}
+} // namespace VKernel
