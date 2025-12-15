@@ -67,6 +67,16 @@ namespace VKernel
         vkCmdEndRenderPass(m_vulkan_api->getCurrentCommandBuffer());
     }
 
+    void MainCameraPass::updateAfterFramebufferRecreate()
+    {
+        for (auto framebuffer : m_swapchain_framebuffers)
+        {
+            vkDestroyFramebuffer(m_vulkan_api->getLogicDevice(), framebuffer, nullptr);
+        }
+
+        setupSwapchainFramebuffers();
+    }
+
     void MainCameraPass::setupAttachments()
     {
         // m_framebuffer.attachments.resize(_main_camera_pass_custom_attachment_count); ///< resize vector size

@@ -28,9 +28,11 @@ namespace VKernel
     public:
         void initialize() override final; ///< init
 
-        void preparePassData(std::shared_ptr<RenderResourceBase> render_resource) override final;
+        void preparePassData(std::shared_ptr<RenderResourceBase> render_resource) override final; ///< get other class
 
         void drawForward(uint32_t current_swapchain_image_index); ///< draw
+
+        void updateAfterFramebufferRecreate(); ///< recreate framebuffer
 
     private:
         std::vector<VkFramebuffer> m_swapchain_framebuffers; ///< frame buffer

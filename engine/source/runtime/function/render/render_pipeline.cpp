@@ -55,6 +55,8 @@ namespace VKernel
 
     void RenderPipeline::passUpdateAfterRecreateSwapchain()
     {
+        MainCameraPass& main_camera_pass = *(static_cast<MainCameraPass*>(m_main_camera_pass.get()));
+        main_camera_pass.updateAfterFramebufferRecreate();
         g_runtime_global_context.m_debugdraw_manager->updateAfterRecreateSwapchain();
     }
 } // namespace VKernel
