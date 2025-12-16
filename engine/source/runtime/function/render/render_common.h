@@ -33,9 +33,13 @@ namespace VKernel
     struct VulkanMesh
     {
         // vertex
-        uint32_t      mesh_vertex_count;                      ///< count
+        uint32_t mesh_vertex_count; ///< count
+
         VkBuffer      mesh_vertex_position_buffer;            ///< buffer
         VmaAllocation mesh_vertex_position_buffer_allocation; ///< allocation
+
+        VkBuffer      mesh_vertex_varying_buffer;
+        VmaAllocation mesh_vertex_varying_buffer_allocation;
 
         // index
         uint32_t      mesh_index_count;
@@ -43,9 +47,30 @@ namespace VKernel
         VmaAllocation mesh_index_buffer_allocation;
     };
 
+    // material
+    struct VulkanPBRMaterial
+    {
+        VkImage       base_color_texture_image;    ///< image
+        VkImageView   base_color_image_view;       ///< image view
+        VmaAllocation base_color_image_allocation; ///< allocation
+
+        VkDescriptorSet material_descriptor_set; ///< descriptor set
+    };
+
+    struct TextureDataToUpdate
+    {
+        void*    base_color_image_pixels; ///< data
+        uint32_t base_color_image_width;  ///< width
+        uint32_t base_color_image_height; ///< height
+        VkFormat base_color_image_format; ///< format
+
+        VulkanPBRMaterial* now_material; ///< image view and descriptor
+    };
+
     struct RenderMeshNode
     {
-        const Matrix4x4* model_matrix {nullptr};
-        VulkanMesh*      ref_mesh {nullptr};
+        const Matrix4x4*   model_matrix {nullptr};
+        VulkanMesh*        ref_mesh {nullptr};
+        VulkanPBRMaterial* ref_material {nullptr};
     };
 } // namespace VKernel

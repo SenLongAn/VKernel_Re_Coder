@@ -20,21 +20,30 @@ namespace VKernel
             Vector3 position;
         };
 
-        static std::array<VkVertexInputBindingDescription, 1> getBindingDescriptions()
+        struct VulkanMeshVertexVarying
         {
-            std::array<VkVertexInputBindingDescription, 1> binding_descriptions {};
+            Vector2 texcoord;
+        };
+
+        static std::array<VkVertexInputBindingDescription, 2> getBindingDescriptions()
+        {
+            std::array<VkVertexInputBindingDescription, 2> binding_descriptions {};
 
             // position
             binding_descriptions[0].binding   = 0;
             binding_descriptions[0].stride    = sizeof(VulkanMeshVertexPostition);
             binding_descriptions[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
+            binding_descriptions[1].binding   = 1;
+            binding_descriptions[1].stride    = sizeof(VulkanMeshVertexVarying);
+            binding_descriptions[1].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
             return binding_descriptions;
         }
 
-        static std::array<VkVertexInputAttributeDescription, 1> getAttributeDescriptions()
+        static std::array<VkVertexInputAttributeDescription, 2> getAttributeDescriptions()
         {
-            std::array<VkVertexInputAttributeDescription, 1> attribute_descriptions {};
+            std::array<VkVertexInputAttributeDescription, 2> attribute_descriptions {};
 
             // position
             attribute_descriptions[0].binding  = 0;
@@ -42,7 +51,12 @@ namespace VKernel
             attribute_descriptions[0].format   = VK_FORMAT_R32G32B32_SFLOAT;
             attribute_descriptions[0].offset   = offsetof(VulkanMeshVertexPostition, position);
 
+            attribute_descriptions[1].binding  = 1;
+            attribute_descriptions[1].location = 1;
+            attribute_descriptions[1].format   = VK_FORMAT_R32G32_SFLOAT;
+            attribute_descriptions[1].offset   = offsetof(VulkanMeshVertexVarying, texcoord);
+
             return attribute_descriptions;
         }
     };
-}
+} // namespace VKernel

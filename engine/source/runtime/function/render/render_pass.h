@@ -5,7 +5,6 @@
 #include "runtime/function/render/render_resource.h"
 #include "runtime/function/render/vulkan_interface/vulkan_api.h"
 
-
 /**
  * renderpass related, devired class
  */
@@ -13,14 +12,14 @@ namespace VKernel
 {
     enum ///< attachment count
     {
-        _main_camera_pass_swap_chain_image = 0,
-        _main_camera_pass_depth            = 1,
+        _main_camera_pass_swap_chain_image = 0, ///< color
+        _main_camera_pass_depth            = 1, ///< depth
         _main_camera_pass_attachment_count = 2
     };
 
     enum ///< subpass
     {
-        _main_camera_subpass_forward_lighting = 0,
+        _main_camera_subpass_forward_lighting = 0, ///< forward render
         _main_camera_subpass_count
     };
 
@@ -68,10 +67,9 @@ namespace VKernel
         static VisiableNodes  m_visiable_nodes;
         GlobalRenderResource* m_global_render_resource {nullptr};
 
+        std::vector<Descriptor> m_descriptor_infos;
+
     public:
         void initialize() override;
-
-    protected:
-        std::vector<Descriptor> m_descriptor_infos;
     };
 } // namespace VKernel

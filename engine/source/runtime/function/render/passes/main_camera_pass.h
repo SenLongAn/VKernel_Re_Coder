@@ -10,19 +10,20 @@ namespace VKernel
 
     class RenderResourceBase;
 
-    enum RenderPipeLineType : uint8_t ///< pipline type
-    {
-        _render_pipeline_type_mesh_lighting = 0, ///< forward render
-        _render_pipeline_type_count
-    };
-
     class MainCameraPass : public RenderPass
     {
-
-        enum LayoutType : uint8_t
+    public:
+        enum LayoutType : uint8_t // descriptor layout
         {
-            _mesh_global = 0,
+            _mesh_global = 0,   ///< MVP
+            _mesh_per_material, ///< material texture
             _layout_type_count
+        };
+
+        enum RenderPipeLineType : uint8_t ///< pipline type
+        {
+            _render_pipeline_type_mesh_lighting = 0, ///< forward render
+            _render_pipeline_type_count
         };
 
     public:

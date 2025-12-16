@@ -49,6 +49,13 @@ namespace VKernel
         return ret;
     }
 
+    RenderMaterialData RenderResourceBase::loadMaterialData(const MaterialSourceDesc& source)
+    {
+        RenderMaterialData ret;
+        ret.m_base_color_texture = loadTexture(source.m_base_color_file, true);
+        return ret;
+    }
+
     StaticMeshData RenderResourceBase::loadStaticMesh(std::string mesh_file)
     {
         StaticMeshData mesh_data;
@@ -90,7 +97,7 @@ namespace VKernel
 
                 Vector3 vertex[3];
                 // Vector3 normal[3];
-                // Vector2 uv[3];
+                Vector2 uv[3];
 
                 // only deals with triangle faces
                 if (fv != 3)
@@ -129,18 +136,18 @@ namespace VKernel
                     // }
 
                     // // texcoord
-                    // if (idx.texcoord_index >= 0)
-                    // {
-                    //     auto tx = attrib.texcoords[2 * size_t(idx.texcoord_index) + 0];
-                    //     auto ty = attrib.texcoords[2 * size_t(idx.texcoord_index) + 1];
+                    if (idx.texcoord_index >= 0)
+                    {
+                        auto tx = attrib.texcoords[2 * size_t(idx.texcoord_index) + 0];
+                        auto ty = attrib.texcoords[2 * size_t(idx.texcoord_index) + 1];
 
-                    //     uv[v].x = static_cast<float>(tx);
-                    //     uv[v].y = static_cast<float>(ty);
-                    // }
-                    // else
-                    // {
-                    //     with_texcoord = false;
-                    // }
+                        uv[v].x = static_cast<float>(tx);
+                        uv[v].y = static_cast<float>(ty);
+                    }
+                    else
+                    {
+                        with_texcoord = false;
+                    }
                 }
                 index_offset += fv;
 
@@ -153,12 +160,12 @@ namespace VKernel
                 //     normal[2]  = normal[0];
                 // }
 
-                // if (!with_texcoord) ///< No texcoord default data set
-                // {
-                //     uv[0] = Vector2(0.5f, 0.5f);
-                //     uv[1] = Vector2(0.5f, 0.5f);
-                //     uv[2] = Vector2(0.5f, 0.5f);
-                // }
+                if (!with_texcoord) ///< No texcoord default data set
+                {
+                    uv[0] = Vector2(0.5f, 0.5f);
+                    uv[1] = Vector2(0.5f, 0.5f);
+                    uv[2] = Vector2(0.5f, 0.5f);
+                }
 
                 // Vector3 tangent {1, 0, 0}; ///< Calculate tangent
                 // {
@@ -193,8 +200,8 @@ namespace VKernel
                     // mesh_vert.ny = normal[i].y;
                     // mesh_vert.nz = normal[i].z;
 
-                    // mesh_vert.u = uv[i].x;
-                    // mesh_vert.v = uv[i].y;
+                    mesh_vert.u = uv[i].x;
+                    mesh_vert.v = uv[i].y;
 
                     // mesh_vert.tx = tangent.x;
                     // mesh_vert.ty = tangent.y;

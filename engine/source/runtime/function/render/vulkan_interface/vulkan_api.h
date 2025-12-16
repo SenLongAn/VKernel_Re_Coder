@@ -9,8 +9,10 @@
 #include <vulkan/vulkan.h>
 
 #include <functional>
+#include <map>
 #include <memory>
 #include <vector>
+
 
 /**
  * Vulkan interface
@@ -50,6 +52,7 @@ namespace VKernel
                                   VkDeviceSize dstOffset,
                                   VkDeviceSize size);
         VkSampler      getOrCreateDefaultSampler(DefaultSamplerType type);
+        VkSampler      getOrCreateMipmapSampler(uint32_t width, uint32_t height);
         void           createGlobalImage(VkImage&       image,
                                          VkImageView&   image_view,
                                          VmaAllocation& image_allocation,
@@ -101,28 +104,29 @@ namespace VKernel
         GLFWwindow* m_window {nullptr};
 
         // Vulkan object
-        VkInstance               m_instance {nullptr};
-        VkSurfaceKHR             m_surface {nullptr};
-        VkPhysicalDevice         m_physical_device {nullptr};
-        VkDevice                 m_device {nullptr};
-        VkQueue                  m_graphics_queue {nullptr};
-        VkQueue                  m_present_queue {nullptr};
-        VkCommandPool            m_command_pool;
-        VkCommandPool            m_api_command_pool;
-        VkCommandBuffer          m_command_buffers[k_max_frames_in_flight];
-        VkCommandBuffer          m_current_command_buffer {nullptr};
-        VkDescriptorPool         m_descriptor_pool {nullptr};
-        VkSwapchainKHR           m_swapchain {nullptr};
-        std::vector<VkImage>     m_swapchain_images;
-        std::vector<VkImageView> m_swapchain_imageviews;
-        VkSemaphore              m_image_available_for_render_semaphores[k_max_frames_in_flight];
-        VkSemaphore              m_image_finished_for_presentation_semaphores[k_max_frames_in_flight];
-        VkFence                  m_is_frame_in_flight_fences[k_max_frames_in_flight];
-        VkImageView              m_depth_image_view {nullptr};
-        VkImage                  m_depth_image {nullptr};
-        VkDeviceMemory           m_depth_image_memory {nullptr};
-        VkSampler                m_nearest_sampler;
-        VkSampler                m_linear_sampler;
+        VkInstance                    m_instance {nullptr};
+        VkSurfaceKHR                  m_surface {nullptr};
+        VkPhysicalDevice              m_physical_device {nullptr};
+        VkDevice                      m_device {nullptr};
+        VkQueue                       m_graphics_queue {nullptr};
+        VkQueue                       m_present_queue {nullptr};
+        VkCommandPool                 m_command_pool;
+        VkCommandPool                 m_api_command_pool;
+        VkCommandBuffer               m_command_buffers[k_max_frames_in_flight];
+        VkCommandBuffer               m_current_command_buffer {nullptr};
+        VkDescriptorPool              m_descriptor_pool {nullptr};
+        VkSwapchainKHR                m_swapchain {nullptr};
+        std::vector<VkImage>          m_swapchain_images;
+        std::vector<VkImageView>      m_swapchain_imageviews;
+        VkSemaphore                   m_image_available_for_render_semaphores[k_max_frames_in_flight];
+        VkSemaphore                   m_image_finished_for_presentation_semaphores[k_max_frames_in_flight];
+        VkFence                       m_is_frame_in_flight_fences[k_max_frames_in_flight];
+        VkImageView                   m_depth_image_view {nullptr};
+        VkImage                       m_depth_image {nullptr};
+        VkDeviceMemory                m_depth_image_memory {nullptr};
+        VkSampler                     m_nearest_sampler;
+        VkSampler                     m_linear_sampler;
+        std::map<uint32_t, VkSampler> m_mipmap_sampler_map;
 
     private:
         // auxiliary configuration

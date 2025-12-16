@@ -21,73 +21,84 @@ namespace VKernel
         findMemoryType(VkPhysicalDevice physical_device, uint32_t type_filter, VkMemoryPropertyFlags properties_flag);
 
         // create
-        static VkShaderModule createShaderModule(VkDevice device, const std::vector<unsigned char> &shader_code);
+        static VkShaderModule createShaderModule(VkDevice device, const std::vector<unsigned char>& shader_code);
 
-        static void createBuffer(VkPhysicalDevice physical_device,
-                                 VkDevice device,
-                                 VkDeviceSize size,
-                                 VkBufferUsageFlags usage,
+        static void createBuffer(VkPhysicalDevice      physical_device,
+                                 VkDevice              device,
+                                 VkDeviceSize          size,
+                                 VkBufferUsageFlags    usage,
                                  VkMemoryPropertyFlags properties,
-                                 VkBuffer &buffer,
-                                 VkDeviceMemory &buffer_memor);
+                                 VkBuffer&             buffer,
+                                 VkDeviceMemory&       buffer_memor);
 
-        static void createImage(VkPhysicalDevice physical_device,
-                                VkDevice device,
-                                uint32_t image_width,
-                                uint32_t image_height,
-                                VkFormat format,
-                                VkImageTiling image_tiling,
-                                VkImageUsageFlags image_usage_flags,
+        static void createImage(VkPhysicalDevice      physical_device,
+                                VkDevice              device,
+                                uint32_t              image_width,
+                                uint32_t              image_height,
+                                VkFormat              format,
+                                VkImageTiling         image_tiling,
+                                VkImageUsageFlags     image_usage_flags,
                                 VkMemoryPropertyFlags memory_property_flags,
-                                VkImage &image,
-                                VkDeviceMemory &memory,
-                                VkImageCreateFlags image_create_flags,
-                                uint32_t array_layers,
-                                uint32_t miplevels);
+                                VkImage&              image,
+                                VkDeviceMemory&       memory,
+                                VkImageCreateFlags    image_create_flags,
+                                uint32_t              array_layers,
+                                uint32_t              miplevels);
 
-        static VkImageView createImageView(VkDevice device,
-                                           VkImage &image,
-                                           VkFormat format,
+        static VkImageView createImageView(VkDevice           device,
+                                           VkImage&           image,
+                                           VkFormat           format,
                                            VkImageAspectFlags image_aspect_flags,
-                                           VkImageViewType view_type,
-                                           uint32_t layout_count,
-                                           uint32_t miplevels);
+                                           VkImageViewType    view_type,
+                                           uint32_t           layout_count,
+                                           uint32_t           miplevels);
 
-        static VkSampler createSampler(VkPhysicalDevice physical_device, VkDevice device, const VkFilter &filter); ///< Create a sampler based on the filter
+        static VkSampler
+        createMipmapSampler(VkPhysicalDevice physical_device, VkDevice device, uint32_t width, uint32_t height);
 
-        static void createGlobalImage(VulkanAPI *vulkan_api,
-                                      VkImage &image,
-                                      VkImageView &image_view,
-                                      VmaAllocation &image_allocation,
-                                      uint32_t texture_image_width,
-                                      uint32_t texture_image_height,
-                                      void *texture_image_pixels,
-                                      VkFormat texture_image_format,
-                                      uint32_t miplevels = 0); ///< Create a image, You can specify the number of mipmaps, and if set to 0, it will be calculated automatically.
+        static VkSampler createSampler(VkPhysicalDevice physical_device,
+                                       VkDevice         device,
+                                       const VkFilter&  filter); ///< Create a sampler based on the filter
 
-        static void genMipmappedImage(VulkanAPI *vulkan_api, VkImage image, uint32_t width, uint32_t height, uint32_t mip_levels); ///< create mipmap image
+        static void
+        createGlobalImage(VulkanAPI*     vulkan_api,
+                          VkImage&       image,
+                          VkImageView&   image_view,
+                          VmaAllocation& image_allocation,
+                          uint32_t       texture_image_width,
+                          uint32_t       texture_image_height,
+                          void*          texture_image_pixels,
+                          VkFormat       texture_image_format,
+                          uint32_t miplevels = 0); ///< Create a image, You can specify the number of mipmaps, and if
+                                                   ///< set to 0, it will be calculated automatically.
+
+        static void genMipmappedImage(VulkanAPI* vulkan_api,
+                                      VkImage    image,
+                                      uint32_t   width,
+                                      uint32_t   height,
+                                      uint32_t   mip_levels); ///< create mipmap image
 
         // transition
-        static void transitionImageLayout(VulkanAPI *vulkan_api,
-                                          VkImage image,
-                                          VkImageLayout old_layout,
-                                          VkImageLayout new_layout,
-                                          uint32_t layer_count,
-                                          uint32_t miplevels,
+        static void transitionImageLayout(VulkanAPI*         vulkan_api,
+                                          VkImage            image,
+                                          VkImageLayout      old_layout,
+                                          VkImageLayout      new_layout,
+                                          uint32_t           layer_count,
+                                          uint32_t           miplevels,
                                           VkImageAspectFlags aspect_mask_bits); ///< transition Image Layout
         // copy
-        static void copyBuffer(VulkanAPI *vulkan_api,
-                               VkBuffer srcBuffer,
-                               VkBuffer dstBuffer,
+        static void copyBuffer(VulkanAPI*   vulkan_api,
+                               VkBuffer     srcBuffer,
+                               VkBuffer     dstBuffer,
                                VkDeviceSize srcOffset,
                                VkDeviceSize dstOffset,
                                VkDeviceSize size);
 
-        static void copyBufferToImage(VulkanAPI *vulkan_api,
-                                      VkBuffer buffer,
-                                      VkImage image,
-                                      uint32_t width,
-                                      uint32_t height,
-                                      uint32_t layer_count);
+        static void copyBufferToImage(VulkanAPI* vulkan_api,
+                                      VkBuffer   buffer,
+                                      VkImage    image,
+                                      uint32_t   width,
+                                      uint32_t   height,
+                                      uint32_t   layer_count);
     };
-}
+} // namespace VKernel

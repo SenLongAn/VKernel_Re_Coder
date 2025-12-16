@@ -31,9 +31,11 @@ namespace VKernel
             RenderMeshNode& temp_node = m_main_camera_visible_mesh_nodes.back();
 
             // set node
-            temp_node.model_matrix = &entity.m_model_matrix;                 ///< model matrix
-            VulkanMesh& mesh_asset = render_resource->getEntityMesh(entity); ///< mesh
-            temp_node.ref_mesh     = &mesh_asset;
+            temp_node.model_matrix            = &entity.m_model_matrix;                 ///< model matrix
+            VulkanMesh& mesh_asset            = render_resource->getEntityMesh(entity); ///< mesh
+            temp_node.ref_mesh                = &mesh_asset;
+            VulkanPBRMaterial& material_asset = render_resource->getEntityMaterial(entity); ///< material
+            temp_node.ref_material            = &material_asset;
         }
     }
 } // namespace VKernel

@@ -294,6 +294,28 @@ namespace VKernel
         }
     }
 
+    VkSampler VulkanAPI::getOrCreateMipmapSampler(uint32_t width, uint32_t height)
+    {
+        VkSampler sampler;
+
+        uint32_t mip_levels =
+            floor(log2(std::max(width, height))) + 1; ///< Calculate mipmap level based on width and height
+
+        auto find_sampler = m_mipmap_sampler_map.find(mip_levels);
+        if (find_sampler != m_mipmap_sampler_map.end()) ///< If direct access exists
+        {
+            return find_sampler->second;
+        }
+        else
+        {
+            sampler = VulkanUtil::createMipmapSampler(m_physical_device, m_device, width, height);
+
+            m_mipmap_sampler_map.insert(std::make_pair(mip_levels, sampler)); ///< insert
+
+            return sampler;
+        }
+    }
+
     void VulkanAPI::createGlobalImage(VkImage&       image,
                                       VkImageView&   image_view,
                                       VmaAllocation& image_allocation,
