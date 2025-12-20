@@ -25,5 +25,13 @@ add_subdirectory(3rdparty)
 add_subdirectory(source/runtime)
 add_subdirectory(source/editor)
 
+# parser
 add_subdirectory(source/meta_parser)
-add_dependencies(VKernelEngine "VKernelParser") # Control execution order
+
+set(CODEGEN_TARGET "VkernelPreCompile") # Set Variable
+include(source/precompile/precompile.cmake) # Copy the contents of the CMake file
+set_target_properties("${CODEGEN_TARGET}" PROPERTIES FOLDER "Engine" ) # IDE folder organization
+
+# Control execution order ：parser->cmake->runtime
+add_dependencies(VKernelEngine "${CODEGEN_TARGET}") 
+add_dependencies("${CODEGEN_TARGET}" "VKernelParser") 

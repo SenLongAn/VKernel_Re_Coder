@@ -13,6 +13,9 @@ set_target_properties(${TARGET_NAME} PROPERTIES FOLDER "Engine") ##< Display by 
 target_compile_options(${TARGET_NAME} PUBLIC "$<$<COMPILE_LANG_AND_ID:CXX,MSVC>:/permissive->") ##< Enable the strict standard consistency mode
 target_compile_options(${TARGET_NAME} PUBLIC "$<$<COMPILE_LANG_AND_ID:CXX,MSVC>:/WX->") ##< When compiling C++ code using the MSVC compiler, Disable "Treat warnings as errors"
 
+# set global vari used by precompile.json
+set(VKERNEL_RUNTIME_HEADS "${HEADER_FILES}" PARENT_SCOPE)
+
 # Link library, including directory
 target_link_libraries(${TARGET_NAME} PUBLIC glfw)
 target_link_libraries(${TARGET_NAME} PUBLIC ${vulkan_lib})
