@@ -11,7 +11,7 @@ else()
 endif()
 
 # defined variable
-set(SHADER_COMPILE_TARGET VkernelShaderCompile)
+set(SHADER_COMPILE_TARGET VKernelShaderCompile)
 
 # properties, options
 if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC") ##< Compiler identifier == MSVC
@@ -28,7 +28,7 @@ add_subdirectory(source/editor)
 # parser
 add_subdirectory(source/meta_parser)
 
-set(CODEGEN_TARGET "VkernelPreCompile") # Set Variable
+set(CODEGEN_TARGET "VKernelPreCompile") # Set Variable
 include(source/precompile/precompile.cmake) # Copy the contents of the CMake file
 set_target_properties("${CODEGEN_TARGET}" PROPERTIES FOLDER "Engine" ) # IDE folder organization
 

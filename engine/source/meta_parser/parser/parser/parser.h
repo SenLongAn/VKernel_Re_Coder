@@ -41,7 +41,7 @@ private:
     std::string m_source_include_file_name;    // build/parser_header.h
     std::vector<std::string> m_work_paths;     // engine/source
     std::string              m_sys_include;    // *, Show indifference
-    std::string              m_module_name;    // Vkernel
+    std::string              m_module_name;    // VKernel
     bool                     m_is_show_errors; // 0. Indicates that errors will not be displayed
 
     CXIndex           m_index;

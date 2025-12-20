@@ -10,7 +10,7 @@ Field::Field(const Cursor& cursor, const Namespace& current_namespace, Class* pa
 {
     // Set member value
     Utils::replaceAll(m_type, " ", "");
-    Utils::replaceAll(m_type, "Vkernel::", "");
+    Utils::replaceAll(m_type, "VKernel::", "");
 
     auto ret_string = Utils::getStringWithoutQuot(m_meta_data.getProperty("default"));
     m_default       = ret_string;

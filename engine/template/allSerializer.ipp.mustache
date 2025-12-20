@@ -2,7 +2,7 @@
 {{#include_headfiles}}
 #include "{{headfile_name}}"
 {{/include_headfiles}}
-namespace Vkernel{
+namespace VKernel{
     {{#class_defines}}
     template<>
     Json Serializer::write(const {{class_name}}& instance){

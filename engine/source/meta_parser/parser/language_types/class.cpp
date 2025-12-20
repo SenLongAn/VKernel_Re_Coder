@@ -11,7 +11,7 @@ Class::Class(const Cursor& cursor, const Namespace& current_namespace) :
     m_display_name(Utils::getNameWithoutFirstM(m_qualified_name))
 {
     Utils::replaceAll(m_name, " ", "");
-    Utils::replaceAll(m_name, "Vkernel::", "");
+    Utils::replaceAll(m_name, "VKernel::", "");
 
     for (auto& child : cursor.getChildren()) ///< Traverse all direct nodes
     {
