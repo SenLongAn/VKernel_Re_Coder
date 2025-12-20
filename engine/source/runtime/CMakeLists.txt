@@ -1,5 +1,11 @@
 set(TARGET_NAME VKernelEngine) ##< defined variable
 
+# json11
+set(JSON_INCLUDE ${THIRD_PARTY_DIR}/json11) ##< defined variable
+add_library(json11 ${JSON_INCLUDE}/json11.cpp) ##< Build as a library
+set_target_properties(json11 PROPERTIES FOLDER "ThirdParty/json11") ##< Display by directory structure
+
+# runtime
 file(GLOB_RECURSE HEADER_FILES CONFIGURE_DEPENDS "*.h") ##< Collect header files
 file(GLOB_RECURSE SOURCE_FILES CONFIGURE_DEPENDS "*.cpp") ##< Collect source files
 
@@ -24,28 +30,33 @@ target_link_libraries(${TARGET_NAME} PRIVATE tinyobjloader stb) ##< tinyobjloade
 target_include_directories(
   ${TARGET_NAME}
   PUBLIC 
-  $<BUILD_INTERFACE:${vulkan_include}>
+  $<BUILD_INTERFACE:${vulkan_include}> # vulkan
 )
 
 target_include_directories(
   ${TARGET_NAME} 
   PUBLIC 
-  $<BUILD_INTERFACE:${THIRD_PARTY_DIR}/vulkanmemoryallocator/include>
+  $<BUILD_INTERFACE:${THIRD_PARTY_DIR}/vulkanmemoryallocator/include> # vulkan memory allocator
 )
 
 target_include_directories(
   ${TARGET_NAME} 
   PUBLIC 
-  $<BUILD_INTERFACE:${ENGINE_ROOT_DIR}/source>
+  $<BUILD_INTERFACE:${ENGINE_ROOT_DIR}/source> # engine/source
 )
 
 target_include_directories(
   ${TARGET_NAME} 
   PUBLIC 
-  $<BUILD_INTERFACE:${ENGINE_ROOT_DIR}>
+  $<BUILD_INTERFACE:${ENGINE_ROOT_DIR}> # engine/
 )
 
-add_dependencies(${TARGET_NAME} ${SHADER_COMPILE_TARGET}) ##< Establish the dependency relationship between the targets, ensuring that target TARGET_NAME is constructed after target SHADER_COMPILE_TARGET.
+add_dependencies(${TARGET_NAME} ${SHADER_COMPILE_TARGET}) ##< Set Build Order, First compile the shader
 target_include_directories(
   ${TARGET_NAME}
-  PUBLIC $<BUILD_INTERFACE:${ENGINE_ROOT_DIR}/shader/generated/cpp>)
+  PUBLIC $<BUILD_INTERFACE:${ENGINE_ROOT_DIR}/shader/generated/cpp>) # engine/shader/generated/cpp
+
+target_include_directories(
+  ${TARGET_NAME} 
+  PUBLIC $<BUILD_INTERFACE:${JSON_INCLUDE}> # json11
+)
