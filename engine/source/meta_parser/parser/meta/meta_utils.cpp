@@ -96,7 +96,8 @@ namespace Utils
             ++iter_to;
         }
 
-        return final_path;
+        std::string result = final_path.generic_string(); ///< Use string() to return a path with '\'
+        return fs::path(result);
     }
 
     void fatalError(const std::string& error)
@@ -325,7 +326,7 @@ namespace Utils
     std::string convertNameToUpperCamelCase(const std::string& name, std::string pat)
     {
         std::string ret_string;
-        auto&& name_spilts = split(name, pat);
+        auto&&      name_spilts = split(name, pat);
         for (auto& split_string : name_spilts)
         {
             split_string[0] = toupper(split_string[0]);

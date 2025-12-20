@@ -1,4 +1,5 @@
 #pragma once
+#include "runtime/core/meta/reflection/reflection.h"
 
 #include <memory>
 
@@ -9,11 +10,12 @@ namespace VKernel
 {
     class GObject;
 
-    class Component
+    REFLECTION_TYPE(Component)
+    CLASS(Component, WhiteListFields)
     {
-
+        REFLECTION_BODY(Component)
     public:
-        Component() = default; ///< Constructor
+        Component() = default;  ///< Constructor
         virtual ~Component() {} ///< Destructor
 
         virtual void postLoadResource(std::weak_ptr<GObject> parent_object) { m_parent_object = parent_object; }
@@ -23,4 +25,4 @@ namespace VKernel
     protected:
         std::weak_ptr<GObject> m_parent_object; ///< parent object
     };
-}
+} // namespace VKernel
