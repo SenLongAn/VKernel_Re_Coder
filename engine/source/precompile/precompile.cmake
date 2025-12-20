@@ -10,27 +10,37 @@ set(VKERNEL_PRECOMPILE_PARAMS_PATH "${PRECOMPILE_TOOLS_PATH}/precompile.json") #
 configure_file(${VKERNEL_PRECOMPILE_PARAMS_IN_PATH} ${VKERNEL_PRECOMPILE_PARAMS_PATH})
 
 # Set Variable
-# if (CMAKE_HOST_WIN32)
-#     set(PRECOMPILE_PRE_EXE)
-# 	set(PRECOMPILE_PARSER ${PRECOMPILE_TOOLS_PATH}/VkernelParser.exe)
-#     set(sys_include "*") 
-# endif()
+if (CMAKE_HOST_WIN32) # If it's a Windows platform
+	set(PRECOMPILE_PARSER ${PRECOMPILE_TOOLS_PATH}/VkernelParser.exe) # engine/bin/VkernelParser.exe
+  set(sys_include "*") # Setting it to '*' means 'don't care'
+endif()
 
 set(PRECOMPILE_TARGET "VkernelPreCompile")
 
-# # Called first time when building target 
-add_custom_target(${PRECOMPILE_TARGET} ALL
+# Add func
+add_custom_target(
+  ${PRECOMPILE_TARGET} ALL # all means: the following commands will be executed during the build
 
-# COMMAND
-#   ${CMAKE_COMMAND} -E echo "************************************************************* "
-# COMMAND
-#   ${CMAKE_COMMAND} -E echo "**** [Precompile] BEGIN "
-# COMMAND
-#   ${CMAKE_COMMAND} -E echo "************************************************************* "
+  # Text inserted at the beginning
+  COMMAND
+    ${CMAKE_COMMAND} -E echo "************************************************************* "
+  COMMAND
+    ${CMAKE_COMMAND} -E echo "**** [Precompile] BEGIN "
+  COMMAND
+    ${CMAKE_COMMAND} -E echo "************************************************************* "
 
-# COMMAND
-#     ${PRECOMPILE_PARSER} "${VKERNEL_PRECOMPILE_PARAMS_PATH}"  "${PARSER_INPUT}"  "${ENGINE_ROOT_DIR}/source" ${sys_include} "Vkernel" 0
+  # Run VKernelParser.exe
+  # engine/bin/VkernelParser.exe
+  # engine/bin/precompile.json
+  # build/parser_header.h
+  # engine/source
+  # *, Show indifference
+  # Vkernel
+  # 0
+  COMMAND
+      ${PRECOMPILE_PARSER} "${VKERNEL_PRECOMPILE_PARAMS_PATH}"  "${PARSER_INPUT}"  "${ENGINE_ROOT_DIR}/source" ${sys_include} "Vkernel" 0
 
-# COMMAND
-#     ${CMAKE_COMMAND} -E echo "+++ Precompile finished +++"
+  # Text inserted at the end
+  COMMAND
+      ${CMAKE_COMMAND} -E echo "+++ Precompile finished +++"
 )
