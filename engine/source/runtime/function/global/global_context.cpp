@@ -1,8 +1,11 @@
 #include "runtime/function/global/global_context.h"
 
-#include "runtime/function/render/window_system.h"
-#include "runtime/function/render/render_system.h"
 #include "runtime/function/render/debugdraw/debug_draw_manager.h"
+#include "runtime/function/render/render_system.h"
+#include "runtime/function/render/window_system.h"
+
+#include "runtime/resource/asset_manager/asset_manager.h"
+#include "runtime/resource/config_manager/config_manager.h"
 
 #include "runtime/function/framework/world/world_manager.h"
 
@@ -12,8 +15,13 @@ namespace VKernel
 {
     RuntimeGlobalContext g_runtime_global_context; ///< instance
 
-    void RuntimeGlobalContext::startSystems()
+    void RuntimeGlobalContext::startSystems(const std::string& config_file_path)
     {
+        m_config_manager = std::make_shared<ConfigManager>();
+        m_config_manager->initialize(config_file_path);
+
+        m_asset_manager = std::make_shared<AssetManager>();
+
         m_world_manager = std::make_shared<WorldManager>();
         m_world_manager->initialize();
 
@@ -46,5 +54,9 @@ namespace VKernel
 
         m_input_system->clear();
         m_input_system.reset();
+
+        m_asset_manager.reset();
+
+        m_config_manager.reset();
     }
-}
+} // namespace VKernel

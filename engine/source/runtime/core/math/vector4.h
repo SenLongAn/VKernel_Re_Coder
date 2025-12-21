@@ -3,13 +3,18 @@
 #include "runtime/core/math/math_angle.h"
 #include "runtime/core/math/vector3.h"
 
+#include "runtime/core/meta/reflection/reflection.h"
+
 /**
  * vector4
  */
 namespace VKernel
 {
-    class Vector4
+    REFLECTION_TYPE(Vector4)
+    CLASS(Vector4, Fields)
     {
+        REFLECTION_BODY(Vector4);
+
     public:
         float x {0.f}, y {0.f}, z {0.f}, w {0.f};
 
@@ -19,7 +24,7 @@ namespace VKernel
         Vector4() = default;
 
         Vector4(float x_, float y_, float z_, float w_) : x {x_}, y {y_}, z {z_}, w {w_} {}
-        
+
         Vector4(const Vector3& v3, float w_) : x {v3.x}, y {v3.y}, z {v3.z}, w {w_} {}
 
         explicit Vector4(float coords[4]) : x {coords[0]}, y {coords[1]}, z {coords[2]}, w {coords[3]} {}
@@ -197,4 +202,4 @@ namespace VKernel
         static const Vector4 UNIT_SCALE;
     };
 
-}
+} // namespace VKernel

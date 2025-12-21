@@ -2,6 +2,8 @@
 
 #include "runtime/core/math/math_angle.h"
 
+#include "runtime/core/meta/reflection/reflection.h"
+
 #include <cassert>
 #include <cmath>
 
@@ -10,8 +12,10 @@
  */
 namespace VKernel
 {
-    class Vector2
+    REFLECTION_TYPE(Vector2)
+    CLASS(Vector2, Fields)
     {
+        REFLECTION_BODY(Vector2);
 
     public:
         float x {0.f}, y {0.f};
@@ -158,7 +162,7 @@ namespace VKernel
             return *this;
         }
         bool operator<(const Vector2& rhs) const { return x < rhs.x && y < rhs.y; }
-        
+
         bool operator>(const Vector2& rhs) const { return x > rhs.x && y > rhs.y; }
 
         // util function
@@ -221,10 +225,11 @@ namespace VKernel
         // Generates a vector perpendicular to this vector (eg an 'up' vector).
         Vector2 perpendicular(void) const { return Vector2(-y, x); }
 
-        // Calculates the 2 dimensional cross-product of 2 vectors, which results in a single floating point value which is 2 times the area of the triangle.
+        // Calculates the 2 dimensional cross-product of 2 vectors, which results in a single floating point value which
+        // is 2 times the area of the triangle.
         float crossProduct(const Vector2& rhs) const { return x * rhs.y - y * rhs.x; }
 
-        // Returns true if this vector is zero length. 
+        // Returns true if this vector is zero length.
         bool isZeroLength(void) const
         {
             float sqlen = (x * x) + (y * y);
@@ -261,4 +266,4 @@ namespace VKernel
         static const Vector2 UNIT_SCALE;
     };
 
-}
+} // namespace VKernel

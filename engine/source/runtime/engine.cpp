@@ -1,19 +1,23 @@
 #include "runtime/engine.h"
 
 #include "runtime/function/global/global_context.h"
-#include "runtime/function/render/window_system.h"
 #include "runtime/function/render/render_system.h"
+#include "runtime/function/render/window_system.h"
 
 #include "runtime/function/input/input_system.h"
 
 #include "runtime/function/framework/world/world_manager.h"
 
+#include "runtime/core/meta/reflection/reflection_register.h"
+
 namespace VKernel
 {
 
-    void VKernelEngine::startEngine()
+    void VKernelEngine::startEngine(const std::string& config_file_path)
     {
-        g_runtime_global_context.startSystems();
+        Reflection::TypeMetaRegister::metaRegister(); ///< meta Register
+
+        g_runtime_global_context.startSystems(config_file_path);
     }
 
     void VKernelEngine::run() {}
@@ -22,7 +26,8 @@ namespace VKernel
     {
         // tick
         logicalTick(delta_time);
-        g_runtime_global_context.m_render_system->swapLogicRenderData(); ///< exchange data between logic and render contexts
+        g_runtime_global_context.m_render_system
+            ->swapLogicRenderData(); ///< exchange data between logic and render contexts
         rendererTick(delta_time);
 
         // check window
@@ -31,10 +36,7 @@ namespace VKernel
         return !should_window_close;
     }
 
-    void VKernelEngine::shutdownEngine()
-    {
-        g_runtime_global_context.shutdownSystems();
-    }
+    void VKernelEngine::shutdownEngine() { g_runtime_global_context.shutdownSystems(); }
 
     void VKernelEngine::logicalTick(float delta_time)
     {
@@ -54,12 +56,13 @@ namespace VKernel
         {
             using namespace std::chrono;
 
-            steady_clock::time_point tick_time_point = steady_clock::now();                                       ///< current time
-            duration<float> time_span = duration_cast<duration<float>>(tick_time_point - m_last_tick_time_point); ///< Calculate the time difference
+            steady_clock::time_point tick_time_point = steady_clock::now(); ///< current time
+            duration<float>          time_span       = duration_cast<duration<float>>(
+                tick_time_point - m_last_tick_time_point); ///< Calculate the time difference
             delta_time = time_span.count();
 
             m_last_tick_time_point = tick_time_point;
         }
         return delta_time;
     }
-}
+} // namespace VKernel

@@ -18,3 +18,15 @@ target_include_directories(
   ${TARGET_NAME} 
   PUBLIC $<BUILD_INTERFACE:${THIRD_PARTY_DIR}/stb>
 )
+
+# Execute in order after the target is built
+set(POST_BUILD_COMMANDS
+  COMMAND ${CMAKE_COMMAND} -E make_directory "${BINARY_ROOT_DIR}" # Create Directory
+  COMMAND ${CMAKE_COMMAND} -E copy_directory "$<TARGET_FILE_DIR:${TARGET_NAME}>/" "${BINARY_ROOT_DIR}" # Copy all files from the directory containing the executable to the bin directory
+  COMMAND ${CMAKE_COMMAND} -E copy "${ENGINE_ROOT_DIR}/${DEPLOY_CONFIG_DIR}/${TARGET_NAME}.ini" "${BINARY_ROOT_DIR}" # Copy the ini to the bin directory
+  COMMAND ${CMAKE_COMMAND} -E copy "${ENGINE_ROOT_DIR}/${DEVELOP_CONFIG_DIR}/${TARGET_NAME}.ini" "$<TARGET_FILE_DIR:${TARGET_NAME}>/" # Copy the ini to the build directory
+  COMMAND ${CMAKE_COMMAND} -E remove_directory "${BINARY_ROOT_DIR}/${ENGINE_ASSET_DIR}" # Reset the directory, remove the old Asset Directory
+  COMMAND ${CMAKE_COMMAND} -E copy_directory "${ENGINE_ROOT_DIR}/${ENGINE_ASSET_DIR}" "${BINARY_ROOT_DIR}/${ENGINE_ASSET_DIR}" # Copy Asset Directory
+)
+
+add_custom_command(TARGET ${TARGET_NAME} ${POST_BUILD_COMMANDS})

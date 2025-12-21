@@ -2,6 +2,8 @@
 
 #include "runtime/core/math/math_angle.h"
 
+#include "runtime/core/meta/reflection/reflection.h"
+
 #include <cassert>
 
 /**
@@ -12,8 +14,11 @@ namespace VKernel
     class Matrix3x3;
     class Vector3;
 
-    class Quaternion
+    REFLECTION_TYPE(Quaternion)
+    CLASS(Quaternion, Fields)
     {
+        REFLECTION_BODY(Quaternion);
+
     public:
         float w {1.f}, x {0.f}, y {0.f}, z {0.f};
 
@@ -27,20 +32,23 @@ namespace VKernel
         void fromRotationMatrix(const Matrix3x3& rotation); ///< Construct from RotationMatrix
 
         Quaternion(const Radian& angle, const Vector3& axis) { this->fromAngleAxis(angle, axis); }
-        void fromAngleAxis(const Radian& angle, const Vector3& axis); ///< Construct from angle and axis, Rotate around the axis by angle
+        void              fromAngleAxis(const Radian&  angle,
+                                        const Vector3& axis); ///< Construct from angle and axis, Rotate around the axis by angle
         static Quaternion getQuaternionFromAngleAxis(const Radian& angle, const Vector3& axis);
-        
+
         Quaternion(const Vector3& xaxis, const Vector3& yaxis, const Vector3& zaxis)
         {
             this->fromAxes(xaxis, yaxis, zaxis);
         }
-        void fromAxes(const Vector3& x_axis, const Vector3& y_axis, const Vector3& z_axis); ///< Constructs from 3 axis, the axes are assumed to be orthonormal
+        void fromAxes(const Vector3& x_axis,
+                      const Vector3& y_axis,
+                      const Vector3& z_axis); ///< Constructs from 3 axis, the axes are assumed to be orthonormal
 
         void fromDirection(const Vector3& direction, const Vector3& up_direction); ///< Construct from Direction
         static Quaternion getQuaternionFromDirection(const Vector3& direction, const Vector3& up_direction);
 
-        Quaternion(const Vector3& eulerAngle){ this->fromEulerAngle(eulerAngle); }
-        
+        Quaternion(const Vector3& eulerAngle) { this->fromEulerAngle(eulerAngle); }
+
         // get ptr
         //-----------------------------------------------------------------------
         /// Pointer accessor for direct copying
@@ -94,8 +102,8 @@ namespace VKernel
         // util function
         //-----------------------------------------------------------------------
         // Quaternion <-> euler angle
-        Vector3 toEulerAngle() const; ///< Quaternion 2 euler angle
-        void fromEulerAngle(const Vector3& eulerAngle); ///< euler angle 2 Quaternion
+        Vector3 toEulerAngle() const;                      ///< Quaternion 2 euler angle
+        void    fromEulerAngle(const Vector3& eulerAngle); ///< euler angle 2 Quaternion
 
         // Quaternion 2 RotationMatrix
         void toRotationMatrix(Matrix3x3 & rotation) const;
@@ -167,4 +175,4 @@ namespace VKernel
 
         static const float k_epsilon;
     };
-}
+} // namespace VKernel

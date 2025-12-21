@@ -26,6 +26,7 @@ set(VKERNEL_RUNTIME_HEADS "${HEADER_FILES}" PARENT_SCOPE)
 target_link_libraries(${TARGET_NAME} PUBLIC glfw)
 target_link_libraries(${TARGET_NAME} PUBLIC ${vulkan_lib})
 target_link_libraries(${TARGET_NAME} PRIVATE tinyobjloader stb) ##< tinyobjloader and stb
+target_link_libraries(${TARGET_NAME} PRIVATE $<BUILD_INTERFACE:json11>)
 
 target_include_directories(
   ${TARGET_NAME}

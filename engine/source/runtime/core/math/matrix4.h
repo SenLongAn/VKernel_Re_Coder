@@ -6,13 +6,18 @@
 #include "runtime/core/math/vector3.h"
 #include "runtime/core/math/vector4.h"
 
+#include "runtime/core/meta/reflection/reflection.h"
+
 /**
  * Matrix4x4
  */
 namespace VKernel
 {
-    class Matrix4x4_
+    REFLECTION_TYPE(Matrix4x4_)
+    CLASS(Matrix4x4_, Fields)
     {
+        REFLECTION_BODY(Matrix4x4_);
+
     public:
         Matrix4x4_() {}
         float v0 {1.f};
@@ -388,21 +393,21 @@ namespace VKernel
         bool operator==(const Matrix4x4& m2) const
         {
             return !(m_mat[0][0] != m2.m_mat[0][0] || m_mat[0][1] != m2.m_mat[0][1] || m_mat[0][2] != m2.m_mat[0][2] ||
-                m_mat[0][3] != m2.m_mat[0][3] || m_mat[1][0] != m2.m_mat[1][0] || m_mat[1][1] != m2.m_mat[1][1] ||
-                m_mat[1][2] != m2.m_mat[1][2] || m_mat[1][3] != m2.m_mat[1][3] || m_mat[2][0] != m2.m_mat[2][0] ||
-                m_mat[2][1] != m2.m_mat[2][1] || m_mat[2][2] != m2.m_mat[2][2] || m_mat[2][3] != m2.m_mat[2][3] ||
-                m_mat[3][0] != m2.m_mat[3][0] || m_mat[3][1] != m2.m_mat[3][1] || m_mat[3][2] != m2.m_mat[3][2] ||
-                m_mat[3][3] != m2.m_mat[3][3]);
+                     m_mat[0][3] != m2.m_mat[0][3] || m_mat[1][0] != m2.m_mat[1][0] || m_mat[1][1] != m2.m_mat[1][1] ||
+                     m_mat[1][2] != m2.m_mat[1][2] || m_mat[1][3] != m2.m_mat[1][3] || m_mat[2][0] != m2.m_mat[2][0] ||
+                     m_mat[2][1] != m2.m_mat[2][1] || m_mat[2][2] != m2.m_mat[2][2] || m_mat[2][3] != m2.m_mat[2][3] ||
+                     m_mat[3][0] != m2.m_mat[3][0] || m_mat[3][1] != m2.m_mat[3][1] || m_mat[3][2] != m2.m_mat[3][2] ||
+                     m_mat[3][3] != m2.m_mat[3][3]);
         }
 
         bool operator!=(const Matrix4x4& m2) const
         {
             return m_mat[0][0] != m2.m_mat[0][0] || m_mat[0][1] != m2.m_mat[0][1] || m_mat[0][2] != m2.m_mat[0][2] ||
-                m_mat[0][3] != m2.m_mat[0][3] || m_mat[1][0] != m2.m_mat[1][0] || m_mat[1][1] != m2.m_mat[1][1] ||
-                m_mat[1][2] != m2.m_mat[1][2] || m_mat[1][3] != m2.m_mat[1][3] || m_mat[2][0] != m2.m_mat[2][0] ||
-                m_mat[2][1] != m2.m_mat[2][1] || m_mat[2][2] != m2.m_mat[2][2] || m_mat[2][3] != m2.m_mat[2][3] ||
-                m_mat[3][0] != m2.m_mat[3][0] || m_mat[3][1] != m2.m_mat[3][1] || m_mat[3][2] != m2.m_mat[3][2] ||
-                m_mat[3][3] != m2.m_mat[3][3];
+                   m_mat[0][3] != m2.m_mat[0][3] || m_mat[1][0] != m2.m_mat[1][0] || m_mat[1][1] != m2.m_mat[1][1] ||
+                   m_mat[1][2] != m2.m_mat[1][2] || m_mat[1][3] != m2.m_mat[1][3] || m_mat[2][0] != m2.m_mat[2][0] ||
+                   m_mat[2][1] != m2.m_mat[2][1] || m_mat[2][2] != m2.m_mat[2][2] || m_mat[2][3] != m2.m_mat[2][3] ||
+                   m_mat[3][0] != m2.m_mat[3][0] || m_mat[3][1] != m2.m_mat[3][1] || m_mat[3][2] != m2.m_mat[3][2] ||
+                   m_mat[3][3] != m2.m_mat[3][3];
         }
 
         // util function
@@ -683,7 +688,7 @@ namespace VKernel
             out_z.normalise();
         }
 
-        // Determines if this matrix involves a scaling. 
+        // Determines if this matrix involves a scaling.
         bool hasScale() const
         {
             float t = m_mat[0][0] * m_mat[0][0] + m_mat[1][0] * m_mat[1][0] + m_mat[2][0] * m_mat[2][0];
@@ -696,7 +701,7 @@ namespace VKernel
             return !Math::realEqual(t, 1.0, (float)1e-04);
         }
 
-        // Determines if this matrix involves a negative scaling. 
+        // Determines if this matrix involves a negative scaling.
         bool hasNegativeScale() const { return determinant() < 0; }
 
         // Extracts the rotation / scaling part as a quaternion from the Matrix.
@@ -843,7 +848,8 @@ namespace VKernel
             return Matrix4x4(d00, d01, d02, d03, d10, d11, d12, d13, d20, d21, d22, d23, d30, d31, d32, d33);
         }
 
-        // Transform the 3D points from the model space to the homogeneous clipping space and perform perspective division.
+        // Transform the 3D points from the model space to the homogeneous clipping space and perform perspective
+        // division.
         Vector3 transformCoord(const Vector3& v)
         {
             Vector4 temp(v, 1.0f);
@@ -860,7 +866,7 @@ namespace VKernel
 
             return Vector3::ZERO;
         }
-        
+
         // special value
         //-----------------------------------------------------------------------
         static const Matrix4x4 ZERO;
@@ -869,4 +875,4 @@ namespace VKernel
     };
 
     Vector4 operator*(const Vector4& v, const Matrix4x4& mat);
-}
+} // namespace VKernel

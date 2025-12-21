@@ -1,5 +1,6 @@
 #include "runtime/function/render/render_system.h"
 
+#include "runtime/function/global/global_context.h"
 #include "runtime/function/render/passes/main_camera_pass.h"
 #include "runtime/function/render/render_camera.h"
 #include "runtime/function/render/render_pass.h"
@@ -9,7 +10,8 @@
 #include "runtime/function/render/render_scene.h"
 #include "runtime/function/render/vulkan_interface/vulkan_api.h"
 
-#include "runtime/resource/res_type/global/global_rendering.h"
+#include "runtime/resource/asset_manager/asset_manager.h"
+#include "runtime/resource/config_manager/config_manager.h"
 
 namespace VKernel
 {
@@ -19,6 +21,9 @@ namespace VKernel
     void RenderSystem::initialize(std::shared_ptr<WindowSystem> window_system)
     {
         // init
+        std::shared_ptr<ConfigManager> config_manager = g_runtime_global_context.m_config_manager;
+        std::shared_ptr<AssetManager>  asset_manager  = g_runtime_global_context.m_asset_manager;
+
         // vulkan api
         m_vulkan_api = std::make_shared<VulkanAPI>();
         m_vulkan_api->initialize(window_system);
@@ -27,19 +32,24 @@ namespace VKernel
         m_render_resource = std::make_shared<RenderResource>();
         m_render_resource->uploadGlobalRenderResource(m_vulkan_api);
 
+        // global rendering resource
+        GlobalRenderingRes global_rendering_res;
+        const std::string& global_rendering_res_url = config_manager->getGlobalRenderingResUrl();
+        asset_manager->loadAsset(global_rendering_res_url, global_rendering_res);
+
         // camera
-        GlobalRenderingRes global_rendering_res = {{
-            ///< camera_config
-            {
-                ///< pose
-                {0.0f, 0.0f, -1.0f}, ///< position
-                {0.0f, 0.0f, 0.0f},  ///< target
-                {0.0f, 0.0f, 1.0f}   ///< up
-            },
-            {640.0f, 400.0f}, ///< aspect
-            1000.0f,          ///< far
-            0.1f              ///< near
-        }};
+        // GlobalRenderingRes global_rendering_res = {{
+        //     ///< camera_config
+        //     {
+        //         ///< pose
+        //         {0.0f, 0.0f, -1.0f}, ///< position
+        //         {0.0f, 0.0f, 0.0f},  ///< target
+        //         {0.0f, 0.0f, 1.0f}   ///< up
+        //     },
+        //     {640.0f, 400.0f}, ///< aspect
+        //     1000.0f,          ///< far
+        //     0.1f              ///< near
+        // }};
 
         const CameraPose& camera_pose = global_rendering_res.m_camera_config.m_pose;
         m_render_camera               = std::make_shared<RenderCamera>();

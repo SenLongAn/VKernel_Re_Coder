@@ -2,6 +2,8 @@
 
 #include "runtime/core/math/vector3.h"
 
+#include "runtime/core/meta/reflection/reflection.h"
+
 #include <limits>
 
 /**
@@ -9,7 +11,8 @@
  */
 namespace VKernel
 {
-    class AxisAlignedBox
+    REFLECTION_TYPE(AxisAlignedBox)
+    CLASS(AxisAlignedBox, Fields)
     {
     public:
         // constructor
@@ -29,7 +32,7 @@ namespace VKernel
         const Vector3& getMinCorner() const { return m_min_corner; }
         const Vector3& getMaxCorner() const { return m_max_corner; }
 
-    private:
+    public:
         // describe bounding box
         Vector3 m_center {Vector3::ZERO};
         Vector3 m_half_extent {Vector3::ZERO};
@@ -39,4 +42,4 @@ namespace VKernel
         Vector3 m_max_corner {
             -std::numeric_limits<float>::max(), -std::numeric_limits<float>::max(), -std::numeric_limits<float>::max()};
     };
-}
+} // namespace VKernel

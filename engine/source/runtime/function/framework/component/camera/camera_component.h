@@ -21,8 +21,6 @@ namespace VKernel
         void tick(float delta_time) override; ///< tick
 
     private:
-        META(Enable)
-        int temp = 0;
         // camera attribute
         Vector3 m_position {0.0f, 0.0f, 0.0f};
         Vector3 m_forward {Vector3::NEGATIVE_UNIT_Y};

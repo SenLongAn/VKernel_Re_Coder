@@ -1,4 +1,6 @@
 ## set directory
+set(DEPLOY_CONFIG_DIR "configs/deployment") ###< configs directory
+set(DEVELOP_CONFIG_DIR "configs/development") ###< configs directory
 set(ENGINE_ROOT_DIR "${VKERNEL_ROOT_DIR}/engine") ##< engine root directory
 set(THIRD_PARTY_DIR "${ENGINE_ROOT_DIR}/3rdparty") ##< Third-party database directory
 set(ENGINE_ASSET_DIR "/asset") ##< asset directory

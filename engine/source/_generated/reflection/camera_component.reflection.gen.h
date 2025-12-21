@@ -26,11 +26,7 @@ namespace TypeFieldReflectionOparator{
             return count;
         }
         // fields
-        static const char* getFieldName_temp(){ return "temp";}
-        static const char* getFieldTypeName_temp(){ return "int";}
-        static void set_temp(void* instance, void* field_value){ static_cast<CameraComponent*>(instance)->temp = *static_cast<int*>(field_value);}
-        static void* get_temp(void* instance){ return static_cast<void*>(&(static_cast<CameraComponent*>(instance)->temp));}
-        static bool isArray_temp(){ return false; }
+        
 
         // methods
         
@@ -39,14 +35,7 @@ namespace TypeFieldReflectionOparator{
 
 
     void TypeWrapperRegister_CameraComponent(){
-        FieldFunctionTuple* field_function_tuple_temp=new FieldFunctionTuple(
-            &TypeFieldReflectionOparator::TypeCameraComponentOperator::set_temp,
-            &TypeFieldReflectionOparator::TypeCameraComponentOperator::get_temp,
-            &TypeFieldReflectionOparator::TypeCameraComponentOperator::getClassName,
-            &TypeFieldReflectionOparator::TypeCameraComponentOperator::getFieldName_temp,
-            &TypeFieldReflectionOparator::TypeCameraComponentOperator::getFieldTypeName_temp,
-            &TypeFieldReflectionOparator::TypeCameraComponentOperator::isArray_temp);
-        REGISTER_FIELD_TO_MAP("CameraComponent", field_function_tuple_temp);
+        
 
         
         

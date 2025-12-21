@@ -3,6 +3,8 @@
 #include "runtime/core/math/math_angle.h"
 #include "runtime/core/math/quaternion.h"
 
+#include "runtime/core/meta/reflection/reflection.h"
+
 #include <cassert>
 #include <cmath>
 
@@ -11,8 +13,11 @@
  */
 namespace VKernel
 {
-    class Vector3
+    REFLECTION_TYPE(Vector3)
+    CLASS(Vector3, Fields)
     {
+        REFLECTION_BODY(Vector3);
+
     public:
         float x {0.f};
         float y {0.f};
@@ -24,7 +29,7 @@ namespace VKernel
         Vector3() = default;
 
         Vector3(float x_, float y_, float z_) : x {x_}, y {y_}, z {z_} {}
-        
+
         explicit Vector3(const float coords[3]) : x {coords[0]}, y {coords[1]}, z {coords[2]} {}
 
         // get ptr
@@ -201,7 +206,8 @@ namespace VKernel
             z *= inv_lengh;
         }
 
-        // Calculate the three-dimensional cross product of two vectors. The result is a single-precision floating-point number, which is twice the area of the triangle.
+        // Calculate the three-dimensional cross product of two vectors. The result is a single-precision floating-point
+        // number, which is twice the area of the triangle.
         Vector3 crossProduct(const Vector3& rhs) const
         {
             return Vector3(y * rhs.z - z * rhs.y, z * rhs.x - x * rhs.z, x * rhs.y - y * rhs.x);
@@ -293,7 +299,7 @@ namespace VKernel
             return q;
         }
 
-        // Returns true if this vector is zero length. 
+        // Returns true if this vector is zero length.
         bool isZeroLength(void) const
         {
             float sqlen = (x * x) + (y * y) + (z * z);
@@ -333,10 +339,10 @@ namespace VKernel
 
         // get Max Element
         static float getMaxElement(const Vector3& v) { return Math::getMaxElement(v.x, v.y, v.z); }
-        
+
         // Check whether this vector contains valid values
         bool isNaN() const { return Math::isNan(x) || Math::isNan(y) || Math::isNan(z); }
-        
+
         // special value
         //-----------------------------------------------------------------------
         static const Vector3 ZERO;
@@ -348,4 +354,4 @@ namespace VKernel
         static const Vector3 NEGATIVE_UNIT_Z;
         static const Vector3 UNIT_SCALE;
     };
-}
+} // namespace VKernel

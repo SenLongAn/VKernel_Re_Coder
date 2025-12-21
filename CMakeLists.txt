@@ -12,6 +12,7 @@ endif()
 
 ## set directory
 set(VKERNEL_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}") ##< Project root directory
+set(CMAKE_INSTALL_PREFIX "${VKERNEL_ROOT_DIR}/bin") ##< Installation Directory
 set(BINARY_ROOT_DIR "${CMAKE_INSTALL_PREFIX}/") ##< binary file root directory
 
 add_subdirectory(engine) ##< Add subdirectories

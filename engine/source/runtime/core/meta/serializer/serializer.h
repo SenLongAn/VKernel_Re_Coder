@@ -13,7 +13,7 @@ namespace VKernel
 {
     // Generic type template
     template<typename...>
-    inline constexpr bool always_false = false;
+    inline constexpr bool always_false = true;
 
     class Serializer
     {
