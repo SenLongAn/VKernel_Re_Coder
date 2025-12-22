@@ -535,6 +535,14 @@ namespace VKernel
 
     VmaAllocator VulkanAPI::getVmaAllocator() const { return m_assets_allocator; }
 
+    GLFWwindow* VulkanAPI::getWindow() const { return m_window; }
+
+    VkInstance VulkanAPI::getInstance() const { return m_instance; }
+
+    QueueFamilyIndices VulkanAPI::getQueueFamilyIndices() const { return m_queue_indices; }
+
+    VkQueue VulkanAPI::getGraphicsQueue() const { return m_graphics_queue; }
+
     bool VulkanAPI::checkValidationLayerSupport()
     {
         // Enumerate Instance Layer Properties

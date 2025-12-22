@@ -35,6 +35,8 @@ namespace VKernel
 
         void swapLogicRenderData(); ///< swap Logic Render Data
 
+        void initializeUIRenderBackend(WindowUI* window_ui); ///< init editor ui Backend: vulkan and glfw
+
     private:
         // direct management
         std::shared_ptr<VulkanAPI>          m_vulkan_api;

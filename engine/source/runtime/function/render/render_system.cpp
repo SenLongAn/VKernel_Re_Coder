@@ -38,19 +38,6 @@ namespace VKernel
         asset_manager->loadAsset(global_rendering_res_url, global_rendering_res);
 
         // camera
-        // GlobalRenderingRes global_rendering_res = {{
-        //     ///< camera_config
-        //     {
-        //         ///< pose
-        //         {0.0f, 0.0f, -1.0f}, ///< position
-        //         {0.0f, 0.0f, 0.0f},  ///< target
-        //         {0.0f, 0.0f, 1.0f}   ///< up
-        //     },
-        //     {640.0f, 400.0f}, ///< aspect
-        //     1000.0f,          ///< far
-        //     0.1f              ///< near
-        // }};
-
         const CameraPose& camera_pose = global_rendering_res.m_camera_config.m_pose;
         m_render_camera               = std::make_shared<RenderCamera>();
         m_render_camera->lookAt(camera_pose.m_position, camera_pose.m_target, camera_pose.m_up);
@@ -129,6 +116,11 @@ namespace VKernel
     std::shared_ptr<RenderResourceBase> RenderSystem::getRenderResource() const { return m_render_resource; }
 
     void RenderSystem::swapLogicRenderData() { m_swap_context.swapLogicRenderData(); }
+
+    void RenderSystem::initializeUIRenderBackend(WindowUI* window_ui)
+    {
+        m_render_pipeline->initializeUIRenderBackend(window_ui);
+    }
 
     void RenderSystem::processSwapData()
     {

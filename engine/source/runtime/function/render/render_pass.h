@@ -12,14 +12,17 @@ namespace VKernel
 {
     enum ///< attachment count
     {
-        _main_camera_pass_swap_chain_image = 0, ///< color
-        _main_camera_pass_depth            = 1, ///< depth
-        _main_camera_pass_attachment_count = 2
+        _main_camera_pass_backup_buffer_even      = 0, ///< eidtor ui
+        _main_camera_pass_depth                   = 1, ///< depth
+        _main_camera_pass_swap_chain_image        = 2, ///< color
+        _main_camera_pass_attachment_count        = 3, ///< sum attachment count
+        _main_camera_pass_custom_attachment_count = 1  ///< custom attachment count
     };
 
     enum ///< subpass
     {
         _main_camera_subpass_forward_lighting = 0, ///< forward render
+        _main_camera_subpass_ui,                   ///< ui
         _main_camera_subpass_count
     };
 
@@ -70,6 +73,9 @@ namespace VKernel
         std::vector<Descriptor> m_descriptor_infos;
 
     public:
-        void initialize() override;
+        void                 initialize(const RenderPassInitInfo* init_info) override;
+        virtual VkRenderPass getRenderPass() const;
+
+        virtual void draw();
     };
 } // namespace VKernel

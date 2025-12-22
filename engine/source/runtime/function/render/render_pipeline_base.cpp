@@ -10,4 +10,9 @@ namespace VKernel
         m_main_camera_pass->preparePassData(render_resource);
         g_runtime_global_context.m_debugdraw_manager->preparePassData(render_resource);
     }
+
+    void RenderPipelineBase::initializeUIRenderBackend(WindowUI* window_ui)
+    {
+        m_ui_pass->initializeUIRenderBackend(window_ui);
+    }
 } // namespace VKernel

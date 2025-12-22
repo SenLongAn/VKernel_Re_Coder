@@ -3,6 +3,7 @@
 #include "runtime/function/global/global_context.h"
 #include "runtime/function/render/debugdraw/debug_draw_manager.h"
 #include "runtime/function/render/passes/main_camera_pass.h"
+#include "runtime/function/render/passes/ui_pass.h"
 
 namespace VKernel
 {
@@ -11,6 +12,7 @@ namespace VKernel
     {
         // init point
         m_main_camera_pass = std::make_shared<MainCameraPass>();
+        m_ui_pass          = std::make_shared<UIPass>();
 
         // init info
         RenderPassCommonInfo pass_common_info;
@@ -18,9 +20,17 @@ namespace VKernel
         pass_common_info.render_resource = init_info.render_resource;
 
         m_main_camera_pass->setCommonInfo(pass_common_info);
+        m_ui_pass->setCommonInfo(pass_common_info);
 
         // init
-        m_main_camera_pass->initialize();
+        std::shared_ptr<RenderPass> _main_camera_pass = std::static_pointer_cast<RenderPass>(m_main_camera_pass);
+
+        MainCameraPassInitInfo main_camera_init_info;
+        m_main_camera_pass->initialize(&main_camera_init_info);
+
+        UIPassInitInfo ui_init_info;
+        ui_init_info.render_pass = _main_camera_pass->getRenderPass(); ///< get RenderPass from main camera pass
+        m_ui_pass->initialize(&ui_init_info);
     }
 
     void RenderPipeline::forwardRender(std::shared_ptr<VulkanAPI>          vulkan_api,
@@ -50,8 +60,10 @@ namespace VKernel
         }
 
         // begin render
+        UIPass& ui_pass = *(static_cast<UIPass*>(m_ui_pass.get()));
+
         static_cast<MainCameraPass*>(m_main_camera_pass.get())
-            ->drawForward(vulkan_api->getCurrentSwapchainImageIndex());
+            ->drawForward(ui_pass, vulkan_api->getCurrentSwapchainImageIndex());
 
         g_runtime_global_context.m_debugdraw_manager->draw(vulkan_api->getCurrentSwapchainImageIndex());
 

@@ -13,10 +13,10 @@
 
 namespace VKernel
 {
-    void MainCameraPass::initialize()
+    void MainCameraPass::initialize(const RenderPassInitInfo* init_info)
     {
         // init basic class
-        RenderPass::initialize();
+        RenderPass::initialize(init_info);
 
         // init
         setupAttachments();
@@ -36,7 +36,7 @@ namespace VKernel
         }
     }
 
-    void MainCameraPass::drawForward(uint32_t current_swapchain_image_index)
+    void MainCameraPass::drawForward(UIPass& ui_pass, uint32_t current_swapchain_image_index)
     {
         // Begin RenderPass
         {
@@ -63,70 +63,88 @@ namespace VKernel
         // draw
         drawMeshLighting();
 
+        vkCmdNextSubpass(m_vulkan_api->getCurrentCommandBuffer(), VK_SUBPASS_CONTENTS_INLINE);
+
+        ui_pass.draw();
+
         // end renderpass
         vkCmdEndRenderPass(m_vulkan_api->getCurrentCommandBuffer());
     }
 
     void MainCameraPass::updateAfterFramebufferRecreate()
     {
+        // destory iamge
+        for (size_t i = 0; i < m_framebuffer.attachments.size(); i++)
+        {
+            vkDestroyImage(m_vulkan_api->getLogicDevice(), m_framebuffer.attachments[i].image, nullptr);
+            vkDestroyImageView(m_vulkan_api->getLogicDevice(), m_framebuffer.attachments[i].view, nullptr);
+            vkFreeMemory(m_vulkan_api->getLogicDevice(), m_framebuffer.attachments[i].mem, nullptr);
+        }
+
+        // destory framebuffer
         for (auto framebuffer : m_swapchain_framebuffers)
         {
             vkDestroyFramebuffer(m_vulkan_api->getLogicDevice(), framebuffer, nullptr);
         }
+
+        // recreate
+        setupAttachments();
 
         setupSwapchainFramebuffers();
     }
 
     void MainCameraPass::setupAttachments()
     {
-        // m_framebuffer.attachments.resize(_main_camera_pass_custom_attachment_count); ///< resize vector size
+        m_framebuffer.attachments.resize(_main_camera_pass_custom_attachment_count); ///< resize vector size
 
-        // // set attachment format
-        // m_framebuffer.attachments[_main_camera_pass_backup_buffer_odd].format = VK_FORMAT_R16G16B16A16_SFLOAT;
+        // set attachment format
+        m_framebuffer.attachments[_main_camera_pass_backup_buffer_even].format = VK_FORMAT_R16G16B16A16_SFLOAT;
 
-        // // Number of Attachments
-        // for (int buffer_index = 0; buffer_index < _main_camera_pass_custom_attachment_count; ++buffer_index)
-        // {
+        // Number of Attachments
+        for (int buffer_index = 0; buffer_index < _main_camera_pass_custom_attachment_count; ++buffer_index)
+        {
 
-        //     // create image
-        //     m_vulkan_api->createImage(m_vulkan_api->getSwapchainInfo().extent.width,
-        //                               m_vulkan_api->getSwapchainInfo().extent.height,
-        //                               m_framebuffer.attachments[buffer_index].format,
-        //                               VK_IMAGE_TILING_OPTIMAL,
-        //                               VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
-        //                                   VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
-        //                               VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-        //                               m_framebuffer.attachments[buffer_index].image,
-        //                               m_framebuffer.attachments[buffer_index].mem,
-        //                               0,
-        //                               1,
-        //                               1);
+            // create image
+            m_vulkan_api->createImage(m_vulkan_api->getSwapchainInfo().extent.width,
+                                      m_vulkan_api->getSwapchainInfo().extent.height,
+                                      m_framebuffer.attachments[buffer_index].format,
+                                      VK_IMAGE_TILING_OPTIMAL,
+                                      VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
+                                          VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT,
+                                      VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                                      m_framebuffer.attachments[buffer_index].image,
+                                      m_framebuffer.attachments[buffer_index].mem,
+                                      0,
+                                      1,
+                                      1);
 
-        //     // create image view
-        //     m_vulkan_api->createImageView(m_framebuffer.attachments[buffer_index].image,
-        //                                   m_framebuffer.attachments[buffer_index].format,
-        //                                   VK_IMAGE_ASPECT_COLOR_BIT,
-        //                                   VK_IMAGE_VIEW_TYPE_2D,
-        //                                   1,
-        //                                   1,
-        //                                   m_framebuffer.attachments[buffer_index].view);
+            // create image view
+            m_vulkan_api->createImageView(m_framebuffer.attachments[buffer_index].image,
+                                          m_framebuffer.attachments[buffer_index].format,
+                                          VK_IMAGE_ASPECT_COLOR_BIT,
+                                          VK_IMAGE_VIEW_TYPE_2D,
+                                          1,
+                                          1,
+                                          m_framebuffer.attachments[buffer_index].view);
+        }
     }
 
     void MainCameraPass::setupRenderPass()
     {
+        // Attachment Description
         VkAttachmentDescription attachments[_main_camera_pass_attachment_count] = {};
 
-        // Attachment Description
-        VkAttachmentDescription& swapchain_image_attachment_description =
-            attachments[_main_camera_pass_swap_chain_image];
-        swapchain_image_attachment_description.format         = m_vulkan_api->getSwapchainInfo().image_format;
-        swapchain_image_attachment_description.samples        = VK_SAMPLE_COUNT_1_BIT;
-        swapchain_image_attachment_description.loadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR;
-        swapchain_image_attachment_description.storeOp        = VK_ATTACHMENT_STORE_OP_STORE;
-        swapchain_image_attachment_description.stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-        swapchain_image_attachment_description.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        swapchain_image_attachment_description.initialLayout  = VK_IMAGE_LAYOUT_UNDEFINED;
-        swapchain_image_attachment_description.finalLayout    = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+        VkAttachmentDescription& backup_even_color_attachment_description =
+            attachments[_main_camera_pass_backup_buffer_even];
+        backup_even_color_attachment_description.format =
+            m_framebuffer.attachments[_main_camera_pass_backup_buffer_even].format;
+        backup_even_color_attachment_description.samples        = VK_SAMPLE_COUNT_1_BIT;
+        backup_even_color_attachment_description.loadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        backup_even_color_attachment_description.storeOp        = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        backup_even_color_attachment_description.stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        backup_even_color_attachment_description.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        backup_even_color_attachment_description.initialLayout  = VK_IMAGE_LAYOUT_UNDEFINED;
+        backup_even_color_attachment_description.finalLayout    = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
         VkAttachmentDescription& depth_attachment_description = attachments[_main_camera_pass_depth];
         depth_attachment_description.format                   = m_vulkan_api->getDepthImageInfo().depth_image_format;
@@ -138,10 +156,21 @@ namespace VKernel
         depth_attachment_description.initialLayout            = VK_IMAGE_LAYOUT_UNDEFINED;
         depth_attachment_description.finalLayout              = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
-        // Attachment Reference and Subpass
+        VkAttachmentDescription& swapchain_image_attachment_description =
+            attachments[_main_camera_pass_swap_chain_image];
+        swapchain_image_attachment_description.format         = m_vulkan_api->getSwapchainInfo().image_format;
+        swapchain_image_attachment_description.samples        = VK_SAMPLE_COUNT_1_BIT;
+        swapchain_image_attachment_description.loadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        swapchain_image_attachment_description.storeOp        = VK_ATTACHMENT_STORE_OP_STORE;
+        swapchain_image_attachment_description.stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        swapchain_image_attachment_description.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        swapchain_image_attachment_description.initialLayout  = VK_IMAGE_LAYOUT_UNDEFINED;
+        swapchain_image_attachment_description.finalLayout    = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+        // Attachment Reference and subpass description
         VkSubpassDescription subpasses[_main_camera_subpass_count] = {};
 
-        VkAttachmentReference forward_lighting_pass_color_attachments_reference[1] = {};
+        VkAttachmentReference forward_lighting_pass_color_attachments_reference[1] = {}; ///< forward subpass
         forward_lighting_pass_color_attachments_reference[0].attachment =
             &swapchain_image_attachment_description - attachments; ///< index
         forward_lighting_pass_color_attachments_reference[0].layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
@@ -161,8 +190,22 @@ namespace VKernel
         forward_lighting_pass.preserveAttachmentCount = 0;
         forward_lighting_pass.pPreserveAttachments    = NULL;
 
+        VkAttachmentReference ui_pass_color_attachment_reference {}; ///< ui subpass
+        ui_pass_color_attachment_reference.attachment = &backup_even_color_attachment_description - attachments;
+        ui_pass_color_attachment_reference.layout     = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+        VkSubpassDescription& ui_pass   = subpasses[_main_camera_subpass_ui];
+        ui_pass.pipelineBindPoint       = VK_PIPELINE_BIND_POINT_GRAPHICS;
+        ui_pass.inputAttachmentCount    = 0;
+        ui_pass.pInputAttachments       = NULL;
+        ui_pass.colorAttachmentCount    = 1;
+        ui_pass.pColorAttachments       = &forward_lighting_pass_color_attachments_reference[0]; // TODO
+        ui_pass.pDepthStencilAttachment = NULL;
+        ui_pass.preserveAttachmentCount = 0;
+        ui_pass.pPreserveAttachments    = nullptr;
+
         // Subpass Dependency
-        VkSubpassDependency dependencies[1] = {};
+        VkSubpassDependency dependencies[2] = {};
 
         VkSubpassDependency& forward_lighting_pass_depend_on_deferred_lighting_pass = dependencies[0];
         forward_lighting_pass_depend_on_deferred_lighting_pass.srcSubpass           = VK_SUBPASS_EXTERNAL;
@@ -174,6 +217,17 @@ namespace VKernel
         forward_lighting_pass_depend_on_deferred_lighting_pass.srcAccessMask   = 0;
         forward_lighting_pass_depend_on_deferred_lighting_pass.dstAccessMask   = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
         forward_lighting_pass_depend_on_deferred_lighting_pass.dependencyFlags = 0;
+
+        VkSubpassDependency& ui_pass_depend_on_fxaa_pass = dependencies[1];
+        ui_pass_depend_on_fxaa_pass.srcSubpass           = _main_camera_subpass_forward_lighting;
+        ui_pass_depend_on_fxaa_pass.dstSubpass           = _main_camera_subpass_ui;
+        ui_pass_depend_on_fxaa_pass.srcStageMask =
+            VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        ui_pass_depend_on_fxaa_pass.dstStageMask =
+            VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        ui_pass_depend_on_fxaa_pass.srcAccessMask   = VK_ACCESS_SHADER_WRITE_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        ui_pass_depend_on_fxaa_pass.dstAccessMask   = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
+        ui_pass_depend_on_fxaa_pass.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
         // RenderPass
         VkRenderPassCreateInfo renderpass_create_info {};
@@ -492,7 +546,9 @@ namespace VKernel
         for (size_t i = 0; i < m_vulkan_api->getSwapchainInfo().imageViews.size(); i++)
         {
             VkImageView framebuffer_attachments_for_image_view[_main_camera_pass_attachment_count] = {
-                m_vulkan_api->getSwapchainInfo().imageViews[i], m_vulkan_api->getDepthImageInfo().depth_image_view};
+                m_framebuffer.attachments[_main_camera_pass_backup_buffer_even].view,
+                m_vulkan_api->getDepthImageInfo().depth_image_view,
+                m_vulkan_api->getSwapchainInfo().imageViews[i]};
 
             VkFramebufferCreateInfo framebuffer_create_info {};
             framebuffer_create_info.sType      = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
@@ -559,8 +615,8 @@ namespace VKernel
                (m_global_render_resource->_storage_buffer
                     ._global_upload_ringbuffers_begin[m_vulkan_api->getCurrentFrameIndex()] +
                 m_global_render_resource->_storage_buffer
-                    ._global_upload_ringbuffers_size[m_vulkan_api->getCurrentFrameIndex()])); ///< Assert whether the
-                                                                                              ///< bias is
+                    ._global_upload_ringbuffers_size[m_vulkan_api->getCurrentFrameIndex()])); ///< Assert whether
+                                                                                              ///< the bias is
                                                                                               //   unreasonable
 
         (*reinterpret_cast<MeshPerframeStorageBufferObject*>(

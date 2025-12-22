@@ -9,6 +9,7 @@
 namespace VKernel
 {
     class RenderResourceBase;
+    class WindowUI;
 
     struct RenderPipelineInitInfo
     {
@@ -30,10 +31,13 @@ namespace VKernel
         virtual void forwardRender(std::shared_ptr<VulkanAPI>          vulkan_api,
                                    std::shared_ptr<RenderResourceBase> render_resource) = 0; ///< forward render core
 
+        void initializeUIRenderBackend(WindowUI* window_ui); ///< init editor ui Backend: vulkan and glfw
+
     protected:
         std::shared_ptr<VulkanAPI> m_vulkan_api; ///< Vulkan interface
 
         // pass
         std::shared_ptr<RenderPassBase> m_main_camera_pass;
+        std::shared_ptr<RenderPassBase> m_ui_pass;
     };
 } // namespace VKernel

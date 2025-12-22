@@ -13,7 +13,6 @@
 #include <memory>
 #include <vector>
 
-
 /**
  * Vulkan interface
  */
@@ -81,19 +80,23 @@ namespace VKernel
                                        VkImageView&       image_view);
 
         // query(get)
-        VkDevice         getLogicDevice() const;
-        SwapChainDesc    getSwapchainInfo();
-        void             destroyShaderModule(VkShaderModule shader);
-        uint8_t          getMaxFramesInFlight() const;
-        VkDescriptorPool getDescriptorPool() const;
-        VkCommandBuffer  getCurrentCommandBuffer() const;
-        const VkFence*   getFenceList() const;
-        uint8_t          getCurrentFrameIndex() const;
-        VkCommandPool    getCommandPool() const;
-        uint8_t          getCurrentSwapchainImageIndex() const;
-        DepthImageDesc   getDepthImageInfo() const;
-        VkPhysicalDevice getPhysicalDevice() const;
-        VmaAllocator     getVmaAllocator() const;
+        VkDevice           getLogicDevice() const;
+        SwapChainDesc      getSwapchainInfo();
+        void               destroyShaderModule(VkShaderModule shader);
+        uint8_t            getMaxFramesInFlight() const;
+        VkDescriptorPool   getDescriptorPool() const;
+        VkCommandBuffer    getCurrentCommandBuffer() const;
+        const VkFence*     getFenceList() const;
+        uint8_t            getCurrentFrameIndex() const;
+        VkCommandPool      getCommandPool() const;
+        uint8_t            getCurrentSwapchainImageIndex() const;
+        DepthImageDesc     getDepthImageInfo() const;
+        VkPhysicalDevice   getPhysicalDevice() const;
+        VmaAllocator       getVmaAllocator() const;
+        GLFWwindow*        getWindow() const;
+        VkInstance         getInstance() const;
+        QueueFamilyIndices getQueueFamilyIndices() const;
+        VkQueue            getGraphicsQueue() const;
 
     private:
         // Maximum parallel frame count

@@ -2,6 +2,11 @@ set(third_party_folder "ThirdParty") ##< defined variable
 
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE) ##< Force all libraries to be built as static libraries
 
+if(NOT TARGET imgui) ##< If there is no target
+    include(imgui.cmake) ##< Include and execute the .cmake file
+    set_target_properties(imgui PROPERTIES FOLDER ${third_party_folder}/imgui) ##< Display by directory structure
+endif()
+
 if(NOT TARGET glfw) ##< If there is no target
     option(GLFW_BUILD_EXAMPLES "" OFF)      ##< No need for examples, GLFW built-in options
     option(GLFW_BUILD_TESTS "" OFF)         ##< No need for tests
