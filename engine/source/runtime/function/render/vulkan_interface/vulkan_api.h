@@ -98,6 +98,9 @@ namespace VKernel
         QueueFamilyIndices getQueueFamilyIndices() const;
         VkQueue            getGraphicsQueue() const;
 
+        // set
+        void setViewPort(const VkViewport& viewport);
+
     private:
         // Maximum parallel frame count
         static uint8_t const k_max_frames_in_flight {2};

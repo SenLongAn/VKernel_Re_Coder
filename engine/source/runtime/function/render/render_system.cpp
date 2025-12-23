@@ -10,6 +10,7 @@
 #include "runtime/function/render/render_scene.h"
 #include "runtime/function/render/vulkan_interface/vulkan_api.h"
 
+#include "render_system.h"
 #include "runtime/resource/asset_manager/asset_manager.h"
 #include "runtime/resource/config_manager/config_manager.h"
 
@@ -122,6 +123,20 @@ namespace VKernel
         m_render_pipeline->initializeUIRenderBackend(window_ui);
     }
 
+    void RenderSystem::updateEngineContentViewport(float offset_x, float offset_y, float width, float height)
+    {
+        VkViewport viewport;
+        viewport.x        = offset_x;
+        viewport.y        = offset_y;
+        viewport.width    = width;
+        viewport.height   = height;
+        viewport.minDepth = 0.0f;
+        viewport.maxDepth = 1.0f;
+
+        m_vulkan_api->setViewPort(viewport);
+        m_render_camera->setAspect(width / height);
+    }
+
     void RenderSystem::processSwapData()
     {
         RenderSwapData& swap_data = m_swap_context.getRenderSwapData();
@@ -204,8 +219,8 @@ namespace VKernel
                 m_render_camera->setFOVx(*swap_data.m_camera_swap_data->m_fov_x);
             }
 
-            m_render_camera->setAspect(m_vulkan_api->getSwapchainInfo().viewport.width /
-                                       m_vulkan_api->getSwapchainInfo().viewport.height);
+            // m_render_camera->setAspect(m_vulkan_api->getSwapchainInfo().viewport.width /
+            //                            m_vulkan_api->getSwapchainInfo().viewport.height);
 
             m_swap_context.resetCameraSwapData();
         }

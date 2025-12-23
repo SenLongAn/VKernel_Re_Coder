@@ -37,6 +37,11 @@ namespace VKernel
 
         void initializeUIRenderBackend(WindowUI* window_ui); ///< init editor ui Backend: vulkan and glfw
 
+        void updateEngineContentViewport(float offset_x,
+                                         float offset_y,
+                                         float width,
+                                         float height); ///< update render viewport
+
     private:
         // direct management
         std::shared_ptr<VulkanAPI>          m_vulkan_api;

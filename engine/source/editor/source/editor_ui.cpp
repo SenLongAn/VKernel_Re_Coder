@@ -1,5 +1,6 @@
 #include "editor/include/editor_ui.h"
 
+#include "runtime/function/global/global_context.h"
 #include "runtime/function/render/render_system.h"
 
 #include <imgui.h>
@@ -35,6 +36,21 @@ namespace ReCoder
             return;
         }
         ImGui::Button("Hello World!");
+
+        VKernel::Vector2 render_target_window_pos  = {0.0f, 0.0f};
+        VKernel::Vector2 render_target_window_size = {0.0f, 0.0f};
+
+        auto menu_bar_rect = ImGui::GetCurrentWindow()->MenuBarRect();
+
+        render_target_window_pos.x  = ImGui::GetWindowPos().x;
+        render_target_window_pos.y  = menu_bar_rect.Max.y;
+        render_target_window_size.x = ImGui::GetWindowSize().x;
+        render_target_window_size.y = (ImGui::GetWindowSize().y + ImGui::GetWindowPos().y) - menu_bar_rect.Max.y;
+
+        VKernel::g_runtime_global_context.m_render_system->updateEngineContentViewport(render_target_window_pos.x,
+                                                                                       render_target_window_pos.y,
+                                                                                       render_target_window_size.x,
+                                                                                       render_target_window_size.y);
 
         ImGui::End(); ///< end window
     }

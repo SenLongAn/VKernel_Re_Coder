@@ -12,18 +12,20 @@ namespace VKernel
 {
     enum ///< attachment count
     {
-        _main_camera_pass_backup_buffer_even      = 0, ///< eidtor ui
-        _main_camera_pass_depth                   = 1, ///< depth
-        _main_camera_pass_swap_chain_image        = 2, ///< color
-        _main_camera_pass_attachment_count        = 3, ///< sum attachment count
-        _main_camera_pass_custom_attachment_count = 1  ///< custom attachment count
+        _main_camera_pass_backup_buffer_odd       = 0, ///< scene ui
+        _main_camera_pass_backup_buffer_even      = 1, ///< eidtor ui
+        _main_camera_pass_depth                   = 2, ///< depth
+        _main_camera_pass_swap_chain_image        = 3, ///< color
+        _main_camera_pass_attachment_count        = 4, ///< sum attachment count
+        _main_camera_pass_custom_attachment_count = 2  ///< custom attachment count
     };
 
     enum ///< subpass
     {
         _main_camera_subpass_forward_lighting = 0, ///< forward render
         _main_camera_subpass_ui,                   ///< ui
-        _main_camera_subpass_count
+        _main_camera_subpass_combine_ui,           ///< combine sence and editorUI
+        _main_camera_subpass_count                 ///< sum subpass count
     };
 
     struct VisiableNodes
@@ -77,5 +79,7 @@ namespace VKernel
         virtual VkRenderPass getRenderPass() const;
 
         virtual void draw();
+
+        virtual std::vector<VkImageView> getFramebufferImageViews() const;
     };
 } // namespace VKernel

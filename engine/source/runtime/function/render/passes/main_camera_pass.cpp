@@ -36,7 +36,8 @@ namespace VKernel
         }
     }
 
-    void MainCameraPass::drawForward(UIPass& ui_pass, uint32_t current_swapchain_image_index)
+    void
+    MainCameraPass::drawForward(UIPass& ui_pass, CombineUIPass& combine_ui_pass, uint32_t current_swapchain_image_index)
     {
         // Begin RenderPass
         {
@@ -66,6 +67,10 @@ namespace VKernel
         vkCmdNextSubpass(m_vulkan_api->getCurrentCommandBuffer(), VK_SUBPASS_CONTENTS_INLINE);
 
         ui_pass.draw();
+
+        vkCmdNextSubpass(m_vulkan_api->getCurrentCommandBuffer(), VK_SUBPASS_CONTENTS_INLINE);
+
+        combine_ui_pass.draw();
 
         // end renderpass
         vkCmdEndRenderPass(m_vulkan_api->getCurrentCommandBuffer());
@@ -98,6 +103,7 @@ namespace VKernel
         m_framebuffer.attachments.resize(_main_camera_pass_custom_attachment_count); ///< resize vector size
 
         // set attachment format
+        m_framebuffer.attachments[_main_camera_pass_backup_buffer_odd].format  = VK_FORMAT_R16G16B16A16_SFLOAT;
         m_framebuffer.attachments[_main_camera_pass_backup_buffer_even].format = VK_FORMAT_R16G16B16A16_SFLOAT;
 
         // Number of Attachments
@@ -133,6 +139,18 @@ namespace VKernel
     {
         // Attachment Description
         VkAttachmentDescription attachments[_main_camera_pass_attachment_count] = {};
+
+        VkAttachmentDescription& backup_odd_color_attachment_description =
+            attachments[_main_camera_pass_backup_buffer_odd];
+        backup_odd_color_attachment_description.format =
+            m_framebuffer.attachments[_main_camera_pass_backup_buffer_odd].format;
+        backup_odd_color_attachment_description.samples        = VK_SAMPLE_COUNT_1_BIT;
+        backup_odd_color_attachment_description.loadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        backup_odd_color_attachment_description.storeOp        = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        backup_odd_color_attachment_description.stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        backup_odd_color_attachment_description.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        backup_odd_color_attachment_description.initialLayout  = VK_IMAGE_LAYOUT_UNDEFINED;
+        backup_odd_color_attachment_description.finalLayout    = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
         VkAttachmentDescription& backup_even_color_attachment_description =
             attachments[_main_camera_pass_backup_buffer_even];
@@ -172,7 +190,7 @@ namespace VKernel
 
         VkAttachmentReference forward_lighting_pass_color_attachments_reference[1] = {}; ///< forward subpass
         forward_lighting_pass_color_attachments_reference[0].attachment =
-            &swapchain_image_attachment_description - attachments; ///< index
+            &backup_odd_color_attachment_description - attachments; ///< index
         forward_lighting_pass_color_attachments_reference[0].layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
         VkAttachmentReference forward_lighting_pass_depth_attachment_reference {};
@@ -199,13 +217,37 @@ namespace VKernel
         ui_pass.inputAttachmentCount    = 0;
         ui_pass.pInputAttachments       = NULL;
         ui_pass.colorAttachmentCount    = 1;
-        ui_pass.pColorAttachments       = &forward_lighting_pass_color_attachments_reference[0]; // TODO
+        ui_pass.pColorAttachments       = &ui_pass_color_attachment_reference;
         ui_pass.pDepthStencilAttachment = NULL;
         ui_pass.preserveAttachmentCount = 0;
         ui_pass.pPreserveAttachments    = nullptr;
 
+        VkAttachmentReference combine_ui_pass_input_attachments_reference[2] = {};
+        combine_ui_pass_input_attachments_reference[0].attachment =
+            &backup_odd_color_attachment_description - attachments;
+        combine_ui_pass_input_attachments_reference[0].layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        combine_ui_pass_input_attachments_reference[1].attachment =
+            &backup_even_color_attachment_description - attachments;
+        combine_ui_pass_input_attachments_reference[1].layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+        VkAttachmentReference combine_ui_pass_color_attachment_reference {};
+        combine_ui_pass_color_attachment_reference.attachment = &swapchain_image_attachment_description - attachments;
+        combine_ui_pass_color_attachment_reference.layout     = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+        VkSubpassDescription& combine_ui_pass = subpasses[_main_camera_subpass_combine_ui];
+        combine_ui_pass.pipelineBindPoint     = VK_PIPELINE_BIND_POINT_GRAPHICS;
+        combine_ui_pass.inputAttachmentCount =
+            sizeof(combine_ui_pass_input_attachments_reference) /
+            sizeof(combine_ui_pass_input_attachments_reference[0]); ///< input accachment
+        combine_ui_pass.pInputAttachments       = combine_ui_pass_input_attachments_reference;
+        combine_ui_pass.colorAttachmentCount    = 1;
+        combine_ui_pass.pColorAttachments       = &combine_ui_pass_color_attachment_reference;
+        combine_ui_pass.pDepthStencilAttachment = NULL;
+        combine_ui_pass.preserveAttachmentCount = 0;
+        combine_ui_pass.pPreserveAttachments    = NULL;
+
         // Subpass Dependency
-        VkSubpassDependency dependencies[2] = {};
+        VkSubpassDependency dependencies[3] = {};
 
         VkSubpassDependency& forward_lighting_pass_depend_on_deferred_lighting_pass = dependencies[0];
         forward_lighting_pass_depend_on_deferred_lighting_pass.srcSubpass           = VK_SUBPASS_EXTERNAL;
@@ -228,6 +270,19 @@ namespace VKernel
         ui_pass_depend_on_fxaa_pass.srcAccessMask   = VK_ACCESS_SHADER_WRITE_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
         ui_pass_depend_on_fxaa_pass.dstAccessMask   = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
         ui_pass_depend_on_fxaa_pass.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+
+        VkSubpassDependency& combine_ui_pass_depend_on_ui_pass = dependencies[2];
+        combine_ui_pass_depend_on_ui_pass.srcSubpass           = _main_camera_subpass_ui;
+        combine_ui_pass_depend_on_ui_pass.dstSubpass           = _main_camera_subpass_combine_ui;
+        combine_ui_pass_depend_on_ui_pass.srcStageMask =
+            VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        combine_ui_pass_depend_on_ui_pass.dstStageMask =
+            VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        combine_ui_pass_depend_on_ui_pass.srcAccessMask =
+            VK_ACCESS_SHADER_WRITE_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        combine_ui_pass_depend_on_ui_pass.dstAccessMask =
+            VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
+        combine_ui_pass_depend_on_ui_pass.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
         // RenderPass
         VkRenderPassCreateInfo renderpass_create_info {};
@@ -545,7 +600,9 @@ namespace VKernel
         // create frame buffer for every imageview
         for (size_t i = 0; i < m_vulkan_api->getSwapchainInfo().imageViews.size(); i++)
         {
+            // image view array
             VkImageView framebuffer_attachments_for_image_view[_main_camera_pass_attachment_count] = {
+                m_framebuffer.attachments[_main_camera_pass_backup_buffer_odd].view,
                 m_framebuffer.attachments[_main_camera_pass_backup_buffer_even].view,
                 m_vulkan_api->getDepthImageInfo().depth_image_view,
                 m_vulkan_api->getSwapchainInfo().imageViews[i]};
