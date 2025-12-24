@@ -38,6 +38,9 @@ namespace VKernel
         VkBuffer      mesh_vertex_position_buffer;            ///< buffer
         VmaAllocation mesh_vertex_position_buffer_allocation; ///< allocation
 
+        VkBuffer      mesh_vertex_varying_enable_blending_buffer;
+        VmaAllocation mesh_vertex_varying_enable_blending_buffer_allocation;
+
         VkBuffer      mesh_vertex_varying_buffer;
         VmaAllocation mesh_vertex_varying_buffer_allocation;
 

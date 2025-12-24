@@ -37,6 +37,7 @@ namespace ReCoder
         }
         ImGui::Button("Hello World!");
 
+        // Calculate render area size
         VKernel::Vector2 render_target_window_pos  = {0.0f, 0.0f};
         VKernel::Vector2 render_target_window_size = {0.0f, 0.0f};
 

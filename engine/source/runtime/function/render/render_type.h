@@ -54,8 +54,9 @@ namespace VKernel
 
     struct MeshVertexDataDefinition ///< vertex data struct
     {
-        float x, y, z; // position
-        float u, v;    // UV coordinates
+        float x, y, z;    // position
+        float nx, ny, nz; // normal
+        float u, v;       // UV coordinates
     };
 
     // Material

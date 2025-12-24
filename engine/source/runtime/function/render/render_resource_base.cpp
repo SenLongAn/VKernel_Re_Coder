@@ -96,7 +96,7 @@ namespace VKernel
                 bool with_texcoord = true;
 
                 Vector3 vertex[3];
-                // Vector3 normal[3];
+                Vector3 normal[3];
                 Vector2 uv[3];
 
                 // only deals with triangle faces
@@ -119,23 +119,23 @@ namespace VKernel
                     vertex[v].y = static_cast<float>(vy);
                     vertex[v].z = static_cast<float>(vz);
 
-                    // // normal
-                    // if (idx.normal_index >= 0)
-                    // {
-                    //     auto nx = attrib.normals[3 * size_t(idx.normal_index) + 0];
-                    //     auto ny = attrib.normals[3 * size_t(idx.normal_index) + 1];
-                    //     auto nz = attrib.normals[3 * size_t(idx.normal_index) + 2];
+                    // normal
+                    if (idx.normal_index >= 0)
+                    {
+                        auto nx = attrib.normals[3 * size_t(idx.normal_index) + 0];
+                        auto ny = attrib.normals[3 * size_t(idx.normal_index) + 1];
+                        auto nz = attrib.normals[3 * size_t(idx.normal_index) + 2];
 
-                    //     normal[v].x = static_cast<float>(nx);
-                    //     normal[v].y = static_cast<float>(ny);
-                    //     normal[v].z = static_cast<float>(nz);
-                    // }
-                    // else
-                    // {
-                    //     with_normal = false;
-                    // }
+                        normal[v].x = static_cast<float>(nx);
+                        normal[v].y = static_cast<float>(ny);
+                        normal[v].z = static_cast<float>(nz);
+                    }
+                    else
+                    {
+                        with_normal = false;
+                    }
 
-                    // // texcoord
+                    // texcoord
                     if (idx.texcoord_index >= 0)
                     {
                         auto tx = attrib.texcoords[2 * size_t(idx.texcoord_index) + 0];
@@ -151,14 +151,14 @@ namespace VKernel
                 }
                 index_offset += fv;
 
-                // if (!with_normal) ///< No normal default data set
-                // {
-                //     Vector3 v0 = vertex[1] - vertex[0];
-                //     Vector3 v1 = vertex[2] - vertex[1];
-                //     normal[0]  = v0.crossProduct(v1).normalisedCopy();
-                //     normal[1]  = normal[0];
-                //     normal[2]  = normal[0];
-                // }
+                if (!with_normal) ///< No normal default data set
+                {
+                    Vector3 v0 = vertex[1] - vertex[0];
+                    Vector3 v1 = vertex[2] - vertex[1];
+                    normal[0]  = v0.crossProduct(v1).normalisedCopy();
+                    normal[1]  = normal[0];
+                    normal[2]  = normal[0];
+                }
 
                 if (!with_texcoord) ///< No texcoord default data set
                 {
@@ -196,9 +196,9 @@ namespace VKernel
                     mesh_vert.y = vertex[i].y;
                     mesh_vert.z = vertex[i].z;
 
-                    // mesh_vert.nx = normal[i].x;
-                    // mesh_vert.ny = normal[i].y;
-                    // mesh_vert.nz = normal[i].z;
+                    mesh_vert.nx = normal[i].x;
+                    mesh_vert.ny = normal[i].y;
+                    mesh_vert.nz = normal[i].z;
 
                     mesh_vert.u = uv[i].x;
                     mesh_vert.v = uv[i].y;

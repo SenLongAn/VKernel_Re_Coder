@@ -706,8 +706,10 @@ namespace VKernel
                 if (total_instance_count > 0)
                 {
                     // bind vertex buffer
-                    VkBuffer vertex_buffers[2] = {mesh.mesh_vertex_position_buffer, mesh.mesh_vertex_varying_buffer};
-                    VkDeviceSize offsets[]     = {0, 0};
+                    VkBuffer     vertex_buffers[3] = {mesh.mesh_vertex_position_buffer,
+                                                      mesh.mesh_vertex_varying_enable_blending_buffer,
+                                                      mesh.mesh_vertex_varying_buffer};
+                    VkDeviceSize offsets[]         = {0, 0, 0};
                     vkCmdBindVertexBuffers(m_vulkan_api->getCurrentCommandBuffer(),
                                            0,
                                            (sizeof(vertex_buffers) / sizeof(vertex_buffers[0])),

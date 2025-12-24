@@ -130,23 +130,17 @@ namespace VKernel
             assert(res.second);
 
             // get index and vertex data
-            uint32_t index_index_buffer_size =
-                static_cast<uint32_t>(mesh_data.m_static_mesh_data.m_index_buffer->m_size);
-            void*    index_buffer_data = mesh_data.m_static_mesh_data.m_index_buffer->m_data;
-            uint32_t vertex_index_buffer_size =
-                static_cast<uint32_t>(mesh_data.m_static_mesh_data.m_vertex_buffer->m_size);
+            uint32_t index_buffer_size  = static_cast<uint32_t>(mesh_data.m_static_mesh_data.m_index_buffer->m_size);
+            void*    index_buffer_data  = mesh_data.m_static_mesh_data.m_index_buffer->m_data;
+            uint32_t vertex_buffer_size = static_cast<uint32_t>(mesh_data.m_static_mesh_data.m_vertex_buffer->m_size);
             MeshVertexDataDefinition* vertex_buffer_data = reinterpret_cast<MeshVertexDataDefinition*>(
                 mesh_data.m_static_mesh_data.m_vertex_buffer->m_data); ///< Type cast to MeshVertexDataDefinition
 
             // create buffer and descriptor
             VulkanMesh& now_mesh = res.first->second; ///< Return the second item of the inserted data
 
-            updateMeshData(vulkan_api,
-                           index_index_buffer_size,
-                           index_buffer_data,
-                           vertex_index_buffer_size,
-                           vertex_buffer_data,
-                           now_mesh);
+            updateMeshData(
+                vulkan_api, index_buffer_size, index_buffer_data, vertex_buffer_size, vertex_buffer_data, now_mesh);
 
             return now_mesh;
         }
@@ -235,54 +229,60 @@ namespace VKernel
     }
 
     void RenderResource::updateMeshData(std::shared_ptr<VulkanAPI>      vulkan_api,
-                                        uint32_t                        index_index_buffer_size,
+                                        uint32_t                        index_buffer_size,
                                         void*                           index_buffer_data,
-                                        uint32_t                        vertex_index_buffer_size,
+                                        uint32_t                        vertex_buffer_size,
                                         MeshVertexDataDefinition const* vertex_buffer_data,
                                         VulkanMesh&                     now_mesh)
     {
         // vertex
-        assert(0 == (vertex_index_buffer_size % sizeof(MeshVertexDataDefinition))); ///< Is it an integer multiple
+        assert(0 == (vertex_buffer_size % sizeof(MeshVertexDataDefinition))); ///< Is it an integer multiple
         now_mesh.mesh_vertex_count =
-            vertex_index_buffer_size / sizeof(MeshVertexDataDefinition); ///< Calculate the number of meshe vertex
+            vertex_buffer_size / sizeof(MeshVertexDataDefinition); ///< Calculate the number of meshe vertex
         updateVertexBuffer(vulkan_api,
-                           vertex_index_buffer_size,
+                           vertex_buffer_size,
                            vertex_buffer_data,
-                           index_index_buffer_size,
+                           index_buffer_size,
                            reinterpret_cast<uint32_t*>(index_buffer_data),
                            now_mesh);
 
         // indices
-        assert(0 == (index_index_buffer_size % sizeof(uint32_t)));              ///< Is it an integer multiple
-        now_mesh.mesh_index_count = index_index_buffer_size / sizeof(uint32_t); ///< Calculate the number of indices
-        updateIndexBuffer(vulkan_api, index_index_buffer_size, index_buffer_data, now_mesh);
+        assert(0 == (index_buffer_size % sizeof(uint32_t)));              ///< Is it an integer multiple
+        now_mesh.mesh_index_count = index_buffer_size / sizeof(uint32_t); ///< Calculate the number of indices
+        updateIndexBuffer(vulkan_api, index_buffer_size, index_buffer_data, now_mesh);
     }
 
     void RenderResource::updateVertexBuffer(std::shared_ptr<VulkanAPI>      vulkan_api,
-                                            uint32_t                        vertex_index_buffer_size,
+                                            uint32_t                        vertex_buffer_size,
                                             MeshVertexDataDefinition const* vertex_buffer_data,
-                                            uint32_t                        index_index_buffer_size,
+                                            uint32_t                        index_buffer_size,
                                             uint32_t*                       index_buffer_data,
                                             VulkanMesh&                     now_mesh)
     {
         // Calculate count
-        assert(0 == (vertex_index_buffer_size % sizeof(MeshVertexDataDefinition))); ///< Is it an integer multiple
+        assert(0 == (vertex_buffer_size % sizeof(MeshVertexDataDefinition))); ///< Is it an integer multiple
         uint32_t vertex_count =
-            vertex_index_buffer_size / sizeof(MeshVertexDataDefinition); ///< Calculate the number of meshe vertex
+            vertex_buffer_size / sizeof(MeshVertexDataDefinition); ///< Calculate the number of meshe vertex
 
         // Calculate offset
         VkDeviceSize vertex_position_buffer_size =
             sizeof(MeshVertex::VulkanMeshVertexPostition) * vertex_count; ///< size
+        VkDeviceSize vertex_varying_enable_blending_buffer_size =
+            sizeof(MeshVertex::VulkanMeshVertexVaryingEnableBlending) * vertex_count;
         VkDeviceSize vertex_varying_buffer_size = sizeof(MeshVertex::VulkanMeshVertexVarying) * vertex_count;
 
         VkDeviceSize vertex_position_buffer_offset = 0; ///< offset
-        VkDeviceSize vertex_varying_buffer_offset  = vertex_position_buffer_offset + vertex_position_buffer_size;
+        VkDeviceSize vertex_varying_enable_blending_buffer_offset =
+            vertex_position_buffer_offset + vertex_position_buffer_size;
+        VkDeviceSize vertex_varying_buffer_offset =
+            vertex_varying_enable_blending_buffer_offset + vertex_varying_enable_blending_buffer_size;
 
         // create temporary staging buffer
-        VkDeviceSize inefficient_staging_index_buffer_size =
-            vertex_position_buffer_size + vertex_varying_buffer_size;      ///< size
-        VkBuffer       inefficient_staging_buffer        = VK_NULL_HANDLE; ///< buffer
-        VkDeviceMemory inefficient_staging_buffer_memory = VK_NULL_HANDLE; ///< memory
+        VkDeviceSize inefficient_staging_index_buffer_size = vertex_position_buffer_size +
+                                                             vertex_varying_enable_blending_buffer_size +
+                                                             vertex_varying_buffer_size; ///< size
+        VkBuffer       inefficient_staging_buffer        = VK_NULL_HANDLE;               ///< buffer
+        VkDeviceMemory inefficient_staging_buffer_memory = VK_NULL_HANDLE;               ///< memory
         vulkan_api->createBuffer(inefficient_staging_index_buffer_size,
                                  VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                                  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
@@ -305,6 +305,11 @@ namespace VKernel
                 reinterpret_cast<uintptr_t>(inefficient_staging_buffer_data) +
                 vertex_position_buffer_offset); ///< Conversion between pointers and integers
 
+        MeshVertex::VulkanMeshVertexVaryingEnableBlending* mesh_vertex_blending_varyings =
+            reinterpret_cast<MeshVertex::VulkanMeshVertexVaryingEnableBlending*>(
+                reinterpret_cast<uintptr_t>(inefficient_staging_buffer_data) +
+                vertex_varying_enable_blending_buffer_offset);
+
         MeshVertex::VulkanMeshVertexVarying* mesh_vertex_varyings =
             reinterpret_cast<MeshVertex::VulkanMeshVertexVarying*>(
                 reinterpret_cast<uintptr_t>(inefficient_staging_buffer_data) + vertex_varying_buffer_offset);
@@ -315,6 +320,11 @@ namespace VKernel
             mesh_vertex_positions[vertex_index].position = Vector3(vertex_buffer_data[vertex_index].x,
                                                                    vertex_buffer_data[vertex_index].y,
                                                                    vertex_buffer_data[vertex_index].z);
+
+            Vector3 normal                                     = Vector3(vertex_buffer_data[vertex_index].nx,
+                                     vertex_buffer_data[vertex_index].ny,
+                                     vertex_buffer_data[vertex_index].nz);
+            mesh_vertex_blending_varyings[vertex_index].normal = normal;
 
             mesh_vertex_varyings[vertex_index].texcoord =
                 Vector2(vertex_buffer_data[vertex_index].u, vertex_buffer_data[vertex_index].v);
@@ -336,6 +346,13 @@ namespace VKernel
                         &now_mesh.mesh_vertex_position_buffer,
                         &now_mesh.mesh_vertex_position_buffer_allocation,
                         NULL);
+        bufferInfo.size = vertex_varying_enable_blending_buffer_size;
+        vmaCreateBuffer(vulkan_api->getVmaAllocator(),
+                        &bufferInfo,
+                        &allocInfo,
+                        &now_mesh.mesh_vertex_varying_enable_blending_buffer,
+                        &now_mesh.mesh_vertex_varying_enable_blending_buffer_allocation,
+                        NULL);
         bufferInfo.size = vertex_varying_buffer_size;
         vmaCreateBuffer(vulkan_api->getVmaAllocator(),
                         &bufferInfo,
@@ -350,6 +367,11 @@ namespace VKernel
                                vertex_position_buffer_offset,
                                0,
                                vertex_position_buffer_size);
+        vulkan_api->copyBuffer(inefficient_staging_buffer,
+                               now_mesh.mesh_vertex_varying_enable_blending_buffer,
+                               vertex_varying_enable_blending_buffer_offset,
+                               0,
+                               vertex_varying_enable_blending_buffer_size);
         vulkan_api->copyBuffer(inefficient_staging_buffer,
                                now_mesh.mesh_vertex_varying_buffer,
                                vertex_varying_buffer_offset,
