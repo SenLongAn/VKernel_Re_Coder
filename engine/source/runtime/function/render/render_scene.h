@@ -1,5 +1,6 @@
 #pragma once
 
+#include "runtime/function/render/light.h"
 #include "runtime/function/render/render_common.h"
 #include "runtime/function/render/render_entity.h"
 
@@ -17,6 +18,10 @@ namespace VKernel
     class RenderScene
     {
     public:
+        // light
+        AmbientLight      m_ambient_light;
+        PDirectionalLight m_directional_light;
+
         // visible objects
         std::vector<RenderMeshNode> m_main_camera_visible_mesh_nodes;
 

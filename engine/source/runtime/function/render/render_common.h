@@ -14,14 +14,30 @@ namespace VKernel
 
     static uint32_t const s_mesh_per_drawcall_max_instance_count = 64; ///< instance GO max count
 
+    struct VulkanSceneDirectionalLight ///< Directional Light
+    {
+        Vector3 direction;          ///< direction
+        float   _padding_direction; ///< Memory alignment
+        Vector3 color;              ///< color
+        float   _padding_color;
+    };
+
     struct MeshPerframeStorageBufferObject ///< Read-only
     {
-        Matrix4x4 proj_view_matrix;
+        Matrix4x4 proj_view_matrix; ///< pv
+
+        Vector3 camera_position; ///< camera position
+        float   _padding_camera_position;
+
+        Vector3 ambient_light; ///< ambient light
+        float   _padding_ambient_light;
+
+        VulkanSceneDirectionalLight scene_directional_light; ///< Directional Light
     };
 
     struct VulkanMeshInstance ///< Instantiate the properties of each object
     {
-        Matrix4x4 model_matrix;
+        Matrix4x4 model_matrix; ///< M
     };
 
     struct MeshPerdrawcallStorageBufferObject

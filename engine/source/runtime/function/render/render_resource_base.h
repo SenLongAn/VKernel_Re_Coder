@@ -11,6 +11,7 @@
 namespace VKernel
 {
     class RenderCamera;
+    class RenderScene;
     class VulkanAPI;
 
     class RenderResourceBase
@@ -20,7 +21,8 @@ namespace VKernel
 
         virtual void clear() = 0;
 
-        virtual void updatePerFrameBuffer(std::shared_ptr<RenderCamera> camera) = 0;
+        virtual void updatePerFrameBuffer(std::shared_ptr<RenderScene>  render_scene,
+                                          std::shared_ptr<RenderCamera> camera) = 0;
 
         // create buffer
 

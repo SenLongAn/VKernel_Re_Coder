@@ -52,7 +52,7 @@ namespace VKernel
     RenderMaterialData RenderResourceBase::loadMaterialData(const MaterialSourceDesc& source)
     {
         RenderMaterialData ret;
-        ret.m_base_color_texture = loadTexture(source.m_base_color_file, true);
+        ret.m_base_color_texture = loadTexture(source.m_base_color_file, false);
         return ret;
     }
 
@@ -201,7 +201,7 @@ namespace VKernel
                     mesh_vert.nz = normal[i].z;
 
                     mesh_vert.u = uv[i].x;
-                    mesh_vert.v = uv[i].y;
+                    mesh_vert.v = 1.0 - uv[i].y; ///< Turn over
 
                     // mesh_vert.tx = tangent.x;
                     // mesh_vert.ty = tangent.y;

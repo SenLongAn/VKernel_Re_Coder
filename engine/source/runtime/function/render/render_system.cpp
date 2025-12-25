@@ -50,6 +50,9 @@ namespace VKernel
         // setup render scene
         m_render_scene = std::make_shared<RenderScene>();
         m_render_scene->setVisibleNodesReference();
+        m_render_scene->m_directional_light.m_direction = Vector3(0.0, -1.0, -1.0); // TODO: Not serialized
+        m_render_scene->m_directional_light.m_color     = Vector3(1.0, 1.0, 1.0);
+        m_render_scene->m_ambient_light.m_irradiance    = Vector3(0.2, 0.2, 0.2);
 
         // pipline
         RenderPipelineInitInfo pipeline_init_info;
@@ -71,7 +74,7 @@ namespace VKernel
         processSwapData();
 
         // Set the "resource" data
-        m_render_resource->updatePerFrameBuffer(m_render_camera);
+        m_render_resource->updatePerFrameBuffer(m_render_scene, m_render_camera);
 
         // update visible objects
         m_render_scene->updateVisibleObjects(std::static_pointer_cast<RenderResource>(m_render_resource),
@@ -153,19 +156,19 @@ namespace VKernel
             render_entity.m_mesh_id           = 0; ///< id
             render_entity.m_material_asset_id = 0; ///< id
             render_entity.m_model_matrix =
-                Matrix4x4(Vector3(-2.0, 0.0, 5.0), Vector3(0.1, 0.1, 0.1), Quaternion(Vector3(180.0, 0.0, 0.0)));
+                Matrix4x4(Vector3(-2.0, 0.0, 5.0), Vector3(0.5, 0.5, 0.5), Quaternion(Vector3(90.0, 90.0, 0.0)));
 
             RenderEntity render_entity1;
             render_entity1.m_mesh_id           = 1;
             render_entity1.m_material_asset_id = 1;
             render_entity1.m_model_matrix =
-                Matrix4x4(Vector3(2.0, 0.0, 5.0), Vector3(0.02, 0.02, 0.02), Quaternion(Vector3(180.0, 0.0, 0.0)));
+                Matrix4x4(Vector3(2.0, 0.0, 6.0), Vector3(0.02, 0.02, 0.02), Quaternion(Vector3(180.0, 90.0, 0.0)));
 
             RenderEntity render_entity2;
             render_entity2.m_mesh_id           = 0;
             render_entity2.m_material_asset_id = 0;
             render_entity2.m_model_matrix =
-                Matrix4x4(Vector3(-3.0, 0.0, 5.0), Vector3(0.1, 0.1, 0.1), Quaternion(Vector3(180.0, 0.0, 0.0)));
+                Matrix4x4(Vector3(-3.0, 0.0, 5.0), Vector3(0.5, 0.5, 0.5), Quaternion(Vector3(90.0, 90.0, 0.0)));
 
             RenderEntity render_entity3;
             render_entity3.m_mesh_id           = 2;
@@ -174,7 +177,7 @@ namespace VKernel
                 Matrix4x4(Vector3(0.0, 0.0, 5.0), Vector3(0.2, 0.2, 0.2), Quaternion(Vector3(180.0, 0.0, 0.0)));
 
             // load vertex and indice data
-            MeshSourceDesc mesh_source  = {"engine/asset/objects/basic/MAC-10.obj"};
+            MeshSourceDesc mesh_source  = {"engine/asset/objects/basic/viking_room.obj"};
             RenderMeshData mesh_data    = m_render_resource->loadMeshData(mesh_source);
             MeshSourceDesc mesh_source1 = {"engine/asset/objects/basic/Beretta_M92A1.obj"};
             RenderMeshData mesh_data1   = m_render_resource->loadMeshData(mesh_source1);
@@ -188,7 +191,7 @@ namespace VKernel
             m_render_resource->uploadGameObjectRenderResource(m_vulkan_api, render_entity3, mesh_data2);
 
             // load material
-            MaterialSourceDesc material_source  = {"engine/asset/objects/_textures/MAC-10_c.jpg"};
+            MaterialSourceDesc material_source  = {"engine/asset/objects/_textures/viking_room.png"};
             MaterialSourceDesc material_source1 = {"engine/asset/objects/_textures/Beretta_M92A1_c.jpg"};
             MaterialSourceDesc material_source2 = {"engine/asset/objects/_textures/G2A4_Rifle_c.jpg"};
 

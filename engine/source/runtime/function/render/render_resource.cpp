@@ -3,19 +3,29 @@
 #include "render_resource.h"
 #include "runtime/function/render/render_camera.h"
 #include "runtime/function/render/render_mesh.h"
+#include "runtime/function/render/render_scene.h"
 
 namespace VKernel
 {
     void RenderResource::clear() {}
 
-    void RenderResource::updatePerFrameBuffer(std::shared_ptr<RenderCamera> camera)
+    void RenderResource::updatePerFrameBuffer(std::shared_ptr<RenderScene>  render_scene,
+                                              std::shared_ptr<RenderCamera> camera)
     {
-        // Get proj view matrix from the camera
+        // Get data
+        Vector3   camera_position  = camera->position();
         Matrix4x4 view_matrix      = camera->getViewMatrix();
         Matrix4x4 proj_matrix      = camera->getPersProjMatrix();
         Matrix4x4 proj_view_matrix = proj_matrix * view_matrix;
+        Vector3   ambient_light    = render_scene->m_ambient_light.m_irradiance;
 
+        // set data
         m_mesh_perframe_storage_buffer_object.proj_view_matrix = proj_view_matrix;
+        m_mesh_perframe_storage_buffer_object.camera_position  = camera_position;
+        m_mesh_perframe_storage_buffer_object.ambient_light    = ambient_light;
+        m_mesh_perframe_storage_buffer_object.scene_directional_light.direction =
+            render_scene->m_directional_light.m_direction.normalisedCopy();
+        m_mesh_perframe_storage_buffer_object.scene_directional_light.color = render_scene->m_directional_light.m_color;
     }
 
     void RenderResource::uploadGlobalRenderResource(std::shared_ptr<VulkanAPI> vulkan_api)
