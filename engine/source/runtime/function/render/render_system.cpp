@@ -51,8 +51,8 @@ namespace VKernel
         m_render_scene = std::make_shared<RenderScene>();
         m_render_scene->setVisibleNodesReference();
         m_render_scene->m_directional_light.m_direction = Vector3(0.0, -1.0, -1.0); // TODO: Not serialized
-        m_render_scene->m_directional_light.m_color     = Vector3(1.0, 1.0, 1.0);
-        m_render_scene->m_ambient_light.m_irradiance    = Vector3(0.2, 0.2, 0.2);
+        m_render_scene->m_directional_light.m_color     = Vector3(12.0, 12.0, 12.0);
+        m_render_scene->m_ambient_light.m_irradiance    = Vector3(0.03, 0.03, 0.03);
 
         // pipline
         RenderPipelineInitInfo pipeline_init_info;

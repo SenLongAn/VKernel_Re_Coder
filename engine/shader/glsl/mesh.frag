@@ -33,25 +33,18 @@ layout(location = 2) in highp vec2 in_texcoord;
 // read in fragnormal (from vertex shader)
 layout(location = 0) out highp vec4 out_scene_color;
 
+#include "mesh_lighting.h"
+
 void main()
 {
-    highp vec3 N         = normalize(in_normal);
-    highp vec3 basecolor = texture(base_color_texture_sampler, in_texcoord).xyz;
-    highp vec3 result_color;
+    highp vec3 L           = normalize(scene_directional_light.direction);
+    highp vec3 N           = normalize(in_normal);
+    highp vec3 V           = normalize(camera_position - in_world_position);
+    highp vec3 objectColor = texture(base_color_texture_sampler, in_texcoord).xyz;
 
-    // ambient
-    highp vec3 ambient = basecolor * ambient_light;
+    highp vec3 result_color = vec3(0.0, 0.0, 0.0);
 
-    // diffuse
-    highp float diff    = max(dot(N, scene_directional_light.direction), 0.0);
-    highp vec3  diffuse = basecolor * diff * scene_directional_light.color * 0.8;
-
-    highp vec3  viewDir    = normalize(camera_position - in_world_position);
-    highp vec3  reflectDir = reflect(-scene_directional_light.direction, N);
-    highp float spec       = pow(max(dot(viewDir, reflectDir), 0.0), 8.0);
-    highp vec3  specular   = basecolor * spec * scene_directional_light.color * 1.0;
-
-    result_color = ambient + diffuse + specular;
+#include "mesh_lighting.inl"
 
     out_scene_color = vec4(result_color, 1.0);
 }
