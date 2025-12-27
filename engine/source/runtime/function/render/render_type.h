@@ -56,6 +56,7 @@ namespace VKernel
     {
         float x, y, z;    // position
         float nx, ny, nz; // normal
+        float tx, ty, tz; // tangent
         float u, v;       // UV coordinates
     };
 

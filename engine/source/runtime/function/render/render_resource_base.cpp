@@ -167,25 +167,25 @@ namespace VKernel
                     uv[2] = Vector2(0.5f, 0.5f);
                 }
 
-                // Vector3 tangent {1, 0, 0}; ///< Calculate tangent
-                // {
-                //     Vector3 edge1    = vertex[1] - vertex[0];
-                //     Vector3 edge2    = vertex[2] - vertex[1];
-                //     Vector2 deltaUV1 = uv[1] - uv[0];
-                //     Vector2 deltaUV2 = uv[2] - uv[1];
+                Vector3 tangent {1, 0, 0}; ///< Calculate tangent
+                {
+                    Vector3 edge1    = vertex[1] - vertex[0];
+                    Vector3 edge2    = vertex[2] - vertex[1];
+                    Vector2 deltaUV1 = uv[1] - uv[0];
+                    Vector2 deltaUV2 = uv[2] - uv[1];
 
-                //     auto divide = deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y;
-                //     if (divide >= 0.0f && divide < 0.000001f)
-                //         divide = 0.000001f;
-                //     else if (divide < 0.0f && divide > -0.000001f)
-                //         divide = -0.000001f;
+                    auto divide = deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y;
+                    if (divide >= 0.0f && divide < 0.000001f)
+                        divide = 0.000001f;
+                    else if (divide < 0.0f && divide > -0.000001f)
+                        divide = -0.000001f;
 
-                //     float df  = 1.0f / divide;
-                //     tangent.x = df * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
-                //     tangent.y = df * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
-                //     tangent.z = df * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
-                //     tangent   = (tangent).normalisedCopy();
-                // }
+                    float df  = 1.0f / divide;
+                    tangent.x = df * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+                    tangent.y = df * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+                    tangent.z = df * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+                    tangent   = (tangent).normalisedCopy();
+                }
 
                 // write data for a triangle primitive
                 for (size_t i = 0; i < 3; i++)
@@ -203,9 +203,9 @@ namespace VKernel
                     mesh_vert.u = uv[i].x;
                     mesh_vert.v = 1.0 - uv[i].y; ///< Turn over
 
-                    // mesh_vert.tx = tangent.x;
-                    // mesh_vert.ty = tangent.y;
-                    // mesh_vert.tz = tangent.z;
+                    mesh_vert.tx = tangent.x;
+                    mesh_vert.ty = tangent.y;
+                    mesh_vert.tz = tangent.z;
 
                     mesh_vertices.push_back(mesh_vert);
                 }

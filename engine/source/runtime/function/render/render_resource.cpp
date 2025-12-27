@@ -331,10 +331,15 @@ namespace VKernel
                                                                    vertex_buffer_data[vertex_index].y,
                                                                    vertex_buffer_data[vertex_index].z);
 
-            Vector3 normal                                     = Vector3(vertex_buffer_data[vertex_index].nx,
+            Vector3 tangent = Vector3(vertex_buffer_data[vertex_index].tx,
+                                      vertex_buffer_data[vertex_index].ty,
+                                      vertex_buffer_data[vertex_index].tz);
+
+            Vector3 normal                                      = Vector3(vertex_buffer_data[vertex_index].nx,
                                      vertex_buffer_data[vertex_index].ny,
                                      vertex_buffer_data[vertex_index].nz);
-            mesh_vertex_blending_varyings[vertex_index].normal = normal;
+            mesh_vertex_blending_varyings[vertex_index].normal  = normal;
+            mesh_vertex_blending_varyings[vertex_index].tangent = tangent;
 
             mesh_vertex_varyings[vertex_index].texcoord =
                 Vector2(vertex_buffer_data[vertex_index].u, vertex_buffer_data[vertex_index].v);

@@ -28,7 +28,8 @@ layout(set = 1, binding = 0) uniform sampler2D base_color_texture_sampler;
 
 layout(location = 0) in highp vec3 in_world_position;
 layout(location = 1) in highp vec3 in_normal;
-layout(location = 2) in highp vec2 in_texcoord;
+layout(location = 2) in highp vec3 in_tangent;
+layout(location = 3) in highp vec2 in_texcoord;
 
 // read in fragnormal (from vertex shader)
 layout(location = 0) out highp vec4 out_scene_color;
@@ -46,5 +47,5 @@ void main()
 
 #include "mesh_lighting.inl"
 
-    out_scene_color = vec4(result_color, 1.0);
+    out_scene_color = vec4(in_tangent, 1.0);
 }
