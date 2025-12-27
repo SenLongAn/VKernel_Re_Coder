@@ -25,6 +25,7 @@ layout(set = 0, binding = 0) readonly buffer _unused_name_perframe
 };
 
 layout(set = 1, binding = 0) uniform sampler2D base_color_texture_sampler;
+layout(set = 1, binding = 1) uniform sampler2D normal_texture_sampler;
 
 layout(location = 0) in highp vec3 in_world_position;
 layout(location = 1) in highp vec3 in_normal;
@@ -34,12 +35,25 @@ layout(location = 3) in highp vec2 in_texcoord;
 // read in fragnormal (from vertex shader)
 layout(location = 0) out highp vec4 out_scene_color;
 
+highp vec3 calculateNormal()
+{
+    highp vec3 tangent_normal = texture(normal_texture_sampler, in_texcoord).xyz * 2.0 - 1.0;
+
+    // TBN
+    highp vec3 N = normalize(in_normal);
+    highp vec3 T = normalize(in_tangent.xyz);
+    highp vec3 B = normalize(cross(N, T));
+
+    highp mat3 TBN = mat3(T, B, N);
+    return normalize(TBN * tangent_normal);
+}
+
 #include "mesh_lighting.h"
 
 void main()
 {
     highp vec3 L           = normalize(scene_directional_light.direction);
-    highp vec3 N           = normalize(in_normal);
+    highp vec3 N           = calculateNormal();
     highp vec3 V           = normalize(camera_position - in_world_position);
     highp vec3 objectColor = texture(base_color_texture_sampler, in_texcoord).xyz;
 
@@ -47,5 +61,5 @@ void main()
 
 #include "mesh_lighting.inl"
 
-    out_scene_color = vec4(in_tangent, 1.0);
+    out_scene_color = vec4(result_color, 1.0);
 }

@@ -73,6 +73,10 @@ namespace VKernel
         VkImageView   base_color_image_view;       ///< image view
         VmaAllocation base_color_image_allocation; ///< allocation
 
+        VkImage       normal_texture_image;
+        VkImageView   normal_image_view;
+        VmaAllocation normal_image_allocation;
+
         VkDescriptorSet material_descriptor_set; ///< descriptor set
     };
 
@@ -82,6 +86,11 @@ namespace VKernel
         uint32_t base_color_image_width;  ///< width
         uint32_t base_color_image_height; ///< height
         VkFormat base_color_image_format; ///< format
+
+        void*    normal_roughness_image_pixels;
+        uint32_t normal_roughness_image_width;
+        uint32_t normal_roughness_image_height;
+        VkFormat normal_roughness_image_format;
 
         VulkanPBRMaterial* now_material; ///< image view and descriptor
     };

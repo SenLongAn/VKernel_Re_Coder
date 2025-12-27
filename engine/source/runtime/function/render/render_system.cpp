@@ -156,32 +156,32 @@ namespace VKernel
             render_entity.m_mesh_id           = 0; ///< id
             render_entity.m_material_asset_id = 0; ///< id
             render_entity.m_model_matrix =
-                Matrix4x4(Vector3(-4.0, 0.0, 5.0), Vector3(0.5, 0.5, 0.5), Quaternion(Vector3(90.0, 90.0, 0.0)));
+                Matrix4x4(Vector3(-6.0, 0.0, 5.0), Vector3(0.5, 0.5, 0.5), Quaternion(Vector3(90.0, 90.0, 0.0)));
 
             RenderEntity render_entity1;
             render_entity1.m_mesh_id           = 1;
             render_entity1.m_material_asset_id = 1;
             render_entity1.m_model_matrix =
-                Matrix4x4(Vector3(-2.0, 0.0, 6.0), Vector3(0.02, 0.02, 0.02), Quaternion(Vector3(180.0, 90.0, 0.0)));
+                Matrix4x4(Vector3(-2.0, 0.0, 6.0), Vector3(0.02, 0.02, 0.02), Quaternion(Vector3(180.0, 89.0, 0.0)));
 
             RenderEntity render_entity2;
             render_entity2.m_mesh_id           = 2;
             render_entity2.m_material_asset_id = 2;
             render_entity2.m_model_matrix =
-                Matrix4x4(Vector3(2.0, 0.0, 5.0), Vector3(0.5, 0.5, 0.5), Quaternion(Vector3(90.0, 90.0, 0.0)));
+                Matrix4x4(Vector3(2.0, 0.0, 6.0), Vector3(0.1, 0.1, 0.1), Quaternion(Vector3(0.0, -90.0, 180.0)));
 
             RenderEntity render_entity3;
             render_entity3.m_mesh_id           = 3;
             render_entity3.m_material_asset_id = 3;
             render_entity3.m_model_matrix =
-                Matrix4x4(Vector3(6.0, 0.0, 5.0), Vector3(0.2, 0.2, 0.2), Quaternion(Vector3(180.0, 0.0, 0.0)));
+                Matrix4x4(Vector3(6.0, 0.0, 6.0), Vector3(0.2, 0.2, 0.2), Quaternion(Vector3(180.0, 0.0, 0.0)));
 
             // load vertex and indice data
-            MeshSourceDesc mesh_source  = {"engine/asset/objects/basic/viking_room.obj"};
+            MeshSourceDesc mesh_source  = {"engine/asset/objects/environment/wall/components/mesh/wall.obj"};
             RenderMeshData mesh_data    = m_render_resource->loadMeshData(mesh_source);
             MeshSourceDesc mesh_source1 = {"engine/asset/objects/basic/Beretta_M92A1.obj"};
             RenderMeshData mesh_data1   = m_render_resource->loadMeshData(mesh_source1);
-            MeshSourceDesc mesh_source2 = {"engine/asset/objects/environment/wall/components/mesh/wall.obj"};
+            MeshSourceDesc mesh_source2 = {"engine/asset/objects/basic/MAC-10.obj"};
             RenderMeshData mesh_data2   = m_render_resource->loadMeshData(mesh_source2);
             MeshSourceDesc mesh_source3 = {"engine/asset/objects/basic/G2A4_Rifle.obj"};
             RenderMeshData mesh_data3   = m_render_resource->loadMeshData(mesh_source3);
@@ -193,10 +193,14 @@ namespace VKernel
             m_render_resource->uploadGameObjectRenderResource(m_vulkan_api, render_entity3, mesh_data3);
 
             // load material
-            MaterialSourceDesc material_source  = {"engine/asset/objects/_textures/viking_room.png"};
-            MaterialSourceDesc material_source1 = {"engine/asset/objects/_textures/Beretta_M92A1_c.jpg"};
-            MaterialSourceDesc material_source2 = {"engine/asset/objects/_textures/gold.tga"};
-            MaterialSourceDesc material_source3 = {"engine/asset/objects/_textures/G2A4_Rifle_c.jpg"};
+            MaterialSourceDesc material_source  = {"engine/asset/objects/_textures/gold.tga",
+                                                   "engine/asset/objects/_textures/n.tga"};
+            MaterialSourceDesc material_source1 = {"engine/asset/objects/_textures/Beretta_M92A1_c.jpg",
+                                                   "engine/asset/objects/_textures/Beretta_M92A1_n.jpg"};
+            MaterialSourceDesc material_source2 = {"engine/asset/objects/_textures/MAC-10_c.jpg",
+                                                   "engine/asset/objects/_textures/MAC-10_n.jpg"};
+            MaterialSourceDesc material_source3 = {"engine/asset/objects/_textures/G2A4_Rifle_c.jpg",
+                                                   "engine/asset/objects/_textures/G2A4_Rifle_n.jpg"};
 
             RenderMaterialData material_data  = m_render_resource->loadMaterialData(material_source);
             RenderMaterialData material_data1 = m_render_resource->loadMaterialData(material_source1);

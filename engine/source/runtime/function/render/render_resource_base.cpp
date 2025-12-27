@@ -53,6 +53,7 @@ namespace VKernel
     {
         RenderMaterialData ret;
         ret.m_base_color_texture = loadTexture(source.m_base_color_file, false);
+        ret.m_normal_texture     = loadTexture(source.m_normal_file);
         return ret;
     }
 

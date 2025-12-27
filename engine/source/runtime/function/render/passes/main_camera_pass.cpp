@@ -349,7 +349,7 @@ namespace VKernel
 
         // _mesh_per_material
         {
-            VkDescriptorSetLayoutBinding mesh_material_layout_bindings[1];
+            VkDescriptorSetLayoutBinding mesh_material_layout_bindings[2];
 
             VkDescriptorSetLayoutBinding& mesh_material_layout_base_color_texture_binding =
                 mesh_material_layout_bindings[0];
@@ -359,11 +359,16 @@ namespace VKernel
             mesh_material_layout_base_color_texture_binding.stageFlags      = VK_SHADER_STAGE_FRAGMENT_BIT;
             mesh_material_layout_base_color_texture_binding.pImmutableSamplers = nullptr;
 
+            VkDescriptorSetLayoutBinding& mesh_material_layout_normal_roughness_texture_binding =
+                mesh_material_layout_bindings[1];
+            mesh_material_layout_normal_roughness_texture_binding = mesh_material_layout_base_color_texture_binding;
+            mesh_material_layout_normal_roughness_texture_binding.binding = 1;
+
             VkDescriptorSetLayoutCreateInfo mesh_material_layout_create_info;
             mesh_material_layout_create_info.sType        = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
             mesh_material_layout_create_info.pNext        = NULL;
             mesh_material_layout_create_info.flags        = 0;
-            mesh_material_layout_create_info.bindingCount = 1;
+            mesh_material_layout_create_info.bindingCount = 2;
             mesh_material_layout_create_info.pBindings    = mesh_material_layout_bindings;
 
             if (vkCreateDescriptorSetLayout(m_vulkan_api->getLogicDevice(),

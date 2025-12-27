@@ -176,7 +176,8 @@ namespace VKernel
             assert(res.second);
 
             // write data
-            float    empty_image[]           = {0.5f, 0.5f, 0.5f, 0.5f};
+            float empty_image[] = {0.5f, 0.5f, 0.5f, 0.5f};
+
             void*    base_color_image_pixels = empty_image;
             uint32_t base_color_image_width  = 1;
             uint32_t base_color_image_height = 1;
@@ -189,15 +190,31 @@ namespace VKernel
                 base_color_image_format = material_data.m_base_color_texture->m_format;
             }
 
+            void*    normal_roughness_image_pixels = empty_image;
+            uint32_t normal_roughness_width        = 1;
+            uint32_t normal_roughness_height       = 1;
+            VkFormat normal_roughness_format       = VkFormat::VK_FORMAT_R8G8B8A8_UNORM;
+            if (material_data.m_normal_texture)
+            {
+                normal_roughness_image_pixels = material_data.m_normal_texture->m_pixels;
+                normal_roughness_width        = static_cast<uint32_t>(material_data.m_normal_texture->m_width);
+                normal_roughness_height       = static_cast<uint32_t>(material_data.m_normal_texture->m_height);
+                normal_roughness_format       = material_data.m_normal_texture->m_format;
+            }
+
             // create image and image view
             VulkanPBRMaterial& now_material = res.first->second; ///< Return the second item of the inserted data
 
             TextureDataToUpdate update_texture_data; ///< write data
-            update_texture_data.base_color_image_pixels = base_color_image_pixels;
-            update_texture_data.base_color_image_width  = base_color_image_width;
-            update_texture_data.base_color_image_height = base_color_image_height;
-            update_texture_data.base_color_image_format = base_color_image_format;
-            update_texture_data.now_material            = &now_material;
+            update_texture_data.base_color_image_pixels       = base_color_image_pixels;
+            update_texture_data.base_color_image_width        = base_color_image_width;
+            update_texture_data.base_color_image_height       = base_color_image_height;
+            update_texture_data.base_color_image_format       = base_color_image_format;
+            update_texture_data.normal_roughness_image_pixels = normal_roughness_image_pixels;
+            update_texture_data.normal_roughness_image_width  = normal_roughness_width;
+            update_texture_data.normal_roughness_image_height = normal_roughness_height;
+            update_texture_data.normal_roughness_image_format = normal_roughness_format;
+            update_texture_data.now_material                  = &now_material;
 
             updateTextureImageData(vulkan_api, update_texture_data);
 
@@ -223,7 +240,13 @@ namespace VKernel
             base_color_image_info.sampler =
                 vulkan_api->getOrCreateMipmapSampler(base_color_image_width, base_color_image_height);
 
-            VkWriteDescriptorSet mesh_descriptor_writes_info[1];
+            VkDescriptorImageInfo normal_roughness_image_info = {};
+            normal_roughness_image_info.imageLayout           = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+            normal_roughness_image_info.imageView             = now_material.normal_image_view;
+            normal_roughness_image_info.sampler =
+                vulkan_api->getOrCreateMipmapSampler(normal_roughness_width, normal_roughness_height);
+
+            VkWriteDescriptorSet mesh_descriptor_writes_info[2];
 
             mesh_descriptor_writes_info[0].sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
             mesh_descriptor_writes_info[0].pNext           = NULL;
@@ -234,7 +257,11 @@ namespace VKernel
             mesh_descriptor_writes_info[0].descriptorCount = 1;
             mesh_descriptor_writes_info[0].pImageInfo      = &base_color_image_info;
 
-            vkUpdateDescriptorSets(vulkan_api->getLogicDevice(), 1, mesh_descriptor_writes_info, 0, nullptr);
+            mesh_descriptor_writes_info[1]            = mesh_descriptor_writes_info[0]; ///< copy
+            mesh_descriptor_writes_info[1].dstBinding = 1;
+            mesh_descriptor_writes_info[1].pImageInfo = &normal_roughness_image_info;
+
+            vkUpdateDescriptorSets(vulkan_api->getLogicDevice(), 2, mesh_descriptor_writes_info, 0, nullptr);
         }
     }
 
@@ -456,5 +483,13 @@ namespace VKernel
                                       texture_data.base_color_image_height,
                                       texture_data.base_color_image_pixels,
                                       texture_data.base_color_image_format);
+
+        vulkan_api->createGlobalImage(texture_data.now_material->normal_texture_image,
+                                      texture_data.now_material->normal_image_view,
+                                      texture_data.now_material->normal_image_allocation,
+                                      texture_data.normal_roughness_image_width,
+                                      texture_data.normal_roughness_image_height,
+                                      texture_data.normal_roughness_image_pixels,
+                                      texture_data.normal_roughness_image_format);
     }
 } // namespace VKernel

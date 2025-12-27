@@ -99,13 +99,17 @@ namespace VKernel
     struct MaterialSourceDesc ///< Material file path
     {
         std::string m_base_color_file;
+        std::string m_normal_file;
 
-        bool operator==(const MaterialSourceDesc& rhs) const { return m_base_color_file == rhs.m_base_color_file; }
+        bool operator==(const MaterialSourceDesc& rhs) const
+        {
+            return m_base_color_file == rhs.m_base_color_file && m_normal_file == rhs.m_normal_file;
+        }
 
         size_t getHashValue() const
         {
             size_t hash = 0;
-            hash_combine(hash, m_base_color_file);
+            hash_combine(hash, m_base_color_file, m_normal_file);
             return hash;
         }
     };
@@ -113,6 +117,7 @@ namespace VKernel
     struct RenderMaterialData ///< Material data
     {
         std::shared_ptr<TextureData> m_base_color_texture;
+        std::shared_ptr<TextureData> m_normal_texture;
     };
 
 } // namespace VKernel
