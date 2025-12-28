@@ -18,6 +18,12 @@ namespace VKernel
         prepareDescriptorSet();
     }
 
+    void DebugDrawAllocator::tick()
+    {
+        flushPendingDelete();                                                             ///< deferred delete
+        m_current_frame = (m_current_frame + 1) % k_deferred_delete_resource_frame_count; ///< update frame index
+    }
+
     void DebugDrawAllocator::destory() { clear(); }
 
     void DebugDrawAllocator::clear()
@@ -37,29 +43,25 @@ namespace VKernel
         // clear buffer and memory
         if (m_indice_resource.buffer)
         {
-            // vkDestroyBuffer(m_vulkan_api->getLogicDevice(), m_indice_resource.buffer, nullptr);
-            // vkFreeMemory(m_vulkan_api->getLogicDevice(), m_indice_resource.memory, nullptr);
+            m_deffer_delete_queue[m_current_frame].push(m_indice_resource);
             m_indice_resource.buffer = nullptr;
             m_indice_resource.memory = nullptr;
         }
         if (m_uniform_resource.buffer)
         {
-            // vkDestroyBuffer(m_vulkan_api->getLogicDevice(), m_uniform_resource.buffer, nullptr);
-            // vkFreeMemory(m_vulkan_api->getLogicDevice(), m_uniform_resource.memory, nullptr);
+            m_deffer_delete_queue[m_current_frame].push(m_uniform_resource);
             m_uniform_resource.buffer = nullptr;
             m_uniform_resource.memory = nullptr;
         }
         if (m_uniform_dynamic_resource.buffer)
         {
-            // vkDestroyBuffer(m_vulkan_api->getLogicDevice(), m_uniform_dynamic_resource.buffer, nullptr);
-            // vkFreeMemory(m_vulkan_api->getLogicDevice(), m_uniform_dynamic_resource.memory, nullptr);
+            m_deffer_delete_queue[m_current_frame].push(m_uniform_dynamic_resource);
             m_uniform_dynamic_resource.buffer = nullptr;
             m_uniform_dynamic_resource.memory = nullptr;
         }
         if (m_vertex_resource.buffer)
         {
-            // vkDestroyBuffer(m_vulkan_api->getLogicDevice(), m_vertex_resource.buffer, nullptr);
-            // vkFreeMemory(m_vulkan_api->getLogicDevice(), m_vertex_resource.memory, nullptr);
+            m_deffer_delete_queue[m_current_frame].push(m_vertex_resource);
             m_vertex_resource.buffer = nullptr;
             m_vertex_resource.memory = nullptr;
         }
@@ -348,5 +350,29 @@ namespace VKernel
         descriptor_write[1].pTexelBufferView = nullptr;
 
         vkUpdateDescriptorSets(m_vulkan_api->getLogicDevice(), 2, descriptor_write, 0, nullptr);
+    }
+
+    void DebugDrawAllocator::flushPendingDelete()
+    {
+        // Calculate the indices of frames to be deleted
+        uint32_t current_frame_to_delete = (m_current_frame + 1) % k_deferred_delete_resource_frame_count;
+
+        // Iterate over each element of this frame
+        while (!m_deffer_delete_queue[current_frame_to_delete].empty())
+        {
+            // The first element
+            Resource resource_to_delete = m_deffer_delete_queue[current_frame_to_delete].front();
+            m_deffer_delete_queue[current_frame_to_delete].pop();
+
+            // If not empty
+            if (resource_to_delete.buffer == nullptr || resource_to_delete.memory == nullptr)
+            {
+                continue;
+            }
+
+            // destory memory
+            vkFreeMemory(m_vulkan_api->getLogicDevice(), resource_to_delete.memory, nullptr);
+            vkDestroyBuffer(m_vulkan_api->getLogicDevice(), resource_to_delete.buffer, nullptr);
+        }
     }
 } // namespace VKernel
