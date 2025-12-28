@@ -5,6 +5,7 @@
 #include <vk_mem_alloc.h>
 #include <vulkan/vulkan.h>
 
+#include <array>
 #include <vector>
 
 /**
@@ -76,7 +77,25 @@ namespace VKernel
                                       VkImage    image,
                                       uint32_t   width,
                                       uint32_t   height,
-                                      uint32_t   mip_levels); ///< create mipmap image
+                                      uint32_t   mip_levels); ///< Mipmaps of the image
+
+        static void generateTextureMipMaps(VulkanAPI* vulkan_api,
+                                           VkImage    image,
+                                           VkFormat   image_format,
+                                           uint32_t   texture_width,
+                                           uint32_t   texture_height,
+                                           uint32_t   layers,
+                                           uint32_t   miplevels); ///< Mipmaps of the cubemap
+
+        static void createCubeMap(VulkanAPI*           vulkan_api,
+                                  VkImage&             image,
+                                  VkImageView&         image_view,
+                                  VmaAllocation&       image_allocation,
+                                  uint32_t             texture_image_width,
+                                  uint32_t             texture_image_height,
+                                  std::array<void*, 6> texture_image_pixels,
+                                  VkFormat             texture_image_format,
+                                  uint32_t             miplevels);
 
         // transition
         static void transitionImageLayout(VulkanAPI*         vulkan_api,

@@ -78,6 +78,14 @@ namespace VKernel
                                        uint32_t           layout_count,
                                        uint32_t           miplevels,
                                        VkImageView&       image_view);
+        void           createCubeMap(VkImage&             image,
+                                     VkImageView&         image_view,
+                                     VmaAllocation&       image_allocation,
+                                     uint32_t             texture_image_width,
+                                     uint32_t             texture_image_height,
+                                     std::array<void*, 6> texture_image_pixels,
+                                     VkFormat             texture_image_format,
+                                     uint32_t             miplevels);
 
         // query(get)
         VkDevice           getLogicDevice() const;

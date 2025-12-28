@@ -399,7 +399,7 @@ namespace VKernel
             imageBlit.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
             imageBlit.srcSubresource.layerCount = 1;
             imageBlit.srcSubresource.mipLevel   = i - 1;
-            imageBlit.srcOffsets[1].x           = std::max((int32_t)(width >> (i - 1)), 1);
+            imageBlit.srcOffsets[1].x           = std::max((int32_t)(width >> (i - 1)), 1); ///< Division
             imageBlit.srcOffsets[1].y           = std::max((int32_t)(height >> (i - 1)), 1);
             imageBlit.srcOffsets[1].z           = 1;
 
@@ -498,6 +498,253 @@ namespace VKernel
 
         // end command buffer
         vulkan_api->endSingleTimeCommands(command_buffer);
+    }
+
+    void VulkanUtil::generateTextureMipMaps(VulkanAPI* vulkan_api,
+                                            VkImage    image,
+                                            VkFormat   image_format,
+                                            uint32_t   texture_width,
+                                            uint32_t   texture_height,
+                                            uint32_t   layers,
+                                            uint32_t   miplevels)
+    {
+        // Does it support linear blitting?
+        VkFormatProperties format_properties;
+        vkGetPhysicalDeviceFormatProperties(vulkan_api->getPhysicalDevice(), image_format, &format_properties);
+        if (!(format_properties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT))
+        {
+            throw std::runtime_error("generateTextureMipMaps() : linear bliting not supported!");
+            return;
+        }
+
+        // begin command buffer
+        VkCommandBuffer command_buffer = vulkan_api->beginSingleTimeCommands();
+
+        VkImageMemoryBarrier barrier {};
+        barrier.sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+        barrier.image                           = image;
+        barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+        barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+        barrier.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+        barrier.subresourceRange.baseArrayLayer = 0;
+        barrier.subresourceRange.layerCount     = layers;
+        barrier.subresourceRange.levelCount     = 1;
+
+        int32_t mipwidth  = texture_width;
+        int32_t mipheight = texture_height;
+
+        for (uint32_t i = 1; i < miplevels; i++) ///< Loop mipLevels - 1 times
+        {
+            // transition Image Layout (transfer dst -> transfer src)
+            barrier.subresourceRange.baseMipLevel = i - 1;
+            barrier.oldLayout                     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+            barrier.newLayout                     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+            barrier.srcAccessMask                 = VK_ACCESS_TRANSFER_WRITE_BIT;
+            barrier.dstAccessMask                 = VK_ACCESS_TRANSFER_READ_BIT;
+
+            vkCmdPipelineBarrier(command_buffer,
+                                 VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                 VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                 0,
+                                 0,
+                                 nullptr,
+                                 0,
+                                 nullptr,
+                                 1,
+                                 &barrier);
+
+            // Specify the Blit range and mipmap level
+            VkImageBlit blit {};
+            blit.srcOffsets[0]                 = {0, 0, 0};
+            blit.srcOffsets[1]                 = {mipwidth, mipheight, 1};
+            blit.srcSubresource.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+            blit.srcSubresource.mipLevel       = i - 1;
+            blit.srcSubresource.baseArrayLayer = 0;
+            blit.srcSubresource.layerCount     = layers; ///< Mipmaps need to be generated for all layers
+
+            blit.dstOffsets[0]             = {0, 0, 0};
+            blit.dstOffsets[1]             = {mipwidth > 1 ? mipwidth / 2 : 1, mipheight > 1 ? mipheight / 2 : 1, 1};
+            blit.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            blit.dstSubresource.mipLevel   = i;
+            blit.dstSubresource.baseArrayLayer = 0;
+            blit.dstSubresource.layerCount     = layers;
+
+            // Blit
+            vkCmdBlitImage(command_buffer,
+                           image,
+                           VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                           image,
+                           VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                           1,
+                           &blit,
+                           VK_FILTER_LINEAR);
+
+            // transition Image Layout (transfer src -> shader read)
+            barrier.oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+            barrier.newLayout     = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+            barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+            barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+            vkCmdPipelineBarrier(command_buffer,
+                                 VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                 VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                                 0,
+                                 0,
+                                 nullptr,
+                                 0,
+                                 nullptr,
+                                 1,
+                                 &barrier); // for completed miplevel, change to shader_read
+
+            // Calculate new width and height
+            if (mipwidth > 1)
+                mipwidth /= 2;
+            if (mipheight > 1)
+                mipheight /= 2;
+        }
+
+        // transition Image Layout (miplevels - 1: transfer src -> shader read)
+        barrier.subresourceRange.baseMipLevel = miplevels - 1;
+        barrier.oldLayout                     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        barrier.newLayout                     = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        barrier.srcAccessMask                 = VK_ACCESS_TRANSFER_WRITE_BIT;
+        barrier.dstAccessMask                 = VK_ACCESS_SHADER_READ_BIT;
+        vkCmdPipelineBarrier(command_buffer,
+                             VK_PIPELINE_STAGE_TRANSFER_BIT,
+                             VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                             0,
+                             0,
+                             nullptr,
+                             0,
+                             nullptr,
+                             1,
+                             &barrier);
+
+        // end command buffer
+        vulkan_api->endSingleTimeCommands(command_buffer);
+    }
+
+    void VulkanUtil::createCubeMap(VulkanAPI*           vulkan_api,
+                                   VkImage&             image,
+                                   VkImageView&         image_view,
+                                   VmaAllocation&       image_allocation,
+                                   uint32_t             texture_image_width,
+                                   uint32_t             texture_image_height,
+                                   std::array<void*, 6> texture_image_pixels,
+                                   VkFormat             texture_image_format,
+                                   uint32_t             miplevels)
+    {
+        // Calculate texture and cube byte size
+        VkDeviceSize texture_layer_byte_size;
+        VkDeviceSize cube_byte_size;
+        switch (texture_image_format)
+        {
+            case VkFormat::VK_FORMAT_R8G8B8_UNORM:
+                texture_layer_byte_size = texture_image_width * texture_image_height * 3;
+                break;
+            case VkFormat::VK_FORMAT_R8G8B8_SRGB:
+                texture_layer_byte_size = texture_image_width * texture_image_height * 3;
+                break;
+            case VkFormat::VK_FORMAT_R8G8B8A8_UNORM:
+                texture_layer_byte_size = texture_image_width * texture_image_height * 4;
+                break;
+            case VkFormat::VK_FORMAT_R8G8B8A8_SRGB:
+                texture_layer_byte_size = texture_image_width * texture_image_height * 4;
+                break;
+            case VkFormat::VK_FORMAT_R32G32_SFLOAT:
+                texture_layer_byte_size = texture_image_width * texture_image_height * 4 * 2;
+                break;
+            case VkFormat::VK_FORMAT_R32G32B32_SFLOAT:
+                texture_layer_byte_size = texture_image_width * texture_image_height * 4 * 3;
+                break;
+            case VkFormat::VK_FORMAT_R32G32B32A32_SFLOAT:
+                texture_layer_byte_size = texture_image_width * texture_image_height * 4 * 4;
+                break;
+            default:
+                texture_layer_byte_size = VkDeviceSize(-1);
+                throw std::runtime_error("invalid texture_layer_byte_size");
+                return;
+                break;
+        }
+        cube_byte_size = texture_layer_byte_size * 6;
+
+        // create cubemap texture image
+        VkImageCreateInfo image_create_info {};
+        image_create_info.sType         = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+        image_create_info.flags         = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
+        image_create_info.imageType     = VK_IMAGE_TYPE_2D;
+        image_create_info.extent.width  = static_cast<uint32_t>(texture_image_width);
+        image_create_info.extent.height = static_cast<uint32_t>(texture_image_height);
+        image_create_info.extent.depth  = 1;
+        image_create_info.mipLevels     = miplevels;
+        image_create_info.arrayLayers   = 6;
+        image_create_info.format        = texture_image_format;
+        image_create_info.tiling        = VK_IMAGE_TILING_OPTIMAL;
+        image_create_info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        image_create_info.usage =
+            VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+        image_create_info.samples     = VK_SAMPLE_COUNT_1_BIT;
+        image_create_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+        VmaAllocationCreateInfo allocInfo = {};
+        allocInfo.usage                   = VMA_MEMORY_USAGE_GPU_ONLY;
+
+        vmaCreateImage(vulkan_api->getVmaAllocator(), &image_create_info, &allocInfo, &image, &image_allocation, NULL);
+
+        // create staging buffer
+        VkBuffer       inefficient_staging_buffer;
+        VkDeviceMemory inefficient_staging_buffer_memory;
+        createBuffer(vulkan_api->getPhysicalDevice(),
+                     vulkan_api->getLogicDevice(),
+                     cube_byte_size,
+                     VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                     VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                     inefficient_staging_buffer,
+                     inefficient_staging_buffer_memory);
+
+        // write data to staging buffer
+        void* data = NULL;
+        vkMapMemory(vulkan_api->getLogicDevice(), inefficient_staging_buffer_memory, 0, cube_byte_size, 0, &data);
+        for (int i = 0; i < 6; i++)
+        {
+            memcpy((void*)(static_cast<char*>(data) + texture_layer_byte_size * i),
+                   texture_image_pixels[i],
+                   static_cast<size_t>(texture_layer_byte_size));
+        }
+        vkUnmapMemory(vulkan_api->getLogicDevice(), inefficient_staging_buffer_memory);
+
+        // image layout transitions -- image layout is set from none to destination
+        transitionImageLayout(vulkan_api,
+                              image,
+                              VK_IMAGE_LAYOUT_UNDEFINED,
+                              VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                              6,
+                              miplevels,
+                              VK_IMAGE_ASPECT_COLOR_BIT);
+
+        // copy from staging buffer to image
+        copyBufferToImage(vulkan_api,
+                          inefficient_staging_buffer,
+                          image,
+                          static_cast<uint32_t>(texture_image_width),
+                          static_cast<uint32_t>(texture_image_height),
+                          6);
+
+        // destory staging
+        vkDestroyBuffer(vulkan_api->getLogicDevice(), inefficient_staging_buffer, nullptr);
+        vkFreeMemory(vulkan_api->getLogicDevice(), inefficient_staging_buffer_memory, nullptr);
+
+        // generate mipmap
+        generateTextureMipMaps(
+            vulkan_api, image, texture_image_format, texture_image_width, texture_image_height, 6, miplevels);
+
+        // create image view
+        image_view = createImageView(vulkan_api->getLogicDevice(),
+                                     image,
+                                     texture_image_format,
+                                     VK_IMAGE_ASPECT_COLOR_BIT,
+                                     VK_IMAGE_VIEW_TYPE_CUBE,
+                                     6,
+                                     miplevels);
     }
 
     void VulkanUtil::transitionImageLayout(VulkanAPI*         vulkan_api,

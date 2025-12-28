@@ -29,14 +29,23 @@ namespace VKernel
         m_vulkan_api = std::make_shared<VulkanAPI>();
         m_vulkan_api->initialize(window_system);
 
-        // resource
-        m_render_resource = std::make_shared<RenderResource>();
-        m_render_resource->uploadGlobalRenderResource(m_vulkan_api);
-
         // global rendering resource
         GlobalRenderingRes global_rendering_res;
         const std::string& global_rendering_res_url = config_manager->getGlobalRenderingResUrl();
         asset_manager->loadAsset(global_rendering_res_url, global_rendering_res);
+
+        // resource
+        LevelResourceDesc level_resource_desc;
+        level_resource_desc.m_ibl_resource_desc.m_skybox_specular_map = {
+            "engine/asset/texture/sky/skybox_specular_X-.hdr",
+            "engine/asset/texture/sky/skybox_specular_X+.hdr",
+            "engine/asset/texture/sky/skybox_specular_Y-.hdr",
+            "engine/asset/texture/sky/skybox_specular_Y+.hdr",
+            "engine/asset/texture/sky/skybox_specular_Z-.hdr",
+            "engine/asset/texture/sky/skybox_specular_Z+.hdr"}; // TODO : Not serialized
+
+        m_render_resource = std::make_shared<RenderResource>();
+        m_render_resource->uploadGlobalRenderResource(m_vulkan_api, level_resource_desc);
 
         // camera
         const CameraPose& camera_pose = global_rendering_res.m_camera_config.m_pose;

@@ -5,7 +5,6 @@
 
 namespace VKernel
 {
-
     REFLECTION_TYPE(GlobalRenderingRes)
     CLASS(GlobalRenderingRes, Fields)
     {
@@ -14,4 +13,16 @@ namespace VKernel
     public:
         CameraConfig m_camera_config;
     };
+
+    class SkyBoxSpecularMap ///< skybox image path
+    {
+    public:
+        std::string m_negative_x_map;
+        std::string m_positive_x_map;
+        std::string m_negative_y_map;
+        std::string m_positive_y_map;
+        std::string m_negative_z_map;
+        std::string m_positive_z_map;
+    };
+
 } // namespace VKernel

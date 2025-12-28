@@ -15,6 +15,14 @@ namespace VKernel
     class RenderCamera;
     class RenderPassBase;
 
+    struct IBLResource
+    {
+        VkImage       _specular_texture_image;            ///< image
+        VkImageView   _specular_texture_image_view;       ///< image view
+        VkSampler     _specular_texture_sampler;          ///< sampler
+        VmaAllocation _specular_texture_image_allocation; ///< allocation
+    };
+
     struct StorageBuffer
     {
         uint32_t _min_storage_buffer_offset_alignment {256}; ///< alignment
@@ -34,6 +42,7 @@ namespace VKernel
 
     struct GlobalRenderResource
     {
+        IBLResource   _ibl_resource;
         StorageBuffer _storage_buffer;
     };
 
@@ -58,7 +67,8 @@ namespace VKernel
 
         // create buffer
         virtual void
-        uploadGlobalRenderResource(std::shared_ptr<VulkanAPI> vulkan_api) override final; ///<  Storage buffer
+        uploadGlobalRenderResource(std::shared_ptr<VulkanAPI> vulkan_api,
+                                   LevelResourceDesc          level_resource_desc) override final; ///<  Storage buffer
 
         virtual void
         uploadGameObjectRenderResource(std::shared_ptr<VulkanAPI> vulkan_api,
@@ -78,7 +88,7 @@ namespace VKernel
         VulkanPBRMaterial& getEntityMaterial(RenderEntity entity);
 
     private:
-        // create buffer
+        // create buffer and image
         void createAndMapStorageBuffer(std::shared_ptr<VulkanAPI> vulkan_api); ///< Storage buffer
 
         VulkanMesh& getOrCreateVulkanMesh(std::shared_ptr<VulkanAPI> vulkan_api,
@@ -110,5 +120,10 @@ namespace VKernel
 
         void updateTextureImageData(std::shared_ptr<VulkanAPI> vulkan_api,
                                     const TextureDataToUpdate& texture_data); ///< image view
+
+        // create sampler
+        void createIBLSamplers(std::shared_ptr<VulkanAPI> vulkan_api);
+        void createIBLTextures(std::shared_ptr<VulkanAPI>                  vulkan_api,
+                               std::array<std::shared_ptr<TextureData>, 6> specular_maps);
     };
 } // namespace VKernel

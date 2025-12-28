@@ -375,6 +375,26 @@ namespace VKernel
             m_device, image, format, image_aspect_flags, view_type, layout_count, miplevels);
     }
 
+    void VulkanAPI::createCubeMap(VkImage&             image,
+                                  VkImageView&         image_view,
+                                  VmaAllocation&       image_allocation,
+                                  uint32_t             texture_image_width,
+                                  uint32_t             texture_image_height,
+                                  std::array<void*, 6> texture_image_pixels,
+                                  VkFormat             texture_image_format,
+                                  uint32_t             miplevels)
+    {
+        VulkanUtil::createCubeMap(this,
+                                  image,
+                                  image_view,
+                                  image_allocation,
+                                  texture_image_width,
+                                  texture_image_height,
+                                  texture_image_pixels,
+                                  texture_image_format,
+                                  miplevels);
+    }
+
     void VulkanAPI::createSwapchain()
     {
         // query all supports of this physical device

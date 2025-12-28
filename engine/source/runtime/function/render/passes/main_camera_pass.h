@@ -22,12 +22,14 @@ namespace VKernel
         {
             _mesh_global = 0,   ///< MVP
             _mesh_per_material, ///< material texture
+            _skybox,            ///< skybox
             _layout_type_count
         };
 
         enum RenderPipeLineType : uint8_t ///< pipline type
         {
             _render_pipeline_type_mesh_lighting = 0, ///< forward render
+            _render_pipeline_type_skybox,            // skybox
             _render_pipeline_type_count
         };
 
@@ -56,7 +58,11 @@ namespace VKernel
         void setupDescriptorSet();
         void setupSwapchainFramebuffers(); ///< Framebuffer
 
+        void setupModelGlobalDescriptorSet(); ///< bind buffer and set
+        void setupSkyboxDescriptorSet();
+
         // draw
         void drawMeshLighting(); ///< forward render scene
+        void drawSkybox();
     };
 } // namespace VKernel

@@ -1,9 +1,11 @@
 #include "runtime/function/render/render_resource.h"
 
-#include "render_resource.h"
 #include "runtime/function/render/render_camera.h"
 #include "runtime/function/render/render_mesh.h"
 #include "runtime/function/render/render_scene.h"
+
+#include "render_resource.h"
+#include "runtime/resource/res_type/global/global_rendering.h"
 
 namespace VKernel
 {
@@ -28,10 +30,41 @@ namespace VKernel
         m_mesh_perframe_storage_buffer_object.scene_directional_light.color = render_scene->m_directional_light.m_color;
     }
 
-    void RenderResource::uploadGlobalRenderResource(std::shared_ptr<VulkanAPI> vulkan_api)
+    void RenderResource::uploadGlobalRenderResource(std::shared_ptr<VulkanAPI> vulkan_api,
+                                                    LevelResourceDesc          level_resource_desc)
     {
         // create and map global storage buffer
         createAndMapStorageBuffer(vulkan_api);
+
+        // load sky box specular
+        SkyBoxSpecularMap skybox_specular_map           = level_resource_desc.m_ibl_resource_desc.m_skybox_specular_map;
+        std::shared_ptr<TextureData> specular_pos_x_map = loadTextureHDR(skybox_specular_map.m_positive_x_map);
+        std::shared_ptr<TextureData> specular_neg_x_map = loadTextureHDR(skybox_specular_map.m_negative_x_map);
+        std::shared_ptr<TextureData> specular_pos_y_map = loadTextureHDR(skybox_specular_map.m_positive_y_map);
+        std::shared_ptr<TextureData> specular_neg_y_map = loadTextureHDR(skybox_specular_map.m_negative_y_map);
+        std::shared_ptr<TextureData> specular_pos_z_map = loadTextureHDR(skybox_specular_map.m_positive_z_map);
+        std::shared_ptr<TextureData> specular_neg_z_map = loadTextureHDR(skybox_specular_map.m_negative_z_map);
+
+        // create IBL samplers
+        createIBLSamplers(vulkan_api);
+
+        // create IBL image and image view
+        // std::array<std::shared_ptr<TextureData>, 6> cubemap_faces = {
+        //     specular_pos_x_map, // +X = 右
+        //     specular_neg_x_map, // -X = 左
+        //     specular_pos_y_map, // +Y = 下（注意：Vulkan Y轴向下！）
+        //     specular_neg_y_map, // -Y = 上
+        //     specular_pos_z_map, // +Z = 前（看向屏幕）
+        //     specular_neg_z_map  // -Z = 后
+        // };
+
+        std::array<std::shared_ptr<TextureData>, 6> specular_maps = {specular_pos_x_map,
+                                                                     specular_neg_x_map,
+                                                                     specular_pos_z_map,
+                                                                     specular_neg_z_map,
+                                                                     specular_pos_y_map,
+                                                                     specular_neg_y_map};
+        createIBLTextures(vulkan_api, specular_maps);
     }
 
     void RenderResource::uploadGameObjectRenderResource(std::shared_ptr<VulkanAPI> vulkan_api,
@@ -491,5 +524,70 @@ namespace VKernel
                                       texture_data.normal_roughness_image_height,
                                       texture_data.normal_roughness_image_pixels,
                                       texture_data.normal_roughness_image_format);
+    }
+
+    void RenderResource::createIBLSamplers(std::shared_ptr<VulkanAPI> vulkan_api)
+    {
+        VkPhysicalDeviceProperties physical_device_properties {};
+        vkGetPhysicalDeviceProperties(vulkan_api->getPhysicalDevice(), &physical_device_properties);
+
+        VkSamplerCreateInfo samplerInfo {};
+        samplerInfo.sType                   = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+        samplerInfo.magFilter               = VK_FILTER_LINEAR;
+        samplerInfo.minFilter               = VK_FILTER_LINEAR;
+        samplerInfo.addressModeU            = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+        samplerInfo.addressModeV            = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+        samplerInfo.addressModeW            = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+        samplerInfo.anisotropyEnable        = VK_TRUE;
+        samplerInfo.maxAnisotropy           = physical_device_properties.limits.maxSamplerAnisotropy;
+        samplerInfo.borderColor             = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+        samplerInfo.unnormalizedCoordinates = VK_FALSE;
+        samplerInfo.compareEnable           = VK_FALSE;
+        samplerInfo.compareOp               = VK_COMPARE_OP_ALWAYS;
+        samplerInfo.mipmapMode              = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+        samplerInfo.maxLod                  = 0.0f;
+
+        samplerInfo.minLod     = 0.0f;
+        samplerInfo.maxLod     = 8.0f;
+        samplerInfo.mipLodBias = 0.0f;
+
+        // specular texture sampler
+        if (m_global_render_resource._ibl_resource._specular_texture_sampler != VK_NULL_HANDLE)
+        {
+            vkDestroySampler(vulkan_api->getLogicDevice(),
+                             m_global_render_resource._ibl_resource._specular_texture_sampler,
+                             nullptr);
+        }
+
+        if (vkCreateSampler(vulkan_api->getLogicDevice(),
+                            &samplerInfo,
+                            nullptr,
+                            &m_global_render_resource._ibl_resource._specular_texture_sampler) != VK_SUCCESS)
+        {
+            throw std::runtime_error("vk create sampler");
+        }
+    }
+
+    void RenderResource::createIBLTextures(std::shared_ptr<VulkanAPI>                  vulkan_api,
+                                           std::array<std::shared_ptr<TextureData>, 6> specular_maps)
+    {
+        // calculate miplevel
+        uint32_t specular_cubemap_miplevels =
+            static_cast<uint32_t>(std::floor(log2(std::max(specular_maps[0]->m_width, specular_maps[0]->m_height)))) +
+            1;
+
+        vulkan_api->createCubeMap(m_global_render_resource._ibl_resource._specular_texture_image,
+                                  m_global_render_resource._ibl_resource._specular_texture_image_view,
+                                  m_global_render_resource._ibl_resource._specular_texture_image_allocation,
+                                  specular_maps[0]->m_width,
+                                  specular_maps[0]->m_height,
+                                  {specular_maps[0]->m_pixels,
+                                   specular_maps[1]->m_pixels,
+                                   specular_maps[2]->m_pixels,
+                                   specular_maps[3]->m_pixels,
+                                   specular_maps[4]->m_pixels,
+                                   specular_maps[5]->m_pixels},
+                                  specular_maps[0]->m_format,
+                                  specular_cubemap_miplevels);
     }
 } // namespace VKernel

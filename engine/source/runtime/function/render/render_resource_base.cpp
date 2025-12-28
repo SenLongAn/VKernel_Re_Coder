@@ -18,8 +18,10 @@ namespace VKernel
 {
     std::shared_ptr<TextureData> RenderResourceBase::loadTexture(std::string file, bool is_srgb)
     {
+        // Construct object
         std::shared_ptr<TextureData> texture = std::make_shared<TextureData>();
 
+        // load data
         int iw, ih, n;
         texture->m_pixels = stbi_load(file.c_str(), &iw, &ih, &n, 4);
 
@@ -29,6 +31,40 @@ namespace VKernel
         texture->m_width        = iw;
         texture->m_height       = ih;
         texture->m_format       = (is_srgb) ? VkFormat::VK_FORMAT_R8G8B8A8_SRGB : VkFormat::VK_FORMAT_R8G8B8A8_UNORM;
+        texture->m_depth        = 1;
+        texture->m_array_layers = 1;
+        texture->m_mip_levels   = 1;
+        texture->m_type         = IMAGE_TYPE::IMAGE_TYPE_2D;
+
+        return texture;
+    }
+
+    std::shared_ptr<TextureData> RenderResourceBase::loadTextureHDR(std::string file, int desired_channels)
+    {
+        // Construct object
+        std::shared_ptr<TextureData> texture = std::make_shared<TextureData>();
+
+        // load data
+        int iw, ih, n;
+        texture->m_pixels = stbi_loadf(file.c_str(), &iw, &ih, &n, desired_channels);
+
+        if (!texture->m_pixels)
+            return nullptr;
+
+        texture->m_width  = iw;
+        texture->m_height = ih;
+        switch (desired_channels) ///< three or four
+        {
+            case 2:
+                texture->m_format = VkFormat::VK_FORMAT_R32G32_SFLOAT;
+                break;
+            case 4:
+                texture->m_format = VkFormat::VK_FORMAT_R32G32B32A32_SFLOAT;
+                break;
+            default:
+                throw std::runtime_error("unsupported channels number");
+                break;
+        }
         texture->m_depth        = 1;
         texture->m_array_layers = 1;
         texture->m_mip_levels   = 1;
