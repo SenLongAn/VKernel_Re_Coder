@@ -12,6 +12,14 @@ struct DirectionalLight
     lowp float _padding_color;
 };
 
+struct PointLight
+{
+    vec3  position;
+    float radius;
+    vec3  intensity;
+    float _padding_intensity;
+};
+
 layout(set = 0, binding = 0) readonly buffer _skybox_per_frame
 {
     mat4             proj_view_matrix;
@@ -19,6 +27,11 @@ layout(set = 0, binding = 0) readonly buffer _skybox_per_frame
     float            _padding_camera_position;
     vec3             ambient_light;
     float            _padding_ambient_light;
+    uint             point_light_num;
+    uint             _padding_point_light_num_1;
+    uint             _padding_point_light_num_2;
+    uint             _padding_point_light_num_3;
+    PointLight       scene_point_lights[m_max_point_light_count];
     DirectionalLight scene_directional_light;
 };
 

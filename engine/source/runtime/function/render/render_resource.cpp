@@ -20,14 +20,30 @@ namespace VKernel
         Matrix4x4 proj_matrix      = camera->getPersProjMatrix();
         Matrix4x4 proj_view_matrix = proj_matrix * view_matrix;
         Vector3   ambient_light    = render_scene->m_ambient_light.m_irradiance;
+        uint32_t  point_light_num  = static_cast<uint32_t>(render_scene->m_point_light_list.m_lights.size());
 
         // set data
         m_mesh_perframe_storage_buffer_object.proj_view_matrix = proj_view_matrix;
         m_mesh_perframe_storage_buffer_object.camera_position  = camera_position;
-        m_mesh_perframe_storage_buffer_object.ambient_light    = ambient_light;
+
+        m_mesh_perframe_storage_buffer_object.ambient_light = ambient_light;
+
         m_mesh_perframe_storage_buffer_object.scene_directional_light.direction =
             render_scene->m_directional_light.m_direction.normalisedCopy();
         m_mesh_perframe_storage_buffer_object.scene_directional_light.color = render_scene->m_directional_light.m_color;
+
+        m_mesh_perframe_storage_buffer_object.point_light_num = point_light_num;
+        for (uint32_t i = 0; i < point_light_num; i++)
+        {
+            Vector3 point_light_position  = render_scene->m_point_light_list.m_lights[i].m_position;
+            Vector3 point_light_intensity = render_scene->m_point_light_list.m_lights[i].m_flux / (4.0f * Math_PI);
+
+            float radius = render_scene->m_point_light_list.m_lights[i].calculateRadius();
+
+            m_mesh_perframe_storage_buffer_object.scene_point_lights[i].position  = point_light_position;
+            m_mesh_perframe_storage_buffer_object.scene_point_lights[i].radius    = radius;
+            m_mesh_perframe_storage_buffer_object.scene_point_lights[i].intensity = point_light_intensity;
+        }
     }
 
     void RenderResource::uploadGlobalRenderResource(std::shared_ptr<VulkanAPI> vulkan_api,

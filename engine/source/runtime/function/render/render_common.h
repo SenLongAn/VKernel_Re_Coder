@@ -12,7 +12,9 @@
 namespace VKernel
 {
 
+    // max count
     static uint32_t const s_mesh_per_drawcall_max_instance_count = 64; ///< instance GO max count
+    static uint32_t const s_max_point_light_count                = 15;
 
     struct VulkanSceneDirectionalLight ///< Directional Light
     {
@@ -20,6 +22,14 @@ namespace VKernel
         float   _padding_direction; ///< Memory alignment
         Vector3 color;              ///< color
         float   _padding_color;
+    };
+
+    struct VulkanScenePointLight
+    {
+        Vector3 position;  ///< positino
+        float   radius;    ///< radius
+        Vector3 intensity; ///< intensity
+        float   _padding_intensity;
     };
 
     struct MeshPerframeStorageBufferObject ///< Read-only
@@ -31,6 +41,12 @@ namespace VKernel
 
         Vector3 ambient_light; ///< ambient light
         float   _padding_ambient_light;
+
+        uint32_t              point_light_num; ///< point num
+        uint32_t              _padding_point_light_num_1;
+        uint32_t              _padding_point_light_num_2;
+        uint32_t              _padding_point_light_num_3;
+        VulkanScenePointLight scene_point_lights[s_max_point_light_count]; ///< point lights
 
         VulkanSceneDirectionalLight scene_directional_light; ///< Directional Light
     };

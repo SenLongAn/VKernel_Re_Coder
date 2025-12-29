@@ -21,6 +21,7 @@ namespace VKernel
         // light
         AmbientLight      m_ambient_light;
         PDirectionalLight m_directional_light;
+        PointLightList    m_point_light_list;
 
         // visible objects
         std::vector<RenderMeshNode> m_main_camera_visible_mesh_nodes;
