@@ -17,6 +17,16 @@ namespace VKernel
 
     struct IBLResource
     {
+        VkImage       _brdfLUT_texture_image;
+        VkImageView   _brdfLUT_texture_image_view;
+        VkSampler     _brdfLUT_texture_sampler;
+        VmaAllocation _brdfLUT_texture_image_allocation;
+
+        VkImage       _irradiance_texture_image;
+        VkImageView   _irradiance_texture_image_view;
+        VkSampler     _irradiance_texture_sampler;
+        VmaAllocation _irradiance_texture_image_allocation;
+
         VkImage       _specular_texture_image;            ///< image
         VkImageView   _specular_texture_image_view;       ///< image view
         VkSampler     _specular_texture_sampler;          ///< sampler
@@ -124,6 +134,7 @@ namespace VKernel
         // create sampler
         void createIBLSamplers(std::shared_ptr<VulkanAPI> vulkan_api);
         void createIBLTextures(std::shared_ptr<VulkanAPI>                  vulkan_api,
+                               std::array<std::shared_ptr<TextureData>, 6> irradiance_maps,
                                std::array<std::shared_ptr<TextureData>, 6> specular_maps);
     };
 } // namespace VKernel

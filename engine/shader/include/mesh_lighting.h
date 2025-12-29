@@ -3,6 +3,7 @@
  */
 
 #define PI 3.1416
+#define MAX_REFLECTION_LOD 8.0
 
 //  Normal Distribution function --------------------------------------
 highp float D_GGX(highp float dotNH, highp float roughness)
@@ -29,6 +30,11 @@ highp float Pow5(highp float x) { return (x * x * x * x * x); }
 highp vec3 F_Schlick(highp float cosTheta, highp vec3 F0)
 {
     return F0 + (1.0 - F0) * Pow5(clamp(1.0 - cosTheta, 0.0, 1.0));
+}
+
+highp vec3 F_SchlickR(highp float cosTheta, highp vec3 F0, highp float roughness)
+{
+    return F0 + (max(vec3(1.0 - roughness, 1.0 - roughness, 1.0 - roughness), F0) - F0) * Pow5(1.0 - cosTheta);
 }
 
 // Rendering Equation --------------------------------------------

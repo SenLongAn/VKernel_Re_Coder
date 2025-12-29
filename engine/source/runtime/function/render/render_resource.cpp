@@ -52,7 +52,15 @@ namespace VKernel
         // create and map global storage buffer
         createAndMapStorageBuffer(vulkan_api);
 
-        // load sky box specular
+        // load texture
+        SkyBoxIrradianceMap skybox_irradiance_map = level_resource_desc.m_ibl_resource_desc.m_skybox_irradiance_map;
+        std::shared_ptr<TextureData> irradiace_pos_x_map = loadTextureHDR(skybox_irradiance_map.m_positive_x_map);
+        std::shared_ptr<TextureData> irradiace_neg_x_map = loadTextureHDR(skybox_irradiance_map.m_negative_x_map);
+        std::shared_ptr<TextureData> irradiace_pos_y_map = loadTextureHDR(skybox_irradiance_map.m_positive_y_map);
+        std::shared_ptr<TextureData> irradiace_neg_y_map = loadTextureHDR(skybox_irradiance_map.m_negative_y_map);
+        std::shared_ptr<TextureData> irradiace_pos_z_map = loadTextureHDR(skybox_irradiance_map.m_positive_z_map);
+        std::shared_ptr<TextureData> irradiace_neg_z_map = loadTextureHDR(skybox_irradiance_map.m_negative_z_map);
+
         SkyBoxSpecularMap skybox_specular_map           = level_resource_desc.m_ibl_resource_desc.m_skybox_specular_map;
         std::shared_ptr<TextureData> specular_pos_x_map = loadTextureHDR(skybox_specular_map.m_positive_x_map);
         std::shared_ptr<TextureData> specular_neg_x_map = loadTextureHDR(skybox_specular_map.m_negative_x_map);
@@ -61,26 +69,33 @@ namespace VKernel
         std::shared_ptr<TextureData> specular_pos_z_map = loadTextureHDR(skybox_specular_map.m_positive_z_map);
         std::shared_ptr<TextureData> specular_neg_z_map = loadTextureHDR(skybox_specular_map.m_negative_z_map);
 
-        // create IBL samplers
+        std::shared_ptr<TextureData> brdf_map = loadTextureHDR(level_resource_desc.m_ibl_resource_desc.m_brdf_map);
+
+        // create samplers
         createIBLSamplers(vulkan_api);
 
-        // create IBL image and image view
-        // std::array<std::shared_ptr<TextureData>, 6> cubemap_faces = {
-        //     specular_pos_x_map, // +X = 右
-        //     specular_neg_x_map, // -X = 左
-        //     specular_pos_y_map, // +Y = 下（注意：Vulkan Y轴向下！）
-        //     specular_neg_y_map, // -Y = 上
-        //     specular_pos_z_map, // +Z = 前（看向屏幕）
-        //     specular_neg_z_map  // -Z = 后
-        // };
+        // create image and image view
+        std::array<std::shared_ptr<TextureData>, 6> irradiance_maps = {irradiace_pos_x_map,
+                                                                       irradiace_neg_x_map,
+                                                                       irradiace_pos_z_map,
+                                                                       irradiace_neg_z_map,
+                                                                       irradiace_pos_y_map,
+                                                                       irradiace_neg_y_map};
+        std::array<std::shared_ptr<TextureData>, 6> specular_maps   = {specular_pos_x_map,
+                                                                       specular_neg_x_map,
+                                                                       specular_pos_z_map,
+                                                                       specular_neg_z_map,
+                                                                       specular_pos_y_map,
+                                                                       specular_neg_y_map};
+        createIBLTextures(vulkan_api, irradiance_maps, specular_maps);
 
-        std::array<std::shared_ptr<TextureData>, 6> specular_maps = {specular_pos_x_map,
-                                                                     specular_neg_x_map,
-                                                                     specular_pos_z_map,
-                                                                     specular_neg_z_map,
-                                                                     specular_pos_y_map,
-                                                                     specular_neg_y_map};
-        createIBLTextures(vulkan_api, specular_maps);
+        vulkan_api->createGlobalImage(m_global_render_resource._ibl_resource._brdfLUT_texture_image,
+                                      m_global_render_resource._ibl_resource._brdfLUT_texture_image_view,
+                                      m_global_render_resource._ibl_resource._brdfLUT_texture_image_allocation,
+                                      brdf_map->m_width,
+                                      brdf_map->m_height,
+                                      brdf_map->m_pixels,
+                                      brdf_map->m_format);
     }
 
     void RenderResource::uploadGameObjectRenderResource(std::shared_ptr<VulkanAPI> vulkan_api,
@@ -563,9 +578,40 @@ namespace VKernel
         samplerInfo.mipmapMode              = VK_SAMPLER_MIPMAP_MODE_LINEAR;
         samplerInfo.maxLod                  = 0.0f;
 
+        // brdfLUT texture sampler
+        if (m_global_render_resource._ibl_resource._brdfLUT_texture_sampler != VK_NULL_HANDLE)
+        {
+            vkDestroySampler(
+                vulkan_api->getLogicDevice(), m_global_render_resource._ibl_resource._brdfLUT_texture_sampler, nullptr);
+        }
+
+        if (vkCreateSampler(vulkan_api->getLogicDevice(),
+                            &samplerInfo,
+                            nullptr,
+                            &m_global_render_resource._ibl_resource._brdfLUT_texture_sampler) != VK_SUCCESS)
+        {
+            throw std::runtime_error("vk create sampler");
+        }
+
         samplerInfo.minLod     = 0.0f;
         samplerInfo.maxLod     = 8.0f;
         samplerInfo.mipLodBias = 0.0f;
+
+        // irradiance texture sampler
+        if (m_global_render_resource._ibl_resource._irradiance_texture_sampler != VK_NULL_HANDLE)
+        {
+            vkDestroySampler(vulkan_api->getLogicDevice(),
+                             m_global_render_resource._ibl_resource._irradiance_texture_sampler,
+                             nullptr);
+        }
+
+        if (vkCreateSampler(vulkan_api->getLogicDevice(),
+                            &samplerInfo,
+                            nullptr,
+                            &m_global_render_resource._ibl_resource._irradiance_texture_sampler) != VK_SUCCESS)
+        {
+            throw std::runtime_error("vk create sampler");
+        }
 
         // specular texture sampler
         if (m_global_render_resource._ibl_resource._specular_texture_sampler != VK_NULL_HANDLE)
@@ -585,9 +631,28 @@ namespace VKernel
     }
 
     void RenderResource::createIBLTextures(std::shared_ptr<VulkanAPI>                  vulkan_api,
+                                           std::array<std::shared_ptr<TextureData>, 6> irradiance_maps,
                                            std::array<std::shared_ptr<TextureData>, 6> specular_maps)
     {
         // calculate miplevel
+        uint32_t irradiance_cubemap_miplevels =
+            static_cast<uint32_t>(
+                std::floor(log2(std::max(irradiance_maps[0]->m_width, irradiance_maps[0]->m_height)))) +
+            1;
+        vulkan_api->createCubeMap(m_global_render_resource._ibl_resource._irradiance_texture_image,
+                                  m_global_render_resource._ibl_resource._irradiance_texture_image_view,
+                                  m_global_render_resource._ibl_resource._irradiance_texture_image_allocation,
+                                  irradiance_maps[0]->m_width,
+                                  irradiance_maps[0]->m_height,
+                                  {irradiance_maps[0]->m_pixels,
+                                   irradiance_maps[1]->m_pixels,
+                                   irradiance_maps[2]->m_pixels,
+                                   irradiance_maps[3]->m_pixels,
+                                   irradiance_maps[4]->m_pixels,
+                                   irradiance_maps[5]->m_pixels},
+                                  irradiance_maps[0]->m_format,
+                                  irradiance_cubemap_miplevels);
+
         uint32_t specular_cubemap_miplevels =
             static_cast<uint32_t>(std::floor(log2(std::max(specular_maps[0]->m_width, specular_maps[0]->m_height)))) +
             1;

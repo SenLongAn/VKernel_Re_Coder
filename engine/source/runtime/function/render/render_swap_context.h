@@ -34,7 +34,9 @@ namespace VKernel
 
     struct LevelIBLResourceDesc ///< ibl Environment Map
     {
-        SkyBoxSpecularMap m_skybox_specular_map;
+        SkyBoxIrradianceMap m_skybox_irradiance_map;
+        SkyBoxSpecularMap   m_skybox_specular_map;
+        std::string         m_brdf_map;
     };
 
     struct LevelResourceDesc ///< level

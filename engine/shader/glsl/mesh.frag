@@ -37,6 +37,10 @@ layout(set = 0, binding = 0) readonly buffer _unused_name_perframe
     DirectionalLight scene_directional_light;
 };
 
+layout(set = 0, binding = 2) uniform sampler2D brdfLUT_sampler;
+layout(set = 0, binding = 3) uniform samplerCube irradiance_sampler;
+layout(set = 0, binding = 4) uniform samplerCube specular_sampler;
+
 layout(set = 1, binding = 0) uniform sampler2D base_color_texture_sampler;
 layout(set = 1, binding = 1) uniform sampler2D normal_texture_sampler;
 
@@ -65,10 +69,12 @@ highp vec3 calculateNormal()
 
 void main()
 {
-    highp vec3 L           = normalize(scene_directional_light.direction);
-    highp vec3 N           = calculateNormal();
-    highp vec3 V           = normalize(camera_position - in_world_position);
-    highp vec3 objectColor = texture(base_color_texture_sampler, in_texcoord).xyz;
+    highp vec3  L           = normalize(scene_directional_light.direction);
+    highp vec3  N           = calculateNormal();
+    highp vec3  V           = normalize(camera_position - in_world_position);
+    highp vec3  objectColor = texture(base_color_texture_sampler, in_texcoord).xyz;
+    highp float metallic    = 0.99;
+    highp float roughness   = 0.0;
 
     highp vec3 result_color = vec3(0.0, 0.0, 0.0);
 

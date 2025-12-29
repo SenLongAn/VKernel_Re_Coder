@@ -35,14 +35,22 @@ namespace VKernel
         asset_manager->loadAsset(global_rendering_res_url, global_rendering_res);
 
         // resource
-        LevelResourceDesc level_resource_desc;
+        LevelResourceDesc level_resource_desc; // TODO : Not serialized
+        level_resource_desc.m_ibl_resource_desc.m_brdf_map              = "engine/asset/texture/global/brdf_schilk.hdr";
+        level_resource_desc.m_ibl_resource_desc.m_skybox_irradiance_map = {
+            "engine/asset/texture/sky/skybox_irradiance_X-.hdr",
+            "engine/asset/texture/sky/skybox_irradiance_X+.hdr",
+            "engine/asset/texture/sky/skybox_irradiance_Y-.hdr",
+            "engine/asset/texture/sky/skybox_irradiance_Y+.hdr",
+            "engine/asset/texture/sky/skybox_irradiance_Z-.hdr",
+            "engine/asset/texture/sky/skybox_irradiance_Z+.hdr"};
         level_resource_desc.m_ibl_resource_desc.m_skybox_specular_map = {
             "engine/asset/texture/sky/skybox_specular_X-.hdr",
             "engine/asset/texture/sky/skybox_specular_X+.hdr",
             "engine/asset/texture/sky/skybox_specular_Y-.hdr",
             "engine/asset/texture/sky/skybox_specular_Y+.hdr",
             "engine/asset/texture/sky/skybox_specular_Z-.hdr",
-            "engine/asset/texture/sky/skybox_specular_Z+.hdr"}; // TODO : Not serialized
+            "engine/asset/texture/sky/skybox_specular_Z+.hdr"};
 
         m_render_resource = std::make_shared<RenderResource>();
         m_render_resource->uploadGlobalRenderResource(m_vulkan_api, level_resource_desc);
