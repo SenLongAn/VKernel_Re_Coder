@@ -2,6 +2,8 @@
 
 namespace VKernel
 {
+    void RenderPassBase::postInitialize() {}
+
     void RenderPassBase::setCommonInfo(RenderPassCommonInfo common_info)
     {
         m_vulkan_api      = common_info.vulkan_api;

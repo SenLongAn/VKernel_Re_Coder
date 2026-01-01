@@ -24,6 +24,7 @@ namespace VKernel
         PointLightList    m_point_light_list;
 
         // visible objects
+        std::vector<RenderMeshNode> m_directional_light_visible_mesh_nodes;
         std::vector<RenderMeshNode> m_main_camera_visible_mesh_nodes;
 
         // render entities
@@ -38,6 +39,9 @@ namespace VKernel
         void setVisibleNodesReference();
 
     private:
+        // update Visible Object
+        void updateVisibleObjectsDirectionalLight(std::shared_ptr<RenderResource> render_resource,
+                                                  std::shared_ptr<RenderCamera>   camera);
         void updateVisibleObjectsMainCamera(std::shared_ptr<RenderResource> render_resource,
                                             std::shared_ptr<RenderCamera>   camera);
     };

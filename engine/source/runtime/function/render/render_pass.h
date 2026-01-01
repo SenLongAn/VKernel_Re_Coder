@@ -30,7 +30,8 @@ namespace VKernel
 
     struct VisiableNodes
     {
-        std::vector<RenderMeshNode>* p_main_camera_visible_mesh_nodes {nullptr};
+        std::vector<RenderMeshNode>* p_directional_light_visible_mesh_nodes {nullptr}; ///< directional light
+        std::vector<RenderMeshNode>* p_main_camera_visible_mesh_nodes {nullptr};       ///< main camera
     };
 
     class RenderPass : public RenderPassBase ///< attachment-related
@@ -75,7 +76,9 @@ namespace VKernel
         std::vector<Descriptor> m_descriptor_infos;
 
     public:
-        void                 initialize(const RenderPassInitInfo* init_info) override;
+        void initialize(const RenderPassInitInfo* init_info) override;
+        void postInitialize() override;
+
         virtual VkRenderPass getRenderPass() const;
 
         virtual void draw();

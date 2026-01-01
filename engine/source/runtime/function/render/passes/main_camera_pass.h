@@ -44,6 +44,9 @@ namespace VKernel
 
         void updateAfterFramebufferRecreate(); ///< recreate framebuffer
 
+        // shadow image view
+        VkImageView m_directional_light_shadow_color_image_view;
+
     private:
         std::vector<VkFramebuffer> m_swapchain_framebuffers; ///< frame buffer
 

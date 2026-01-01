@@ -196,21 +196,29 @@ namespace VKernel
             render_entity3.m_model_matrix =
                 Matrix4x4(Vector3(6.0, 0.0, 6.0), Vector3(0.2, 0.2, 0.2), Quaternion(Vector3(180.0, 0.0, 0.0)));
 
-            // load vertex and indice data
-            MeshSourceDesc mesh_source  = {"engine/asset/objects/environment/wall/components/mesh/wall.obj"};
-            RenderMeshData mesh_data    = m_render_resource->loadMeshData(mesh_source);
-            MeshSourceDesc mesh_source1 = {"engine/asset/objects/basic/Beretta_M92A1.obj"};
-            RenderMeshData mesh_data1   = m_render_resource->loadMeshData(mesh_source1);
-            MeshSourceDesc mesh_source2 = {"engine/asset/objects/basic/MAC-10.obj"};
-            RenderMeshData mesh_data2   = m_render_resource->loadMeshData(mesh_source2);
-            MeshSourceDesc mesh_source3 = {"engine/asset/objects/basic/G2A4_Rifle.obj"};
-            RenderMeshData mesh_data3   = m_render_resource->loadMeshData(mesh_source3);
+            RenderEntity render_entity4;
+            render_entity4.m_mesh_id           = 4;
+            render_entity4.m_material_asset_id = 0;
+            render_entity4.m_model_matrix =
+                Matrix4x4(Vector3(0.0, 0.5, 0.0), Vector3(1.0, 1.0, 1.0), Quaternion(Vector3(90.0, 0.0, 0.0)));
 
-            // load buffer and descriptor into the m_vulkan_meshes
+            // load vertex indice data, buffer and descriptor
+            MeshSourceDesc mesh_source  = {"engine/asset/objects/environment/wall/components/mesh/wall.obj"};
+            RenderMeshData mesh_data    = m_render_resource->loadMeshData(mesh_source, render_entity.m_bounding_box);
+            MeshSourceDesc mesh_source1 = {"engine/asset/objects/basic/Beretta_M92A1.obj"};
+            RenderMeshData mesh_data1   = m_render_resource->loadMeshData(mesh_source1, render_entity1.m_bounding_box);
+            MeshSourceDesc mesh_source2 = {"engine/asset/objects/basic/MAC-10.obj"};
+            RenderMeshData mesh_data2   = m_render_resource->loadMeshData(mesh_source2, render_entity2.m_bounding_box);
+            MeshSourceDesc mesh_source3 = {"engine/asset/objects/basic/G2A4_Rifle.obj"};
+            RenderMeshData mesh_data3   = m_render_resource->loadMeshData(mesh_source3, render_entity3.m_bounding_box);
+            MeshSourceDesc mesh_source4 = {"engine/asset/objects/environment/floor/components/mesh/floor.obj"};
+            RenderMeshData mesh_data4   = m_render_resource->loadMeshData(mesh_source4, render_entity4.m_bounding_box);
+
             m_render_resource->uploadGameObjectRenderResource(m_vulkan_api, render_entity, mesh_data);
             m_render_resource->uploadGameObjectRenderResource(m_vulkan_api, render_entity1, mesh_data1);
             m_render_resource->uploadGameObjectRenderResource(m_vulkan_api, render_entity2, mesh_data2);
             m_render_resource->uploadGameObjectRenderResource(m_vulkan_api, render_entity3, mesh_data3);
+            m_render_resource->uploadGameObjectRenderResource(m_vulkan_api, render_entity4, mesh_data4);
 
             // load material
             MaterialSourceDesc material_source  = {"engine/asset/objects/_textures/gold.tga",
@@ -237,6 +245,7 @@ namespace VKernel
             m_render_scene->m_render_entities.push_back(render_entity1);
             m_render_scene->m_render_entities.push_back(render_entity2);
             m_render_scene->m_render_entities.push_back(render_entity3);
+            m_render_scene->m_render_entities.push_back(render_entity4);
 
             // close
             is_mesh_loaded = true;

@@ -3,6 +3,7 @@
 #include "runtime/function/global/global_context.h"
 #include "runtime/function/render/debugdraw/debug_draw_manager.h"
 #include "runtime/function/render/passes/combine_ui_pass.h"
+#include "runtime/function/render/passes/directional_light_pass.h"
 #include "runtime/function/render/passes/main_camera_pass.h"
 #include "runtime/function/render/passes/ui_pass.h"
 
@@ -12,24 +13,35 @@ namespace VKernel
     void RenderPipeline::initialize(RenderPipelineInitInfo init_info)
     {
         // init point
-        m_main_camera_pass = std::make_shared<MainCameraPass>();
-        m_ui_pass          = std::make_shared<UIPass>();
-        m_combine_ui_pass  = std::make_shared<CombineUIPass>();
+        m_directional_light_pass = std::make_shared<DirectionalLightShadowPass>();
+        m_main_camera_pass       = std::make_shared<MainCameraPass>();
+        m_ui_pass                = std::make_shared<UIPass>();
+        m_combine_ui_pass        = std::make_shared<CombineUIPass>();
 
         // init info
         RenderPassCommonInfo pass_common_info;
         pass_common_info.vulkan_api      = m_vulkan_api;
         pass_common_info.render_resource = init_info.render_resource;
 
+        m_directional_light_pass->setCommonInfo(pass_common_info);
         m_main_camera_pass->setCommonInfo(pass_common_info);
         m_ui_pass->setCommonInfo(pass_common_info);
         m_combine_ui_pass->setCommonInfo(pass_common_info);
 
         // init
+        m_directional_light_pass->initialize(nullptr);
+
+        std::shared_ptr<MainCameraPass> main_camera_pass = std::static_pointer_cast<MainCameraPass>(m_main_camera_pass);
+
+        main_camera_pass->m_directional_light_shadow_color_image_view =
+            std::static_pointer_cast<RenderPass>(m_directional_light_pass)->m_framebuffer.attachments[0].view;
+
         std::shared_ptr<RenderPass> _main_camera_pass = std::static_pointer_cast<RenderPass>(m_main_camera_pass);
 
         MainCameraPassInitInfo main_camera_init_info;
         m_main_camera_pass->initialize(&main_camera_init_info);
+
+        m_directional_light_pass->postInitialize();
 
         UIPassInitInfo ui_init_info;
         ui_init_info.render_pass = _main_camera_pass->getRenderPass(); ///< get RenderPass from main camera pass
@@ -71,13 +83,16 @@ namespace VKernel
         }
 
         // begin render
+        static_cast<DirectionalLightShadowPass*>(m_directional_light_pass.get())
+            ->draw(); ///< directional light pass shadow
+
         UIPass&        ui_pass         = *(static_cast<UIPass*>(m_ui_pass.get()));
         CombineUIPass& combine_ui_pass = *(static_cast<CombineUIPass*>(m_combine_ui_pass.get()));
 
         static_cast<MainCameraPass*>(m_main_camera_pass.get())
-            ->drawForward(ui_pass, combine_ui_pass, vulkan_api->getCurrentSwapchainImageIndex());
+            ->drawForward(ui_pass, combine_ui_pass, vulkan_api->getCurrentSwapchainImageIndex()); ///< main camera
 
-        g_runtime_global_context.m_debugdraw_manager->draw(vulkan_api->getCurrentSwapchainImageIndex());
+        g_runtime_global_context.m_debugdraw_manager->draw(vulkan_api->getCurrentSwapchainImageIndex()); ///< debugdraw
 
         // end command buffer, submit and present
         vulkan_api->submitRendering(std::bind(&RenderPipeline::passUpdateAfterRecreateSwapchain, this));

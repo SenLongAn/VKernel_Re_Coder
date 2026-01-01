@@ -48,11 +48,39 @@ for (highp int light_index = 0; light_index < int(point_light_num) && light_inde
 };
 
 // directional light
-if (dot(N, L) > 0.0)
 {
-    Lo += BRDF(
-        scene_directional_light.direction, V, N, F0, objectColor, metallic, roughness, scene_directional_light.color);
+    highp vec3  L   = normalize(scene_directional_light.direction);
+    highp float NoL = min(dot(N, L), 1.0);
+
+    if (NoL > 0.0)
+    {
+        highp float shadow;
+        {
+            // world position -> uv
+            highp vec4 position_clip = directional_light_proj_view * vec4(in_world_position, 1.0);
+            highp vec3 position_ndc  = position_clip.xyz / position_clip.w;
+            highp vec2 uv            = ndcxy_to_uv(position_ndc.xy);
+
+            // compare
+            highp float closest_depth = texture(directional_light_shadow, uv).r + 0.0005;
+            highp float current_depth = position_ndc.z;
+            shadow                    = (closest_depth >= current_depth) ? 1.0f : -1.0f;
+        }
+
+        if (shadow > 0.0f) ///< If it's not a shadow, then calculate the color
+        {
+            Lo += BRDF(scene_directional_light.direction,
+                       V,
+                       N,
+                       F0,
+                       objectColor,
+                       metallic,
+                       roughness,
+                       scene_directional_light.color);
+        }
+    }
 }
 
 result_color = La + Lo + Libl;
+// result_color = Lo;
 result_color = filmic(result_color);

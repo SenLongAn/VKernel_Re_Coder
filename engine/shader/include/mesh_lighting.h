@@ -117,3 +117,6 @@ highp vec3 blinn_phong(highp vec3  L,
     color = (ambient + diffuse + specular) * objectColor;
     return color;
 }
+
+// ndc->uv --------------------------------------------
+highp vec2 ndcxy_to_uv(highp vec2 ndcxy) { return ndcxy * vec2(0.5, 0.5) + vec2(0.5, 0.5); }

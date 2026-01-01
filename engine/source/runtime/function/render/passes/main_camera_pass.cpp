@@ -312,7 +312,7 @@ namespace VKernel
 
         // _mesh_global
         {
-            VkDescriptorSetLayoutBinding mesh_global_layout_bindings[5];
+            VkDescriptorSetLayoutBinding mesh_global_layout_bindings[6];
 
             VkDescriptorSetLayoutBinding& mesh_global_layout_perframe_storage_buffer_binding =
                 mesh_global_layout_bindings[0];
@@ -348,6 +348,11 @@ namespace VKernel
             VkDescriptorSetLayoutBinding& mesh_global_layout_specular_texture_binding = mesh_global_layout_bindings[4];
             mesh_global_layout_specular_texture_binding         = mesh_global_layout_brdfLUT_texture_binding;
             mesh_global_layout_specular_texture_binding.binding = 4;
+
+            VkDescriptorSetLayoutBinding& mesh_global_layout_directional_light_shadow_texture_binding =
+                mesh_global_layout_bindings[5];
+            mesh_global_layout_directional_light_shadow_texture_binding = mesh_global_layout_brdfLUT_texture_binding;
+            mesh_global_layout_directional_light_shadow_texture_binding.binding = 5;
 
             VkDescriptorSetLayoutCreateInfo mesh_global_layout_create_info;
             mesh_global_layout_create_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
@@ -800,7 +805,7 @@ namespace VKernel
         // DescriptorSet bind buffer
         VkDescriptorBufferInfo mesh_perframe_storage_buffer_info = {};
         mesh_perframe_storage_buffer_info.offset                 = 0;
-        mesh_perframe_storage_buffer_info.range = sizeof(MeshPerframeStorageBufferObject); ///< shader struct
+        mesh_perframe_storage_buffer_info.range = sizeof(MeshPerframeStorageBufferObject); ///< PV, camera, light
         mesh_perframe_storage_buffer_info.buffer =
             m_global_render_resource->_storage_buffer._global_upload_ringbuffer; ///< buffer
         assert(mesh_perframe_storage_buffer_info.range <
@@ -808,29 +813,35 @@ namespace VKernel
 
         VkDescriptorBufferInfo mesh_perdrawcall_storage_buffer_info = {};
         mesh_perdrawcall_storage_buffer_info.offset                 = 0;
-        mesh_perdrawcall_storage_buffer_info.range                  = sizeof(MeshPerdrawcallStorageBufferObject);
+        mesh_perdrawcall_storage_buffer_info.range                  = sizeof(MeshPerdrawcallStorageBufferObject); ///< M
         mesh_perdrawcall_storage_buffer_info.buffer =
             m_global_render_resource->_storage_buffer._global_upload_ringbuffer;
         assert(mesh_perdrawcall_storage_buffer_info.range <
                m_global_render_resource->_storage_buffer._max_storage_buffer_range);
 
-        VkDescriptorImageInfo brdf_texture_image_info = {};
+        VkDescriptorImageInfo brdf_texture_image_info = {}; ///< brdf
         brdf_texture_image_info.sampler     = m_global_render_resource->_ibl_resource._brdfLUT_texture_sampler;
         brdf_texture_image_info.imageView   = m_global_render_resource->_ibl_resource._brdfLUT_texture_image_view;
         brdf_texture_image_info.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
-        VkDescriptorImageInfo irradiance_texture_image_info = {};
+        VkDescriptorImageInfo irradiance_texture_image_info = {}; ///< irradiance texture
         irradiance_texture_image_info.sampler = m_global_render_resource->_ibl_resource._irradiance_texture_sampler;
         irradiance_texture_image_info.imageView =
             m_global_render_resource->_ibl_resource._irradiance_texture_image_view;
         irradiance_texture_image_info.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
-        VkDescriptorImageInfo specular_texture_image_info {};
+        VkDescriptorImageInfo specular_texture_image_info {}; ///< specular texture
         specular_texture_image_info.sampler     = m_global_render_resource->_ibl_resource._specular_texture_sampler;
         specular_texture_image_info.imageView   = m_global_render_resource->_ibl_resource._specular_texture_image_view;
         specular_texture_image_info.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
-        VkWriteDescriptorSet mesh_descriptor_writes_info[5];
+        VkDescriptorImageInfo directional_light_shadow_texture_image_info {}; ///< directional light shadow
+        directional_light_shadow_texture_image_info.sampler =
+            m_vulkan_api->getOrCreateDefaultSampler(Default_Sampler_Nearest);
+        directional_light_shadow_texture_image_info.imageView   = m_directional_light_shadow_color_image_view;
+        directional_light_shadow_texture_image_info.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+        VkWriteDescriptorSet mesh_descriptor_writes_info[6];
 
         mesh_descriptor_writes_info[0].sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
         mesh_descriptor_writes_info[0].pNext           = NULL;
@@ -867,6 +878,10 @@ namespace VKernel
         mesh_descriptor_writes_info[4].dstBinding = 4;
         mesh_descriptor_writes_info[4].pImageInfo = &specular_texture_image_info;
 
+        mesh_descriptor_writes_info[5]            = mesh_descriptor_writes_info[2];
+        mesh_descriptor_writes_info[5].dstBinding = 5;
+        mesh_descriptor_writes_info[5].pImageInfo = &directional_light_shadow_texture_image_info;
+
         vkUpdateDescriptorSets(m_vulkan_api->getLogicDevice(),
                                sizeof(mesh_descriptor_writes_info) / sizeof(mesh_descriptor_writes_info[0]),
                                mesh_descriptor_writes_info,
@@ -892,14 +907,14 @@ namespace VKernel
         }
 
         // DescriptorSet bind buffer
-        VkDescriptorBufferInfo mesh_perframe_storage_buffer_info = {};
+        VkDescriptorBufferInfo mesh_perframe_storage_buffer_info = {}; ///< pv, camera, light
         mesh_perframe_storage_buffer_info.offset                 = 0;
         mesh_perframe_storage_buffer_info.range                  = sizeof(MeshPerframeStorageBufferObject);
         mesh_perframe_storage_buffer_info.buffer = m_global_render_resource->_storage_buffer._global_upload_ringbuffer;
         assert(mesh_perframe_storage_buffer_info.range <
                m_global_render_resource->_storage_buffer._max_storage_buffer_range);
 
-        VkDescriptorImageInfo specular_texture_image_info = {};
+        VkDescriptorImageInfo specular_texture_image_info = {}; ///< specular texture
         specular_texture_image_info.sampler     = m_global_render_resource->_ibl_resource._specular_texture_sampler;
         specular_texture_image_info.imageView   = m_global_render_resource->_ibl_resource._specular_texture_image_view;
         specular_texture_image_info.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -1081,6 +1096,7 @@ namespace VKernel
                                                 2,
                                                 dynamic_offsets);
 
+                        // drawcall
                         vkCmdDrawIndexed(m_vulkan_api->getCurrentCommandBuffer(),
                                          mesh.mesh_index_count,
                                          current_instance_count,

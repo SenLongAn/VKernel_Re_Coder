@@ -36,6 +36,8 @@ namespace VKernel
         void            submitRendering(std::function<void()> passUpdateAfterRecreateSwapchain);
         VkCommandBuffer beginSingleTimeCommands();
         void            endSingleTimeCommands(VkCommandBuffer command_buffer);
+        void            pushEvent(VkCommandBuffer commond_buffer, const char* name, const float* color);
+        void            popEvent(VkCommandBuffer commond_buffer);
 
         // create(call vulkanUtil)
         VkShaderModule createShaderModule(const std::vector<unsigned char>& shader_code);
@@ -179,6 +181,10 @@ namespace VKernel
 
         // depth
         VkFormat m_depth_image_format {VK_FORMAT_UNDEFINED};
+
+        // function pointers
+        PFN_vkCmdBeginDebugUtilsLabelEXT _vkCmdBeginDebugUtilsLabelEXT;
+        PFN_vkCmdEndDebugUtilsLabelEXT   _vkCmdEndDebugUtilsLabelEXT;
 
     private:
         // util function

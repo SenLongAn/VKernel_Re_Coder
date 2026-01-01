@@ -73,13 +73,13 @@ namespace VKernel
         return texture;
     }
 
-    RenderMeshData RenderResourceBase::loadMeshData(const MeshSourceDesc& source)
+    RenderMeshData RenderResourceBase::loadMeshData(const MeshSourceDesc& source, AxisAlignedBox& bounding_box)
     {
         RenderMeshData ret;
 
         if (std::filesystem::path(source.m_mesh_file).extension() == ".obj") ///< The file extension is .obj
         {
-            ret.m_static_mesh_data = loadStaticMesh(source.m_mesh_file);
+            ret.m_static_mesh_data = loadStaticMesh(source.m_mesh_file, bounding_box);
         }
 
         return ret;
@@ -88,12 +88,12 @@ namespace VKernel
     RenderMaterialData RenderResourceBase::loadMaterialData(const MaterialSourceDesc& source)
     {
         RenderMaterialData ret;
-        ret.m_base_color_texture = loadTexture(source.m_base_color_file, false);
+        ret.m_base_color_texture = loadTexture(source.m_base_color_file, true);
         ret.m_normal_texture     = loadTexture(source.m_normal_file);
         return ret;
     }
 
-    StaticMeshData RenderResourceBase::loadStaticMesh(std::string mesh_file)
+    StaticMeshData RenderResourceBase::loadStaticMesh(std::string mesh_file, AxisAlignedBox& bounding_box)
     {
         StaticMeshData mesh_data;
 
@@ -155,6 +155,9 @@ namespace VKernel
                     vertex[v].x = static_cast<float>(vx);
                     vertex[v].y = static_cast<float>(vy);
                     vertex[v].z = static_cast<float>(vz);
+
+                    // bounding box
+                    bounding_box.merge(Vector3(vertex[v].x, vertex[v].y, vertex[v].z));
 
                     // normal
                     if (idx.normal_index >= 0)

@@ -40,10 +40,10 @@ namespace VKernel
         // load data
         std::shared_ptr<TextureData> loadTexture(std::string file, bool is_srgb = false);        ///< texture
         std::shared_ptr<TextureData> loadTextureHDR(std::string file, int desired_channels = 4); ///< texture hdr
-        RenderMeshData               loadMeshData(const MeshSourceDesc& source);                 ///< mesh
-        RenderMaterialData           loadMaterialData(const MaterialSourceDesc& source);         ///< material
+        RenderMeshData               loadMeshData(const MeshSourceDesc& source, AxisAlignedBox& bounding_box); ///< mesh
+        RenderMaterialData           loadMaterialData(const MaterialSourceDesc& source); ///< material
 
     private:
-        StaticMeshData loadStaticMesh(std::string mesh_file); ///< mesh
+        StaticMeshData loadStaticMesh(std::string mesh_file, AxisAlignedBox& bounding_box); ///< mesh
     };
 } // namespace VKernel

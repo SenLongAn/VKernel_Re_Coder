@@ -11,11 +11,14 @@
  */
 namespace VKernel
 {
+    // size
+    static const uint32_t s_directional_light_shadow_map_dimension = 4096;
 
     // max count
     static uint32_t const s_mesh_per_drawcall_max_instance_count = 64; ///< instance GO max count
     static uint32_t const s_max_point_light_count                = 15;
 
+    // light
     struct VulkanSceneDirectionalLight ///< Directional Light
     {
         Vector3 direction;          ///< direction
@@ -49,11 +52,23 @@ namespace VKernel
         VulkanScenePointLight scene_point_lights[s_max_point_light_count]; ///< point lights
 
         VulkanSceneDirectionalLight scene_directional_light; ///< Directional Light
+        Matrix4x4                   directional_light_proj_view;
+    };
+
+    // MVP
+    struct MeshDirectionalLightShadowPerframeStorageBufferObject
+    {
+        Matrix4x4 light_proj_view;
     };
 
     struct VulkanMeshInstance ///< Instantiate the properties of each object
     {
         Matrix4x4 model_matrix; ///< M
+    };
+
+    struct MeshDirectionalLightShadowPerdrawcallStorageBufferObject
+    {
+        VulkanMeshInstance mesh_instances[s_mesh_per_drawcall_max_instance_count];
     };
 
     struct MeshPerdrawcallStorageBufferObject

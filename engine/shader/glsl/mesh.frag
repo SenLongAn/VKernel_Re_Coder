@@ -35,11 +35,13 @@ layout(set = 0, binding = 0) readonly buffer _unused_name_perframe
     uint             _padding_point_light_num_3;
     PointLight       scene_point_lights[m_max_point_light_count];
     DirectionalLight scene_directional_light;
+    highp mat4       directional_light_proj_view;
 };
 
 layout(set = 0, binding = 2) uniform sampler2D brdfLUT_sampler;
 layout(set = 0, binding = 3) uniform samplerCube irradiance_sampler;
 layout(set = 0, binding = 4) uniform samplerCube specular_sampler;
+layout(set = 0, binding = 5) uniform highp sampler2D directional_light_shadow;
 
 layout(set = 1, binding = 0) uniform sampler2D base_color_texture_sampler;
 layout(set = 1, binding = 1) uniform sampler2D normal_texture_sampler;
@@ -69,16 +71,16 @@ highp vec3 calculateNormal()
 
 void main()
 {
-    highp vec3  L           = normalize(scene_directional_light.direction);
     highp vec3  N           = calculateNormal();
     highp vec3  V           = normalize(camera_position - in_world_position);
     highp vec3  objectColor = texture(base_color_texture_sampler, in_texcoord).xyz;
-    highp float metallic    = 0.99;
-    highp float roughness   = 0.0;
+    highp float metallic    = 0.5;
+    highp float roughness   = 0.5;
 
     highp vec3 result_color = vec3(0.0, 0.0, 0.0);
 
 #include "mesh_lighting.inl"
 
+    result_color = vec3(pow(result_color.x, 1.0 / 2.2), pow(result_color.y, 1.0 / 2.2), pow(result_color.z, 1.0 / 2.2));
     out_scene_color = vec4(result_color, 1.0);
 }

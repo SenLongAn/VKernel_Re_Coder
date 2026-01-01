@@ -33,6 +33,7 @@ layout(set = 0, binding = 0) readonly buffer _skybox_per_frame
     uint             _padding_point_light_num_3;
     PointLight       scene_point_lights[m_max_point_light_count];
     DirectionalLight scene_directional_light;
+    highp mat4       directional_light_proj_view;
 };
 
 // out

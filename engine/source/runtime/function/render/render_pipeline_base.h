@@ -37,6 +37,7 @@ namespace VKernel
         std::shared_ptr<VulkanAPI> m_vulkan_api; ///< Vulkan interface
 
         // pass
+        std::shared_ptr<RenderPassBase> m_directional_light_pass;
         std::shared_ptr<RenderPassBase> m_main_camera_pass;
         std::shared_ptr<RenderPassBase> m_ui_pass;
         std::shared_ptr<RenderPassBase> m_combine_ui_pass;

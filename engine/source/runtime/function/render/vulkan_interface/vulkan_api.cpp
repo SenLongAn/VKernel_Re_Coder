@@ -204,6 +204,20 @@ namespace VKernel
         vkFreeCommandBuffers(m_device, m_api_command_pool, 1, &command_buffer);
     }
 
+    void VulkanAPI::pushEvent(VkCommandBuffer commond_buffer, const char* name, const float* color)
+    {
+
+        VkDebugUtilsLabelEXT label_info;
+        label_info.sType      = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT;
+        label_info.pNext      = nullptr;
+        label_info.pLabelName = name;
+        for (int i = 0; i < 4; ++i)
+            label_info.color[i] = color[i];
+        _vkCmdBeginDebugUtilsLabelEXT(commond_buffer, &label_info);
+    }
+
+    void VulkanAPI::popEvent(VkCommandBuffer commond_buffer) { _vkCmdEndDebugUtilsLabelEXT(commond_buffer); }
+
     VkShaderModule VulkanAPI::createShaderModule(const std::vector<unsigned char>& shader_code)
     {
         return VulkanUtil::createShaderModule(m_device, shader_code);
@@ -911,6 +925,11 @@ namespace VKernel
                 throw std::runtime_error("failed to set up debug messenger!");
             }
         }
+
+        _vkCmdBeginDebugUtilsLabelEXT =
+            (PFN_vkCmdBeginDebugUtilsLabelEXT)vkGetInstanceProcAddr(m_instance, "vkCmdBeginDebugUtilsLabelEXT");
+        _vkCmdEndDebugUtilsLabelEXT =
+            (PFN_vkCmdEndDebugUtilsLabelEXT)vkGetInstanceProcAddr(m_instance, "vkCmdEndDebugUtilsLabelEXT");
     }
 
     void VulkanAPI::createWindowSurface()

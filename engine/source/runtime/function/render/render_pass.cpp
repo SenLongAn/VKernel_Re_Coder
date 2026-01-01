@@ -13,6 +13,8 @@ namespace VKernel
             &(std::static_pointer_cast<RenderResource>(m_render_resource)->m_global_render_resource);
     }
 
+    void RenderPass::postInitialize() {}
+
     VkRenderPass RenderPass::getRenderPass() const { return m_framebuffer.render_pass; }
 
     void RenderPass::draw() {}
