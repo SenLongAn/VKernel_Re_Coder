@@ -32,6 +32,8 @@ namespace ReCoder
         bool m_scene_lights_window_open      = true;
         bool m_scene_lights_data_window_open = true;
 
+        bool m_on_game_window = false;
+
     private:
         // show editor window
         void showEditorUI();

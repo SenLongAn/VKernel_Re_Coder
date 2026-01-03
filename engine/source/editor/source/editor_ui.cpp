@@ -130,16 +130,15 @@ namespace ReCoder
         if (!*p_open)
             return;
 
-        // Set the window background color based on whether it is being dragged
-        static bool is_dragging;
-
-        if (is_dragging)
-        {
-            ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(1.0f, 0.0f, 0.0f, 0.2f));
-        }
-        else
+        // Set the window background color based on game window
+        if (m_on_game_window)
         {
             ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+        }
+
+        else
+        {
+            ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.002f, 0.0f, 0.0f, 1.0f));
         }
 
         // create window
@@ -150,12 +149,6 @@ namespace ReCoder
             ImGui::PopStyleColor();
             return;
         }
-
-        // Determine whether the current window is being dragged
-        ImGuiWindow* window = ImGui::GetCurrentWindow();
-        is_dragging         = (window->MoveId != 0) && ImGui::IsMouseDragging(0) &&
-                      ImGui::IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByPopup |
-                                             ImGuiHoveredFlags_AllowWhenBlockedByActiveItem);
 
         // render button
         ImGui::Button("Hello World!");
@@ -170,16 +163,29 @@ namespace ReCoder
         if (!*p_open)
             return;
 
+        // Set the window background color based on game window
+        if (m_on_game_window)
+        {
+            ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+        }
+
+        else
+        {
+            ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.002f, 0.0f, 0.0f, 1.0f));
+        }
+
         ImGuiWindowFlags window_flags = ImGuiWindowFlags_None;
         if (!ImGui::Begin("File Content", p_open, window_flags))
         {
             ImGui::End();
+            ImGui::PopStyleColor();
             return;
         }
 
         ImGui::Button("Hello World!");
 
         ImGui::End();
+        ImGui::PopStyleColor();
     }
 
     void EditorUI::showEditorGameWindow(bool* p_open)
@@ -196,6 +202,16 @@ namespace ReCoder
             return;
         }
         ImGui::Button("Hello World!");
+
+        //
+        if (ImGui::IsMouseClicked(0))
+        {
+            ImGuiWindow* window         = ImGui::GetCurrentWindow();
+            ImRect       title_bar_rect = window->TitleBarRect();
+
+            ImVec2 mouse_pos = ImGui::GetMousePos();
+            m_on_game_window = title_bar_rect.Contains(mouse_pos);
+        }
 
         // Calculate render area size
         VKernel::Vector2 render_target_window_pos  = {0.0f, 0.0f};
@@ -221,16 +237,30 @@ namespace ReCoder
         if (!*p_open)
             return;
 
+        // Set the window background color based on game window
+        if (m_on_game_window)
+        {
+            ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+        }
+
+        else
+        {
+            ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.002f, 0.0f, 0.0f, 1.0f));
+        }
+
         ImGuiWindowFlags window_flags = ImGuiWindowFlags_None;
         if (!ImGui::Begin("Components Details", p_open, window_flags))
         {
             ImGui::End();
+            ImGui::PopStyleColor();
             return;
         }
 
         ImGui::Button("Hello World!");
 
         ImGui::End();
+
+        ImGui::PopStyleColor();
     }
 
     void EditorUI::setUIColorStyle()
