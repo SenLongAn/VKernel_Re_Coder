@@ -92,7 +92,8 @@ namespace VKernel
         static_cast<MainCameraPass*>(m_main_camera_pass.get())
             ->drawForward(ui_pass, combine_ui_pass, vulkan_api->getCurrentSwapchainImageIndex()); ///< main camera
 
-        g_runtime_global_context.m_debugdraw_manager->draw(vulkan_api->getCurrentSwapchainImageIndex()); ///< debugdraw
+        // g_runtime_global_context.m_debugdraw_manager->draw(vulkan_api->getCurrentSwapchainImageIndex()); ///<
+        // debugdraw
 
         // end command buffer, submit and present
         vulkan_api->submitRendering(std::bind(&RenderPipeline::passUpdateAfterRecreateSwapchain, this));

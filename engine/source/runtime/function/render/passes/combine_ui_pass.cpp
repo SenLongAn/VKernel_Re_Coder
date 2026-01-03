@@ -285,8 +285,16 @@ namespace VKernel
 
         // set viewport and scissor
         SwapChainDesc swap_chain_desc = m_vulkan_api->getSwapchainInfo();
-        vkCmdSetViewport(m_vulkan_api->getCurrentCommandBuffer(), 0, 1, &swap_chain_desc.viewport);
-        vkCmdSetScissor(m_vulkan_api->getCurrentCommandBuffer(), 0, 1, &swap_chain_desc.scissor);
+        VkViewport    viewport        = {0.0,
+                                         0.0,
+                                         static_cast<float>(m_vulkan_api->getSwapchainInfo().extent.width),
+                                         static_cast<float>(m_vulkan_api->getSwapchainInfo().extent.height),
+                                         0.0,
+                                         1.0};
+        VkRect2D      scissor         = {
+            0, 0, m_vulkan_api->getSwapchainInfo().extent.width, m_vulkan_api->getSwapchainInfo().extent.height};
+        vkCmdSetViewport(m_vulkan_api->getCurrentCommandBuffer(), 0, 1, &viewport);
+        vkCmdSetScissor(m_vulkan_api->getCurrentCommandBuffer(), 0, 1, &scissor);
 
         // bind descriptor
         vkCmdBindDescriptorSets(m_vulkan_api->getCurrentCommandBuffer(),
