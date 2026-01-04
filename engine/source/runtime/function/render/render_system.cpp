@@ -35,22 +35,10 @@ namespace VKernel
         asset_manager->loadAsset(global_rendering_res_url, global_rendering_res);
 
         // resource
-        LevelResourceDesc level_resource_desc; // TODO : Not serialized
-        level_resource_desc.m_ibl_resource_desc.m_brdf_map              = "engine/asset/texture/global/brdf_schilk.hdr";
-        level_resource_desc.m_ibl_resource_desc.m_skybox_irradiance_map = {
-            "engine/asset/texture/sky/skybox_irradiance_X-.hdr",
-            "engine/asset/texture/sky/skybox_irradiance_X+.hdr",
-            "engine/asset/texture/sky/skybox_irradiance_Y-.hdr",
-            "engine/asset/texture/sky/skybox_irradiance_Y+.hdr",
-            "engine/asset/texture/sky/skybox_irradiance_Z-.hdr",
-            "engine/asset/texture/sky/skybox_irradiance_Z+.hdr"};
-        level_resource_desc.m_ibl_resource_desc.m_skybox_specular_map = {
-            "engine/asset/texture/sky/skybox_specular_X-.hdr",
-            "engine/asset/texture/sky/skybox_specular_X+.hdr",
-            "engine/asset/texture/sky/skybox_specular_Y-.hdr",
-            "engine/asset/texture/sky/skybox_specular_Y+.hdr",
-            "engine/asset/texture/sky/skybox_specular_Z-.hdr",
-            "engine/asset/texture/sky/skybox_specular_Z+.hdr"};
+        LevelResourceDesc level_resource_desc;
+        level_resource_desc.m_ibl_resource_desc.m_skybox_irradiance_map = global_rendering_res.m_skybox_irradiance_map;
+        level_resource_desc.m_ibl_resource_desc.m_skybox_specular_map   = global_rendering_res.m_skybox_specular_map;
+        level_resource_desc.m_ibl_resource_desc.m_brdf_map              = global_rendering_res.m_brdf_map;
 
         m_render_resource = std::make_shared<RenderResource>();
         m_render_resource->uploadGlobalRenderResource(m_vulkan_api, level_resource_desc);
@@ -67,10 +55,15 @@ namespace VKernel
         // setup render scene
         m_render_scene = std::make_shared<RenderScene>();
         m_render_scene->setVisibleNodesReference();
-        m_render_scene->m_directional_light.m_direction = Vector3(0.0, -1.0, -1.0); // TODO: Not serialized
-        m_render_scene->m_directional_light.m_color     = Vector3(10.0, 10.0, 10.0);
-        m_render_scene->m_ambient_light.m_irradiance    = Vector3(0.3, 0.3, 0.3);
-        m_render_scene->m_point_light_list.m_lights.push_back({Vector3(-6.0, -2.0, 4.0), Vector3(1000.0, 0.0, 0.0)});
+        m_render_scene->m_directional_light.m_direction =
+            global_rendering_res.m_directional_light.m_direction.normalisedCopy();
+        m_render_scene->m_directional_light.m_color  = global_rendering_res.m_directional_light.m_color.toVector3();
+        m_render_scene->m_ambient_light.m_irradiance = global_rendering_res.m_ambient_light.toVector3();
+        for (size_t i = 0; i < global_rendering_res.m_point_lights.size(); i++)
+        {
+            m_render_scene->m_point_light_list.m_lights.push_back(
+                {global_rendering_res.m_point_lights[i].m_position, global_rendering_res.m_point_lights[i].m_flux});
+        }
 
         // pipline
         RenderPipelineInitInfo pipeline_init_info;

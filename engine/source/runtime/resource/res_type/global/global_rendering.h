@@ -1,39 +1,76 @@
 #pragma once
 
+#include "runtime/core/color/color.h"
 #include "runtime/core/meta/reflection/reflection.h"
 #include "runtime/resource/res_type/data/camera_config.h"
 
+#include <vector>
 namespace VKernel
 {
+    REFLECTION_TYPE(SkyBoxIrradianceMap)
+    CLASS(SkyBoxIrradianceMap, Fields)
+    {
+        REFLECTION_BODY(SkyBoxIrradianceMap);
+
+    public:
+        std::string m_negative_x_map;
+        std::string m_positive_x_map;
+        std::string m_negative_y_map;
+        std::string m_positive_y_map;
+        std::string m_negative_z_map;
+        std::string m_positive_z_map;
+    };
+
+    REFLECTION_TYPE(SkyBoxSpecularMap)
+    CLASS(SkyBoxSpecularMap, Fields)
+    {
+        REFLECTION_BODY(SkyBoxSpecularMap);
+
+    public:
+        std::string m_negative_x_map;
+        std::string m_positive_x_map;
+        std::string m_negative_y_map;
+        std::string m_positive_y_map;
+        std::string m_negative_z_map;
+        std::string m_positive_z_map;
+    };
+
+    REFLECTION_TYPE(DirectionalLight)
+    CLASS(DirectionalLight, Fields)
+    {
+        REFLECTION_BODY(DirectionalLight);
+
+    public:
+        Vector3 m_direction;
+        Color   m_color;
+    };
+
+    REFLECTION_TYPE(PointLights)
+    CLASS(PointLights, Fields)
+    {
+        REFLECTION_BODY(PointLights);
+
+    public:
+        Vector3 m_position;
+        Vector3 m_flux;
+    };
+
     REFLECTION_TYPE(GlobalRenderingRes)
     CLASS(GlobalRenderingRes, Fields)
     {
         REFLECTION_BODY(GlobalRenderingRes);
 
     public:
+        SkyBoxIrradianceMap m_skybox_irradiance_map;
+        SkyBoxSpecularMap   m_skybox_specular_map;
+        std::string         m_brdf_map;
+
+        Color m_ambient_light;
+
         CameraConfig m_camera_config;
-    };
 
-    class SkyBoxIrradianceMap
-    {
-    public:
-        std::string m_negative_x_map;
-        std::string m_positive_x_map;
-        std::string m_negative_y_map;
-        std::string m_positive_y_map;
-        std::string m_negative_z_map;
-        std::string m_positive_z_map;
-    };
-
-    class SkyBoxSpecularMap ///< skybox image path
-    {
-    public:
-        std::string m_negative_x_map;
-        std::string m_positive_x_map;
-        std::string m_negative_y_map;
-        std::string m_positive_y_map;
-        std::string m_negative_z_map;
-        std::string m_positive_z_map;
+        DirectionalLight         m_directional_light;
+        std::vector<PointLights> m_point_lights;
     };
 
 } // namespace VKernel

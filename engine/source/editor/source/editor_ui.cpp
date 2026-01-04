@@ -2,6 +2,7 @@
 
 #include "editor/include/editor_global_context.h"
 
+#include "runtime/engine.h"
 #include "runtime/function/global/global_context.h"
 #include "runtime/function/render/render_system.h"
 #include "runtime/function/render/window_system.h"
@@ -25,6 +26,7 @@ namespace ReCoder
         io.ConfigDockingAlwaysTabBar         = true;      ///< Always show the title bar
         io.ConfigWindowsMoveFromTitleBarOnly = true;      ///< Window can only be dragged from the title bar
         io.IniFilename                       = nullptr;   ///< Do not save the layout
+        io.FontGlobalScale                   = 2.0f;
 
         // set color style
         setUIColorStyle();
@@ -94,14 +96,14 @@ namespace ReCoder
             // Window Dock Preset
             ImGuiID center = main_docking_id;
             ImGuiID left;
-            ImGuiID right = ImGui::DockBuilderSplitNode(center, ImGuiDir_Right, 0.25f, nullptr, &left);
+            ImGuiID right = ImGui::DockBuilderSplitNode(center, ImGuiDir_Right, 0.5f, nullptr, &left);
 
             ImGuiID left_other;
-            ImGuiID left_file_content = ImGui::DockBuilderSplitNode(left, ImGuiDir_Down, 0.30f, nullptr, &left_other);
+            ImGuiID left_file_content = ImGui::DockBuilderSplitNode(left, ImGuiDir_Down, 0.7f, nullptr, &left_other);
 
             ImGuiID left_game_engine;
             ImGuiID left_asset =
-                ImGui::DockBuilderSplitNode(left_other, ImGuiDir_Left, 0.30f, nullptr, &left_game_engine);
+                ImGui::DockBuilderSplitNode(left_other, ImGuiDir_Left, 0.9f, nullptr, &left_game_engine);
 
             ImGui::DockBuilderDockWindow("World Objects", left_asset);
             ImGui::DockBuilderDockWindow("Components Details", right);
@@ -117,6 +119,17 @@ namespace ReCoder
         // MenuBar
         if (ImGui::BeginMenuBar())
         {
+            if (ImGui::BeginMenu("Menu"))
+            {
+                if (ImGui::MenuItem("Exit"))
+                {
+                    g_editor_global_context.m_engine_runtime->shutdownEngine();
+                    exit(0);
+                }
+
+                ImGui::EndMenu();
+            }
+
             ImGui::EndMenuBar();
         }
 

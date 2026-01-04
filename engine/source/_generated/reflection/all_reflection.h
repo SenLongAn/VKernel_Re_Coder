@@ -4,10 +4,11 @@
 #include "_generated/reflection/quaternion.reflection.gen.h"
 #include "_generated/reflection/transform.reflection.gen.h"
 #include "_generated/reflection/vector3.reflection.gen.h"
-#include "_generated/reflection/vector4.reflection.gen.h"
-#include "_generated/reflection/axis_aligned.reflection.gen.h"
 #include "_generated/reflection/matrix4.reflection.gen.h"
 #include "_generated/reflection/vector2.reflection.gen.h"
+#include "_generated/reflection/color.reflection.gen.h"
+#include "_generated/reflection/vector4.reflection.gen.h"
+#include "_generated/reflection/axis_aligned.reflection.gen.h"
 #include "_generated/reflection/component.reflection.gen.h"
 #include "_generated/reflection/camera_component.reflection.gen.h"
 #include "_generated/reflection/camera_config.reflection.gen.h"
@@ -19,10 +20,11 @@ namespace Reflection{
         TypeWrappersRegister::Quaternion();
         TypeWrappersRegister::Transform();
         TypeWrappersRegister::Vector3();
-        TypeWrappersRegister::Vector4();
-        TypeWrappersRegister::AxisAligned();
         TypeWrappersRegister::Matrix4();
         TypeWrappersRegister::Vector2();
+        TypeWrappersRegister::Color();
+        TypeWrappersRegister::Vector4();
+        TypeWrappersRegister::AxisAligned();
         TypeWrappersRegister::Component();
         TypeWrappersRegister::CameraComponent();
         TypeWrappersRegister::CameraConfig();
