@@ -29,6 +29,8 @@ namespace VKernel
 
         const std::string& getLevelResUrl() const { return m_level_res_url; } ///< get level url
 
+        bool save(); ///< save
+
     protected:
         std::string m_level_res_url; ///< level url
 

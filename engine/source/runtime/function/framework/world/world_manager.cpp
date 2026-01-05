@@ -87,6 +87,19 @@ namespace VKernel
         m_current_active_level = iter->second;
     }
 
+    void WorldManager::saveCurrentLevel()
+    {
+        auto active_level = m_current_active_level.lock(); ///< cur active level
+
+        if (active_level == nullptr)
+        {
+            throw std::runtime_error("save level failed, no active level");
+            return;
+        }
+
+        active_level->save(); ///< save
+    }
+
     bool WorldManager::loadWorld(const std::string& world_url)
     {
         // load world

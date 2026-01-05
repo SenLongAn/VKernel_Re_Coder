@@ -130,6 +130,10 @@ namespace ReCoder
                     VKernel::g_runtime_global_context.m_render_system->clearForLevelReloading(); ///< clear and reset
                     g_editor_global_context.m_input_manager->resetCameraSpeed();
                 }
+                if (ImGui::MenuItem("Save Current Level"))
+                {
+                    VKernel::g_runtime_global_context.m_world_manager->saveCurrentLevel();
+                }
                 if (ImGui::MenuItem("Exit"))
                 {
                     g_editor_global_context.m_engine_runtime->shutdownEngine();

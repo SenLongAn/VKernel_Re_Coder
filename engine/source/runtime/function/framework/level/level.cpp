@@ -7,6 +7,7 @@
 #include "runtime/function/framework/object/object.h"
 #include "runtime/function/global/global_context.h"
 
+#include "level.h"
 #include <iostream>
 #include <limits>
 
@@ -68,6 +69,36 @@ namespace VKernel
         {
             throw std::runtime_error("oading object failed");
         }
+    }
+
+    bool Level::save()
+    {
+        // Data Struct
+        LevelRes                        output_level_res;
+        const size_t                    object_cout    = m_gobjects.size();
+        std::vector<ObjectInstanceRes>& output_objects = output_level_res.m_objects;
+        output_objects.resize(object_cout);
+
+        // Iterate over all objects in the level
+        size_t object_index = 0;
+        for (const auto& id_object_pair : m_gobjects)
+        {
+            if (id_object_pair.second)
+            {
+                id_object_pair.second->save(output_objects[object_index]); ///< obj save
+                ++object_index;
+            }
+        }
+
+        const bool is_save_success =
+            g_runtime_global_context.m_asset_manager->saveAsset(output_level_res, m_level_res_url); ///< Serialization
+
+        if (is_save_success == false)
+        {
+            throw std::runtime_error("failed to save");
+        }
+
+        return is_save_success;
     }
 
     void Level::clear() { m_gobjects.clear(); }

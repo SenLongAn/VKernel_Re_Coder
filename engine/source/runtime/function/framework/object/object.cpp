@@ -10,6 +10,7 @@
 #include <unordered_set>
 
 #include "_generated/serializer/all_serializer.h"
+#include "object.h"
 
 namespace VKernel
 {
@@ -24,6 +25,8 @@ namespace VKernel
 
     bool GObject::load(const ObjectInstanceRes& object_instance_res)
     {
+        setName(object_instance_res.m_name);
+
         // clear old components
         m_components.clear();
 
@@ -69,6 +72,13 @@ namespace VKernel
         {
             component->tick(delta_time);
         }
+    }
+
+    void GObject::save(ObjectInstanceRes& out_object_instance_res)
+    {
+        out_object_instance_res.m_name                 = m_name;
+        out_object_instance_res.m_definition           = m_definition_url;
+        out_object_instance_res.m_instanced_components = m_components;
     }
 
     bool GObject::hasComponent(const std::string& compenent_type_name) const

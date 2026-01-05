@@ -21,7 +21,8 @@ namespace VKernel
         void initialize();           ///< init
         void tick(float delta_time); ///< tick
 
-        void reloadCurrentLevel(); ///< reload level
+        void reloadCurrentLevel(); ///< reload current level
+        void saveCurrentLevel();   ///< save current level
 
     private:
         bool m_is_world_loaded {false}; ///< Has the world been loaded

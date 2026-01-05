@@ -18,9 +18,13 @@ namespace VKernel
     public:
         virtual ~GObject(); ///< Destructor
 
+        void setName(std::string name) { m_name = name; }
+
         bool load(const ObjectInstanceRes& object_instance_res); ///< load
 
         virtual void tick(float delta_time); ///< tick
+
+        void save(ObjectInstanceRes& out_object_instance_res); ///< save
 
         // Return if there is a specific component
         bool hasComponent(const std::string& compenent_type_name) const;
@@ -42,8 +46,10 @@ namespace VKernel
 #define tryGetComponent(COMPONENT_TYPE) tryGetComponent<COMPONENT_TYPE>(#COMPONENT_TYPE) ///< func call
 
     protected:
+        std::string m_name;
+
         std::string m_definition_url;
 
-        std::vector<Reflection::ReflectionPtr<Component>> m_components; ///< all component
+        std::vector<Reflection::ReflectionPtr<Component>> m_components; ///< component
     };
 } // namespace VKernel
