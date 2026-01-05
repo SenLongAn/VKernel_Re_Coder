@@ -1,17 +1,51 @@
 #pragma once
+#include "_generated/serializer/level.serializer.gen.h"
 #include "_generated/serializer/quaternion.serializer.gen.h"
 #include "_generated/serializer/transform.serializer.gen.h"
+#include "_generated/serializer/world.serializer.gen.h"
 #include "_generated/serializer/vector3.serializer.gen.h"
 #include "_generated/serializer/matrix4.serializer.gen.h"
 #include "_generated/serializer/vector2.serializer.gen.h"
 #include "_generated/serializer/color.serializer.gen.h"
+#include "_generated/serializer/object.serializer.gen.h"
 #include "_generated/serializer/vector4.serializer.gen.h"
 #include "_generated/serializer/axis_aligned.serializer.gen.h"
 #include "_generated/serializer/component.serializer.gen.h"
+#include "_generated/serializer/render_object.serializer.gen.h"
 #include "_generated/serializer/camera_component.serializer.gen.h"
+#include "_generated/serializer/mesh.serializer.gen.h"
+#include "_generated/serializer/mesh_component.serializer.gen.h"
 #include "_generated/serializer/camera_config.serializer.gen.h"
+#include "_generated/serializer/transform_component.serializer.gen.h"
+#include "_generated/serializer/material.serializer.gen.h"
 #include "_generated/serializer/global_rendering.serializer.gen.h"
 namespace VKernel{
+    template<>
+    Json Serializer::write(const LevelRes& instance){
+        Json::object  ret_context;
+        
+        Json::array m_objects_json;
+        for (auto& item : instance.m_objects){
+            m_objects_json.emplace_back(Serializer::write(item));
+        }
+        ret_context.insert_or_assign("objects",m_objects_json);
+        
+        return  Json(ret_context);
+    }
+    template<>
+    LevelRes& Serializer::read(const Json& json_context, LevelRes& instance){
+        assert(json_context.is_object());
+        
+        if(!json_context["objects"].is_null()){
+            assert(json_context["objects"].is_array());
+            Json::array array_m_objects = json_context["objects"].array_items();
+            instance.m_objects.resize(array_m_objects.size());
+            for (size_t index=0; index < array_m_objects.size();++index){
+                Serializer::read(array_m_objects[index], instance.m_objects[index]);
+            }
+        }
+        return instance;
+    }
     template<>
     Json Serializer::write(const Quaternion& instance){
         Json::object  ret_context;
@@ -46,7 +80,8 @@ namespace VKernel{
         
         ret_context.insert_or_assign("position", Serializer::write(instance.m_position));
         ret_context.insert_or_assign("scale", Serializer::write(instance.m_scale));
-        ret_context.insert_or_assign("rotation", Serializer::write(instance.m_rotation));
+        ret_context.insert_or_assign("euler_rotation", Serializer::write(instance.m_euler_rotation));
+        ret_context.insert_or_assign("is_serialization", Serializer::write(instance.m_is_serialization));
         return  Json(ret_context);
     }
     template<>
@@ -59,8 +94,45 @@ namespace VKernel{
         if(!json_context["scale"].is_null()){
             Serializer::read(json_context["scale"], instance.m_scale);
         }
-        if(!json_context["rotation"].is_null()){
-            Serializer::read(json_context["rotation"], instance.m_rotation);
+        if(!json_context["euler_rotation"].is_null()){
+            Serializer::read(json_context["euler_rotation"], instance.m_euler_rotation);
+        }
+        if(!json_context["is_serialization"].is_null()){
+            Serializer::read(json_context["is_serialization"], instance.m_is_serialization);
+        }
+        return instance;
+    }
+    template<>
+    Json Serializer::write(const WorldRes& instance){
+        Json::object  ret_context;
+        
+        ret_context.insert_or_assign("name", Serializer::write(instance.m_name));
+        Json::array m_level_urls_json;
+        for (auto& item : instance.m_level_urls){
+            m_level_urls_json.emplace_back(Serializer::write(item));
+        }
+        ret_context.insert_or_assign("level_urls",m_level_urls_json);
+        
+        ret_context.insert_or_assign("default_level_url", Serializer::write(instance.m_default_level_url));
+        return  Json(ret_context);
+    }
+    template<>
+    WorldRes& Serializer::read(const Json& json_context, WorldRes& instance){
+        assert(json_context.is_object());
+        
+        if(!json_context["name"].is_null()){
+            Serializer::read(json_context["name"], instance.m_name);
+        }
+        if(!json_context["level_urls"].is_null()){
+            assert(json_context["level_urls"].is_array());
+            Json::array array_m_level_urls = json_context["level_urls"].array_items();
+            instance.m_level_urls.resize(array_m_level_urls.size());
+            for (size_t index=0; index < array_m_level_urls.size();++index){
+                Serializer::read(array_m_level_urls[index], instance.m_level_urls[index]);
+            }
+        }
+        if(!json_context["default_level_url"].is_null()){
+            Serializer::read(json_context["default_level_url"], instance.m_default_level_url);
         }
         return instance;
     }
@@ -209,6 +281,86 @@ namespace VKernel{
         return instance;
     }
     template<>
+    Json Serializer::write(const ComponentDefinitionRes& instance){
+        Json::object  ret_context;
+        
+        ret_context.insert_or_assign("type_name", Serializer::write(instance.m_type_name));
+        ret_context.insert_or_assign("component", Serializer::write(instance.m_component));
+        return  Json(ret_context);
+    }
+    template<>
+    ComponentDefinitionRes& Serializer::read(const Json& json_context, ComponentDefinitionRes& instance){
+        assert(json_context.is_object());
+        
+        if(!json_context["type_name"].is_null()){
+            Serializer::read(json_context["type_name"], instance.m_type_name);
+        }
+        if(!json_context["component"].is_null()){
+            Serializer::read(json_context["component"], instance.m_component);
+        }
+        return instance;
+    }
+    template<>
+    Json Serializer::write(const ObjectDefinitionRes& instance){
+        Json::object  ret_context;
+        
+        Json::array m_components_json;
+        for (auto& item : instance.m_components){
+            m_components_json.emplace_back(Serializer::write(item));
+        }
+        ret_context.insert_or_assign("components",m_components_json);
+        
+        return  Json(ret_context);
+    }
+    template<>
+    ObjectDefinitionRes& Serializer::read(const Json& json_context, ObjectDefinitionRes& instance){
+        assert(json_context.is_object());
+        
+        if(!json_context["components"].is_null()){
+            assert(json_context["components"].is_array());
+            Json::array array_m_components = json_context["components"].array_items();
+            instance.m_components.resize(array_m_components.size());
+            for (size_t index=0; index < array_m_components.size();++index){
+                Serializer::read(array_m_components[index], instance.m_components[index]);
+            }
+        }
+        return instance;
+    }
+    template<>
+    Json Serializer::write(const ObjectInstanceRes& instance){
+        Json::object  ret_context;
+        
+        ret_context.insert_or_assign("name", Serializer::write(instance.m_name));
+        ret_context.insert_or_assign("definition", Serializer::write(instance.m_definition));
+        Json::array m_instanced_components_json;
+        for (auto& item : instance.m_instanced_components){
+            m_instanced_components_json.emplace_back(Serializer::write(item));
+        }
+        ret_context.insert_or_assign("instanced_components",m_instanced_components_json);
+        
+        return  Json(ret_context);
+    }
+    template<>
+    ObjectInstanceRes& Serializer::read(const Json& json_context, ObjectInstanceRes& instance){
+        assert(json_context.is_object());
+        
+        if(!json_context["name"].is_null()){
+            Serializer::read(json_context["name"], instance.m_name);
+        }
+        if(!json_context["definition"].is_null()){
+            Serializer::read(json_context["definition"], instance.m_definition);
+        }
+        if(!json_context["instanced_components"].is_null()){
+            assert(json_context["instanced_components"].is_array());
+            Json::array array_m_instanced_components = json_context["instanced_components"].array_items();
+            instance.m_instanced_components.resize(array_m_instanced_components.size());
+            for (size_t index=0; index < array_m_instanced_components.size();++index){
+                Serializer::read(array_m_instanced_components[index], instance.m_instanced_components[index]);
+            }
+        }
+        return instance;
+    }
+    template<>
     Json Serializer::write(const Vector4& instance){
         Json::object  ret_context;
         
@@ -279,6 +431,84 @@ namespace VKernel{
         return instance;
     }
     template<>
+    Json Serializer::write(const GameObjectMeshDesc& instance){
+        Json::object  ret_context;
+        
+        ret_context.insert_or_assign("mesh_file", Serializer::write(instance.m_mesh_file));
+        return  Json(ret_context);
+    }
+    template<>
+    GameObjectMeshDesc& Serializer::read(const Json& json_context, GameObjectMeshDesc& instance){
+        assert(json_context.is_object());
+        
+        if(!json_context["mesh_file"].is_null()){
+            Serializer::read(json_context["mesh_file"], instance.m_mesh_file);
+        }
+        return instance;
+    }
+    template<>
+    Json Serializer::write(const GameObjectMaterialDesc& instance){
+        Json::object  ret_context;
+        
+        ret_context.insert_or_assign("base_color_texture_file", Serializer::write(instance.m_base_color_texture_file));
+        ret_context.insert_or_assign("normal_texture_file", Serializer::write(instance.m_normal_texture_file));
+        ret_context.insert_or_assign("with_texture", Serializer::write(instance.m_with_texture));
+        return  Json(ret_context);
+    }
+    template<>
+    GameObjectMaterialDesc& Serializer::read(const Json& json_context, GameObjectMaterialDesc& instance){
+        assert(json_context.is_object());
+        
+        if(!json_context["base_color_texture_file"].is_null()){
+            Serializer::read(json_context["base_color_texture_file"], instance.m_base_color_texture_file);
+        }
+        if(!json_context["normal_texture_file"].is_null()){
+            Serializer::read(json_context["normal_texture_file"], instance.m_normal_texture_file);
+        }
+        if(!json_context["with_texture"].is_null()){
+            Serializer::read(json_context["with_texture"], instance.m_with_texture);
+        }
+        return instance;
+    }
+    template<>
+    Json Serializer::write(const GameObjectTransformDesc& instance){
+        Json::object  ret_context;
+        
+        
+        return  Json(ret_context);
+    }
+    template<>
+    GameObjectTransformDesc& Serializer::read(const Json& json_context, GameObjectTransformDesc& instance){
+        assert(json_context.is_object());
+        
+        
+        return instance;
+    }
+    template<>
+    Json Serializer::write(const GameObjectPartDesc& instance){
+        Json::object  ret_context;
+        
+        ret_context.insert_or_assign("mesh_desc", Serializer::write(instance.m_mesh_desc));
+        ret_context.insert_or_assign("material_desc", Serializer::write(instance.m_material_desc));
+        ret_context.insert_or_assign("transform_desc", Serializer::write(instance.m_transform_desc));
+        return  Json(ret_context);
+    }
+    template<>
+    GameObjectPartDesc& Serializer::read(const Json& json_context, GameObjectPartDesc& instance){
+        assert(json_context.is_object());
+        
+        if(!json_context["mesh_desc"].is_null()){
+            Serializer::read(json_context["mesh_desc"], instance.m_mesh_desc);
+        }
+        if(!json_context["material_desc"].is_null()){
+            Serializer::read(json_context["material_desc"], instance.m_material_desc);
+        }
+        if(!json_context["transform_desc"].is_null()){
+            Serializer::read(json_context["transform_desc"], instance.m_transform_desc);
+        }
+        return instance;
+    }
+    template<>
     Json Serializer::write(const CameraComponent& instance){
         Json::object  ret_context;
         auto&&  json_context_0 = Serializer::write(*(VKernel::Component*)&instance);
@@ -293,6 +523,75 @@ namespace VKernel{
         assert(json_context.is_object());
         Serializer::read(json_context,*(VKernel::Component*)&instance);
         
+        return instance;
+    }
+    template<>
+    Json Serializer::write(const SubMeshRes& instance){
+        Json::object  ret_context;
+        
+        ret_context.insert_or_assign("obj_file_ref", Serializer::write(instance.m_obj_file_ref));
+        ret_context.insert_or_assign("transform", Serializer::write(instance.m_transform));
+        ret_context.insert_or_assign("material", Serializer::write(instance.m_material));
+        return  Json(ret_context);
+    }
+    template<>
+    SubMeshRes& Serializer::read(const Json& json_context, SubMeshRes& instance){
+        assert(json_context.is_object());
+        
+        if(!json_context["obj_file_ref"].is_null()){
+            Serializer::read(json_context["obj_file_ref"], instance.m_obj_file_ref);
+        }
+        if(!json_context["transform"].is_null()){
+            Serializer::read(json_context["transform"], instance.m_transform);
+        }
+        if(!json_context["material"].is_null()){
+            Serializer::read(json_context["material"], instance.m_material);
+        }
+        return instance;
+    }
+    template<>
+    Json Serializer::write(const MeshComponentRes& instance){
+        Json::object  ret_context;
+        
+        Json::array m_sub_meshes_json;
+        for (auto& item : instance.m_sub_meshes){
+            m_sub_meshes_json.emplace_back(Serializer::write(item));
+        }
+        ret_context.insert_or_assign("sub_meshes",m_sub_meshes_json);
+        
+        return  Json(ret_context);
+    }
+    template<>
+    MeshComponentRes& Serializer::read(const Json& json_context, MeshComponentRes& instance){
+        assert(json_context.is_object());
+        
+        if(!json_context["sub_meshes"].is_null()){
+            assert(json_context["sub_meshes"].is_array());
+            Json::array array_m_sub_meshes = json_context["sub_meshes"].array_items();
+            instance.m_sub_meshes.resize(array_m_sub_meshes.size());
+            for (size_t index=0; index < array_m_sub_meshes.size();++index){
+                Serializer::read(array_m_sub_meshes[index], instance.m_sub_meshes[index]);
+            }
+        }
+        return instance;
+    }
+    template<>
+    Json Serializer::write(const MeshComponent& instance){
+        Json::object  ret_context;
+        auto&&  json_context_0 = Serializer::write(*(VKernel::Component*)&instance);
+        assert(json_context_0.is_object());
+        auto&& json_context_map_0 = json_context_0.object_items();
+        ret_context.insert(json_context_map_0.begin() , json_context_map_0.end());
+        ret_context.insert_or_assign("mesh_res", Serializer::write(instance.m_mesh_res));
+        return  Json(ret_context);
+    }
+    template<>
+    MeshComponent& Serializer::read(const Json& json_context, MeshComponent& instance){
+        assert(json_context.is_object());
+        Serializer::read(json_context,*(VKernel::Component*)&instance);
+        if(!json_context["mesh_res"].is_null()){
+            Serializer::read(json_context["mesh_res"], instance.m_mesh_res);
+        }
         return instance;
     }
     template<>
@@ -344,6 +643,45 @@ namespace VKernel{
         }
         if(!json_context["z_near"].is_null()){
             Serializer::read(json_context["z_near"], instance.m_z_near);
+        }
+        return instance;
+    }
+    template<>
+    Json Serializer::write(const TransformComponent& instance){
+        Json::object  ret_context;
+        auto&&  json_context_0 = Serializer::write(*(VKernel::Component*)&instance);
+        assert(json_context_0.is_object());
+        auto&& json_context_map_0 = json_context_0.object_items();
+        ret_context.insert(json_context_map_0.begin() , json_context_map_0.end());
+        ret_context.insert_or_assign("transform", Serializer::write(instance.m_transform));
+        return  Json(ret_context);
+    }
+    template<>
+    TransformComponent& Serializer::read(const Json& json_context, TransformComponent& instance){
+        assert(json_context.is_object());
+        Serializer::read(json_context,*(VKernel::Component*)&instance);
+        if(!json_context["transform"].is_null()){
+            Serializer::read(json_context["transform"], instance.m_transform);
+        }
+        return instance;
+    }
+    template<>
+    Json Serializer::write(const MaterialRes& instance){
+        Json::object  ret_context;
+        
+        ret_context.insert_or_assign("base_colour_texture_file", Serializer::write(instance.m_base_colour_texture_file));
+        ret_context.insert_or_assign("normal_texture_file", Serializer::write(instance.m_normal_texture_file));
+        return  Json(ret_context);
+    }
+    template<>
+    MaterialRes& Serializer::read(const Json& json_context, MaterialRes& instance){
+        assert(json_context.is_object());
+        
+        if(!json_context["base_colour_texture_file"].is_null()){
+            Serializer::read(json_context["base_colour_texture_file"], instance.m_base_colour_texture_file);
+        }
+        if(!json_context["normal_texture_file"].is_null()){
+            Serializer::read(json_context["normal_texture_file"], instance.m_normal_texture_file);
         }
         return instance;
     }

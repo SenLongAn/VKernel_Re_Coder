@@ -2,8 +2,10 @@
 
 #include "runtime/core/math/math_headers.h"
 
+#include "runtime/function/render/render_object.h"
 #include "runtime/resource/res_type/global/global_rendering.h"
 
+#include <deque>
 #include <optional>
 
 /**
@@ -20,9 +22,24 @@ namespace VKernel
         std::optional<Matrix4x4> m_view_matrix;
     };
 
+    struct GameObjectResourceDesc
+    {
+        std::deque<GameObjectDesc> m_game_object_descs;
+
+        void add(GameObjectDesc& desc); ///< add
+        void pop();                     ///< pop
+
+        bool isEmpty() const; ///< is empty
+
+        GameObjectDesc& getNextProcessObject(); ///< get front
+    };
+
     struct RenderSwapData ///< All the data required by the rendering module
     {
-        std::optional<CameraSwapData> m_camera_swap_data;
+        std::optional<CameraSwapData>         m_camera_swap_data;
+        std::optional<GameObjectResourceDesc> m_game_object_resource_desc;
+
+        void addDirtyGameObject(GameObjectDesc&& desc);
     };
 
     enum SwapDataType : uint8_t ///< logic or render
@@ -54,6 +71,7 @@ namespace VKernel
 
         // reset
         void resetCameraSwapData();
+        void resetGameObjectResourceSwapData();
 
         // swap
         void swapLogicRenderData();

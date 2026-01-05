@@ -11,6 +11,7 @@
 #include "runtime/function/render/render_scene.h"
 #include "runtime/function/render/vulkan_interface/vulkan_api.h"
 
+#include "render_system.h"
 #include "runtime/resource/asset_manager/asset_manager.h"
 #include "runtime/resource/config_manager/config_manager.h"
 
@@ -153,92 +154,74 @@ namespace VKernel
         m_render_camera->setAspect(width / height);
     }
 
+    void RenderSystem::clearForLevelReloading()
+    {
+        // clear scene
+        m_render_scene->clearForLevelReloading();
+
+        // reset camera
+        std::shared_ptr<ConfigManager> config_manager = g_runtime_global_context.m_config_manager;
+        std::shared_ptr<AssetManager>  asset_manager  = g_runtime_global_context.m_asset_manager;
+        GlobalRenderingRes             global_rendering_res;
+        const std::string&             global_rendering_res_url = config_manager->getGlobalRenderingResUrl();
+        asset_manager->loadAsset(global_rendering_res_url, global_rendering_res);
+        m_render_camera->resetData(global_rendering_res.m_camera_config);
+
+        is_mesh_loaded = false;
+    }
+
     void RenderSystem::processSwapData()
     {
         RenderSwapData& swap_data = m_swap_context.getRenderSwapData();
 
-        // update global resources if needed
-        // m_render_resource->uploadGlobalRenderResource(m_vulkan_api);
-
         // update game object if needed
-        static bool is_mesh_loaded = false;
+
         if (is_mesh_loaded == false)
         {
-            // create entity
-            RenderEntity render_entity;
-            render_entity.m_mesh_id           = 0; ///< id
-            render_entity.m_material_asset_id = 0; ///< id
-            render_entity.m_model_matrix =
-                Matrix4x4(Vector3(-6.0, 0.0, 5.0), Vector3(0.5, 0.5, 0.5), Quaternion(Vector3(90.0, 90.0, 0.0)));
+            if (swap_data.m_game_object_resource_desc.has_value())
+            {
+                while (!swap_data.m_game_object_resource_desc->isEmpty()) ///< Iterate over each object
+                {
+                    GameObjectDesc gobject =
+                        swap_data.m_game_object_resource_desc->getNextProcessObject(); ///< get current object
 
-            RenderEntity render_entity1;
-            render_entity1.m_mesh_id           = 1;
-            render_entity1.m_material_asset_id = 1;
-            render_entity1.m_model_matrix =
-                Matrix4x4(Vector3(-2.0, 0.0, 6.0), Vector3(0.02, 0.02, 0.02), Quaternion(Vector3(180.0, 89.0, 0.0)));
+                    for (size_t part_index = 0; part_index < gobject.getObjectParts().size();
+                         part_index++) ///< Iterate over each all submesh
+                    {
+                        const auto& game_object_part = gobject.getObjectParts()[part_index]; ///< get current submesh
+                        // create entity
+                        static uint8_t mesh_id     = 0;
+                        static uint8_t material_id = 0;
+                        RenderEntity   render_entity;
+                        render_entity.m_mesh_id           = mesh_id++;     ///< id
+                        render_entity.m_material_asset_id = material_id++; ///< id
+                        render_entity.m_model_matrix      = game_object_part.m_transform_desc.m_transform_matrix;
 
-            RenderEntity render_entity2;
-            render_entity2.m_mesh_id           = 2;
-            render_entity2.m_material_asset_id = 2;
-            render_entity2.m_model_matrix =
-                Matrix4x4(Vector3(2.0, 0.0, 6.0), Vector3(0.1, 0.1, 0.1), Quaternion(Vector3(0.0, -90.0, 180.0)));
+                        // load vertex indice data, buffer and descriptor
+                        MeshSourceDesc mesh_source = {game_object_part.m_mesh_desc.m_mesh_file};
+                        RenderMeshData mesh_data =
+                            m_render_resource->loadMeshData(mesh_source, render_entity.m_bounding_box);
 
-            RenderEntity render_entity3;
-            render_entity3.m_mesh_id           = 3;
-            render_entity3.m_material_asset_id = 3;
-            render_entity3.m_model_matrix =
-                Matrix4x4(Vector3(6.0, 0.0, 6.0), Vector3(0.2, 0.2, 0.2), Quaternion(Vector3(180.0, 0.0, 0.0)));
+                        m_render_resource->uploadGameObjectRenderResource(m_vulkan_api, render_entity, mesh_data);
 
-            RenderEntity render_entity4;
-            render_entity4.m_mesh_id           = 4;
-            render_entity4.m_material_asset_id = 0;
-            render_entity4.m_model_matrix =
-                Matrix4x4(Vector3(0.0, 0.5, 0.0), Vector3(1.0, 1.0, 1.0), Quaternion(Vector3(90.0, 0.0, 0.0)));
+                        // load material
+                        MaterialSourceDesc material_source;
+                        if (game_object_part.m_material_desc.m_with_texture)
+                        {
+                            material_source = {game_object_part.m_material_desc.m_base_color_texture_file,
+                                               game_object_part.m_material_desc.m_normal_texture_file};
+                        }
 
-            // load vertex indice data, buffer and descriptor
-            MeshSourceDesc mesh_source  = {"engine/asset/objects/environment/wall/components/mesh/wall.obj"};
-            RenderMeshData mesh_data    = m_render_resource->loadMeshData(mesh_source, render_entity.m_bounding_box);
-            MeshSourceDesc mesh_source1 = {"engine/asset/objects/basic/Beretta_M92A1.obj"};
-            RenderMeshData mesh_data1   = m_render_resource->loadMeshData(mesh_source1, render_entity1.m_bounding_box);
-            MeshSourceDesc mesh_source2 = {"engine/asset/objects/basic/MAC-10.obj"};
-            RenderMeshData mesh_data2   = m_render_resource->loadMeshData(mesh_source2, render_entity2.m_bounding_box);
-            MeshSourceDesc mesh_source3 = {"engine/asset/objects/basic/G2A4_Rifle.obj"};
-            RenderMeshData mesh_data3   = m_render_resource->loadMeshData(mesh_source3, render_entity3.m_bounding_box);
-            MeshSourceDesc mesh_source4 = {"engine/asset/objects/environment/floor/components/mesh/floor.obj"};
-            RenderMeshData mesh_data4   = m_render_resource->loadMeshData(mesh_source4, render_entity4.m_bounding_box);
+                        RenderMaterialData material_data = m_render_resource->loadMaterialData(material_source);
 
-            m_render_resource->uploadGameObjectRenderResource(m_vulkan_api, render_entity, mesh_data);
-            m_render_resource->uploadGameObjectRenderResource(m_vulkan_api, render_entity1, mesh_data1);
-            m_render_resource->uploadGameObjectRenderResource(m_vulkan_api, render_entity2, mesh_data2);
-            m_render_resource->uploadGameObjectRenderResource(m_vulkan_api, render_entity3, mesh_data3);
-            m_render_resource->uploadGameObjectRenderResource(m_vulkan_api, render_entity4, mesh_data4);
+                        m_render_resource->uploadGameObjectRenderResource(m_vulkan_api, render_entity, material_data);
 
-            // load material
-            MaterialSourceDesc material_source  = {"engine/asset/objects/_textures/gold.tga",
-                                                   "engine/asset/objects/_textures/n.tga"};
-            MaterialSourceDesc material_source1 = {"engine/asset/objects/_textures/Beretta_M92A1_c.jpg",
-                                                   "engine/asset/objects/_textures/Beretta_M92A1_n.jpg"};
-            MaterialSourceDesc material_source2 = {"engine/asset/objects/_textures/MAC-10_c.jpg",
-                                                   "engine/asset/objects/_textures/MAC-10_n.jpg"};
-            MaterialSourceDesc material_source3 = {"engine/asset/objects/_textures/G2A4_Rifle_c.jpg",
-                                                   "engine/asset/objects/_textures/G2A4_Rifle_n.jpg"};
+                        m_render_scene->m_render_entities.push_back(render_entity);
 
-            RenderMaterialData material_data  = m_render_resource->loadMaterialData(material_source);
-            RenderMaterialData material_data1 = m_render_resource->loadMaterialData(material_source1);
-            RenderMaterialData material_data2 = m_render_resource->loadMaterialData(material_source2);
-            RenderMaterialData material_data3 = m_render_resource->loadMaterialData(material_source3);
-
-            m_render_resource->uploadGameObjectRenderResource(m_vulkan_api, render_entity, material_data);
-            m_render_resource->uploadGameObjectRenderResource(m_vulkan_api, render_entity1, material_data1);
-            m_render_resource->uploadGameObjectRenderResource(m_vulkan_api, render_entity2, material_data2);
-            m_render_resource->uploadGameObjectRenderResource(m_vulkan_api, render_entity3, material_data3);
-
-            // push entity into the render scene
-            m_render_scene->m_render_entities.push_back(render_entity);
-            m_render_scene->m_render_entities.push_back(render_entity1);
-            m_render_scene->m_render_entities.push_back(render_entity2);
-            m_render_scene->m_render_entities.push_back(render_entity3);
-            m_render_scene->m_render_entities.push_back(render_entity4);
+                        swap_data.m_game_object_resource_desc->pop(); ///< pop
+                    }
+                }
+            }
 
             // close
             is_mesh_loaded = true;
@@ -251,9 +234,6 @@ namespace VKernel
             {
                 m_render_camera->setFOVx(*swap_data.m_camera_swap_data->m_fov_x);
             }
-
-            // m_render_camera->setAspect(m_vulkan_api->getSwapchainInfo().viewport.width /
-            //                            m_vulkan_api->getSwapchainInfo().viewport.height);
 
             m_swap_context.resetCameraSwapData();
         }

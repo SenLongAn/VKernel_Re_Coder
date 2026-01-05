@@ -47,13 +47,14 @@ namespace VKernel
 #define UNREGISTER_ALL TypeMetaRegisterinterface::unregisterAll(); ///< Unregister
 
 // ReflectionPtr: Create, clean, copy
-#define VKERNEL_REFLECTION_NEW(name, ...) Reflection::ReflectionPtr(#name, new name(__VA_ARGS__));
+#define VKERNEL_REFLECTION_NEW(name, ...) \
+    Reflection::ReflectionPtr(#name, new name(__VA_ARGS__)); ///< create ReflectionPtr
 #define VKERNEL_REFLECTION_DELETE(value) \
     if (value) \
     { \
         delete value.operator->(); \
         value.getPtrReference() = nullptr; \
-    }
+    } ///< Clear the memory pointed to by the pointer and set the pointer to null
 #define VKERNEL_REFLECTION_DEEP_COPY(type, dst_ptr, src_ptr) \
     *static_cast<type*>(dst_ptr) = *static_cast<type*>(src_ptr.getPtr());
 

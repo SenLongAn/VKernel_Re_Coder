@@ -1,24 +1,85 @@
 #include "runtime/function/framework/object/object.h"
 
-#include "runtime/function/framework/component/camera/camera_component.h"
+#include "runtime/resource/asset_manager/asset_manager.h"
+
+#include "runtime/function/framework/component/component.h"
+#include "runtime/function/framework/component/transform/transform_component.h"
+#include "runtime/function/global/global_context.h"
+
+#include <cassert>
+#include <unordered_set>
+
+#include "_generated/serializer/all_serializer.h"
 
 namespace VKernel
 {
     GObject::~GObject()
     {
-        m_loaded_component.reset();
+        for (auto& component : m_components)
+        {
+            VKERNEL_REFLECTION_DELETE(component);
+        }
+        m_components.clear();
     }
 
-    bool GObject::load()
+    bool GObject::load(const ObjectInstanceRes& object_instance_res)
     {
-        m_loaded_component = std::make_shared<CameraComponent>();
-        m_loaded_component->postLoadResource(weak_from_this());
-        
+        // clear old components
+        m_components.clear();
+
+        // load object instanced components,
+        m_components = object_instance_res.m_instanced_components;
+        for (auto component : m_components) ///< Iteration
+        {
+            if (component)
+            {
+                component->postLoadResource(weak_from_this());
+            }
+        }
+
+        // load object definition components
+        m_definition_url = object_instance_res.m_definition;
+
+        ObjectDefinitionRes definition_res;
+        const bool          is_loaded_success =
+            g_runtime_global_context.m_asset_manager->loadAsset(m_definition_url, definition_res); ///< load data
+        if (!is_loaded_success)
+            return false;
+
+        for (auto loaded_component : definition_res.m_components) //< Iteration
+        {
+            // If it already exists, do not create it again
+            const std::string type_name = loaded_component.getTypeName();
+            if (hasComponent(type_name))
+                continue;
+
+            // load component
+            loaded_component->postLoadResource(weak_from_this());
+
+            // push back
+            m_components.push_back(loaded_component);
+        }
+
         return true;
     }
 
     void GObject::tick(float delta_time)
     {
-        m_loaded_component->tick(delta_time);
+        for (auto& component : m_components) ///< Iteration
+        {
+            component->tick(delta_time);
+        }
     }
-}
+
+    bool GObject::hasComponent(const std::string& compenent_type_name) const
+    {
+        for (const auto& component : m_components)
+        {
+            if (component.getTypeName() == compenent_type_name)
+                return true;
+        }
+
+        return false;
+    }
+
+} // namespace VKernel

@@ -1,5 +1,8 @@
 #pragma once
 
+#include "runtime/function/framework/component/component.h"
+#include "runtime/resource/res_type/common/object.h"
+
 #include <memory>
 
 /**
@@ -15,11 +18,32 @@ namespace VKernel
     public:
         virtual ~GObject(); ///< Destructor
 
-        bool load(); ///< load
+        bool load(const ObjectInstanceRes& object_instance_res); ///< load
 
         virtual void tick(float delta_time); ///< tick
 
+        // Return if there is a specific component
+        bool hasComponent(const std::string& compenent_type_name) const;
+
+        template<typename TComponent>
+        TComponent* tryGetComponent(const std::string& compenent_type_name)
+        {
+            for (auto& component : m_components)
+            {
+                if (component.getTypeName() == compenent_type_name)
+                {
+                    return static_cast<TComponent*>(component.operator->());
+                }
+            }
+
+            return nullptr;
+        }
+
+#define tryGetComponent(COMPONENT_TYPE) tryGetComponent<COMPONENT_TYPE>(#COMPONENT_TYPE) ///< func call
+
     protected:
-        std::shared_ptr<Component> m_loaded_component; ///< all loaded component
+        std::string m_definition_url;
+
+        std::vector<Reflection::ReflectionPtr<Component>> m_components; ///< all component
     };
-}
+} // namespace VKernel

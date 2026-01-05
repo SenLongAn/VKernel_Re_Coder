@@ -9,12 +9,12 @@
  */
 namespace VKernel
 {
+    class CameraConfig;
     class RenderCamera
     {
 
     public:
         // get
-
         Vector3 position() const { return m_position; } ///< position
 
         Vector3 up() const { return (m_invRotation * Z); }      ///< up vector, The three axes represent rotation.
@@ -29,8 +29,8 @@ namespace VKernel
 
         // set: Calculate and set the camera properties based on the input values
         void setFOVx(float fovx) { m_fovx = fovx; }
-        void setMainViewMatrix(const Matrix4x4 &view_matrix);
-        void lookAt(const Vector3 &position, const Vector3 &target, const Vector3 &up);
+        void setMainViewMatrix(const Matrix4x4& view_matrix);
+        void lookAt(const Vector3& position, const Vector3& target, const Vector3& up);
         void setAspect(float aspect);
         void setZNear(float znear) { m_znear = znear; }
         void setZFar(float zfar) { m_zfar = zfar; }
@@ -40,31 +40,31 @@ namespace VKernel
         void rotate(Vector2 delta);
         void zoom(float offset);
 
+        void resetData(const CameraConfig& camera_config);
+
     protected:
         std::mutex m_view_matrix_mutex; ///< mutex
 
         // Camera properties
         static const Vector3 X, Y, Z;
 
-        Vector3 m_position{0.0f, 0.0f, 0.0f};           ///< position
-        Quaternion m_rotation{Quaternion::IDENTITY};    ///< rotation
-        Quaternion m_invRotation{Quaternion::IDENTITY}; ///< invert rotation: Keep the camera position unchanged and apply the inverse transformation of the camera to the object.
+        Vector3    m_position {0.0f, 0.0f, 0.0f};     ///< position
+        Quaternion m_rotation {Quaternion::IDENTITY}; ///< rotation
+        Quaternion m_invRotation {
+            Quaternion::IDENTITY}; ///< invert rotation: Keep the camera position unchanged and apply the inverse
+                                   ///< transformation of the camera to the object.
 
-        Vector3 m_up_axis{Z};
+        float m_znear {1000.0f}; ///< near plane
+        float m_zfar {0.1f};     ///< far plane
 
-        float m_znear{1000.0f}; ///< near plane
-        float m_zfar{0.1f};     ///< far plane
-
-        float m_fovx{Degree(89.f).valueDegrees()}; ///< horizontal direction fov
-        float m_fovy{0.f}; ///< vertical direction fov
-        float m_aspect{0.f}; ///< The aspect ratio = viewport width/viewport height
-        static constexpr float MIN_FOV{10.0f};
-        static constexpr float MAX_FOV{89.0f};
-
-        Matrix4x4 m_view_matrices{Matrix4x4::IDENTITY}; ///< view matrices
+        float                  m_fovx {Degree(89.f).valueDegrees()}; ///< horizontal direction fov
+        float                  m_fovy {0.f};                         ///< vertical direction fov
+        float                  m_aspect {0.f}; ///< The aspect ratio = viewport width/viewport height
+        static constexpr float MIN_FOV {10.0f};
+        static constexpr float MAX_FOV {89.0f};
     };
 
     inline const Vector3 RenderCamera::X = {1.0f, 0.0f, 0.0f};
     inline const Vector3 RenderCamera::Y = {0.0f, 1.0f, 0.0f};
     inline const Vector3 RenderCamera::Z = {0.0f, 0.0f, 1.0f};
-}
+} // namespace VKernel

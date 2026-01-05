@@ -42,6 +42,8 @@ namespace VKernel
                                          float width,
                                          float height); ///< update render viewport
 
+        void clearForLevelReloading(); ///< clear level
+
     private:
         // direct management
         std::shared_ptr<VulkanAPI>          m_vulkan_api;
@@ -50,6 +52,8 @@ namespace VKernel
         std::shared_ptr<RenderPipelineBase> m_render_pipeline;
         RenderSwapContext                   m_swap_context;
         std::shared_ptr<RenderScene>        m_render_scene;
+
+        bool is_mesh_loaded = false;
 
     private:
         void processSwapData(); ///< Read data from the renderData of swapContext and pass it to each sub-module of the

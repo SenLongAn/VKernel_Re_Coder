@@ -532,8 +532,6 @@ namespace VKernel
         // render
         for (auto& [material, mesh_instanced] : directional_light_mesh_drawcall_batch) ///< Same material
         {
-            // TODO: render from near to far
-
             for (auto& [mesh, mesh_nodes] : mesh_instanced) ///< Same mesh
             {
                 uint32_t total_instance_count = static_cast<uint32_t>(mesh_nodes.size()); ///< mesh count

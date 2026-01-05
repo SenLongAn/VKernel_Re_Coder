@@ -10,10 +10,10 @@ namespace ReCoder
 {
     enum class EditorCommand : unsigned int ///< Keyboard key command type, bit mask
     {
-        camera_left = 1 << 0,   // A
-        camera_back = 1 << 1,   // S
+        camera_left   = 1 << 0, // A
+        camera_back   = 1 << 1, // S
         camera_foward = 1 << 2, // W
-        camera_right = 1 << 3,  // D
+        camera_right  = 1 << 3, // D
     };
 
     class EditorInputManager
@@ -27,14 +27,17 @@ namespace ReCoder
         void onCursorPos(double xpos, double ypos);              ///< Update mouse data
         void onScroll(double xoffset, double yoffset);           ///< update mouse data
 
+        // reset
+        void resetCameraSpeed() { m_camera_speed = 0.05f; }
+
     private:
         // mouse data
-        float m_mouse_x{0.0f};
-        float m_mouse_y{0.0f};
-        float m_camera_speed{0.05f};
+        float m_mouse_x {0.0f};
+        float m_mouse_y {0.0f};
+        float m_camera_speed {0.05f};
 
         // key data
-        unsigned int m_editor_command{0};
+        unsigned int m_editor_command {0};
 
     private:
         void registerInput(); ///< register func
@@ -43,6 +46,7 @@ namespace ReCoder
 
         void onKeyInEditorMode(int key, int scancode, int action, int mods); ///< Update the key data
 
-        bool isCursorInRect(VKernel::Vector2 pos, VKernel::Vector2 size) const; ///< Check whether the cursor is within the window.
+        bool isCursorInRect(VKernel::Vector2 pos,
+                            VKernel::Vector2 size) const; ///< Check whether the cursor is within the window.
     };
-}
+} // namespace ReCoder

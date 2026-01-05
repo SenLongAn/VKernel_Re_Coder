@@ -8,7 +8,7 @@
 
 namespace VKernel
 {
-    void ConfigManager::initialize(const std::filesystem::path& config_file_path)
+    void ConfigManager::initialize(const std::filesystem::path& config_file_path) ///< build/.../ReCoderEditor.ini
     {
         // Read the file content line by line
         std::ifstream config_file(config_file_path);
@@ -25,13 +25,17 @@ namespace VKernel
                 // Match the key and look up the value
                 if (name == "BinaryRootFolder")
                 {
-                    m_root_folder = config_file_path.parent_path() / value;
+                    m_root_folder = config_file_path.parent_path() / value; ///< bin
                 }
                 else if (name == "AssetFolder")
                 {
-                    m_asset_folder = m_root_folder / value;
+                    m_asset_folder = m_root_folder / value; ///< bin/asset
                 }
-                else if (name == "GlobalRenderingRes")
+                else if (name == "DefaultWorld") ///< bin/asset/world/1.world.json
+                {
+                    m_default_world_url = value;
+                }
+                else if (name == "GlobalRenderingRes") ///< bin/asset/global/rendering.global.json
                 {
                     m_global_rendering_res_url = value;
                 }
@@ -42,6 +46,8 @@ namespace VKernel
     const std::filesystem::path& ConfigManager::getRootFolder() const { return m_root_folder; }
 
     const std::filesystem::path& ConfigManager::getAssetFolder() const { return m_asset_folder; }
+
+    const std::string& ConfigManager::getDefaultWorldUrl() const { return m_default_world_url; }
 
     const std::string& ConfigManager::getGlobalRenderingResUrl() const { return m_global_rendering_res_url; }
 

@@ -1,5 +1,6 @@
 #include "runtime/function/render/render_scene.h"
 
+#include "render_scene.h"
 #include "runtime/function/render/render_camera.h"
 #include "runtime/function/render/render_helper.h"
 #include "runtime/function/render/render_pass.h"
@@ -19,6 +20,8 @@ namespace VKernel
         RenderPass::m_visiable_nodes.p_directional_light_visible_mesh_nodes = &m_directional_light_visible_mesh_nodes;
         RenderPass::m_visiable_nodes.p_main_camera_visible_mesh_nodes       = &m_main_camera_visible_mesh_nodes;
     }
+
+    void RenderScene::clearForLevelReloading() { m_render_entities.clear(); }
 
     void RenderScene::updateVisibleObjectsDirectionalLight(std::shared_ptr<RenderResource> render_resource,
                                                            std::shared_ptr<RenderCamera>   camera)

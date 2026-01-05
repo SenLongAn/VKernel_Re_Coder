@@ -4,6 +4,8 @@
 
 #include "runtime/core/math/vector3.h"
 
+#include "runtime/function/render/render_object.h"
+
 /**
  * camera component
  */

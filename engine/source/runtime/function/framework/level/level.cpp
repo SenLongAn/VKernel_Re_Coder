@@ -1,23 +1,43 @@
 #include "runtime/function/framework/level/level.h"
 
 #include "runtime/function/framework/object/object.h"
+#include "runtime/resource/asset_manager/asset_manager.h"
+#include "runtime/resource/res_type/common/level.h"
+
+#include "runtime/function/framework/object/object.h"
+#include "runtime/function/global/global_context.h"
+
+#include <iostream>
+#include <limits>
 
 namespace VKernel
 {
-    bool Level::load()
+    bool Level::load(const std::string& level_res_url)
     {
-        m_gobjects = std::make_shared<GObject>();
-        bool is_loaded = m_gobjects->load();
-        if (is_loaded == false)
+        m_level_res_url = level_res_url;
+
+        std::cout << level_res_url << std::endl;
+        // load level
+        LevelRes   level_res;
+        const bool is_load_success = g_runtime_global_context.m_asset_manager->loadAsset(level_res_url, level_res);
+        if (is_load_success == false)
         {
             return false;
         }
-        
+
+        // load object
+        for (const ObjectInstanceRes& object_instance_res : level_res.m_objects)
+        {
+            createObject(object_instance_res);
+        }
+
         m_is_loaded = true;
 
         return true;
     }
-    
+
+    void Level::unload() { clear(); }
+
     void Level::tick(float delta_time)
     {
         if (!m_is_loaded)
@@ -25,7 +45,30 @@ namespace VKernel
             return;
         }
 
-        m_gobjects->tick(delta_time);
+        // Update All gobjcets
+        for (const auto& id_object_pair : m_gobjects)
+        {
+            if (id_object_pair.second)
+            {
+                id_object_pair.second->tick(delta_time);
+            }
+        }
     }
-}
 
+    void Level::createObject(const ObjectInstanceRes& object_instance_res)
+    {
+        static int               object_id = 0;
+        std::shared_ptr<GObject> gobject   = std::make_shared<GObject>();
+        bool                     is_loaded = gobject->load(object_instance_res);
+        if (is_loaded)
+        {
+            m_gobjects.emplace(object_id++, gobject);
+        }
+        else
+        {
+            throw std::runtime_error("oading object failed");
+        }
+    }
+
+    void Level::clear() { m_gobjects.clear(); }
+} // namespace VKernel

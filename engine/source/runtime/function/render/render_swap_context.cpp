@@ -1,12 +1,18 @@
 #include "runtime/function/render/render_swap_context.h"
+#include "render_swap_context.h"
 
 namespace VKernel
 {
-    RenderSwapData &RenderSwapContext::getLogicSwapData() { return m_swap_data[m_logic_swap_data_index]; }
+    RenderSwapData& RenderSwapContext::getLogicSwapData() { return m_swap_data[m_logic_swap_data_index]; }
 
-    RenderSwapData &RenderSwapContext::getRenderSwapData() { return m_swap_data[m_render_swap_data_index]; }
+    RenderSwapData& RenderSwapContext::getRenderSwapData() { return m_swap_data[m_render_swap_data_index]; }
 
     void RenderSwapContext::resetCameraSwapData() { m_swap_data[m_render_swap_data_index].m_camera_swap_data.reset(); }
+
+    void RenderSwapContext::resetGameObjectResourceSwapData()
+    {
+        m_swap_data[m_render_swap_data_index].m_game_object_resource_desc.reset();
+    }
 
     void RenderSwapContext::swapLogicRenderData()
     {
@@ -24,6 +30,29 @@ namespace VKernel
     void RenderSwapContext::swap()
     {
         resetCameraSwapData();
+        resetGameObjectResourceSwapData();
         std::swap(m_logic_swap_data_index, m_render_swap_data_index);
     }
-}
+
+    void RenderSwapData::addDirtyGameObject(GameObjectDesc&& desc)
+    {
+        if (m_game_object_resource_desc.has_value())
+        {
+            m_game_object_resource_desc->add(desc);
+        }
+        else
+        {
+            GameObjectResourceDesc go_descs;
+            go_descs.add(desc);
+            m_game_object_resource_desc = go_descs;
+        }
+    }
+
+    void GameObjectResourceDesc::add(GameObjectDesc& desc) { m_game_object_descs.push_back(desc); }
+
+    bool GameObjectResourceDesc::isEmpty() const { return m_game_object_descs.empty(); }
+
+    GameObjectDesc& GameObjectResourceDesc::getNextProcessObject() { return m_game_object_descs.front(); }
+
+    void GameObjectResourceDesc::pop() { m_game_object_descs.pop_front(); }
+} // namespace VKernel

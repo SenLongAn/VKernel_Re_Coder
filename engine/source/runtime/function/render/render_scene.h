@@ -38,6 +38,8 @@ namespace VKernel
         // set visible nodes ptr in render pass
         void setVisibleNodesReference();
 
+        void clearForLevelReloading(); ///< clear level
+
     private:
         // update Visible Object
         void updateVisibleObjectsDirectionalLight(std::shared_ptr<RenderResource> render_resource,

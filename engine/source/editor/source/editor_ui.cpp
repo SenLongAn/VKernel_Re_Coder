@@ -2,7 +2,10 @@
 
 #include "editor/include/editor_global_context.h"
 
+#include "editor/include/editor_input_manager.h"
+#include "editor/include/editor_scene_manager.h"
 #include "runtime/engine.h"
+#include "runtime/function/framework/world/world_manager.h"
 #include "runtime/function/global/global_context.h"
 #include "runtime/function/render/render_system.h"
 #include "runtime/function/render/window_system.h"
@@ -121,6 +124,12 @@ namespace ReCoder
         {
             if (ImGui::BeginMenu("Menu"))
             {
+                if (ImGui::MenuItem("Reload Current Level"))
+                {
+                    VKernel::g_runtime_global_context.m_world_manager->reloadCurrentLevel();     ///< reload level
+                    VKernel::g_runtime_global_context.m_render_system->clearForLevelReloading(); ///< clear and reset
+                    g_editor_global_context.m_input_manager->resetCameraSpeed();
+                }
                 if (ImGui::MenuItem("Exit"))
                 {
                     g_editor_global_context.m_engine_runtime->shutdownEngine();
