@@ -121,7 +121,7 @@ namespace VKernel
 
     VulkanMesh& RenderResource::getEntityMesh(RenderEntity entity)
     {
-        size_t assetid = entity.m_mesh_id;
+        size_t assetid = entity.m_mesh_asset_id;
         auto   it      = m_vulkan_meshes.find(assetid);
         if (it != m_vulkan_meshes.end()) ///< If found, return the mesh
         {
@@ -190,7 +190,7 @@ namespace VKernel
                                                       RenderMeshData             mesh_data)
     {
         // Check if it has been added
-        size_t assetid = entity.m_mesh_id;
+        size_t assetid = entity.m_mesh_asset_id;
         auto   it      = m_vulkan_meshes.find(assetid);
         if (it != m_vulkan_meshes.end())
         {

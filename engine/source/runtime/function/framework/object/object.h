@@ -3,6 +3,8 @@
 #include "runtime/function/framework/component/component.h"
 #include "runtime/resource/res_type/common/object.h"
 
+#include "runtime/function/framework/object/object_id_allocator.h"
+
 #include <memory>
 
 /**
@@ -16,6 +18,7 @@ namespace VKernel
     {
 
     public:
+        GObject(GObjectID id) : m_id {id} {}
         virtual ~GObject(); ///< Destructor
 
         void setName(std::string name) { m_name = name; }
@@ -23,6 +26,8 @@ namespace VKernel
         bool load(const ObjectInstanceRes& object_instance_res); ///< load
 
         virtual void tick(float delta_time); ///< tick
+
+        GObjectID getID() const { return m_id; } ///< get guid
 
         void save(ObjectInstanceRes& out_object_instance_res); ///< save
 
@@ -46,6 +51,8 @@ namespace VKernel
 #define tryGetComponent(COMPONENT_TYPE) tryGetComponent<COMPONENT_TYPE>(#COMPONENT_TYPE) ///< func call
 
     protected:
+        GObjectID m_id {k_invalid_gobject_id};
+
         std::string m_name;
 
         std::string m_definition_url;

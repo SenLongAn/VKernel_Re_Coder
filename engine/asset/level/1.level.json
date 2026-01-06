@@ -59,6 +59,35 @@
           "definition": "asset/objects/environment/wall/wall.object.json"
         },
         {
+          "name": "Wall1",
+          "instanced_components": [
+            {
+              "$context": {
+                "transform": {
+                  "position": {
+                    "x": -9.0,
+                    "y": 0.0,
+                    "z": 5.0
+                  },
+                  "euler_rotation": {
+                    "x": 90.0,
+                    "y": 90.0,
+                    "z": 0.0
+                  },
+                  "scale": {
+                    "x": 0.5,
+                    "y": 0.5,
+                    "z": 0.5
+                  },
+                  "is_serialization": true
+                }
+              },
+              "$typeName": "TransformComponent"
+            }
+          ],
+          "definition": "asset/objects/environment/wall/wall.object.json"
+        },
+        {
           "name": "Beretta_M92A1",
           "instanced_components": [
             {

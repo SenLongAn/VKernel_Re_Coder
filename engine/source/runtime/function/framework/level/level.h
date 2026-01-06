@@ -1,5 +1,7 @@
 #pragma once
 
+#include "runtime/function/framework/object/object_id_allocator.h"
+
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -25,7 +27,7 @@ namespace VKernel
 
         void tick(float delta_time); ///< tick
 
-        void createObject(const ObjectInstanceRes& object_instance_res);
+        GObjectID createObject(const ObjectInstanceRes& object_instance_res);
 
         const std::string& getLevelResUrl() const { return m_level_res_url; } ///< get level url
 

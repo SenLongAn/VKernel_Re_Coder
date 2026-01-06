@@ -7,7 +7,6 @@
 #include "runtime/function/framework/object/object.h"
 #include "runtime/function/global/global_context.h"
 
-#include "level.h"
 #include <iostream>
 #include <limits>
 
@@ -56,19 +55,23 @@ namespace VKernel
         }
     }
 
-    void Level::createObject(const ObjectInstanceRes& object_instance_res)
+    GObjectID Level::createObject(const ObjectInstanceRes& object_instance_res)
     {
-        static int               object_id = 0;
-        std::shared_ptr<GObject> gobject   = std::make_shared<GObject>();
-        bool                     is_loaded = gobject->load(object_instance_res);
+        GObjectID object_id = ObjectIDAllocator::alloc(); ///< alloctor guid
+
+        std::shared_ptr<GObject> gobject   = std::make_shared<GObject>(object_id); ///< create new GO
+        bool                     is_loaded = gobject->load(object_instance_res);   ///< load GO
         if (is_loaded)
         {
-            m_gobjects.emplace(object_id++, gobject);
+            m_gobjects.emplace(object_id, gobject); ///< add to map
         }
         else
         {
             throw std::runtime_error("oading object failed");
+            return k_invalid_gobject_id;
         }
+
+        return object_id;
     }
 
     bool Level::save()

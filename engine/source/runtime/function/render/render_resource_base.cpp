@@ -8,9 +8,9 @@
 #include <stb_image.h>
 
 #define TINYOBJLOADER_IMPLEMENTATION
-#include "render_resource_base.h"
 #include "tiny_obj_loader.h"
 
+#include <algorithm>
 #include <filesystem>
 #include <iostream>
 
@@ -79,7 +79,7 @@ namespace VKernel
 
         if (std::filesystem::path(source.m_mesh_file).extension() == ".obj") ///< The file extension is .obj
         {
-            ret.m_static_mesh_data = loadStaticMesh(source.m_mesh_file, bounding_box);
+            ret.m_static_mesh_data = loadStaticMesh(source, bounding_box);
         }
 
         return ret;
@@ -93,7 +93,7 @@ namespace VKernel
         return ret;
     }
 
-    StaticMeshData RenderResourceBase::loadStaticMesh(std::string mesh_file, AxisAlignedBox& bounding_box)
+    StaticMeshData RenderResourceBase::loadStaticMesh(const MeshSourceDesc& source, AxisAlignedBox& bounding_box)
     {
         StaticMeshData mesh_data;
 
@@ -101,7 +101,7 @@ namespace VKernel
         tinyobj::ObjReader       reader;
         tinyobj::ObjReaderConfig reader_config;
         reader_config.vertex_color = false;
-        if (!reader.ParseFromFile(mesh_file, reader_config)) ///< parse from mesh file
+        if (!reader.ParseFromFile(source.m_mesh_file, reader_config)) ///< parse from mesh file
         {
             if (!reader.Error().empty()) ///< if failed
             {
@@ -269,6 +269,19 @@ namespace VKernel
             indices[i] = static_cast<uint32_t>(i); ///< Equal to vertex index
         }
 
+        // add to map
+        m_bounding_box_cache_map.insert(std::make_pair(source, bounding_box));
+
         return mesh_data;
+    }
+
+    AxisAlignedBox RenderResourceBase::getCachedBoudingBox(const MeshSourceDesc& source) const
+    {
+        auto find_it = m_bounding_box_cache_map.find(source);
+        if (find_it != m_bounding_box_cache_map.end()) ///< If found
+        {
+            return find_it->second; ///< return it
+        }
+        return AxisAlignedBox();
     }
 } // namespace VKernel

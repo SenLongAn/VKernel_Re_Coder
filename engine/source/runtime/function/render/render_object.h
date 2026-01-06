@@ -1,6 +1,7 @@
 #pragma once
 
 #include "runtime/core/math/matrix4.h"
+#include "runtime/function/framework/object/object_id_allocator.h"
 
 #include <string>
 #include <vector>
@@ -46,15 +47,40 @@ namespace VKernel
         GameObjectTransformDesc m_transform_desc; ///< Relative transformation
     };
 
+    constexpr size_t k_invalid_part_id = std::numeric_limits<size_t>::max(); ///< invalid value
+
+    struct GameObjectPartId
+    {
+        GObjectID m_go_id {k_invalid_gobject_id}; ///< Gobject id
+        size_t    m_part_id {k_invalid_part_id};  ///< submesh index
+
+        bool operator==(const GameObjectPartId& rhs) const ///< operator ==
+        {
+            return m_go_id == rhs.m_go_id && m_part_id == rhs.m_part_id; ///<
+        }
+        size_t getHashValue() const { return m_go_id ^ (m_part_id << 1); }
+        bool isValid() const { return m_go_id != k_invalid_gobject_id && m_part_id != k_invalid_part_id; } ///< is valid
+    };
+
     class GameObjectDesc
     {
     public:
-        GameObjectDesc() {}
-        GameObjectDesc(const std::vector<GameObjectPartDesc>& parts) : m_object_parts(parts) {}
+        GameObjectDesc() : m_go_id(0) {}
+        GameObjectDesc(size_t go_id, const std::vector<GameObjectPartDesc>& parts) :
+            m_go_id(go_id), m_object_parts(parts)
+        {}
 
+        GObjectID                              getId() const { return m_go_id; }
         const std::vector<GameObjectPartDesc>& getObjectParts() const { return m_object_parts; }
 
     private:
-        std::vector<GameObjectPartDesc> m_object_parts; ///< all submesh
+        GObjectID                       m_go_id {k_invalid_gobject_id}; ///< guid
+        std::vector<GameObjectPartDesc> m_object_parts;                 ///< all submesh
     };
 } // namespace VKernel
+
+template<>
+struct std::hash<VKernel::GameObjectPartId>
+{
+    size_t operator()(const VKernel::GameObjectPartId& rhs) const noexcept { return rhs.getHashValue(); }
+};

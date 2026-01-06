@@ -166,8 +166,6 @@ namespace VKernel
         const std::string&             global_rendering_res_url = config_manager->getGlobalRenderingResUrl();
         asset_manager->loadAsset(global_rendering_res_url, global_rendering_res);
         m_render_camera->resetData(global_rendering_res.m_camera_config);
-
-        is_mesh_loaded = false;
     }
 
     void RenderSystem::processSwapData()
@@ -176,55 +174,101 @@ namespace VKernel
 
         // update game object if needed
 
-        if (is_mesh_loaded == false)
+        if (swap_data.m_game_object_resource_desc.has_value())
         {
-            if (swap_data.m_game_object_resource_desc.has_value())
+            while (!swap_data.m_game_object_resource_desc->isEmpty()) ///< Iterate over each object
             {
-                while (!swap_data.m_game_object_resource_desc->isEmpty()) ///< Iterate over each object
+                GameObjectDesc gobject =
+                    swap_data.m_game_object_resource_desc->getNextProcessObject(); ///< get current object
+
+                for (size_t part_index = 0; part_index < gobject.getObjectParts().size();
+                     part_index++) ///< Iterate over each all submesh
                 {
-                    GameObjectDesc gobject =
-                        swap_data.m_game_object_resource_desc->getNextProcessObject(); ///< get current object
+                    const auto& game_object_part = gobject.getObjectParts()[part_index]; ///< get current submesh
 
-                    for (size_t part_index = 0; part_index < gobject.getObjectParts().size();
-                         part_index++) ///< Iterate over each all submesh
+                    // Create an entity for each submesh
+                    RenderEntity render_entity;
+
+                    GameObjectPartId part_id = {gobject.getId(), part_index}; ///< instance id: object id, submesh index
+                    bool             is_entity_in_scene =
+                        m_render_scene->getInstanceIdAllocator().hasElement(part_id); ///< Has it loaded?
+                    render_entity.m_instance_id = static_cast<uint32_t>(
+                        m_render_scene->getInstanceIdAllocator().allocGuid(part_id)); ///< allocator submesh guid
+                    m_render_scene->addInstanceIdToMap(render_entity.m_instance_id,
+                                                       gobject.getId()); ///< add id to map
+
+                    render_entity.m_model_matrix =
+                        game_object_part.m_transform_desc.m_transform_matrix; ///< set entity model matrix
+
+                    // load vertex data
+                    MeshSourceDesc mesh_source = {game_object_part.m_mesh_desc.m_mesh_file};
+
+                    bool is_mesh_loaded =
+                        m_render_scene->getMeshAssetIdAllocator().hasElement(mesh_source); ///< Has it loaded?
+                    RenderMeshData mesh_data;
+                    if (!is_mesh_loaded) ///< Not loaded
                     {
-                        const auto& game_object_part = gobject.getObjectParts()[part_index]; ///< get current submesh
-                        // create entity
-                        static uint8_t mesh_id     = 0;
-                        static uint8_t material_id = 0;
-                        RenderEntity   render_entity;
-                        render_entity.m_mesh_id           = mesh_id++;     ///< id
-                        render_entity.m_material_asset_id = material_id++; ///< id
-                        render_entity.m_model_matrix      = game_object_part.m_transform_desc.m_transform_matrix;
-
-                        // load vertex indice data, buffer and descriptor
-                        MeshSourceDesc mesh_source = {game_object_part.m_mesh_desc.m_mesh_file};
-                        RenderMeshData mesh_data =
-                            m_render_resource->loadMeshData(mesh_source, render_entity.m_bounding_box);
-
-                        m_render_resource->uploadGameObjectRenderResource(m_vulkan_api, render_entity, mesh_data);
-
-                        // load material
-                        MaterialSourceDesc material_source;
-                        if (game_object_part.m_material_desc.m_with_texture)
-                        {
-                            material_source = {game_object_part.m_material_desc.m_base_color_texture_file,
-                                               game_object_part.m_material_desc.m_normal_texture_file};
-                        }
-
-                        RenderMaterialData material_data = m_render_resource->loadMaterialData(material_source);
-
-                        m_render_resource->uploadGameObjectRenderResource(m_vulkan_api, render_entity, material_data);
-
-                        m_render_scene->m_render_entities.push_back(render_entity);
-
-                        swap_data.m_game_object_resource_desc->pop(); ///< pop
+                        mesh_data = m_render_resource->loadMeshData(mesh_source,
+                                                                    render_entity.m_bounding_box); ///< load data
                     }
+                    else
+                    {
+                        render_entity.m_bounding_box = m_render_resource->getCachedBoudingBox(mesh_source);
+                    }
+
+                    render_entity.m_mesh_asset_id =
+                        m_render_scene->getMeshAssetIdAllocator().allocGuid(mesh_source); ///< allocator mesh id
+
+                    if (!is_mesh_loaded)
+                    {
+                        m_render_resource->uploadGameObjectRenderResource(
+                            m_vulkan_api, render_entity, mesh_data); ///< create buffer and descriptor
+                    }
+
+                    // load material
+                    MaterialSourceDesc material_source;
+                    if (game_object_part.m_material_desc.m_with_texture)
+                    {
+                        material_source = {game_object_part.m_material_desc.m_base_color_texture_file,
+                                           game_object_part.m_material_desc.m_normal_texture_file};
+                    }
+
+                    bool is_material_loaded =
+                        m_render_scene->getMaterialAssetdAllocator().hasElement(material_source); ///< Has it loaded?
+                    RenderMaterialData material_data;
+                    if (!is_material_loaded) ///< Not loaded
+                    {
+                        material_data = m_render_resource->loadMaterialData(material_source); ///< load data
+                    }
+
+                    render_entity.m_material_asset_id = m_render_scene->getMaterialAssetdAllocator().allocGuid(
+                        material_source); ///< allocator material id
+
+                    if (!is_material_loaded)
+                    {
+                        m_render_resource->uploadGameObjectRenderResource(m_vulkan_api, render_entity, material_data);
+                    }
+
+                    // entity
+                    if (!is_entity_in_scene) ///< Not loadedS
+                    {
+                        m_render_scene->m_render_entities.push_back(render_entity); ///< push
+                    }
+                    else ///< else update
+                    {
+                        for (auto& entity : m_render_scene->m_render_entities)
+                        {
+                            if (entity.m_instance_id == render_entity.m_instance_id)
+                            {
+                                entity = render_entity;
+                                break;
+                            }
+                        }
+                    }
+
+                    swap_data.m_game_object_resource_desc->pop(); ///< pop
                 }
             }
-
-            // close
-            is_mesh_loaded = true;
         }
 
         // process camera swap data

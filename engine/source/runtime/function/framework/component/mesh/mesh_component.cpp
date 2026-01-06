@@ -79,6 +79,6 @@ namespace VKernel
         // Add to swap Context
         RenderSwapContext& render_swap_context = g_runtime_global_context.m_render_system->getSwapContext();
         RenderSwapData&    logic_swap_data     = render_swap_context.getLogicSwapData();
-        logic_swap_data.addDirtyGameObject(GameObjectDesc(dirty_mesh_parts));
+        logic_swap_data.addDirtyGameObject(GameObjectDesc(m_parent_object.lock()->getID(), dirty_mesh_parts));
     }
 } // namespace VKernel

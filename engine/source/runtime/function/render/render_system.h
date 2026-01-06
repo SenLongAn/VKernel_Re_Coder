@@ -53,8 +53,6 @@ namespace VKernel
         RenderSwapContext                   m_swap_context;
         std::shared_ptr<RenderScene>        m_render_scene;
 
-        bool is_mesh_loaded = false;
-
     private:
         void processSwapData(); ///< Read data from the renderData of swapContext and pass it to each sub-module of the
                                 ///< render process.

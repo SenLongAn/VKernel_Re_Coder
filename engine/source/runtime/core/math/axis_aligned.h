@@ -14,6 +14,7 @@ namespace VKernel
     REFLECTION_TYPE(AxisAlignedBox)
     CLASS(AxisAlignedBox, Fields)
     {
+        REFLECTION_BODY(AxisAlignedBox)
     public:
         // constructor
         //-----------------------------------------------------------------------

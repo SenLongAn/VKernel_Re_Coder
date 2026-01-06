@@ -121,3 +121,15 @@ namespace VKernel
     };
 
 } // namespace VKernel
+
+template<>
+struct std::hash<VKernel::MeshSourceDesc>
+{
+    size_t operator()(const VKernel::MeshSourceDesc& rhs) const noexcept { return rhs.getHashValue(); }
+};
+
+template<>
+struct std::hash<VKernel::MaterialSourceDesc>
+{
+    size_t operator()(const VKernel::MaterialSourceDesc& rhs) const noexcept { return rhs.getHashValue(); }
+};

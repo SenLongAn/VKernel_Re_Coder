@@ -5,6 +5,7 @@
 #include "runtime/function/render/render_type.h"
 
 #include <memory>
+#include <unordered_map>
 
 /**
  * All the data required for rendering, base class
@@ -43,7 +44,13 @@ namespace VKernel
         RenderMeshData               loadMeshData(const MeshSourceDesc& source, AxisAlignedBox& bounding_box); ///< mesh
         RenderMaterialData           loadMaterialData(const MaterialSourceDesc& source); ///< material
 
+        // get BoudingBox
+        AxisAlignedBox getCachedBoudingBox(const MeshSourceDesc& source) const;
+
     private:
-        StaticMeshData loadStaticMesh(std::string mesh_file, AxisAlignedBox& bounding_box); ///< mesh
+        std::unordered_map<MeshSourceDesc, AxisAlignedBox> m_bounding_box_cache_map; ///< mesh file, boudingBox
+
+    private:
+        StaticMeshData loadStaticMesh(const MeshSourceDesc& source, AxisAlignedBox& bounding_box); ///< mesh
     };
 } // namespace VKernel
