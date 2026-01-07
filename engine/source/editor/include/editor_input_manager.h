@@ -26,9 +26,18 @@ namespace ReCoder
         void onKey(int key, int scancode, int action, int mods); ///< Update the key data
         void onCursorPos(double xpos, double ypos);              ///< Update mouse data
         void onScroll(double xoffset, double yoffset);           ///< update mouse data
+        void onMouseButtonClicked(int key, int action);
 
         // reset
         void resetCameraSpeed() { m_camera_speed = 0.05f; }
+
+        // get
+        VKernel::Vector2 getEngineWindowPos() const { return m_engine_window_pos; };
+        VKernel::Vector2 getEngineWindowSize() const { return m_engine_window_size; };
+
+        // set
+        void setEngineWindowPos(VKernel::Vector2 new_window_pos) { m_engine_window_pos = new_window_pos; };
+        void setEngineWindowSize(VKernel::Vector2 new_window_size) { m_engine_window_size = new_window_size; };
 
     private:
         // mouse data
@@ -38,6 +47,10 @@ namespace ReCoder
 
         // key data
         unsigned int m_editor_command {0};
+
+        // game window size
+        VKernel::Vector2 m_engine_window_pos {0.0f, 0.0f};
+        VKernel::Vector2 m_engine_window_size {0.0f, 0.0f};
 
     private:
         void registerInput(); ///< register func

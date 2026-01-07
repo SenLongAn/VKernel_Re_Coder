@@ -573,6 +573,8 @@ namespace VKernel
 
     void VulkanAPI::setViewPort(const VkViewport& viewport) { m_viewport = viewport; }
 
+    void VulkanAPI::setCurrentFrameIndex(uint8_t index) { m_current_frame_index = index; }
+
     bool VulkanAPI::checkValidationLayerSupport()
     {
         // Enumerate Instance Layer Properties

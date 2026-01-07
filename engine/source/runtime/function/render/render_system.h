@@ -32,6 +32,8 @@ namespace VKernel
         RenderSwapContext&                  getSwapContext();
         std::shared_ptr<RenderCamera>       getRenderCamera() const;
         std::shared_ptr<RenderResourceBase> getRenderResource() const;
+        uint32_t                            getGuidOfPickedMesh(const Vector2& picked_uv);
+        GObjectID                           getGObjectIDByMeshID(uint32_t mesh_id) const;
 
         void swapLogicRenderData(); ///< swap Logic Render Data
 

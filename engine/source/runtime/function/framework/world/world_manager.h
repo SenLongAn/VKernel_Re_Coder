@@ -24,6 +24,9 @@ namespace VKernel
         void reloadCurrentLevel(); ///< reload current level
         void saveCurrentLevel();   ///< save current level
 
+        // get
+        std::weak_ptr<Level> getCurrentActiveLevel() const { return m_current_active_level; }
+
     private:
         bool m_is_world_loaded {false}; ///< Has the world been loaded
 

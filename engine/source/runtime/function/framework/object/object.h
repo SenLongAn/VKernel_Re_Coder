@@ -47,8 +47,22 @@ namespace VKernel
 
             return nullptr;
         }
+        template<typename TComponent>
+        const TComponent* tryGetComponentConst(const std::string& compenent_type_name) const
+        {
+            for (const auto& component : m_components)
+            {
+                if (component.getTypeName() == compenent_type_name)
+                {
+                    return static_cast<const TComponent*>(component.operator->());
+                }
+            }
+            return nullptr;
+        }
 
-#define tryGetComponent(COMPONENT_TYPE) tryGetComponent<COMPONENT_TYPE>(#COMPONENT_TYPE) ///< func call
+#define tryGetComponent(COMPONENT_TYPE, STR_COMPONENT_TYPE) \
+    tryGetComponent<COMPONENT_TYPE>(STR_COMPONENT_TYPE) ///< func call
+#define tryGetComponentConst(COMPONENT_TYPE) tryGetComponentConst<const COMPONENT_TYPE>(#COMPONENT_TYPE)
 
     protected:
         GObjectID m_id {k_invalid_gobject_id};

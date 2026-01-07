@@ -78,6 +78,17 @@ namespace VKernel
         VulkanMeshInstance mesh_instances[s_mesh_per_drawcall_max_instance_count];
     };
 
+    struct MeshInefficientPickPerframeStorageBufferObject
+    {
+        Matrix4x4 proj_view_matrix;
+    };
+
+    struct MeshInefficientPickPerdrawcallStorageBufferObject
+    {
+        Matrix4x4 model_matrices[s_mesh_per_drawcall_max_instance_count]; ///< M matrix
+        uint32_t  node_ids[s_mesh_per_drawcall_max_instance_count];       ///< submesh id
+    };
+
     // mesh
     struct VulkanMesh
     {

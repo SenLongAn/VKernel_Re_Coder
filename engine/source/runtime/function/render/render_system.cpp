@@ -133,6 +133,16 @@ namespace VKernel
 
     std::shared_ptr<RenderResourceBase> RenderSystem::getRenderResource() const { return m_render_resource; }
 
+    uint32_t RenderSystem::getGuidOfPickedMesh(const Vector2& picked_uv)
+    {
+        return m_render_pipeline->getGuidOfPickedMesh(picked_uv);
+    }
+
+    GObjectID RenderSystem::getGObjectIDByMeshID(uint32_t mesh_id) const
+    {
+        return m_render_scene->getGObjectIDByMeshID(mesh_id);
+    }
+
     void RenderSystem::swapLogicRenderData() { m_swap_context.swapLogicRenderData(); }
 
     void RenderSystem::initializeUIRenderBackend(WindowUI* window_ui)

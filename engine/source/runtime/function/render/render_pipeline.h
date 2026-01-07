@@ -19,5 +19,7 @@ namespace VKernel
                                    std::shared_ptr<RenderResourceBase> render_resource);
 
         void passUpdateAfterRecreateSwapchain(); ///< destory and recreate framebuffer
+
+        virtual uint32_t getGuidOfPickedMesh(const Vector2& picked_uv) override final;
     };
 } // namespace VKernel

@@ -44,6 +44,8 @@ namespace VKernel
             m_mesh_perframe_storage_buffer_object.scene_point_lights[i].radius    = radius;
             m_mesh_perframe_storage_buffer_object.scene_point_lights[i].intensity = point_light_intensity;
         }
+
+        m_mesh_inefficient_pick_perframe_storage_buffer_object.proj_view_matrix = proj_view_matrix;
     }
 
     void RenderResource::uploadGlobalRenderResource(std::shared_ptr<VulkanAPI> vulkan_api,

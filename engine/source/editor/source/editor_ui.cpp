@@ -255,6 +255,9 @@ namespace ReCoder
                                                                                        render_target_window_size.x,
                                                                                        render_target_window_size.y);
 
+        g_editor_global_context.m_input_manager->setEngineWindowPos(render_target_window_pos);
+        g_editor_global_context.m_input_manager->setEngineWindowSize(render_target_window_size);
+
         ImGui::End(); ///< end window
     }
 

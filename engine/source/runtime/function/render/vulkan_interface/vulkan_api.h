@@ -110,6 +110,7 @@ namespace VKernel
 
         // set
         void setViewPort(const VkViewport& viewport);
+        void setCurrentFrameIndex(uint8_t index);
 
     private:
         // Maximum parallel frame count

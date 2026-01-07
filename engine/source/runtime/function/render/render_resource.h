@@ -64,7 +64,8 @@ namespace VKernel
 
         MeshPerframeStorageBufferObject m_mesh_perframe_storage_buffer_object; ///< Render Resource
         MeshDirectionalLightShadowPerframeStorageBufferObject
-            m_mesh_directional_light_shadow_perframe_storage_buffer_object;
+                                                       m_mesh_directional_light_shadow_perframe_storage_buffer_object;
+        MeshInefficientPickPerframeStorageBufferObject m_mesh_inefficient_pick_perframe_storage_buffer_object;
 
         GlobalRenderResource m_global_render_resource; ///<  Storage buffer
 

@@ -1,7 +1,10 @@
 #pragma once
 
 #include "runtime/function/render/render_pass_base.h"
+
+#include "runtime/core/math/vector2.h"
 #include "runtime/function/render/vulkan_interface/vulkan_api.h"
+
 
 /**
  * The management of each pass, the core of draw, abstract base class
@@ -33,6 +36,8 @@ namespace VKernel
 
         void initializeUIRenderBackend(WindowUI* window_ui); ///< init editor ui Backend: vulkan and glfw
 
+        virtual uint32_t getGuidOfPickedMesh(const Vector2& picked_uv) = 0; ///< get uv submesh guid
+
     protected:
         std::shared_ptr<VulkanAPI> m_vulkan_api; ///< Vulkan interface
 
@@ -41,5 +46,6 @@ namespace VKernel
         std::shared_ptr<RenderPassBase> m_main_camera_pass;
         std::shared_ptr<RenderPassBase> m_ui_pass;
         std::shared_ptr<RenderPassBase> m_combine_ui_pass;
+        std::shared_ptr<RenderPassBase> m_pick_pass;
     };
 } // namespace VKernel

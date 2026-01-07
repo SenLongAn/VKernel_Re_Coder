@@ -7,8 +7,10 @@
 #include "runtime/function/framework/object/object.h"
 #include "runtime/function/global/global_context.h"
 
+#include "level.h"
 #include <iostream>
 #include <limits>
+
 
 namespace VKernel
 {
@@ -16,7 +18,6 @@ namespace VKernel
     {
         m_level_res_url = level_res_url;
 
-        std::cout << level_res_url << std::endl;
         // load level
         LevelRes   level_res;
         const bool is_load_success = g_runtime_global_context.m_asset_manager->loadAsset(level_res_url, level_res);
@@ -102,6 +103,17 @@ namespace VKernel
         }
 
         return is_save_success;
+    }
+
+    std::weak_ptr<GObject> Level::getGObjectByID(GObjectID go_id) const
+    {
+        auto iter = m_gobjects.find(go_id);
+        if (iter != m_gobjects.end())
+        {
+            return iter->second;
+        }
+
+        return std::weak_ptr<GObject>();
     }
 
     void Level::clear() { m_gobjects.clear(); }

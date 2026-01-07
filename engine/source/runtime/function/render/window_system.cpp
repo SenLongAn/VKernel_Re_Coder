@@ -18,7 +18,7 @@ namespace VKernel
             return;
         }
 
-        m_width = create_info.width;
+        m_width  = create_info.width;
         m_height = create_info.height;
 
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API); ///< Vulkan is required.
@@ -38,13 +38,14 @@ namespace VKernel
         glfwSetKeyCallback(m_window, keyCallback);
         glfwSetCursorPosCallback(m_window, cursorPosCallback);
         glfwSetScrollCallback(m_window, scrollCallback);
+        glfwSetMouseButtonCallback(m_window, mouseButtonCallback);
     }
 
-    GLFWwindow *WindowSystem::getWindow() const { return m_window; }
+    GLFWwindow* WindowSystem::getWindow() const { return m_window; }
 
     std::array<int, 2> WindowSystem::getWindowSize() const { return std::array<int, 2>({m_width, m_height}); }
 
     void WindowSystem::pollEvents() const { glfwPollEvents(); }
 
     bool WindowSystem::shouldClose() const { return glfwWindowShouldClose(m_window); }
-}
+} // namespace VKernel

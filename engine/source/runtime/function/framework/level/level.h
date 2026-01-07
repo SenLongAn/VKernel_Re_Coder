@@ -33,6 +33,9 @@ namespace VKernel
 
         bool save(); ///< save
 
+        // get
+        std::weak_ptr<GObject> getGObjectByID(GObjectID go_id) const;
+
     protected:
         std::string m_level_res_url; ///< level url
 

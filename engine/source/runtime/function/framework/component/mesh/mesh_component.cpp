@@ -60,7 +60,8 @@ namespace VKernel
             return;
 
         // Get the transformation of the associated object
-        TransformComponent* transform_component = m_parent_object.lock()->tryGetComponent(TransformComponent);
+        TransformComponent* transform_component =
+            m_parent_object.lock()->tryGetComponent(TransformComponent, "TransformComponent");
 
         std::vector<GameObjectPartDesc> dirty_mesh_parts;
         for (GameObjectPartDesc& mesh_part : m_raw_meshes) ///< Traverse all the grids of this object

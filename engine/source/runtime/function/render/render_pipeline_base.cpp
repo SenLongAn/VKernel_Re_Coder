@@ -9,6 +9,7 @@ namespace VKernel
     {
         m_main_camera_pass->preparePassData(render_resource);
         m_directional_light_pass->preparePassData(render_resource);
+        m_pick_pass->preparePassData(render_resource);
         g_runtime_global_context.m_debugdraw_manager->preparePassData(render_resource);
     }
 
