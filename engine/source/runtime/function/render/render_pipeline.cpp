@@ -126,4 +126,10 @@ namespace VKernel
         PickPass& pick_pass = *(static_cast<PickPass*>(m_pick_pass.get()));
         return pick_pass.pick(picked_uv);
     }
+
+    void RenderPipeline::setAxisVisibleState(bool state)
+    {
+        MainCameraPass& main_camera_pass = *(static_cast<MainCameraPass*>(m_main_camera_pass.get()));
+        main_camera_pass.m_is_show_axis  = state; ///< set main camera memeber
+    }
 } // namespace VKernel

@@ -22,6 +22,9 @@ namespace ReCoder
         virtual void initialize(VKernel::WindowUIInitInfo init_info) override final; ///< init
         virtual void preRender() override final;                                     ///< render ui
 
+        void
+        drawAxisToggleButton(const char* string_id, bool check_state, int axis_mode); ///< render button and gizmo axis
+
     private:
         // window open or close
         bool m_editor_menu_window_open       = true;

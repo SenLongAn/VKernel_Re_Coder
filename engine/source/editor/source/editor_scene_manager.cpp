@@ -9,6 +9,7 @@
 #include "runtime/function/render/render_system.h"
 
 #include <iostream>
+
 namespace ReCoder
 {
     void EditorSceneManager::initialize() {}
@@ -34,6 +35,26 @@ namespace ReCoder
         return selected_object;
     }
 
+    VKernel::RenderEntity* EditorSceneManager::getAxisMeshByType(EditorAxisMode axis_mode)
+    {
+        VKernel::RenderEntity* axis_mesh = nullptr; ///< base class
+        switch (axis_mode)
+        {
+            case EditorAxisMode::TranslateMode:
+                axis_mesh = &m_translation_axis;
+                break;
+            case EditorAxisMode::RotateMode:
+                axis_mesh = &m_rotation_axis;
+                break;
+            case EditorAxisMode::ScaleMode:
+                axis_mesh = &m_scale_aixs;
+                break;
+            default:
+                break;
+        }
+        return axis_mesh; ///< Derived class
+    }
+
     void EditorSceneManager::onGObjectSelected(VKernel::GObjectID selected_gobject_id)
     {
         // update selected GO id
@@ -52,6 +73,84 @@ namespace ReCoder
             m_selected_object_matrix = transform_component->getMatrix();
         }
 
-        // drawSelectedEntityAxis();
+        // update axis Model matrix
+        drawSelectedEntityAxis();
+    }
+
+    void EditorSceneManager::uploadAxisResource()
+    {
+        // get guid allocator
+        auto& instance_id_allocator   = g_editor_global_context.m_render_system->getGOInstanceIdAllocator();
+        auto& mesh_asset_id_allocator = g_editor_global_context.m_render_system->getMeshAssetIdAllocator();
+
+        // assign some value that won't be used by other game objects
+        {
+            VKernel::GameObjectPartId axis_instance_id = {0xFFAA, 0xFFAA};
+            VKernel::MeshSourceDesc   mesh_source_desc = {"%%translation_axis%%"};
+
+            m_translation_axis.m_instance_id   = instance_id_allocator.allocGuid(axis_instance_id);
+            m_translation_axis.m_mesh_asset_id = mesh_asset_id_allocator.allocGuid(mesh_source_desc);
+        }
+
+        {
+            VKernel::GameObjectPartId axis_instance_id = {0xFFBB, 0xFFBB};
+            VKernel::MeshSourceDesc   mesh_source_desc = {"%%rotate_axis%%"};
+
+            m_rotation_axis.m_instance_id   = instance_id_allocator.allocGuid(axis_instance_id);
+            m_rotation_axis.m_mesh_asset_id = mesh_asset_id_allocator.allocGuid(mesh_source_desc);
+        }
+
+        {
+            VKernel::GameObjectPartId axis_instance_id = {0xFFCC, 0xFFCC};
+            VKernel::MeshSourceDesc   mesh_source_desc = {"%%scale_axis%%"};
+
+            m_scale_aixs.m_instance_id   = instance_id_allocator.allocGuid(axis_instance_id);
+            m_scale_aixs.m_mesh_asset_id = mesh_asset_id_allocator.allocGuid(mesh_source_desc);
+        }
+
+        //
+        g_editor_global_context.m_render_system->createAxis(
+            {m_translation_axis, m_rotation_axis, m_scale_aixs},
+            {m_translation_axis.m_mesh_data, m_rotation_axis.m_mesh_data, m_scale_aixs.m_mesh_data});
+    }
+
+    void EditorSceneManager::drawSelectedEntityAxis()
+    {
+        std::shared_ptr<VKernel::GObject> selected_object = getSelectedGObject().lock(); ///< get selected object
+
+        if (selected_object != nullptr)
+        {
+            // get selected object TransformComponent
+            VKernel::TransformComponent* transform_component =
+                selected_object->tryGetComponent(VKernel::TransformComponent, "TransformComponent");
+
+            // decomposition
+            VKernel::Vector3    scale;
+            VKernel::Quaternion rotation;
+            VKernel::Vector3    translation;
+            transform_component->getMatrix().decomposition(translation, scale, rotation);
+
+            // The model matrix of the axis
+            VKernel::Matrix4x4 translation_matrix = VKernel::Matrix4x4::getTrans(translation);
+            VKernel::Matrix4x4 scale_matrix       = VKernel::Matrix4x4::buildScaleMatrix(1.0f, 1.0f, 1.0f);
+            VKernel::Matrix4x4 axis_model_matrix  = translation_matrix * scale_matrix;
+
+            VKernel::RenderEntity* selected_aixs = getAxisMeshByType(m_axis_mode); ///< get axis object
+
+            if (m_axis_mode == EditorAxisMode::TranslateMode || m_axis_mode == EditorAxisMode::RotateMode)
+            {
+                selected_aixs->m_model_matrix = axis_model_matrix; ///< update
+            }
+            else if (m_axis_mode == EditorAxisMode::ScaleMode)
+            {
+                selected_aixs->m_model_matrix = axis_model_matrix * VKernel::Matrix4x4(rotation);
+            }
+
+            g_editor_global_context.m_render_system->setVisibleAxis(*selected_aixs); ///< set Visible
+        }
+        else
+        {
+            g_editor_global_context.m_render_system->setVisibleAxis(std::nullopt);
+        }
     }
 } // namespace ReCoder

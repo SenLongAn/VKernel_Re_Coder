@@ -23,15 +23,21 @@ namespace VKernel
             _mesh_global = 0,   ///< MVP
             _mesh_per_material, ///< material texture
             _skybox,            ///< skybox
+            _axis,              ///< Gizmo axis
             _layout_type_count
         };
 
         enum RenderPipeLineType : uint8_t ///< pipline type
         {
             _render_pipeline_type_mesh_lighting = 0, ///< forward render
-            _render_pipeline_type_skybox,            // skybox
+            _render_pipeline_type_skybox,            ///< skybox
+            _render_pipeline_type_axis,              ///< Gizmo axis
             _render_pipeline_type_count
         };
+
+    public:
+        // axis
+        bool m_is_show_axis {false};
 
     public:
         void initialize(const RenderPassInitInfo* init_info) override final; ///< init
@@ -52,6 +58,10 @@ namespace VKernel
 
         MeshPerframeStorageBufferObject m_mesh_perframe_storage_buffer_object;
 
+        // axis
+        size_t                  m_selected_axis {3};
+        AxisStorageBufferObject m_axis_storage_buffer_object;
+
     private:
         // init
         void setupAttachments(); ///< attachment image and iamge view
@@ -63,9 +73,11 @@ namespace VKernel
 
         void setupModelGlobalDescriptorSet(); ///< bind buffer and set
         void setupSkyboxDescriptorSet();
+        void setupAxisDescriptorSet();
 
         // draw
         void drawMeshLighting(); ///< forward render scene
         void drawSkybox();
+        void drawAxis();
     };
 } // namespace VKernel

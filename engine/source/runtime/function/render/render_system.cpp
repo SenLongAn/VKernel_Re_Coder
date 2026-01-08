@@ -143,6 +143,30 @@ namespace VKernel
         return m_render_scene->getGObjectIDByMeshID(mesh_id);
     }
 
+    GuidAllocator<GameObjectPartId>& RenderSystem::getGOInstanceIdAllocator()
+    {
+        return m_render_scene->getInstanceIdAllocator();
+    }
+
+    GuidAllocator<MeshSourceDesc>& RenderSystem::getMeshAssetIdAllocator()
+    {
+        return m_render_scene->getMeshAssetIdAllocator();
+    }
+
+    void RenderSystem::setVisibleAxis(std::optional<RenderEntity> axis)
+    {
+        m_render_scene->m_render_axis = axis;
+
+        if (axis.has_value())
+        {
+            std::static_pointer_cast<RenderPipeline>(m_render_pipeline)->setAxisVisibleState(true);
+        }
+        else
+        {
+            std::static_pointer_cast<RenderPipeline>(m_render_pipeline)->setAxisVisibleState(false);
+        }
+    }
+
     void RenderSystem::swapLogicRenderData() { m_swap_context.swapLogicRenderData(); }
 
     void RenderSystem::initializeUIRenderBackend(WindowUI* window_ui)
@@ -176,6 +200,15 @@ namespace VKernel
         const std::string&             global_rendering_res_url = config_manager->getGlobalRenderingResUrl();
         asset_manager->loadAsset(global_rendering_res_url, global_rendering_res);
         m_render_camera->resetData(global_rendering_res.m_camera_config);
+    }
+
+    void RenderSystem::createAxis(std::array<RenderEntity, 3> axis_entities, std::array<RenderMeshData, 3> mesh_datas)
+    {
+        for (int i = 0; i < axis_entities.size(); i++)
+        {
+            // create buffer and descriptor
+            m_render_resource->uploadGameObjectRenderResource(m_vulkan_api, axis_entities[i], mesh_datas[i]);
+        }
     }
 
     void RenderSystem::processSwapData()

@@ -1,9 +1,13 @@
 #pragma once
 
+#include "runtime/function/render/render_entity.h"
+#include "runtime/function/render/render_guid_allocator.h"
 #include "runtime/function/render/render_pipeline_base.h"
 #include "runtime/function/render/render_swap_context.h"
 
+#include <array>
 #include <memory>
+#include <optional>
 
 /**
  * render core
@@ -34,7 +38,13 @@ namespace VKernel
         std::shared_ptr<RenderResourceBase> getRenderResource() const;
         uint32_t                            getGuidOfPickedMesh(const Vector2& picked_uv);
         GObjectID                           getGObjectIDByMeshID(uint32_t mesh_id) const;
+        GuidAllocator<GameObjectPartId>&    getGOInstanceIdAllocator();
+        GuidAllocator<MeshSourceDesc>&      getMeshAssetIdAllocator();
 
+        // set
+        void setVisibleAxis(std::optional<RenderEntity> axis);
+
+        //
         void swapLogicRenderData(); ///< swap Logic Render Data
 
         void initializeUIRenderBackend(WindowUI* window_ui); ///< init editor ui Backend: vulkan and glfw
@@ -45,6 +55,8 @@ namespace VKernel
                                          float height); ///< update render viewport
 
         void clearForLevelReloading(); ///< clear level
+
+        void createAxis(std::array<RenderEntity, 3> axis_entities, std::array<RenderMeshData, 3> mesh_datas);
 
     private:
         // direct management

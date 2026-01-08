@@ -4,11 +4,14 @@
 #include "runtime/function/render/render_mesh.h"
 #include "runtime/function/render/render_resource.h"
 
+#include <axis_frag.h>
+#include <axis_vert.h>
 #include <mesh_frag.h>
 #include <mesh_vert.h>
 #include <skybox_frag.h>
 #include <skybox_vert.h>
 
+#include "main_camera_pass.h"
 #include <map>
 #include <stdexcept>
 
@@ -66,6 +69,8 @@ namespace VKernel
         drawMeshLighting();
 
         drawSkybox();
+
+        drawAxis();
 
         vkCmdNextSubpass(m_vulkan_api->getCurrentCommandBuffer(), VK_SUBPASS_CONTENTS_INLINE);
 
@@ -435,6 +440,38 @@ namespace VKernel
                 throw std::runtime_error("create skybox layout");
             }
         }
+
+        // _axis
+        {
+            VkDescriptorSetLayoutBinding axis_layout_bindings[2];
+
+            VkDescriptorSetLayoutBinding& axis_layout_perframe_storage_buffer_binding = axis_layout_bindings[0];
+            axis_layout_perframe_storage_buffer_binding.binding                       = 0;
+            axis_layout_perframe_storage_buffer_binding.descriptorType     = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC;
+            axis_layout_perframe_storage_buffer_binding.descriptorCount    = 1;
+            axis_layout_perframe_storage_buffer_binding.stageFlags         = VK_SHADER_STAGE_VERTEX_BIT;
+            axis_layout_perframe_storage_buffer_binding.pImmutableSamplers = NULL;
+
+            VkDescriptorSetLayoutBinding& axis_layout_storage_buffer_binding = axis_layout_bindings[1];
+            axis_layout_storage_buffer_binding.binding                       = 1;
+            axis_layout_storage_buffer_binding.descriptorType                = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+            axis_layout_storage_buffer_binding.descriptorCount               = 1;
+            axis_layout_storage_buffer_binding.stageFlags                    = VK_SHADER_STAGE_VERTEX_BIT;
+            axis_layout_storage_buffer_binding.pImmutableSamplers            = NULL;
+
+            VkDescriptorSetLayoutCreateInfo axis_layout_create_info {};
+            axis_layout_create_info.sType        = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+            axis_layout_create_info.bindingCount = 2;
+            axis_layout_create_info.pBindings    = axis_layout_bindings;
+
+            if (VK_SUCCESS != vkCreateDescriptorSetLayout(m_vulkan_api->getLogicDevice(),
+                                                          &axis_layout_create_info,
+                                                          nullptr,
+                                                          &m_descriptor_infos[_axis].layout))
+            {
+                throw std::runtime_error("create axis layout");
+            }
+        }
     }
 
     void MainCameraPass::setupPipelines()
@@ -742,12 +779,163 @@ namespace VKernel
             m_vulkan_api->destroyShaderModule(vert_shader_module);
             m_vulkan_api->destroyShaderModule(frag_shader_module);
         }
+
+        // draw axis
+        {
+            // Pipeline Layout
+            VkDescriptorSetLayout      descriptorset_layouts[1] = {m_descriptor_infos[_axis].layout};
+            VkPipelineLayoutCreateInfo pipeline_layout_create_info {};
+            pipeline_layout_create_info.sType          = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+            pipeline_layout_create_info.setLayoutCount = 1;
+            pipeline_layout_create_info.pSetLayouts    = descriptorset_layouts;
+
+            if (vkCreatePipelineLayout(m_vulkan_api->getLogicDevice(),
+                                       &pipeline_layout_create_info,
+                                       nullptr,
+                                       &m_render_pipelines[_render_pipeline_type_axis].layout) != VK_SUCCESS)
+            {
+                throw std::runtime_error("create axis pipeline layout");
+            }
+
+            // Shader Module
+            VkShaderModule vert_shader_module = m_vulkan_api->createShaderModule(AXIS_VERT);
+            VkShaderModule frag_shader_module = m_vulkan_api->createShaderModule(AXIS_FRAG);
+
+            VkPipelineShaderStageCreateInfo vert_pipeline_shader_stage_create_info {};
+            vert_pipeline_shader_stage_create_info.sType  = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+            vert_pipeline_shader_stage_create_info.stage  = VK_SHADER_STAGE_VERTEX_BIT;
+            vert_pipeline_shader_stage_create_info.module = vert_shader_module;
+            vert_pipeline_shader_stage_create_info.pName  = "main";
+
+            VkPipelineShaderStageCreateInfo frag_pipeline_shader_stage_create_info {};
+            frag_pipeline_shader_stage_create_info.sType  = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+            frag_pipeline_shader_stage_create_info.stage  = VK_SHADER_STAGE_FRAGMENT_BIT;
+            frag_pipeline_shader_stage_create_info.module = frag_shader_module;
+            frag_pipeline_shader_stage_create_info.pName  = "main";
+
+            VkPipelineShaderStageCreateInfo shader_stages[] = {vert_pipeline_shader_stage_create_info,
+                                                               frag_pipeline_shader_stage_create_info};
+
+            // VertexInput state
+            auto                                 vertex_binding_descriptions   = MeshVertex::getBindingDescriptions();
+            auto                                 vertex_attribute_descriptions = MeshVertex::getAttributeDescriptions();
+            VkPipelineVertexInputStateCreateInfo vertex_input_state_create_info {};
+            vertex_input_state_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+            vertex_input_state_create_info.vertexBindingDescriptionCount   = vertex_binding_descriptions.size();
+            vertex_input_state_create_info.pVertexBindingDescriptions      = &vertex_binding_descriptions[0];
+            vertex_input_state_create_info.vertexAttributeDescriptionCount = vertex_attribute_descriptions.size();
+            vertex_input_state_create_info.pVertexAttributeDescriptions    = &vertex_attribute_descriptions[0];
+
+            // Assembly State
+            VkPipelineInputAssemblyStateCreateInfo input_assembly_create_info {};
+            input_assembly_create_info.sType    = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+            input_assembly_create_info.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+            input_assembly_create_info.primitiveRestartEnable = VK_FALSE;
+
+            // Viewport State
+            VkPipelineViewportStateCreateInfo viewport_state_create_info {};
+            viewport_state_create_info.sType         = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+            viewport_state_create_info.viewportCount = 1;
+            viewport_state_create_info.scissorCount  = 1;
+
+            // Rasterization State
+            VkPipelineRasterizationStateCreateInfo rasterization_state_create_info {};
+            rasterization_state_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+            rasterization_state_create_info.depthClampEnable        = VK_FALSE;
+            rasterization_state_create_info.rasterizerDiscardEnable = VK_FALSE;
+            rasterization_state_create_info.polygonMode             = VK_POLYGON_MODE_FILL;
+            rasterization_state_create_info.lineWidth               = 1.0f;
+            rasterization_state_create_info.cullMode                = VK_CULL_MODE_NONE;
+            rasterization_state_create_info.frontFace               = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+            rasterization_state_create_info.depthBiasEnable         = VK_FALSE;
+            rasterization_state_create_info.depthBiasConstantFactor = 0.0f;
+            rasterization_state_create_info.depthBiasClamp          = 0.0f;
+            rasterization_state_create_info.depthBiasSlopeFactor    = 0.0f;
+
+            // Multisample State
+            VkPipelineMultisampleStateCreateInfo multisample_state_create_info {};
+            multisample_state_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+            multisample_state_create_info.sampleShadingEnable  = VK_FALSE;
+            multisample_state_create_info.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+
+            // ColorBlendAttachment State
+            VkPipelineColorBlendAttachmentState color_blend_attachment_state {};
+            color_blend_attachment_state.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
+                                                          VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+            color_blend_attachment_state.blendEnable         = VK_FALSE;
+            color_blend_attachment_state.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
+            color_blend_attachment_state.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
+            color_blend_attachment_state.colorBlendOp        = VK_BLEND_OP_ADD;
+            color_blend_attachment_state.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+            color_blend_attachment_state.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+            color_blend_attachment_state.alphaBlendOp        = VK_BLEND_OP_ADD;
+
+            VkPipelineColorBlendStateCreateInfo color_blend_state_create_info {};
+            color_blend_state_create_info.sType             = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+            color_blend_state_create_info.logicOpEnable     = VK_FALSE;
+            color_blend_state_create_info.logicOp           = VK_LOGIC_OP_COPY;
+            color_blend_state_create_info.attachmentCount   = 1;
+            color_blend_state_create_info.pAttachments      = &color_blend_attachment_state;
+            color_blend_state_create_info.blendConstants[0] = 0.0f;
+            color_blend_state_create_info.blendConstants[1] = 0.0f;
+            color_blend_state_create_info.blendConstants[2] = 0.0f;
+            color_blend_state_create_info.blendConstants[3] = 0.0f;
+
+            // depth state
+            VkPipelineDepthStencilStateCreateInfo depth_stencil_create_info {};
+            depth_stencil_create_info.sType            = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+            depth_stencil_create_info.depthTestEnable  = VK_FALSE;
+            depth_stencil_create_info.depthWriteEnable = VK_FALSE;
+            depth_stencil_create_info.depthCompareOp   = VK_COMPARE_OP_LESS;
+            depth_stencil_create_info.depthBoundsTestEnable = VK_FALSE;
+            depth_stencil_create_info.stencilTestEnable     = VK_FALSE;
+
+            // Dynamic State
+            VkDynamicState                   dynamic_states[] = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
+            VkPipelineDynamicStateCreateInfo dynamic_state_create_info {};
+            dynamic_state_create_info.sType             = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+            dynamic_state_create_info.dynamicStateCount = 2;
+            dynamic_state_create_info.pDynamicStates    = dynamic_states;
+
+            // Pipeline info
+            VkGraphicsPipelineCreateInfo pipelineInfo {};
+            pipelineInfo.sType               = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+            pipelineInfo.stageCount          = 2;
+            pipelineInfo.pStages             = shader_stages;
+            pipelineInfo.pVertexInputState   = &vertex_input_state_create_info;
+            pipelineInfo.pInputAssemblyState = &input_assembly_create_info;
+            pipelineInfo.pViewportState      = &viewport_state_create_info;
+            pipelineInfo.pRasterizationState = &rasterization_state_create_info;
+            pipelineInfo.pMultisampleState   = &multisample_state_create_info;
+            pipelineInfo.pColorBlendState    = &color_blend_state_create_info;
+            pipelineInfo.pDynamicState       = &dynamic_state_create_info;
+            pipelineInfo.pDepthStencilState  = &depth_stencil_create_info;
+            pipelineInfo.layout              = m_render_pipelines[_render_pipeline_type_axis].layout;
+            pipelineInfo.renderPass          = m_framebuffer.render_pass;
+            pipelineInfo.subpass             = _main_camera_subpass_forward_lighting;
+            pipelineInfo.basePipelineHandle  = VK_NULL_HANDLE;
+
+            if (VK_SUCCESS != vkCreateGraphicsPipelines(m_vulkan_api->getLogicDevice(),
+                                                        VK_NULL_HANDLE,
+                                                        1,
+                                                        &pipelineInfo,
+                                                        nullptr,
+                                                        &m_render_pipelines[_render_pipeline_type_axis].pipeline))
+            {
+                throw std::runtime_error("create axis graphics pipeline");
+            }
+
+            // destory shader module
+            m_vulkan_api->destroyShaderModule(vert_shader_module);
+            m_vulkan_api->destroyShaderModule(frag_shader_module);
+        }
     }
 
     void VKernel::MainCameraPass::setupDescriptorSet()
     {
         setupModelGlobalDescriptorSet();
         setupSkyboxDescriptorSet();
+        setupAxisDescriptorSet();
     }
 
     void MainCameraPass::setupSwapchainFramebuffers()
@@ -940,6 +1128,61 @@ namespace VKernel
         skybox_descriptor_writes_info[1].pImageInfo      = &specular_texture_image_info;
 
         vkUpdateDescriptorSets(m_vulkan_api->getLogicDevice(), 2, skybox_descriptor_writes_info, 0, NULL);
+    }
+
+    void MainCameraPass::setupAxisDescriptorSet()
+    {
+        // DescriptorSet
+        VkDescriptorSetAllocateInfo axis_descriptor_set_alloc_info;
+        axis_descriptor_set_alloc_info.sType              = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+        axis_descriptor_set_alloc_info.pNext              = NULL;
+        axis_descriptor_set_alloc_info.descriptorPool     = m_vulkan_api->getDescriptorPool();
+        axis_descriptor_set_alloc_info.descriptorSetCount = 1;
+        axis_descriptor_set_alloc_info.pSetLayouts        = &m_descriptor_infos[_axis].layout;
+
+        if (VK_SUCCESS != vkAllocateDescriptorSets(m_vulkan_api->getLogicDevice(),
+                                                   &axis_descriptor_set_alloc_info,
+                                                   &m_descriptor_infos[_axis].descriptor_set))
+        {
+            throw std::runtime_error("allocate axis descriptor set");
+        }
+
+        // DescriptorSet bind buffer
+        VkDescriptorBufferInfo mesh_perframe_storage_buffer_info = {};
+        mesh_perframe_storage_buffer_info.offset                 = 0;
+        mesh_perframe_storage_buffer_info.range                  = sizeof(MeshPerframeStorageBufferObject);
+        mesh_perframe_storage_buffer_info.buffer = m_global_render_resource->_storage_buffer._global_upload_ringbuffer;
+
+        VkDescriptorBufferInfo axis_storage_buffer_info = {};
+        axis_storage_buffer_info.offset                 = 0;
+        axis_storage_buffer_info.range                  = sizeof(AxisStorageBufferObject);
+        axis_storage_buffer_info.buffer = m_global_render_resource->_storage_buffer._axis_inefficient_storage_buffer;
+
+        VkWriteDescriptorSet axis_descriptor_writes_info[2];
+
+        axis_descriptor_writes_info[0].sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        axis_descriptor_writes_info[0].pNext           = NULL;
+        axis_descriptor_writes_info[0].dstSet          = m_descriptor_infos[_axis].descriptor_set;
+        axis_descriptor_writes_info[0].dstBinding      = 0;
+        axis_descriptor_writes_info[0].dstArrayElement = 0;
+        axis_descriptor_writes_info[0].descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC;
+        axis_descriptor_writes_info[0].descriptorCount = 1;
+        axis_descriptor_writes_info[0].pBufferInfo     = &mesh_perframe_storage_buffer_info;
+
+        axis_descriptor_writes_info[1].sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        axis_descriptor_writes_info[1].pNext           = NULL;
+        axis_descriptor_writes_info[1].dstSet          = m_descriptor_infos[_axis].descriptor_set;
+        axis_descriptor_writes_info[1].dstBinding      = 1;
+        axis_descriptor_writes_info[1].dstArrayElement = 0;
+        axis_descriptor_writes_info[1].descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+        axis_descriptor_writes_info[1].descriptorCount = 1;
+        axis_descriptor_writes_info[1].pBufferInfo     = &axis_storage_buffer_info;
+
+        vkUpdateDescriptorSets(m_vulkan_api->getLogicDevice(),
+                               (uint32_t)(sizeof(axis_descriptor_writes_info) / sizeof(axis_descriptor_writes_info[0])),
+                               axis_descriptor_writes_info,
+                               0,
+                               NULL);
     }
 
     void MainCameraPass::drawMeshLighting()
@@ -1146,6 +1389,85 @@ namespace VKernel
                                 1,
                                 &perframe_dynamic_offset);
         vkCmdDraw(m_vulkan_api->getCurrentCommandBuffer(), 36, 1, 0, 0); // 2 triangles(6 vertex) each face, 6 faces
+    }
+
+    void MainCameraPass::drawAxis()
+    {
+
+        if (!m_is_show_axis)
+            return;
+
+        // write MeshPerframeStorageBufferObject data
+        uint32_t perframe_dynamic_offset =
+            roundUp(m_global_render_resource->_storage_buffer
+                        ._global_upload_ringbuffers_end[m_vulkan_api->getCurrentFrameIndex()],
+                    m_global_render_resource->_storage_buffer._min_storage_buffer_offset_alignment);
+
+        m_global_render_resource->_storage_buffer._global_upload_ringbuffers_end[m_vulkan_api->getCurrentFrameIndex()] =
+            perframe_dynamic_offset + sizeof(MeshPerframeStorageBufferObject);
+        assert(m_global_render_resource->_storage_buffer
+                   ._global_upload_ringbuffers_end[m_vulkan_api->getCurrentFrameIndex()] <=
+               (m_global_render_resource->_storage_buffer
+                    ._global_upload_ringbuffers_begin[m_vulkan_api->getCurrentFrameIndex()] +
+                m_global_render_resource->_storage_buffer
+                    ._global_upload_ringbuffers_size[m_vulkan_api->getCurrentFrameIndex()]));
+
+        (*reinterpret_cast<MeshPerframeStorageBufferObject*>(
+            reinterpret_cast<uintptr_t>(
+                m_global_render_resource->_storage_buffer._global_upload_ringbuffer_memory_pointer) +
+            perframe_dynamic_offset)) = m_mesh_perframe_storage_buffer_object;
+
+        // bind pipline
+        vkCmdBindPipeline(m_vulkan_api->getCurrentCommandBuffer(),
+                          VK_PIPELINE_BIND_POINT_GRAPHICS,
+                          m_render_pipelines[_render_pipeline_type_axis].pipeline);
+
+        // viewport and scissor
+        SwapChainDesc swap_chain_desc = m_vulkan_api->getSwapchainInfo();
+        vkCmdSetViewport(m_vulkan_api->getCurrentCommandBuffer(), 0, 1, &swap_chain_desc.viewport);
+        vkCmdSetScissor(m_vulkan_api->getCurrentCommandBuffer(), 0, 1, &swap_chain_desc.scissor);
+
+        // Bind DescriptorSet
+        vkCmdBindDescriptorSets(m_vulkan_api->getCurrentCommandBuffer(),
+                                VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                m_render_pipelines[_render_pipeline_type_axis].layout,
+                                0,
+                                1,
+                                &m_descriptor_infos[_axis].descriptor_set,
+                                1,
+                                &perframe_dynamic_offset);
+
+        // write data to axis_storage_buffer
+        m_axis_storage_buffer_object.selected_axis = m_selected_axis;
+        m_axis_storage_buffer_object.model_matrix  = m_visiable_nodes.p_axis_node->model_matrix;
+        (*reinterpret_cast<AxisStorageBufferObject*>(reinterpret_cast<uintptr_t>(
+            m_global_render_resource->_storage_buffer._axis_inefficient_storage_buffer_memory_pointer))) =
+            m_axis_storage_buffer_object; ///< write to GPU map
+
+        // bind vertex buffer
+        VkBuffer vertex_buffers[3] = {
+            m_visiable_nodes.p_axis_node->ref_mesh->mesh_vertex_position_buffer,
+            m_visiable_nodes.p_axis_node->ref_mesh->mesh_vertex_varying_enable_blending_buffer,
+            m_visiable_nodes.p_axis_node->ref_mesh->mesh_vertex_varying_buffer};
+        VkDeviceSize offsets[3] = {0, 0, 0};
+        vkCmdBindVertexBuffers(m_vulkan_api->getCurrentCommandBuffer(),
+                               0,
+                               (sizeof(vertex_buffers) / sizeof(vertex_buffers[0])),
+                               vertex_buffers,
+                               offsets);
+        // bind indice buffer
+        vkCmdBindIndexBuffer(m_vulkan_api->getCurrentCommandBuffer(),
+                             m_visiable_nodes.p_axis_node->ref_mesh->mesh_index_buffer,
+                             0,
+                             VK_INDEX_TYPE_UINT16);
+
+        // drawcall
+        vkCmdDrawIndexed(m_vulkan_api->getCurrentCommandBuffer(),
+                         m_visiable_nodes.p_axis_node->ref_mesh->mesh_index_count,
+                         1,
+                         0,
+                         0,
+                         0);
     }
 
 } // namespace VKernel

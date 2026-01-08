@@ -40,6 +40,37 @@ namespace ReCoder
 
     void EditorUI::preRender() { showEditorUI(); }
 
+    void EditorUI::drawAxisToggleButton(const char* string_id, bool check_state, int axis_mode)
+    {
+        if (check_state) ///< If this button is selected
+        {
+            // set id and color
+            ImGui::PushID(string_id);
+            ImVec4 check_button_color = ImVec4(93.0f / 255.0f, 10.0f / 255.0f, 66.0f / 255.0f, 1.00f);
+            ImGui::PushStyleColor(ImGuiCol_Button,
+                                  ImVec4(check_button_color.x, check_button_color.y, check_button_color.z, 0.40f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, check_button_color);
+            ImGui::PushStyleColor(ImGuiCol_ButtonActive, check_button_color);
+
+            // render button
+            ImGui::Button(string_id);
+
+            // pop
+            ImGui::PopStyleColor(3);
+            ImGui::PopID();
+        }
+        else
+        {
+            if (ImGui::Button(string_id)) ///< render, and When the button is clicked
+            {
+                check_state = true;
+                g_editor_global_context.m_scene_manager->setEditorAxisMode(
+                    (EditorAxisMode)axis_mode);                                    ///< update axis mode
+                g_editor_global_context.m_scene_manager->drawSelectedEntityAxis(); ///< render gizmo axis
+            }
+        }
+    }
+
     void EditorUI::showEditorUI()
     {
         // Render 5 windows
@@ -227,8 +258,52 @@ namespace ReCoder
             ImGui::End();
             return;
         }
-        ImGui::Button("Hello World!");
 
+        // Set the switch according to the current axis mode
+        static bool trans_button_ckecked  = false;
+        static bool rotate_button_ckecked = false;
+        static bool scale_button_ckecked  = false;
+
+        switch (g_editor_global_context.m_scene_manager->getEditorAxisMode())
+        {
+            case EditorAxisMode::TranslateMode:
+                trans_button_ckecked  = true;
+                rotate_button_ckecked = false;
+                scale_button_ckecked  = false;
+                break;
+            case EditorAxisMode::RotateMode:
+                trans_button_ckecked  = false;
+                rotate_button_ckecked = true;
+                scale_button_ckecked  = false;
+                break;
+            case EditorAxisMode::ScaleMode:
+                trans_button_ckecked  = false;
+                rotate_button_ckecked = false;
+                scale_button_ckecked  = true;
+                break;
+            default:
+                break;
+        }
+
+        // MenuBar
+        if (ImGui::BeginMenuBar())
+        {
+            // axis mode
+            ImGui::Indent(10.f);
+            drawAxisToggleButton("Trans", trans_button_ckecked, (int)EditorAxisMode::TranslateMode);
+            ImGui::Unindent();
+
+            ImGui::SameLine();
+
+            drawAxisToggleButton("Rotate", rotate_button_ckecked, (int)EditorAxisMode::RotateMode);
+
+            ImGui::SameLine();
+
+            drawAxisToggleButton("Scale", scale_button_ckecked, (int)EditorAxisMode::ScaleMode);
+
+            ImGui::Unindent();
+            ImGui::EndMenuBar();
+        }
         //
         if (ImGui::IsMouseClicked(0))
         {

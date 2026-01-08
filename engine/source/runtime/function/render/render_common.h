@@ -89,12 +89,19 @@ namespace VKernel
         uint32_t  node_ids[s_mesh_per_drawcall_max_instance_count];       ///< submesh id
     };
 
+    struct AxisStorageBufferObject
+    {
+        Matrix4x4 model_matrix  = Matrix4x4::IDENTITY;
+        uint32_t  selected_axis = 3;
+    };
+
     // mesh
     struct VulkanMesh
     {
         // vertex
         uint32_t mesh_vertex_count; ///< count
 
+        // render_mesh.h
         VkBuffer      mesh_vertex_position_buffer;            ///< buffer
         VmaAllocation mesh_vertex_position_buffer_allocation; ///< allocation
 
@@ -145,5 +152,12 @@ namespace VKernel
         const Matrix4x4*   model_matrix {nullptr};
         VulkanMesh*        ref_mesh {nullptr};
         VulkanPBRMaterial* ref_material {nullptr};
+    };
+
+    struct RenderAxisNode ///< axis data
+    {
+        Matrix4x4   model_matrix {Matrix4x4::IDENTITY};
+        VulkanMesh* ref_mesh {nullptr};
+        uint32_t    node_id;
     };
 } // namespace VKernel

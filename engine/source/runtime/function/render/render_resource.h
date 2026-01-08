@@ -48,6 +48,11 @@ namespace VKernel
         std::vector<uint32_t> _global_upload_ringbuffers_begin;
         std::vector<uint32_t> _global_upload_ringbuffers_end;
         std::vector<uint32_t> _global_upload_ringbuffers_size;
+
+        // axis
+        VkBuffer       _axis_inefficient_storage_buffer;
+        VkDeviceMemory _axis_inefficient_storage_buffer_memory;
+        void*          _axis_inefficient_storage_buffer_memory_pointer;
     };
 
     struct GlobalRenderResource

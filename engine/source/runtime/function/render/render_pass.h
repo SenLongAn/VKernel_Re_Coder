@@ -32,6 +32,7 @@ namespace VKernel
     {
         std::vector<RenderMeshNode>* p_directional_light_visible_mesh_nodes {nullptr}; ///< directional light
         std::vector<RenderMeshNode>* p_main_camera_visible_mesh_nodes {nullptr};       ///< main camera
+        RenderAxisNode*              p_axis_node {nullptr};                            ///< axis
     };
 
     class RenderPass : public RenderPassBase ///< attachment-related

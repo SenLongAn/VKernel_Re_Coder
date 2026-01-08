@@ -13,12 +13,14 @@ namespace VKernel
     {
         updateVisibleObjectsDirectionalLight(render_resource, camera);
         updateVisibleObjectsMainCamera(render_resource, camera);
+        updateVisibleObjectsAxis(render_resource);
     }
 
     void RenderScene::setVisibleNodesReference()
     {
         RenderPass::m_visiable_nodes.p_directional_light_visible_mesh_nodes = &m_directional_light_visible_mesh_nodes;
         RenderPass::m_visiable_nodes.p_main_camera_visible_mesh_nodes       = &m_main_camera_visible_mesh_nodes;
+        RenderPass::m_visiable_nodes.p_axis_node                            = &m_axis_node;
     }
 
     void RenderScene::clearForLevelReloading() { m_render_entities.clear(); }
@@ -99,6 +101,19 @@ namespace VKernel
             temp_node.ref_mesh                = &mesh_asset;
             VulkanPBRMaterial& material_asset = render_resource->getEntityMaterial(entity); ///< material
             temp_node.ref_material            = &material_asset;
+        }
+    }
+    void RenderScene::updateVisibleObjectsAxis(std::shared_ptr<RenderResource> render_resource)
+    {
+        if (m_render_axis.has_value())
+        {
+            RenderEntity& axis = *m_render_axis;
+
+            m_axis_node.model_matrix = axis.m_model_matrix;
+            m_axis_node.node_id      = axis.m_instance_id;
+
+            VulkanMesh& mesh_asset = render_resource->getEntityMesh(axis);
+            m_axis_node.ref_mesh   = &mesh_asset;
         }
     }
 } // namespace VKernel

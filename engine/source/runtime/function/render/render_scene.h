@@ -7,6 +7,7 @@
 #include "runtime/function/render/render_object.h"
 
 #include <memory>
+#include <optional>
 #include <vector>
 
 /**
@@ -28,9 +29,12 @@ namespace VKernel
         // visible objects
         std::vector<RenderMeshNode> m_directional_light_visible_mesh_nodes;
         std::vector<RenderMeshNode> m_main_camera_visible_mesh_nodes;
+        RenderAxisNode              m_axis_node;
 
         // render entities
         std::vector<RenderEntity> m_render_entities;
+
+        std::optional<RenderEntity> m_render_axis; ///< axis
 
     public:
         // update visible objects in each frame
@@ -63,5 +67,6 @@ namespace VKernel
                                                   std::shared_ptr<RenderCamera>   camera);
         void updateVisibleObjectsMainCamera(std::shared_ptr<RenderResource> render_resource,
                                             std::shared_ptr<RenderCamera>   camera);
+        void updateVisibleObjectsAxis(std::shared_ptr<RenderResource> render_resource);
     };
 } // namespace VKernel

@@ -163,6 +163,12 @@ namespace VKernel
                                  _storage_buffer._global_upload_ringbuffer,
                                  _storage_buffer._global_upload_ringbuffer_memory);
 
+        vulkan_api->createBuffer(sizeof(AxisStorageBufferObject),
+                                 VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
+                                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                                 _storage_buffer._axis_inefficient_storage_buffer,
+                                 _storage_buffer._axis_inefficient_storage_buffer_memory);
+
         // Unmap when program terminates
         vkMapMemory(vulkan_api->getLogicDevice(),
                     _storage_buffer._global_upload_ringbuffer_memory,
@@ -170,6 +176,12 @@ namespace VKernel
                     VK_WHOLE_SIZE,
                     0,
                     &_storage_buffer._global_upload_ringbuffer_memory_pointer);
+        vkMapMemory(vulkan_api->getLogicDevice(),
+                    _storage_buffer._axis_inefficient_storage_buffer_memory,
+                    0,
+                    VK_WHOLE_SIZE,
+                    0,
+                    &_storage_buffer._axis_inefficient_storage_buffer_memory_pointer);
 
         // init storage buffer offset
         _storage_buffer._global_upload_ringbuffers_begin.resize(frames_in_flight);
@@ -339,7 +351,6 @@ namespace VKernel
                                         VulkanMesh&                     now_mesh)
     {
         // vertex
-        assert(0 == (vertex_buffer_size % sizeof(MeshVertexDataDefinition))); ///< Is it an integer multiple
         now_mesh.mesh_vertex_count =
             vertex_buffer_size / sizeof(MeshVertexDataDefinition); ///< Calculate the number of meshe vertex
         updateVertexBuffer(vulkan_api,
@@ -350,7 +361,6 @@ namespace VKernel
                            now_mesh);
 
         // indices
-        assert(0 == (index_buffer_size % sizeof(uint32_t)));              ///< Is it an integer multiple
         now_mesh.mesh_index_count = index_buffer_size / sizeof(uint32_t); ///< Calculate the number of indices
         updateIndexBuffer(vulkan_api, index_buffer_size, index_buffer_data, now_mesh);
     }

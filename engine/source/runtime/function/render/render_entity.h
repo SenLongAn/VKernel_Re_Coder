@@ -21,8 +21,6 @@ namespace VKernel
         // mesh
         Matrix4x4 m_model_matrix {Matrix4x4::IDENTITY};
 
-        // material
-
         // bounding box(local)
         AxisAlignedBox m_bounding_box;
     };

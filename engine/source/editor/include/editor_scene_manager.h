@@ -4,6 +4,7 @@
 #include "runtime/core/math/vector2.h"
 #include "runtime/function/framework/object/object.h"
 
+#include "editor/include/axis.h"
 
 #include <memory>
 
@@ -16,6 +17,14 @@ namespace VKernel
  */
 namespace ReCoder
 {
+    enum class EditorAxisMode : int ///< axis mode
+    {
+        TranslateMode = 0,
+        RotateMode    = 1,
+        ScaleMode     = 2,
+        Default       = 3
+    };
+
     class EditorSceneManager
     {
     public:
@@ -27,20 +36,37 @@ namespace ReCoder
         {
             m_selected_gobject_id = selected_gobject_id;
         };
+        void setEditorAxisMode(EditorAxisMode new_axis_mode) { m_axis_mode = new_axis_mode; }
 
         // get
         std::shared_ptr<VKernel::RenderCamera> getEditorCamera() { return m_camera; };
         size_t                                 getGuidOfPickedMesh(const VKernel::Vector2& picked_uv) const;
         VKernel::GObjectID                     getSelectedObjectID() { return m_selected_gobject_id; };
         std::weak_ptr<VKernel::GObject>        getSelectedGObject() const;
+        EditorAxisMode                         getEditorAxisMode() { return m_axis_mode; }
+        VKernel::RenderEntity*
+        getAxisMeshByType(EditorAxisMode axis_mode); ///< Return the axis object according to the axis mode
 
         // update object
         void onGObjectSelected(VKernel::GObjectID selected_gobject_id);
+        void uploadAxisResource();     ///< Allocate entity ID and fill the vertex buffer
+        void drawSelectedEntityAxis(); ///< update axis Model matrix
 
     private:
         std::shared_ptr<VKernel::RenderCamera> m_camera;
 
         VKernel::GObjectID m_selected_gobject_id {VKernel::k_invalid_gobject_id};   ///< selected GO id
         VKernel::Matrix4x4 m_selected_object_matrix {VKernel::Matrix4x4::IDENTITY}; ///< selected GO matrix
+
+        // gizmo axis
+        VKernel::EditorTranslationAxis m_translation_axis; ///< axis object
+        VKernel::EditorRotationAxis    m_rotation_axis;
+        VKernel::EditorScaleAxis       m_scale_aixs;
+
+        EditorAxisMode m_axis_mode {EditorAxisMode::TranslateMode}; ///< current axis mode
+
+        size_t m_selected_axis {3}; ///< current Axis index of hovered mouse
+
+        bool m_is_show_axis = true; ///< Should the axis be displayed
     };
 } // namespace ReCoder
