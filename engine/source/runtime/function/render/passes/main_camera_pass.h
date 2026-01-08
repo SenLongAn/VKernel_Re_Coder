@@ -37,7 +37,8 @@ namespace VKernel
 
     public:
         // axis
-        bool m_is_show_axis {false};
+        bool   m_is_show_axis {false};
+        size_t m_selected_axis {3};
 
     public:
         void initialize(const RenderPassInitInfo* init_info) override final; ///< init
@@ -59,7 +60,6 @@ namespace VKernel
         MeshPerframeStorageBufferObject m_mesh_perframe_storage_buffer_object;
 
         // axis
-        size_t                  m_selected_axis {3};
         AxisStorageBufferObject m_axis_storage_buffer_object;
 
     private:

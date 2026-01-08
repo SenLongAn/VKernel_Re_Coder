@@ -14,6 +14,7 @@
 #include "runtime/core/math/math_headers.h"
 
 #include <iostream>
+
 namespace ReCoder
 {
     void EditorInputManager::initialize() { registerInput(); }
@@ -44,7 +45,7 @@ namespace ReCoder
 
     void EditorInputManager::onCursorPos(double xpos, double ypos)
     {
-        if (g_editor_global_context.m_window_system->isMouseButtonDown(GLFW_MOUSE_BUTTON_RIGHT))
+        if (g_editor_global_context.m_window_system->isMouseButtonDown(GLFW_MOUSE_BUTTON_RIGHT)) ///< mouse right
         {
             float angularVelocity =
                 180.0f / VKernel::Math::max(g_editor_global_context.m_window_system->getWindowSize()[0],
@@ -52,6 +53,16 @@ namespace ReCoder
 
             g_editor_global_context.m_render_system->getRenderCamera()->rotate(
                 VKernel::Vector2(ypos - m_mouse_y, xpos - m_mouse_x) * angularVelocity);
+        }
+        else
+        {
+            if (isCursorInRect(m_engine_window_pos, m_engine_window_size)) ///< If the mouse is inside the game window
+            {
+                VKernel::Vector2 cursor_uv =
+                    VKernel::Vector2((m_mouse_x - m_engine_window_pos.x) / m_engine_window_size.x,
+                                     (m_mouse_y - m_engine_window_pos.y) / m_engine_window_size.y); ///< Calculate uv
+                updateCursorOnAxis(cursor_uv); ///< update axis Model matrix
+            }
         }
         m_mouse_x = xpos;
         m_mouse_y = ypos;
@@ -108,6 +119,15 @@ namespace ReCoder
 
                 std::cout << "select_mesh_id: " << select_mesh_id << " gobject_id: " << gobject_id << std::endl;
             }
+        }
+    }
+
+    void EditorInputManager::updateCursorOnAxis(VKernel::Vector2 cursor_uv)
+    {
+        if (g_editor_global_context.m_scene_manager->getEditorCamera())
+        {
+            VKernel::Vector2 window_size(m_engine_window_size.x, m_engine_window_size.y);
+            m_cursor_on_axis = g_editor_global_context.m_scene_manager->updateCursorOnAxis(cursor_uv, window_size);
         }
     }
 

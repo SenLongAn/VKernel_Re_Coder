@@ -48,9 +48,12 @@ namespace ReCoder
         getAxisMeshByType(EditorAxisMode axis_mode); ///< Return the axis object according to the axis mode
 
         // update object
-        void onGObjectSelected(VKernel::GObjectID selected_gobject_id);
-        void uploadAxisResource();     ///< Allocate entity ID and fill the vertex buffer
-        void drawSelectedEntityAxis(); ///< update axis Model matrix
+        void   onGObjectSelected(VKernel::GObjectID selected_gobject_id);
+        void   uploadAxisResource();     ///< Allocate entity ID and fill the vertex buffer
+        void   drawSelectedEntityAxis(); ///< update axis Model matrix
+        size_t updateCursorOnAxis(
+            VKernel::Vector2 cursor_uv,
+            VKernel::Vector2 game_engine_window_size); ///< Calculate which axis the mouse is hovering over
 
     private:
         std::shared_ptr<VKernel::RenderCamera> m_camera;

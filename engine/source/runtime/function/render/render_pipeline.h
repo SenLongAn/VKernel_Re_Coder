@@ -20,8 +20,11 @@ namespace VKernel
 
         void passUpdateAfterRecreateSwapchain(); ///< destory and recreate framebuffer
 
+        // get
         virtual uint32_t getGuidOfPickedMesh(const Vector2& picked_uv) override final;
 
+        // set
         void setAxisVisibleState(bool state); ///< set axis visible
+        void setSelectedAxis(size_t selected_axis);
     };
 } // namespace VKernel

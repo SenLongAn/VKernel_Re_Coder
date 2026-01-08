@@ -132,4 +132,10 @@ namespace VKernel
         MainCameraPass& main_camera_pass = *(static_cast<MainCameraPass*>(m_main_camera_pass.get()));
         main_camera_pass.m_is_show_axis  = state; ///< set main camera memeber
     }
+
+    void RenderPipeline::setSelectedAxis(size_t selected_axis)
+    {
+        MainCameraPass& main_camera_pass = *(static_cast<MainCameraPass*>(m_main_camera_pass.get()));
+        main_camera_pass.m_selected_axis = selected_axis;
+    }
 } // namespace VKernel

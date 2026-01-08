@@ -39,6 +39,8 @@ namespace ReCoder
         void setEngineWindowPos(VKernel::Vector2 new_window_pos) { m_engine_window_pos = new_window_pos; };
         void setEngineWindowSize(VKernel::Vector2 new_window_size) { m_engine_window_size = new_window_size; };
 
+        void updateCursorOnAxis(VKernel::Vector2 cursor_uv);
+
     private:
         // mouse data
         float m_mouse_x {0.0f};
@@ -51,6 +53,9 @@ namespace ReCoder
         // game window size
         VKernel::Vector2 m_engine_window_pos {0.0f, 0.0f};
         VKernel::Vector2 m_engine_window_size {0.0f, 0.0f};
+
+        //
+        size_t m_cursor_on_axis {3};
 
     private:
         void registerInput(); ///< register func

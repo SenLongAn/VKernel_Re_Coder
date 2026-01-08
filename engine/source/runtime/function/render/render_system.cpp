@@ -167,6 +167,11 @@ namespace VKernel
         }
     }
 
+    void RenderSystem::setSelectedAxis(size_t selected_axis)
+    {
+        std::static_pointer_cast<RenderPipeline>(m_render_pipeline)->setSelectedAxis(selected_axis);
+    }
+
     void RenderSystem::swapLogicRenderData() { m_swap_context.swapLogicRenderData(); }
 
     void RenderSystem::initializeUIRenderBackend(WindowUI* window_ui)

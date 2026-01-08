@@ -43,6 +43,7 @@ namespace VKernel
 
         // set
         void setVisibleAxis(std::optional<RenderEntity> axis);
+        void setSelectedAxis(size_t selected_axis);
 
         //
         void swapLogicRenderData(); ///< swap Logic Render Data

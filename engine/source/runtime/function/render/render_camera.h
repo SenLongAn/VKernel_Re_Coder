@@ -19,11 +19,13 @@ namespace VKernel
 
         Vector3 up() const { return (m_invRotation * Z); }      ///< up vector, The three axes represent rotation.
         Vector3 forward() const { return (m_invRotation * Y); } ///< forward vector
+        Vector3 right() const { return (m_invRotation * X); }
 
         Matrix4x4 getViewMatrix();           ///< view Matrix
         Matrix4x4 getPersProjMatrix() const; ///< projection Matrix
 
         Vector2 getFOV() const { return {m_fovx, m_fovy}; } ///< fov
+        float   getFovYDeprecated() const { return m_fovy; }
 
         Quaternion rotation() const { return m_rotation; }
 
