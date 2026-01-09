@@ -6,26 +6,26 @@
 /**
  * Gizmo data: vertex data and buffer
  */
-namespace VKernel
+namespace ReCoder
 {
-    class EditorTranslationAxis : public RenderEntity ///< Translation
+    class EditorTranslationAxis : public VKernel::RenderEntity ///< Translation
     {
     public:
         EditorTranslationAxis();
-        RenderMeshData m_mesh_data;
+        VKernel::RenderMeshData m_mesh_data;
     };
 
-    class EditorRotationAxis : public RenderEntity ///< Rotation
+    class EditorRotationAxis : public VKernel::RenderEntity ///< Rotation
     {
     public:
         EditorRotationAxis();
-        RenderMeshData m_mesh_data;
+        VKernel::RenderMeshData m_mesh_data;
     };
 
-    class EditorScaleAxis : public RenderEntity ///< Scale
+    class EditorScaleAxis : public VKernel::RenderEntity ///< Scale
     {
     public:
         EditorScaleAxis();
-        RenderMeshData m_mesh_data;
+        VKernel::RenderMeshData m_mesh_data;
     };
-} // namespace VKernel
+} // namespace ReCoder

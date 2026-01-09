@@ -8,6 +8,7 @@
 #include "runtime/resource/config_manager/config_manager.h"
 
 #include "runtime/function/framework/world/world_manager.h"
+#include "runtime/platform/file_service/file_service.h"
 
 #include "runtime/function/input/input_system.h"
 
@@ -17,6 +18,8 @@ namespace VKernel
 
     void RuntimeGlobalContext::startSystems(const std::string& config_file_path)
     {
+        m_file_system = std::make_shared<FileSystem>();
+
         m_config_manager = std::make_shared<ConfigManager>();
         m_config_manager->initialize(config_file_path);
 
@@ -58,5 +61,7 @@ namespace VKernel
         m_asset_manager.reset();
 
         m_config_manager.reset();
+
+        m_file_system.reset();
     }
 } // namespace VKernel

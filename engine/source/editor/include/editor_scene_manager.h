@@ -62,9 +62,9 @@ namespace ReCoder
         VKernel::Matrix4x4 m_selected_object_matrix {VKernel::Matrix4x4::IDENTITY}; ///< selected GO matrix
 
         // gizmo axis
-        VKernel::EditorTranslationAxis m_translation_axis; ///< axis object
-        VKernel::EditorRotationAxis    m_rotation_axis;
-        VKernel::EditorScaleAxis       m_scale_aixs;
+        EditorTranslationAxis m_translation_axis; ///< axis object
+        EditorRotationAxis    m_rotation_axis;
+        EditorScaleAxis       m_scale_aixs;
 
         EditorAxisMode m_axis_mode {EditorAxisMode::TranslateMode}; ///< current axis mode
 

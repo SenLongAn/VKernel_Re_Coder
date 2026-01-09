@@ -9,6 +9,7 @@
 namespace VKernel
 {
 
+    class FileSystem;
     class AssetManager;
     class ConfigManager;
     class InputSystem;
@@ -29,6 +30,7 @@ namespace VKernel
         because multiple classes need to share it; It cannot use a regular pointer because shared_ptr has automatic
         lifecycle management, which is more convenient.
         */
+        std::shared_ptr<FileSystem>       m_file_system;
         std::shared_ptr<InputSystem>      m_input_system;
         std::shared_ptr<WorldManager>     m_world_manager;
         std::shared_ptr<WindowSystem>     m_window_system;

@@ -5,9 +5,15 @@
 #include "editor/include/editor_input_manager.h"
 #include "editor/include/editor_scene_manager.h"
 #include "runtime/engine.h"
+#include "runtime/function/framework/level/level.h"
 #include "runtime/function/framework/world/world_manager.h"
 #include "runtime/function/global/global_context.h"
 #include "runtime/function/render/render_system.h"
+#include "runtime/platform/path/path.h"
+#include "runtime/resource/asset_manager/asset_manager.h"
+#include "runtime/resource/config_manager/config_manager.h"
+
+
 #include "runtime/function/render/window_system.h"
 
 #include <imgui.h>
@@ -68,6 +74,50 @@ namespace ReCoder
                     (EditorAxisMode)axis_mode);                                    ///< update axis mode
                 g_editor_global_context.m_scene_manager->drawSelectedEntityAxis(); ///< render gizmo axis
             }
+        }
+    }
+
+    void EditorUI::buildEditorFileAssetsUITree(EditorFileNode* node)
+    {
+        ImGui::TableNextRow();
+        ImGui::TableNextColumn();
+
+        // build
+        const bool is_folder = (node->m_child_nodes.size() > 0);
+        if (is_folder) ///< If it's not a leaf node
+        {
+            bool open =
+                ImGui::TreeNodeEx(node->m_file_name.c_str(), ImGuiTreeNodeFlags_SpanFullWidth); ///< create treenode
+
+            // set node type
+            ImGui::TableNextColumn();
+            ImGui::SetNextItemWidth(100.0f);
+            ImGui::TextUnformatted(node->m_file_type.c_str());
+
+            // Recursive construction
+            if (open) ///< If the node is expanded
+            {
+                for (int child_n = 0; child_n < node->m_child_nodes.size(); child_n++)
+                    buildEditorFileAssetsUITree(node->m_child_nodes[child_n].get());
+                ImGui::TreePop();
+            }
+        }
+        else
+        {
+            ImGui::TreeNodeEx(node->m_file_name.c_str(),
+                              ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen |
+                                  ImGuiTreeNodeFlags_SpanFullWidth); ///< create treenode
+
+            // If clicked
+            if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
+            {
+                onFileContentItemClicked(node);
+            }
+
+            // set node type
+            ImGui::TableNextColumn();
+            ImGui::SetNextItemWidth(100.0f);
+            ImGui::TextUnformatted(node->m_file_type.c_str());
         }
     }
 
@@ -187,7 +237,6 @@ namespace ReCoder
         if (!*p_open)
             return;
 
-        // Set the window background color based on game window
         if (m_on_game_window)
         {
             ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
@@ -220,7 +269,7 @@ namespace ReCoder
         if (!*p_open)
             return;
 
-        // Set the window background color based on game window
+        // The sequence of processing and rendering images
         if (m_on_game_window)
         {
             ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
@@ -231,6 +280,7 @@ namespace ReCoder
             ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.002f, 0.0f, 0.0f, 1.0f));
         }
 
+        // create window
         ImGuiWindowFlags window_flags = ImGuiWindowFlags_None;
         if (!ImGui::Begin("File Content", p_open, window_flags))
         {
@@ -239,7 +289,27 @@ namespace ReCoder
             return;
         }
 
-        ImGui::Button("Hello World!");
+        // table
+        static ImGuiTableFlags flags = ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersOuterH |
+                                       ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg |
+                                       ImGuiTableFlags_NoBordersInBody;
+
+        if (ImGui::BeginTable("File Content", 2, flags))
+        {
+            // Divided into two columns: name and type
+            ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_NoHide);
+            ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthFixed);
+            ImGui::TableHeadersRow();
+
+            // build file tree
+            m_editor_file_service.buildEngineFileTree();
+
+            // build ui tree
+            EditorFileNode* editor_root_node = m_editor_file_service.getEditorRootNode(); ///< get root node
+            buildEditorFileAssetsUITree(editor_root_node);
+
+            ImGui::EndTable();
+        }
 
         ImGui::End();
         ImGui::PopStyleColor();
@@ -341,7 +411,6 @@ namespace ReCoder
         if (!*p_open)
             return;
 
-        // Set the window background color based on game window
         if (m_on_game_window)
         {
             ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
@@ -427,5 +496,31 @@ namespace ReCoder
         colors[ImGuiCol_NavWindowingHighlight] = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
         colors[ImGuiCol_NavWindowingDimBg]     = ImVec4(1.00f, 1.00f, 0.0f, 1.00f);
         colors[ImGuiCol_ModalWindowDimBg]      = ImVec4(1.00f, 1.00f, 0.0f, 1.00f);
+    }
+
+    void EditorUI::onFileContentItemClicked(EditorFileNode* node)
+    {
+        // Cannot be created if it is not of type object
+        if (node->m_file_type != "object")
+            return;
+
+        // Find the currently active level
+        std::shared_ptr<VKernel::Level> level =
+            VKernel::g_runtime_global_context.m_world_manager->getCurrentActiveLevel().lock();
+        if (level == nullptr)
+            return;
+
+        // create new object
+        const unsigned int         new_object_index = ++m_new_object_index_map[node->m_file_name];
+        VKernel::ObjectInstanceRes new_object_instance_res;
+        new_object_instance_res.m_name = "New_" + VKernel::Path::getFilePureName(node->m_file_name) + "_" +
+                                         std::to_string(new_object_index); ///< Set the name of the new object
+        new_object_instance_res.m_definition =
+            VKernel::g_runtime_global_context.m_asset_manager->getFullPath(node->m_file_path).generic_string();
+        size_t new_gobject_id = level->createObject(new_object_instance_res); ///< create new object
+        if (new_gobject_id != VKernel::k_invalid_gobject_id)
+        {
+            g_editor_global_context.m_scene_manager->onGObjectSelected(new_gobject_id); ///< Update Selected Object
+        }
     }
 } // namespace ReCoder
