@@ -26,7 +26,7 @@ namespace VKernel
         {
             return m_transform_buffer[m_current_index];
         } ///< get current frame transform
-        Transform& getTransform() { return m_transform_buffer[m_next_index]; } ///< get next frame transform
+        Transform& getTransform() { return m_transform_buffer[m_current_index]; } ///< get next frame transform
         Matrix4x4  getMatrix()
         {
             return m_transform_buffer[m_current_index].getMatrix();

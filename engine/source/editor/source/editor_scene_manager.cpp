@@ -43,6 +43,10 @@ namespace ReCoder
                 selected_object = level->getGObjectByID(m_selected_gobject_id);
             }
         }
+        if (selected_object.use_count())
+        {
+            std::cout << "select_mesh_id: " << selected_object.lock()->getID() << std::endl;
+        }
         return selected_object;
     }
 
@@ -313,5 +317,266 @@ namespace ReCoder
         g_editor_global_context.m_render_system->setSelectedAxis(m_selected_axis);
 
         return m_selected_axis;
+    }
+
+    void ReCoder::EditorSceneManager::moveEntity(float              new_mouse_pos_x,
+                                                 float              new_mouse_pos_y,
+                                                 float              last_mouse_pos_x,
+                                                 float              last_mouse_pos_y,
+                                                 VKernel::Vector2   engine_window_pos,
+                                                 VKernel::Vector2   engine_window_size,
+                                                 size_t             cursor_on_axis,
+                                                 VKernel::Matrix4x4 model_matrix)
+    {
+        // get selected object
+        std::shared_ptr<VKernel::GObject> selected_object = getSelectedGObject().lock();
+        if (selected_object == nullptr)
+            return;
+
+        // calculate volocity and mouse delta
+        float            angularVelocity     = 18.0f / VKernel::Math::max(engine_window_size.x, engine_window_size.y);
+        VKernel::Vector2 delta_mouse_move_uv = {(new_mouse_pos_x - last_mouse_pos_x),
+                                                (new_mouse_pos_y - last_mouse_pos_y)};
+
+        // decomposition
+        VKernel::Vector3    model_scale;
+        VKernel::Quaternion model_rotation;
+        VKernel::Vector3    model_translation;
+        model_matrix.decomposition(model_translation, model_scale, model_rotation);
+
+        // Vector3 -> matrix
+        VKernel::Matrix4x4 axis_model_matrix = VKernel::Matrix4x4::IDENTITY;
+        axis_model_matrix.setTrans(model_translation);
+
+        // GO origin -> screen uv
+        VKernel::Matrix4x4 view_matrix = m_camera->getLookAtMatrix();
+        VKernel::Matrix4x4 proj_matrix = m_camera->getPersProjMatrix();
+        VKernel::Vector4   model_world_position_4(model_translation, 1.f);
+        VKernel::Vector4   model_origin_clip_position = proj_matrix * view_matrix * model_world_position_4; ///< MVP
+        model_origin_clip_position /= model_origin_clip_position.w;                                         ///< /w
+        VKernel::Vector2 model_origin_clip_uv =
+            VKernel::Vector2((model_origin_clip_position.x + 1) / 2.0f, (model_origin_clip_position.y + 1) / 2.0f);
+
+        // xyz gizmo axis -> screen vec2
+        VKernel::Vector4 axis_x_local_position_4(1, 0, 0, 1);
+        if (m_axis_mode == EditorAxisMode::ScaleMode)
+        {
+            axis_x_local_position_4 = VKernel::Matrix4x4(model_rotation) * axis_x_local_position_4;
+        }
+        VKernel::Vector4 axis_x_world_position_4 = axis_model_matrix * axis_x_local_position_4;
+        axis_x_world_position_4.w                = 1.0f;
+        VKernel::Vector4 axis_x_clip_position    = proj_matrix * view_matrix * axis_x_world_position_4;
+        axis_x_clip_position /= axis_x_clip_position.w;
+        VKernel::Vector2 axis_x_clip_uv((axis_x_clip_position.x + 1) / 2.0f, (axis_x_clip_position.y + 1) / 2.0f);
+        VKernel::Vector2 axis_x_direction_uv = axis_x_clip_uv - model_origin_clip_uv;
+        axis_x_direction_uv.normalise();
+
+        VKernel::Vector4 axis_y_local_position_4(0, 1, 0, 1);
+        if (m_axis_mode == EditorAxisMode::ScaleMode)
+        {
+            axis_y_local_position_4 = VKernel::Matrix4x4(model_rotation) * axis_y_local_position_4;
+        }
+        VKernel::Vector4 axis_y_world_position_4 = axis_model_matrix * axis_y_local_position_4;
+        axis_y_world_position_4.w                = 1.0f;
+        VKernel::Vector4 axis_y_clip_position    = proj_matrix * view_matrix * axis_y_world_position_4;
+        axis_y_clip_position /= axis_y_clip_position.w;
+        VKernel::Vector2 axis_y_clip_uv((axis_y_clip_position.x + 1) / 2.0f, (axis_y_clip_position.y + 1) / 2.0f);
+        VKernel::Vector2 axis_y_direction_uv = axis_y_clip_uv - model_origin_clip_uv;
+        axis_y_direction_uv.normalise();
+
+        VKernel::Vector4 axis_z_local_position_4(0, 0, 1, 1);
+        if (m_axis_mode == EditorAxisMode::ScaleMode)
+        {
+            axis_z_local_position_4 = VKernel::Matrix4x4(model_rotation) * axis_z_local_position_4;
+        }
+        VKernel::Vector4 axis_z_world_position_4 = axis_model_matrix * axis_z_local_position_4;
+        axis_z_world_position_4.w                = 1.0f;
+        VKernel::Vector4 axis_z_clip_position    = proj_matrix * view_matrix * axis_z_world_position_4;
+        axis_z_clip_position /= axis_z_clip_position.w;
+        VKernel::Vector2 axis_z_clip_uv((axis_z_clip_position.x + 1) / 2.0f, (axis_z_clip_position.y + 1) / 2.0f);
+        VKernel::Vector2 axis_z_direction_uv = axis_z_clip_uv - model_origin_clip_uv;
+        axis_z_direction_uv.normalise();
+
+        // calculate and update
+        VKernel::TransformComponent* transform_component =
+            selected_object->tryGetComponent(VKernel::TransformComponent, "TransformComponent");
+        VKernel::Matrix4x4 new_model_matrix(VKernel::Matrix4x4::IDENTITY);
+        if (m_axis_mode == EditorAxisMode::TranslateMode) // translate
+        {
+            // calculate move vector
+            VKernel::Vector3 move_vector = {0, 0, 0};
+            if (cursor_on_axis == 0)
+            {
+                move_vector.x =
+                    delta_mouse_move_uv.dotProduct(axis_x_direction_uv) * angularVelocity; ///< delta, dir, velocity
+            }
+            else if (cursor_on_axis == 1)
+            {
+                move_vector.y = delta_mouse_move_uv.dotProduct(axis_y_direction_uv) * angularVelocity;
+            }
+            else if (cursor_on_axis == 2)
+            {
+                move_vector.z = delta_mouse_move_uv.dotProduct(axis_z_direction_uv) * angularVelocity;
+            }
+            else
+            {
+                return;
+            }
+            VKernel::Matrix4x4 translate_mat;
+            translate_mat.makeTransform(move_vector, VKernel::Vector3::UNIT_SCALE, VKernel::Quaternion::IDENTITY);
+            new_model_matrix = axis_model_matrix * translate_mat;
+
+            // calculate new M matrix
+            new_model_matrix = new_model_matrix * VKernel::Matrix4x4(model_rotation);
+            new_model_matrix =
+                new_model_matrix * VKernel::Matrix4x4::buildScaleMatrix(model_scale.x, model_scale.y, model_scale.z);
+            VKernel::Vector3    new_scale;
+            VKernel::Quaternion new_rotation;
+            VKernel::Vector3    new_translation;
+            new_model_matrix.decomposition(
+                new_translation, new_scale, new_rotation); ///< Invariant under rotation and scaling
+
+            // update GO transform
+            VKernel::Matrix4x4 translation_matrix = VKernel::Matrix4x4::getTrans(new_translation);
+            VKernel::Matrix4x4 scale_matrix       = VKernel::Matrix4x4::buildScaleMatrix(1.f, 1.f, 1.f);
+            VKernel::Matrix4x4 axis_model_matrix  = translation_matrix * scale_matrix;
+
+            transform_component->setPosition(new_translation);
+            transform_component->setRotation(new_rotation);
+            transform_component->setScale(new_scale);
+
+            // update axis M matrix
+            m_translation_axis.m_model_matrix = axis_model_matrix;
+            m_rotation_axis.m_model_matrix    = axis_model_matrix;
+            m_scale_aixs.m_model_matrix       = axis_model_matrix;
+
+            g_editor_global_context.m_render_system->setVisibleAxis(m_translation_axis);
+        }
+        else if (m_axis_mode == EditorAxisMode::RotateMode) // rotate
+        {
+            // calculate move
+            float            last_mouse_u = (last_mouse_pos_x - engine_window_pos.x) / engine_window_size.x;
+            float            last_mouse_v = (last_mouse_pos_y - engine_window_pos.y) / engine_window_size.y;
+            VKernel::Vector2 last_move_vector(last_mouse_u - model_origin_clip_uv.x,
+                                              last_mouse_v - model_origin_clip_uv.y);
+            float            new_mouse_u = (new_mouse_pos_x - engine_window_pos.x) / engine_window_size.x;
+            float            new_mouse_v = (new_mouse_pos_y - engine_window_pos.y) / engine_window_size.y;
+            VKernel::Vector2 new_move_vector(new_mouse_u - model_origin_clip_uv.x,
+                                             new_mouse_v - model_origin_clip_uv.y);
+            VKernel::Vector3 delta_mouse_uv_3(delta_mouse_move_uv.x, delta_mouse_move_uv.y, 0);
+            float            move_radian;
+            VKernel::Vector3 axis_of_rotation = {0, 0, 0};
+            if (cursor_on_axis == 0)
+            {
+                move_radian = (delta_mouse_move_uv * angularVelocity).length();
+                if (m_camera->forward().dotProduct(VKernel::Vector3::UNIT_X) < 0)
+                {
+                    move_radian = -move_radian;
+                }
+                axis_of_rotation.x = 1;
+            }
+            else if (cursor_on_axis == 1)
+            {
+                move_radian = (delta_mouse_move_uv * angularVelocity).length(); ///< move radian
+                if (m_camera->forward().dotProduct(VKernel::Vector3::UNIT_Y) < 0)
+                {
+                    move_radian = -move_radian;
+                }
+                axis_of_rotation.y = 1;
+            }
+            else if (cursor_on_axis == 2)
+            {
+                move_radian = (delta_mouse_move_uv * angularVelocity).length();
+                if (m_camera->forward().dotProduct(VKernel::Vector3::UNIT_Z) < 0)
+                {
+                    move_radian = -move_radian;
+                }
+                axis_of_rotation.z = 1;
+            }
+            else
+            {
+                return;
+            }
+            float move_direction =
+                last_move_vector.x * new_move_vector.y - new_move_vector.x * last_move_vector.y; ///< move direction
+            if (move_direction < 0)
+            {
+                move_radian = -move_radian;
+            }
+
+            // calculate new M matrix
+            VKernel::Quaternion move_rot;
+            move_rot.fromAngleAxis(VKernel::Radian(move_radian), axis_of_rotation);
+            new_model_matrix = axis_model_matrix * move_rot;
+            new_model_matrix = new_model_matrix * VKernel::Matrix4x4(model_rotation);
+            new_model_matrix =
+                new_model_matrix * VKernel::Matrix4x4::buildScaleMatrix(model_scale.x, model_scale.y, model_scale.z);
+
+            VKernel::Vector3    new_scale;
+            VKernel::Quaternion new_rotation;
+            VKernel::Vector3    new_translation;
+            new_model_matrix.decomposition(new_translation, new_scale, new_rotation);
+
+            if (!transform_component)
+            {
+                return;
+            }
+            // update GO transform
+            transform_component->setPosition(new_translation);
+            transform_component->setRotation(new_rotation);
+            transform_component->setScale(new_scale);
+
+            // update axis M matrix
+            m_scale_aixs.m_model_matrix = new_model_matrix;
+        }
+        else if (m_axis_mode == EditorAxisMode::ScaleMode) // scale
+        {
+            VKernel::Vector3 delta_scale_vector = {0, 0, 0};
+            VKernel::Vector3 new_model_scale    = {0, 0, 0};
+            if (cursor_on_axis == 0)
+            {
+                delta_scale_vector.x = 0.01f;
+                if (delta_mouse_move_uv.dotProduct(axis_x_direction_uv) < 0)
+                {
+                    delta_scale_vector = -delta_scale_vector;
+                }
+            }
+            else if (cursor_on_axis == 1)
+            {
+                delta_scale_vector.y = 0.01f;
+                if (delta_mouse_move_uv.dotProduct(axis_y_direction_uv) < 0)
+                {
+                    delta_scale_vector = -delta_scale_vector;
+                }
+            }
+            else if (cursor_on_axis == 2)
+            {
+                delta_scale_vector.z = 0.01f;
+                if (delta_mouse_move_uv.dotProduct(axis_z_direction_uv) < 0)
+                {
+                    delta_scale_vector = -delta_scale_vector;
+                }
+            }
+            else
+            {
+                return;
+            }
+            new_model_scale   = model_scale + delta_scale_vector;
+            axis_model_matrix = axis_model_matrix * VKernel::Matrix4x4(model_rotation);
+            VKernel::Matrix4x4 scale_mat;
+            scale_mat.makeTransform(VKernel::Vector3::ZERO, new_model_scale, VKernel::Quaternion::IDENTITY);
+            new_model_matrix = axis_model_matrix * scale_mat;
+            VKernel::Vector3    new_scale;
+            VKernel::Quaternion new_rotation;
+            VKernel::Vector3    new_translation;
+            new_model_matrix.decomposition(new_translation, new_scale, new_rotation);
+
+            transform_component->setPosition(new_translation);
+            transform_component->setRotation(new_rotation);
+            transform_component->setScale(new_scale);
+        }
+
+        // update Selected Object Matrix
+        setSelectedObjectMatrix(new_model_matrix);
     }
 } // namespace ReCoder

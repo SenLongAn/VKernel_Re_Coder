@@ -29,7 +29,6 @@ namespace VKernel
         // vulkan api
         m_vulkan_api = std::make_shared<VulkanAPI>();
         m_vulkan_api->initialize(window_system);
-
         // global rendering resource
         GlobalRenderingRes global_rendering_res;
         const std::string& global_rendering_res_url = config_manager->getGlobalRenderingResUrl();
@@ -205,6 +204,9 @@ namespace VKernel
         const std::string&             global_rendering_res_url = config_manager->getGlobalRenderingResUrl();
         asset_manager->loadAsset(global_rendering_res_url, global_rendering_res);
         m_render_camera->resetData(global_rendering_res.m_camera_config);
+
+        // reset axis
+        std::static_pointer_cast<RenderPipeline>(m_render_pipeline)->setAxisVisibleState(false);
     }
 
     void RenderSystem::createAxis(std::array<RenderEntity, 3> axis_entities, std::array<RenderMeshData, 3> mesh_datas)

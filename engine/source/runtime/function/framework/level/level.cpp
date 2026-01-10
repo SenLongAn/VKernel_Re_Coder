@@ -11,7 +11,6 @@
 #include <iostream>
 #include <limits>
 
-
 namespace VKernel
 {
     bool Level::load(const std::string& level_res_url)
@@ -68,7 +67,7 @@ namespace VKernel
         }
         else
         {
-            throw std::runtime_error("oading object failed");
+            throw std::runtime_error("loading object failed");
             return k_invalid_gobject_id;
         }
 

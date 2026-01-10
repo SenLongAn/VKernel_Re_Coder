@@ -29,7 +29,9 @@ namespace VKernel
 
         Quaternion rotation() const { return m_rotation; }
 
-        // set: Calculate and set the camera properties based on the input values
+        Matrix4x4 getLookAtMatrix() const { return Math::makeLookAtMatrix(position(), position() + forward(), up()); }
+
+        // set
         void setFOVx(float fovx) { m_fovx = fovx; }
         void setMainViewMatrix(const Matrix4x4& view_matrix);
         void lookAt(const Vector3& position, const Vector3& target, const Vector3& up);

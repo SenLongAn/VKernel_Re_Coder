@@ -37,6 +37,10 @@ namespace ReCoder
             m_selected_gobject_id = selected_gobject_id;
         };
         void setEditorAxisMode(EditorAxisMode new_axis_mode) { m_axis_mode = new_axis_mode; }
+        void setSelectedObjectMatrix(VKernel::Matrix4x4 new_object_matrix)
+        {
+            m_selected_object_matrix = new_object_matrix;
+        }
 
         // get
         std::shared_ptr<VKernel::RenderCamera> getEditorCamera() { return m_camera; };
@@ -46,6 +50,7 @@ namespace ReCoder
         EditorAxisMode                         getEditorAxisMode() { return m_axis_mode; }
         VKernel::RenderEntity*
         getAxisMeshByType(EditorAxisMode axis_mode); ///< Return the axis object according to the axis mode
+        VKernel::Matrix4x4 getSelectedObjectMatrix() { return m_selected_object_matrix; }
 
         // update object
         void   onGObjectSelected(VKernel::GObjectID selected_gobject_id);
@@ -54,6 +59,14 @@ namespace ReCoder
         size_t updateCursorOnAxis(
             VKernel::Vector2 cursor_uv,
             VKernel::Vector2 game_engine_window_size); ///< Calculate which axis the mouse is hovering over
+        void moveEntity(float              new_mouse_pos_x,
+                        float              new_mouse_pos_y,
+                        float              last_mouse_pos_x,
+                        float              last_mouse_pos_y,
+                        VKernel::Vector2   engine_window_pos,
+                        VKernel::Vector2   engine_window_size,
+                        size_t             cursor_on_axis,
+                        VKernel::Matrix4x4 model_matrix); ///< move Entity
 
     private:
         std::shared_ptr<VKernel::RenderCamera> m_camera;

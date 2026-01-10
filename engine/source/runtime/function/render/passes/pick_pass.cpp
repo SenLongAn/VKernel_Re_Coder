@@ -421,11 +421,6 @@ namespace VKernel
         // Index from 2D image UV to 1D buffer
         uint32_t picked_pixel_index = m_vulkan_api->getSwapchainInfo().extent.width * pixel_y + pixel_x;
 
-        // Whether uv exceeds the window size
-        if (pixel_x >= m_vulkan_api->getSwapchainInfo().extent.width ||
-            pixel_y >= m_vulkan_api->getSwapchainInfo().extent.height)
-            return 0;
-
         // write data
         struct MeshNode
         {
@@ -513,6 +508,9 @@ namespace VKernel
 
         vkCmdBeginRenderPass(
             m_vulkan_api->getCurrentCommandBuffer(), &renderpass_begin_info, VK_SUBPASS_CONTENTS_INLINE);
+
+        float color[4] = {1.0f, 0.0f, 0.0f, 1.0f};
+        m_vulkan_api->pushEvent(m_vulkan_api->getCurrentCommandBuffer(), "Mesh Inefficient Pick", color);
 
         // Bind Pipeline
         vkCmdBindPipeline(
@@ -630,6 +628,7 @@ namespace VKernel
             }
         }
 
+        m_vulkan_api->popEvent(m_vulkan_api->getCurrentCommandBuffer());
         // end render pass
         vkCmdEndRenderPass(m_vulkan_api->getCurrentCommandBuffer());
 

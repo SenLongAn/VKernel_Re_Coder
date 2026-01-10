@@ -6,6 +6,7 @@ namespace VKernel
     {
         m_parent_object = parent_gobject;
 
+        m_transform.updateRotation();
         // load data
         m_transform_buffer[0] = m_transform;
         m_transform_buffer[1] = m_transform;

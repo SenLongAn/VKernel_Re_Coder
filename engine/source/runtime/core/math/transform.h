@@ -36,25 +36,10 @@ namespace VKernel
         Vector3 getPosition() { return m_position; }
         Vector3 getScale() { return m_scale; }
 
-        Quaternion getRotation()
-        {
-            if (m_is_serialization)
-            {
-                m_rotation = Quaternion(m_euler_rotation);
-                return m_rotation;
-            }
-            else
-            {
-                return m_rotation;
-            }
-        }
+        Quaternion getRotation() { return m_rotation; }
 
         Matrix4x4 getMatrix()
         {
-            if (m_is_serialization)
-            {
-                m_rotation = Quaternion(m_euler_rotation);
-            }
             Matrix4x4 temp;
             temp.makeTransform(m_position, m_scale, m_rotation);
             return temp;
@@ -65,6 +50,9 @@ namespace VKernel
         void setScale(Vector3 scale) { m_scale = scale; }
         void setRotation(Vector3 euler_rotation) { m_rotation = Quaternion(euler_rotation); }
         void setRotation(Quaternion rotation) { m_rotation = rotation; }
+
+        // update
+        void updateRotation() { m_rotation = Quaternion(m_euler_rotation); };
 
     private:
         Quaternion m_rotation {Quaternion::IDENTITY};

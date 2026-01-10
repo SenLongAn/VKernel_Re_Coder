@@ -54,6 +54,18 @@ namespace ReCoder
             g_editor_global_context.m_render_system->getRenderCamera()->rotate(
                 VKernel::Vector2(ypos - m_mouse_y, xpos - m_mouse_x) * angularVelocity);
         }
+        else if (g_editor_global_context.m_window_system->isMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT)) ///< mouse left
+        {
+            g_editor_global_context.m_scene_manager->moveEntity(
+                xpos,
+                ypos,
+                m_mouse_x,
+                m_mouse_y,
+                m_engine_window_pos,
+                m_engine_window_size,
+                m_cursor_on_axis,
+                g_editor_global_context.m_scene_manager->getSelectedObjectMatrix());
+        }
         else
         {
             if (isCursorInRect(m_engine_window_pos, m_engine_window_size)) ///< If the mouse is inside the game window
@@ -94,6 +106,9 @@ namespace ReCoder
 
     void EditorInputManager::onMouseButtonClicked(int key, int action)
     {
+        if (m_cursor_on_axis != 3)
+            return;
+
         // Are there any active levels?
         std::shared_ptr<VKernel::Level> current_active_level =
             VKernel::g_runtime_global_context.m_world_manager->getCurrentActiveLevel().lock();
@@ -104,7 +119,7 @@ namespace ReCoder
         {
             if (key == GLFW_MOUSE_BUTTON_LEFT) ///< click left button
             {
-                // uv
+                // uv: 0--1
                 VKernel::Vector2 picked_uv((m_mouse_x - m_engine_window_pos.x) / m_engine_window_size.x,
                                            (m_mouse_y - m_engine_window_pos.y) / m_engine_window_size.y);
 
@@ -116,8 +131,6 @@ namespace ReCoder
 
                 // update object
                 g_editor_global_context.m_scene_manager->onGObjectSelected(gobject_id);
-
-                std::cout << "select_mesh_id: " << select_mesh_id << " gobject_id: " << gobject_id << std::endl;
             }
         }
     }
