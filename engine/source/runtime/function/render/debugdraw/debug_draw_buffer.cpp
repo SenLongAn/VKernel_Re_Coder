@@ -264,17 +264,17 @@ namespace VKernel
         // load texture data
         std::shared_ptr<TextureData> base_color_texture[TextureType::TEXTURE_TYPE_COUNT];
         base_color_texture[0] = g_runtime_global_context.m_render_system->getRenderResource()->loadTexture(
-            "engine/asset/objects/_textures/gold.tga", false);
+            "asset/objects/_textures/gold.tga", false);
         base_color_texture[1] = g_runtime_global_context.m_render_system->getRenderResource()->loadTexture(
-            "engine/asset/objects/_textures/floor.jpg", false);
+            "asset/objects/_textures/floor.jpg", false);
         base_color_texture[2] = g_runtime_global_context.m_render_system->getRenderResource()->loadTexture(
-            "engine/asset/objects/_textures/wood.png", false);
+            "asset/objects/_textures/wood.png", false);
         base_color_texture[3] = g_runtime_global_context.m_render_system->getRenderResource()->loadTexture(
-            "engine/asset/objects/_textures/block.png", false);
+            "asset/objects/_textures/block.png", false);
         base_color_texture[4] = g_runtime_global_context.m_render_system->getRenderResource()->loadTexture(
-            "engine/asset/objects/_textures/brickwall.jpg", false);
+            "asset/objects/_textures/brickwall.jpg", false);
         base_color_texture[5] = g_runtime_global_context.m_render_system->getRenderResource()->loadTexture(
-            "engine/asset/objects/_textures/bricks2.jpg", false);
+            "asset/objects/_textures/bricks2.jpg", false);
 
         // image and DescriptorImageInfo
         VkDescriptorImageInfo image_info[TextureType::TEXTURE_TYPE_COUNT];
