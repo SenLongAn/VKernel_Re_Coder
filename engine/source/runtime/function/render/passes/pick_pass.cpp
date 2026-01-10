@@ -560,7 +560,7 @@ namespace VKernel
 
                     // bind indice buffer
                     vkCmdBindIndexBuffer(
-                        m_vulkan_api->getCurrentCommandBuffer(), mesh.mesh_index_buffer, 0, VK_INDEX_TYPE_UINT16);
+                        m_vulkan_api->getCurrentCommandBuffer(), mesh.mesh_index_buffer, 0, VK_INDEX_TYPE_UINT32);
 
                     // Calculate the number of draw calls required for instance rendering
                     uint32_t drawcall_max_instance_count =
