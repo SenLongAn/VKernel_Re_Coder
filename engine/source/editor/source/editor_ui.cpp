@@ -13,7 +13,6 @@
 #include "runtime/resource/asset_manager/asset_manager.h"
 #include "runtime/resource/config_manager/config_manager.h"
 
-
 #include "runtime/function/render/window_system.h"
 
 #include <imgui.h>
@@ -256,8 +255,40 @@ namespace ReCoder
             return;
         }
 
-        // render button
-        ImGui::Button("Hello World!");
+        // get current level
+        std::shared_ptr<VKernel::Level> current_active_level =
+            VKernel::g_runtime_global_context.m_world_manager->getCurrentActiveLevel().lock();
+        if (current_active_level == nullptr)
+            return;
+
+        // Traverse all objects in the Level
+        const VKernel::LevelObjectsMap& all_gobjects = current_active_level->getAllGObjects();
+        for (auto& id_object_pair : all_gobjects)
+        {
+            const VKernel::GObjectID          object_id = id_object_pair.first;
+            std::shared_ptr<VKernel::GObject> object    = id_object_pair.second;
+            const std::string                 name      = object->getName();
+            if (name.size() > 0)
+            {
+                // create Selectable table
+                if (ImGui::Selectable(name.c_str(),
+                                      g_editor_global_context.m_scene_manager->getSelectedObjectID() ==
+                                          object_id)) ///< if you selectable
+                {
+                    if (g_editor_global_context.m_scene_manager->getSelectedObjectID() !=
+                        object_id) ///< if current selected GO != selected table GO
+                    {
+                        g_editor_global_context.m_scene_manager->onGObjectSelected(object_id); ///< update selected GO
+                    }
+                    else
+                    {
+                        g_editor_global_context.m_scene_manager->onGObjectSelected(
+                            VKernel::k_invalid_gobject_id); ///< deselected
+                    }
+                    break;
+                }
+            }
+        }
 
         ImGui::End();
 

@@ -59,7 +59,7 @@
           "definition": "asset/objects/environment/wall/wall.object.json"
         },
         {
-          "name": "Wall1",
+          "name": "Wall2",
           "instanced_components": [
             {
               "$context": {

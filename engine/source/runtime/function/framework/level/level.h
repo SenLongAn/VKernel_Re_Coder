@@ -35,6 +35,7 @@ namespace VKernel
 
         // get
         std::weak_ptr<GObject> getGObjectByID(GObjectID go_id) const;
+        const LevelObjectsMap& getAllGObjects() const { return m_gobjects; }
 
     protected:
         std::string m_level_res_url; ///< level url

@@ -27,8 +27,11 @@ namespace VKernel
 
         virtual void tick(float delta_time); ///< tick
 
-        GObjectID getID() const { return m_id; } ///< get guid
+        // get
+        GObjectID          getID() const { return m_id; } ///< get guid
+        const std::string& getName() const { return m_name; }
 
+        //
         void save(ObjectInstanceRes& out_object_instance_res); ///< save
 
         // Return if there is a specific component
