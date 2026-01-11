@@ -32,12 +32,6 @@ namespace VKernel
             m_position {position}, m_scale {scale}, m_rotation {rotation}
         {}
 
-        // get
-        Vector3 getPosition() { return m_position; }
-        Vector3 getScale() { return m_scale; }
-
-        Quaternion getRotation() { return m_rotation; }
-
         Matrix4x4 getMatrix()
         {
             Matrix4x4 temp;
@@ -45,16 +39,9 @@ namespace VKernel
             return temp;
         }
 
-        // set
-        void setPosition(Vector3 position) { m_position = position; }
-        void setScale(Vector3 scale) { m_scale = scale; }
-        void setRotation(Vector3 euler_rotation) { m_rotation = Quaternion(euler_rotation); }
-        void setRotation(Quaternion rotation) { m_rotation = rotation; }
-
         // update
         void updateRotation() { m_rotation = Quaternion(m_euler_rotation); };
 
-    private:
         Quaternion m_rotation {Quaternion::IDENTITY};
     };
 } // namespace VKernel

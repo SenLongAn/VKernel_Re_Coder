@@ -73,8 +73,8 @@ namespace ReCoder
     void EditorSceneManager::onGObjectSelected(VKernel::GObjectID selected_gobject_id)
     {
         // update selected GO id
-        if (selected_gobject_id == m_selected_gobject_id)
-            return;
+        // if (selected_gobject_id == m_selected_gobject_id)
+        // return;
 
         m_selected_gobject_id = selected_gobject_id;
 

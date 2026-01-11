@@ -19,7 +19,7 @@ namespace ReCoder
     class EditorUI : public VKernel::WindowUI
     {
     public:
-        EditorUI() {}
+        EditorUI();
 
         virtual void initialize(VKernel::WindowUIInitInfo init_info) override final; ///< init
         virtual void preRender() override final;                                     ///< render ui
@@ -44,6 +44,8 @@ namespace ReCoder
         EditorFileService m_editor_file_service;
 
         std::unordered_map<std::string, unsigned int> m_new_object_index_map; ///< file name, count
+        std::unordered_map<std::string, std::function<void(std::string, void*)>>
+            m_editor_ui_creator; ///< function name, function
 
     private:
         // show editor window
@@ -60,5 +62,12 @@ namespace ReCoder
 
         // click file content leaf node
         void onFileContentItemClicked(EditorFileNode* node);
+
+        // get
+        std::string getLeafUINodeParentLabel();
+
+        // detail node
+        void createClassUI(VKernel::Reflection::ReflectionInstance& instance);
+        void createLeafNodeUI(VKernel::Reflection::ReflectionInstance& instance);
     };
 } // namespace ReCoder

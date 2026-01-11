@@ -3,6 +3,7 @@
 #include "editor/include/editor_global_context.h"
 #include "editor/include/editor_scene_manager.h"
 
+#include "runtime/function/framework/component/transform/transform_component.h"
 #include "runtime/function/framework/level/level.h"
 #include "runtime/function/framework/world/world_manager.h"
 #include "runtime/function/global/global_context.h"

@@ -121,9 +121,9 @@ namespace VKernel
             static void unregisterAll();
         };
 
-        // Metadata information interface:
         // which will call functions in the _generated/reflection serializer  folder to obtain
         // metadata information of classes in the source code.
+        // class Metadata information interface
         class TypeMeta
         {
             friend class FieldAccessor;
@@ -245,7 +245,7 @@ namespace VKernel
             const char*         m_element_type_name;
         };
 
-        // Wrapping of TypeMeta and classes
+        // Wrapping of class Metadata information interface and class instance
         class ReflectionInstance
         {
         public:
@@ -261,7 +261,7 @@ namespace VKernel
             void*    m_instance;
         };
 
-        // Instance Packaging
+        // Use of polymorphic types
         template<typename T>
         class ReflectionPtr
         {

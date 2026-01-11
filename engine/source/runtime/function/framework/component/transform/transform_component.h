@@ -19,9 +19,9 @@ namespace VKernel
         void postLoadResource(std::weak_ptr<GObject> parent_object) override; ///< load
 
         // get
-        Vector3          getPosition() { return m_transform_buffer[m_current_index].getPosition(); }
-        Vector3          getScale() { return m_transform_buffer[m_current_index].getScale(); }
-        Quaternion       getRotation() { return m_transform_buffer[m_current_index].getRotation(); }
+        Vector3          getPosition() { return m_transform_buffer[m_current_index].m_position; }
+        Vector3          getScale() { return m_transform_buffer[m_current_index].m_scale; }
+        Quaternion       getRotation() { return m_transform_buffer[m_current_index].m_rotation; }
         const Transform& getTransformConst()
         {
             return m_transform_buffer[m_current_index];
