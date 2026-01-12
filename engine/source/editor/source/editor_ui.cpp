@@ -631,6 +631,15 @@ namespace ReCoder
                 ImGui::EndMenu();
             }
 
+            if (ImGui::BeginMenu("Window"))
+            {
+                ImGui::MenuItem("World Objects", nullptr, &m_asset_window_open);
+                ImGui::MenuItem("Game", nullptr, &m_game_engine_window_open);
+                ImGui::MenuItem("File Content", nullptr, &m_file_content_window_open);
+                ImGui::MenuItem("Detail", nullptr, &m_detail_window_open);
+                ImGui::EndMenu();
+            }
+
             ImGui::EndMenuBar();
         }
 
