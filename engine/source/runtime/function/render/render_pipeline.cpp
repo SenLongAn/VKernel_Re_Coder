@@ -106,6 +106,48 @@ namespace VKernel
         vulkan_api->submitRendering(std::bind(&RenderPipeline::passUpdateAfterRecreateSwapchain, this));
     }
 
+    void RenderPipeline::deferredRender(std::shared_ptr<VulkanAPI>          vulkan_api,
+                                        std::shared_ptr<RenderResourceBase> render_resource)
+    {
+        // reset ring buffer offset
+        RenderResource* vulkan_resource = static_cast<RenderResource*>(render_resource.get());
+        vulkan_resource->resetRingBufferOffset(vulkan_api->getCurrentFrameIndex());
+
+        // wait fence
+        vkWaitForFences(vulkan_api->getLogicDevice(),
+                        1,
+                        &vulkan_api->getFenceList()[vulkan_api->getCurrentFrameIndex()],
+                        VK_TRUE,
+                        UINT64_MAX);
+
+        // reset command buffer
+        vkResetCommandBuffer(vulkan_api->getCurrentCommandBuffer(), 0);
+
+        // acquire image and begin command buffer
+        bool recreate_swapchain =
+            vulkan_api->prepareBeforePass(std::bind(&RenderPipeline::passUpdateAfterRecreateSwapchain, this));
+        if (recreate_swapchain)
+        {
+            return;
+        }
+
+        // begin render
+        static_cast<DirectionalLightShadowPass*>(m_directional_light_pass.get())
+            ->draw(); ///< directional light pass shadow
+
+        UIPass&        ui_pass         = *(static_cast<UIPass*>(m_ui_pass.get()));
+        CombineUIPass& combine_ui_pass = *(static_cast<CombineUIPass*>(m_combine_ui_pass.get()));
+
+        static_cast<MainCameraPass*>(m_main_camera_pass.get())
+            ->draw(ui_pass, combine_ui_pass, vulkan_api->getCurrentSwapchainImageIndex()); ///< main camera
+
+        // g_runtime_global_context.m_debugdraw_manager->draw(vulkan_api->getCurrentSwapchainImageIndex()); ///<
+        // debugdraw
+
+        // end command buffer, submit and present
+        vulkan_api->submitRendering(std::bind(&RenderPipeline::passUpdateAfterRecreateSwapchain, this));
+    }
+
     void RenderPipeline::passUpdateAfterRecreateSwapchain()
     {
         MainCameraPass& main_camera_pass = *(static_cast<MainCameraPass*>(m_main_camera_pass.get()));

@@ -100,7 +100,14 @@ namespace VKernel
         m_vulkan_api->prepareContext();
 
         // Start rendering
-        m_render_pipeline->forwardRender(m_vulkan_api, m_render_resource);
+        if (m_render_pipeline_type == RENDER_PIPELINE_TYPE::FORWARD_PIPELINE)
+        {
+            m_render_pipeline->forwardRender(m_vulkan_api, m_render_resource);
+        }
+        else if (m_render_pipeline_type == RENDER_PIPELINE_TYPE::DEFERRED_PIPELINE)
+        {
+            m_render_pipeline->deferredRender(m_vulkan_api, m_render_resource);
+        }
     }
 
     void RenderSystem::clear()

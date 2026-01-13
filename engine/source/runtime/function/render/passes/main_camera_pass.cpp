@@ -6,7 +6,10 @@
 
 #include <axis_frag.h>
 #include <axis_vert.h>
+#include <deferred_lighting_frag.h>
+#include <deferred_lighting_vert.h>
 #include <mesh_frag.h>
+#include <mesh_gbuffer_frag.h>
 #include <mesh_vert.h>
 #include <skybox_frag.h>
 #include <skybox_vert.h>
@@ -28,6 +31,7 @@ namespace VKernel
         setupDescriptorSetLayout();
         setupPipelines();
         setupDescriptorSet();
+        setupFramebufferDescriptorSet();
         setupSwapchainFramebuffers();
     }
 
@@ -38,6 +42,57 @@ namespace VKernel
         {
             m_mesh_perframe_storage_buffer_object = vulkan_resource->m_mesh_perframe_storage_buffer_object;
         }
+    }
+
+    void MainCameraPass::draw(UIPass& ui_pass, CombineUIPass& combine_ui_pass, uint32_t current_swapchain_image_index)
+    {
+        // Begin RenderPass
+        {
+            // begin renderpass info
+            VkRenderPassBeginInfo renderpass_begin_info {};
+            renderpass_begin_info.sType             = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+            renderpass_begin_info.renderPass        = m_framebuffer.render_pass;
+            renderpass_begin_info.framebuffer       = m_swapchain_framebuffers[current_swapchain_image_index];
+            renderpass_begin_info.renderArea.offset = {0, 0};
+            renderpass_begin_info.renderArea.extent = m_vulkan_api->getSwapchainInfo().extent;
+
+            // clear value
+            VkClearValue clear_values[_main_camera_pass_attachment_count];
+            clear_values[_main_camera_pass_gbuffer_a].color          = {{0.0f, 0.0f, 0.0f, 0.0f}};
+            clear_values[_main_camera_pass_gbuffer_b].color          = {{0.0f, 0.0f, 0.0f, 0.0f}};
+            clear_values[_main_camera_pass_gbuffer_c].color          = {{0.0f, 0.0f, 0.0f, 0.0f}};
+            clear_values[_main_camera_pass_backup_buffer_odd].color  = {{0.0f, 0.0f, 0.0f, 1.0f}};
+            clear_values[_main_camera_pass_backup_buffer_even].color = {{0.0f, 0.0f, 0.0f, 1.0f}};
+            clear_values[_main_camera_pass_depth].depthStencil       = {1.0f, 0};
+            clear_values[_main_camera_pass_swap_chain_image].color   = {{0.0f, 0.0f, 0.0f, 1.0f}};
+            renderpass_begin_info.clearValueCount                    = (sizeof(clear_values) / sizeof(clear_values[0]));
+            renderpass_begin_info.pClearValues                       = clear_values;
+
+            vkCmdBeginRenderPass(
+                m_vulkan_api->getCurrentCommandBuffer(), &renderpass_begin_info, VK_SUBPASS_CONTENTS_INLINE);
+        }
+
+        // draw
+        drawMeshGbuffer();
+
+        vkCmdNextSubpass(m_vulkan_api->getCurrentCommandBuffer(), VK_SUBPASS_CONTENTS_INLINE);
+
+        drawDeferredLighting();
+
+        vkCmdNextSubpass(m_vulkan_api->getCurrentCommandBuffer(), VK_SUBPASS_CONTENTS_INLINE);
+
+        drawAxis();
+
+        vkCmdNextSubpass(m_vulkan_api->getCurrentCommandBuffer(), VK_SUBPASS_CONTENTS_INLINE);
+
+        ui_pass.draw();
+
+        vkCmdNextSubpass(m_vulkan_api->getCurrentCommandBuffer(), VK_SUBPASS_CONTENTS_INLINE);
+
+        combine_ui_pass.draw();
+
+        // end renderpass
+        vkCmdEndRenderPass(m_vulkan_api->getCurrentCommandBuffer());
     }
 
     void
@@ -64,6 +119,10 @@ namespace VKernel
             vkCmdBeginRenderPass(
                 m_vulkan_api->getCurrentCommandBuffer(), &renderpass_begin_info, VK_SUBPASS_CONTENTS_INLINE);
         }
+
+        // Skip the first two
+        vkCmdNextSubpass(m_vulkan_api->getCurrentCommandBuffer(), VK_SUBPASS_CONTENTS_INLINE);
+        vkCmdNextSubpass(m_vulkan_api->getCurrentCommandBuffer(), VK_SUBPASS_CONTENTS_INLINE);
 
         // draw
         drawMeshLighting();
@@ -103,6 +162,8 @@ namespace VKernel
         // recreate
         setupAttachments();
 
+        setupFramebufferDescriptorSet();
+
         setupSwapchainFramebuffers();
     }
 
@@ -111,6 +172,9 @@ namespace VKernel
         m_framebuffer.attachments.resize(_main_camera_pass_custom_attachment_count); ///< resize vector size
 
         // set attachment format
+        m_framebuffer.attachments[_main_camera_pass_gbuffer_a].format          = VK_FORMAT_R8G8B8A8_UNORM;
+        m_framebuffer.attachments[_main_camera_pass_gbuffer_b].format          = VK_FORMAT_R8G8B8A8_UNORM;
+        m_framebuffer.attachments[_main_camera_pass_gbuffer_c].format          = VK_FORMAT_R8G8B8A8_SRGB;
         m_framebuffer.attachments[_main_camera_pass_backup_buffer_odd].format  = VK_FORMAT_R16G16B16A16_SFLOAT;
         m_framebuffer.attachments[_main_camera_pass_backup_buffer_even].format = VK_FORMAT_R16G16B16A16_SFLOAT;
 
@@ -118,19 +182,37 @@ namespace VKernel
         for (int buffer_index = 0; buffer_index < _main_camera_pass_custom_attachment_count; ++buffer_index)
         {
 
-            // create image
-            m_vulkan_api->createImage(m_vulkan_api->getSwapchainInfo().extent.width,
-                                      m_vulkan_api->getSwapchainInfo().extent.height,
-                                      m_framebuffer.attachments[buffer_index].format,
-                                      VK_IMAGE_TILING_OPTIMAL,
-                                      VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
-                                          VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT,
-                                      VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                                      m_framebuffer.attachments[buffer_index].image,
-                                      m_framebuffer.attachments[buffer_index].mem,
-                                      0,
-                                      1,
-                                      1);
+            if (buffer_index == _main_camera_pass_gbuffer_a)
+            {
+                m_vulkan_api->createImage(m_vulkan_api->getSwapchainInfo().extent.width,
+                                          m_vulkan_api->getSwapchainInfo().extent.height,
+                                          m_framebuffer.attachments[_main_camera_pass_gbuffer_a].format,
+                                          VK_IMAGE_TILING_OPTIMAL,
+                                          VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
+                                              VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
+                                          VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                                          m_framebuffer.attachments[_main_camera_pass_gbuffer_a].image,
+                                          m_framebuffer.attachments[_main_camera_pass_gbuffer_a].mem,
+                                          0,
+                                          1,
+                                          1);
+            }
+            else
+            {
+                // create image
+                m_vulkan_api->createImage(m_vulkan_api->getSwapchainInfo().extent.width,
+                                          m_vulkan_api->getSwapchainInfo().extent.height,
+                                          m_framebuffer.attachments[buffer_index].format,
+                                          VK_IMAGE_TILING_OPTIMAL,
+                                          VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
+                                              VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT,
+                                          VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                                          m_framebuffer.attachments[buffer_index].image,
+                                          m_framebuffer.attachments[buffer_index].mem,
+                                          0,
+                                          1,
+                                          1);
+            }
 
             // create image view
             m_vulkan_api->createImageView(m_framebuffer.attachments[buffer_index].image,
@@ -146,7 +228,40 @@ namespace VKernel
     void MainCameraPass::setupRenderPass()
     {
         // Attachment Description
-        VkAttachmentDescription attachments[_main_camera_pass_attachment_count] = {};
+        VkAttachmentDescription  attachments[_main_camera_pass_attachment_count] = {};
+        VkAttachmentDescription& gbuffer_normal_attachment_description = attachments[_main_camera_pass_gbuffer_a];
+        gbuffer_normal_attachment_description.format  = m_framebuffer.attachments[_main_camera_pass_gbuffer_a].format;
+        gbuffer_normal_attachment_description.samples = VK_SAMPLE_COUNT_1_BIT;
+        gbuffer_normal_attachment_description.loadOp  = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        gbuffer_normal_attachment_description.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+        gbuffer_normal_attachment_description.stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        gbuffer_normal_attachment_description.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        gbuffer_normal_attachment_description.initialLayout  = VK_IMAGE_LAYOUT_UNDEFINED;
+        gbuffer_normal_attachment_description.finalLayout    = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+        VkAttachmentDescription& gbuffer_metallic_roughness_shadingmodeid_attachment_description =
+            attachments[_main_camera_pass_gbuffer_b];
+        gbuffer_metallic_roughness_shadingmodeid_attachment_description.format =
+            m_framebuffer.attachments[_main_camera_pass_gbuffer_b].format;
+        gbuffer_metallic_roughness_shadingmodeid_attachment_description.samples = VK_SAMPLE_COUNT_1_BIT;
+        gbuffer_metallic_roughness_shadingmodeid_attachment_description.loadOp  = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        gbuffer_metallic_roughness_shadingmodeid_attachment_description.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        gbuffer_metallic_roughness_shadingmodeid_attachment_description.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        gbuffer_metallic_roughness_shadingmodeid_attachment_description.stencilStoreOp =
+            VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        gbuffer_metallic_roughness_shadingmodeid_attachment_description.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        gbuffer_metallic_roughness_shadingmodeid_attachment_description.finalLayout =
+            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+        VkAttachmentDescription& gbuffer_albedo_attachment_description = attachments[_main_camera_pass_gbuffer_c];
+        gbuffer_albedo_attachment_description.format  = m_framebuffer.attachments[_main_camera_pass_gbuffer_c].format;
+        gbuffer_albedo_attachment_description.samples = VK_SAMPLE_COUNT_1_BIT;
+        gbuffer_albedo_attachment_description.loadOp  = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        gbuffer_albedo_attachment_description.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        gbuffer_albedo_attachment_description.stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        gbuffer_albedo_attachment_description.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        gbuffer_albedo_attachment_description.initialLayout  = VK_IMAGE_LAYOUT_UNDEFINED;
+        gbuffer_albedo_attachment_description.finalLayout    = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
         VkAttachmentDescription& backup_odd_color_attachment_description =
             attachments[_main_camera_pass_backup_buffer_odd];
@@ -195,6 +310,58 @@ namespace VKernel
 
         // Attachment Reference and subpass description
         VkSubpassDescription subpasses[_main_camera_subpass_count] = {};
+
+        VkAttachmentReference base_pass_color_attachments_reference[3] = {};
+        base_pass_color_attachments_reference[0].attachment = &gbuffer_normal_attachment_description - attachments;
+        base_pass_color_attachments_reference[0].layout     = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        base_pass_color_attachments_reference[1].attachment =
+            &gbuffer_metallic_roughness_shadingmodeid_attachment_description - attachments;
+        base_pass_color_attachments_reference[1].layout     = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        base_pass_color_attachments_reference[2].attachment = &gbuffer_albedo_attachment_description - attachments;
+        base_pass_color_attachments_reference[2].layout     = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+        VkAttachmentReference base_pass_depth_attachment_reference {};
+        base_pass_depth_attachment_reference.attachment = &depth_attachment_description - attachments;
+        base_pass_depth_attachment_reference.layout     = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+        VkSubpassDescription& base_pass = subpasses[_main_camera_subpass_basepass];
+        base_pass.pipelineBindPoint     = VK_PIPELINE_BIND_POINT_GRAPHICS;
+        base_pass.colorAttachmentCount =
+            sizeof(base_pass_color_attachments_reference) / sizeof(base_pass_color_attachments_reference[0]);
+        base_pass.pColorAttachments       = &base_pass_color_attachments_reference[0];
+        base_pass.pDepthStencilAttachment = &base_pass_depth_attachment_reference;
+        base_pass.preserveAttachmentCount = 0;
+        base_pass.pPreserveAttachments    = NULL;
+
+        VkAttachmentReference deferred_lighting_pass_input_attachments_reference[4] = {};
+        deferred_lighting_pass_input_attachments_reference[0].attachment =
+            &gbuffer_normal_attachment_description - attachments;
+        deferred_lighting_pass_input_attachments_reference[0].layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        deferred_lighting_pass_input_attachments_reference[1].attachment =
+            &gbuffer_metallic_roughness_shadingmodeid_attachment_description - attachments;
+        deferred_lighting_pass_input_attachments_reference[1].layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        deferred_lighting_pass_input_attachments_reference[2].attachment =
+            &gbuffer_albedo_attachment_description - attachments;
+        deferred_lighting_pass_input_attachments_reference[2].layout     = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        deferred_lighting_pass_input_attachments_reference[3].attachment = &depth_attachment_description - attachments;
+        deferred_lighting_pass_input_attachments_reference[3].layout     = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+        VkAttachmentReference deferred_lighting_pass_color_attachment_reference[1] = {};
+        deferred_lighting_pass_color_attachment_reference[0].attachment =
+            &backup_odd_color_attachment_description - attachments;
+        deferred_lighting_pass_color_attachment_reference[0].layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+        VkSubpassDescription& deferred_lighting_pass = subpasses[_main_camera_subpass_deferred_lighting];
+        deferred_lighting_pass.pipelineBindPoint     = VK_PIPELINE_BIND_POINT_GRAPHICS;
+        deferred_lighting_pass.inputAttachmentCount  = sizeof(deferred_lighting_pass_input_attachments_reference) /
+                                                      sizeof(deferred_lighting_pass_input_attachments_reference[0]);
+        deferred_lighting_pass.pInputAttachments    = &deferred_lighting_pass_input_attachments_reference[0];
+        deferred_lighting_pass.colorAttachmentCount = sizeof(deferred_lighting_pass_color_attachment_reference) /
+                                                      sizeof(deferred_lighting_pass_color_attachment_reference[0]);
+        deferred_lighting_pass.pColorAttachments       = &deferred_lighting_pass_color_attachment_reference[0];
+        deferred_lighting_pass.pDepthStencilAttachment = NULL;
+        deferred_lighting_pass.preserveAttachmentCount = 0;
+        deferred_lighting_pass.pPreserveAttachments    = NULL;
 
         VkAttachmentReference forward_lighting_pass_color_attachments_reference[1] = {}; ///< forward subpass
         forward_lighting_pass_color_attachments_reference[0].attachment =
@@ -255,20 +422,44 @@ namespace VKernel
         combine_ui_pass.pPreserveAttachments    = NULL;
 
         // Subpass Dependency
-        VkSubpassDependency dependencies[3] = {};
+        VkSubpassDependency dependencies[5] = {};
 
-        VkSubpassDependency& forward_lighting_pass_depend_on_deferred_lighting_pass = dependencies[0];
-        forward_lighting_pass_depend_on_deferred_lighting_pass.srcSubpass           = VK_SUBPASS_EXTERNAL;
+        VkSubpassDependency& deferred_lighting_pass_depend_on_shadow_map_pass = dependencies[0];
+        deferred_lighting_pass_depend_on_shadow_map_pass.srcSubpass           = VK_SUBPASS_EXTERNAL;
+        deferred_lighting_pass_depend_on_shadow_map_pass.dstSubpass           = _main_camera_subpass_basepass;
+        deferred_lighting_pass_depend_on_shadow_map_pass.srcStageMask  = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        deferred_lighting_pass_depend_on_shadow_map_pass.dstStageMask  = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+        deferred_lighting_pass_depend_on_shadow_map_pass.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        deferred_lighting_pass_depend_on_shadow_map_pass.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+        deferred_lighting_pass_depend_on_shadow_map_pass.dependencyFlags = 0;
+
+        VkSubpassDependency& deferred_lighting_pass_depend_on_base_pass = dependencies[1];
+        deferred_lighting_pass_depend_on_base_pass.srcSubpass           = _main_camera_subpass_basepass;
+        deferred_lighting_pass_depend_on_base_pass.dstSubpass           = _main_camera_subpass_deferred_lighting;
+        deferred_lighting_pass_depend_on_base_pass.srcStageMask =
+            VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        deferred_lighting_pass_depend_on_base_pass.dstStageMask =
+            VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        deferred_lighting_pass_depend_on_base_pass.srcAccessMask =
+            VK_ACCESS_SHADER_WRITE_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        deferred_lighting_pass_depend_on_base_pass.dstAccessMask =
+            VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
+        deferred_lighting_pass_depend_on_base_pass.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+
+        VkSubpassDependency& forward_lighting_pass_depend_on_deferred_lighting_pass = dependencies[2];
+        forward_lighting_pass_depend_on_deferred_lighting_pass.srcSubpass = _main_camera_subpass_deferred_lighting;
         forward_lighting_pass_depend_on_deferred_lighting_pass.dstSubpass = _main_camera_subpass_forward_lighting;
         forward_lighting_pass_depend_on_deferred_lighting_pass.srcStageMask =
-            VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+            VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
         forward_lighting_pass_depend_on_deferred_lighting_pass.dstStageMask =
-            VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-        forward_lighting_pass_depend_on_deferred_lighting_pass.srcAccessMask   = 0;
-        forward_lighting_pass_depend_on_deferred_lighting_pass.dstAccessMask   = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-        forward_lighting_pass_depend_on_deferred_lighting_pass.dependencyFlags = 0;
+            VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        forward_lighting_pass_depend_on_deferred_lighting_pass.srcAccessMask =
+            VK_ACCESS_SHADER_WRITE_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        forward_lighting_pass_depend_on_deferred_lighting_pass.dstAccessMask =
+            VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
+        forward_lighting_pass_depend_on_deferred_lighting_pass.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
-        VkSubpassDependency& ui_pass_depend_on_fxaa_pass = dependencies[1];
+        VkSubpassDependency& ui_pass_depend_on_fxaa_pass = dependencies[3];
         ui_pass_depend_on_fxaa_pass.srcSubpass           = _main_camera_subpass_forward_lighting;
         ui_pass_depend_on_fxaa_pass.dstSubpass           = _main_camera_subpass_ui;
         ui_pass_depend_on_fxaa_pass.srcStageMask =
@@ -279,7 +470,7 @@ namespace VKernel
         ui_pass_depend_on_fxaa_pass.dstAccessMask   = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
         ui_pass_depend_on_fxaa_pass.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
-        VkSubpassDependency& combine_ui_pass_depend_on_ui_pass = dependencies[2];
+        VkSubpassDependency& combine_ui_pass_depend_on_ui_pass = dependencies[4];
         combine_ui_pass_depend_on_ui_pass.srcSubpass           = _main_camera_subpass_ui;
         combine_ui_pass_depend_on_ui_pass.dstSubpass           = _main_camera_subpass_combine_ui;
         combine_ui_pass_depend_on_ui_pass.srcStageMask =
@@ -472,12 +663,393 @@ namespace VKernel
                 throw std::runtime_error("create axis layout");
             }
         }
+
+        // deferred
+        {
+            VkDescriptorSetLayoutBinding gbuffer_lighting_global_layout_bindings[4];
+
+            VkDescriptorSetLayoutBinding& gbuffer_normal_global_layout_input_attachment_binding =
+                gbuffer_lighting_global_layout_bindings[0];
+            gbuffer_normal_global_layout_input_attachment_binding.binding         = 0;
+            gbuffer_normal_global_layout_input_attachment_binding.descriptorType  = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+            gbuffer_normal_global_layout_input_attachment_binding.descriptorCount = 1;
+            gbuffer_normal_global_layout_input_attachment_binding.stageFlags      = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+            VkDescriptorSetLayoutBinding&
+                gbuffer_metallic_roughness_shadingmodeid_global_layout_input_attachment_binding =
+                    gbuffer_lighting_global_layout_bindings[1];
+            gbuffer_metallic_roughness_shadingmodeid_global_layout_input_attachment_binding.binding = 1;
+            gbuffer_metallic_roughness_shadingmodeid_global_layout_input_attachment_binding.descriptorType =
+                VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+            gbuffer_metallic_roughness_shadingmodeid_global_layout_input_attachment_binding.descriptorCount = 1;
+            gbuffer_metallic_roughness_shadingmodeid_global_layout_input_attachment_binding.stageFlags =
+                VK_SHADER_STAGE_FRAGMENT_BIT;
+
+            VkDescriptorSetLayoutBinding& gbuffer_albedo_global_layout_input_attachment_binding =
+                gbuffer_lighting_global_layout_bindings[2];
+            gbuffer_albedo_global_layout_input_attachment_binding.binding         = 2;
+            gbuffer_albedo_global_layout_input_attachment_binding.descriptorType  = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+            gbuffer_albedo_global_layout_input_attachment_binding.descriptorCount = 1;
+            gbuffer_albedo_global_layout_input_attachment_binding.stageFlags      = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+            VkDescriptorSetLayoutBinding& gbuffer_depth_global_layout_input_attachment_binding =
+                gbuffer_lighting_global_layout_bindings[3];
+            gbuffer_depth_global_layout_input_attachment_binding.binding         = 3;
+            gbuffer_depth_global_layout_input_attachment_binding.descriptorType  = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+            gbuffer_depth_global_layout_input_attachment_binding.descriptorCount = 1;
+            gbuffer_depth_global_layout_input_attachment_binding.stageFlags      = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+            VkDescriptorSetLayoutCreateInfo gbuffer_lighting_global_layout_create_info;
+            gbuffer_lighting_global_layout_create_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+            gbuffer_lighting_global_layout_create_info.pNext = NULL;
+            gbuffer_lighting_global_layout_create_info.flags = 0;
+            gbuffer_lighting_global_layout_create_info.bindingCount =
+                sizeof(gbuffer_lighting_global_layout_bindings) / sizeof(gbuffer_lighting_global_layout_bindings[0]);
+            gbuffer_lighting_global_layout_create_info.pBindings = gbuffer_lighting_global_layout_bindings;
+
+            if (VK_SUCCESS != vkCreateDescriptorSetLayout(m_vulkan_api->getLogicDevice(),
+                                                          &gbuffer_lighting_global_layout_create_info,
+                                                          nullptr,
+                                                          &m_descriptor_infos[_deferred_lighting].layout))
+            {
+                throw std::runtime_error("create deferred lighting global layout");
+            }
+        }
     }
 
     void MainCameraPass::setupPipelines()
     {
 
         m_render_pipelines.resize(_render_pipeline_type_count);
+
+        // mesh gbuffer
+        {
+            // Pipeline Layout
+            VkDescriptorSetLayout      descriptorset_layouts[2] = {m_descriptor_infos[_mesh_global].layout,
+                                                                   m_descriptor_infos[_mesh_per_material].layout};
+            VkPipelineLayoutCreateInfo pipeline_layout_create_info {};
+            pipeline_layout_create_info.sType          = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+            pipeline_layout_create_info.setLayoutCount = 2;
+            pipeline_layout_create_info.pSetLayouts    = descriptorset_layouts;
+
+            if (vkCreatePipelineLayout(m_vulkan_api->getLogicDevice(),
+                                       &pipeline_layout_create_info,
+                                       nullptr,
+                                       &m_render_pipelines[_render_pipeline_type_mesh_gbuffer].layout) != VK_SUCCESS)
+            {
+                throw std::runtime_error("create mesh gbuffer pipeline layout");
+            }
+
+            // Shader Module
+            VkShaderModule vert_shader_module = m_vulkan_api->createShaderModule(MESH_VERT);
+            VkShaderModule frag_shader_module = m_vulkan_api->createShaderModule(MESH_GBUFFER_FRAG);
+
+            VkPipelineShaderStageCreateInfo vert_pipeline_shader_stage_create_info {};
+            vert_pipeline_shader_stage_create_info.sType  = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+            vert_pipeline_shader_stage_create_info.stage  = VK_SHADER_STAGE_VERTEX_BIT;
+            vert_pipeline_shader_stage_create_info.module = vert_shader_module;
+            vert_pipeline_shader_stage_create_info.pName  = "main";
+
+            VkPipelineShaderStageCreateInfo frag_pipeline_shader_stage_create_info {};
+            frag_pipeline_shader_stage_create_info.sType  = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+            frag_pipeline_shader_stage_create_info.stage  = VK_SHADER_STAGE_FRAGMENT_BIT;
+            frag_pipeline_shader_stage_create_info.module = frag_shader_module;
+            frag_pipeline_shader_stage_create_info.pName  = "main";
+
+            VkPipelineShaderStageCreateInfo shader_stages[] = {vert_pipeline_shader_stage_create_info,
+                                                               frag_pipeline_shader_stage_create_info};
+
+            // VertexInput state
+            auto                                 vertex_binding_descriptions   = MeshVertex::getBindingDescriptions();
+            auto                                 vertex_attribute_descriptions = MeshVertex::getAttributeDescriptions();
+            VkPipelineVertexInputStateCreateInfo vertex_input_state_create_info {};
+            vertex_input_state_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+            vertex_input_state_create_info.vertexBindingDescriptionCount   = vertex_binding_descriptions.size();
+            vertex_input_state_create_info.pVertexBindingDescriptions      = &vertex_binding_descriptions[0];
+            vertex_input_state_create_info.vertexAttributeDescriptionCount = vertex_attribute_descriptions.size();
+            vertex_input_state_create_info.pVertexAttributeDescriptions    = &vertex_attribute_descriptions[0];
+
+            // Assembly State
+            VkPipelineInputAssemblyStateCreateInfo input_assembly_create_info {};
+            input_assembly_create_info.sType    = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+            input_assembly_create_info.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+            input_assembly_create_info.primitiveRestartEnable = VK_FALSE;
+
+            // Viewport State
+            VkPipelineViewportStateCreateInfo viewport_state_create_info {};
+            viewport_state_create_info.sType         = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+            viewport_state_create_info.viewportCount = 1;
+            viewport_state_create_info.scissorCount  = 1;
+
+            // Rasterization State
+            VkPipelineRasterizationStateCreateInfo rasterization_state_create_info {};
+            rasterization_state_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+            rasterization_state_create_info.depthClampEnable        = VK_FALSE;
+            rasterization_state_create_info.rasterizerDiscardEnable = VK_FALSE;
+            rasterization_state_create_info.polygonMode             = VK_POLYGON_MODE_FILL;
+            rasterization_state_create_info.lineWidth               = 1.0f;
+            rasterization_state_create_info.cullMode                = VK_CULL_MODE_NONE;
+            rasterization_state_create_info.frontFace               = VK_FRONT_FACE_CLOCKWISE;
+            rasterization_state_create_info.depthBiasEnable         = VK_FALSE;
+            rasterization_state_create_info.depthBiasConstantFactor = 0.0f;
+            rasterization_state_create_info.depthBiasClamp          = 0.0f;
+            rasterization_state_create_info.depthBiasSlopeFactor    = 0.0f;
+
+            // Multisample State
+            VkPipelineMultisampleStateCreateInfo multisample_state_create_info {};
+            multisample_state_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+            multisample_state_create_info.sampleShadingEnable  = VK_FALSE;
+            multisample_state_create_info.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+
+            // ColorBlendAttachment State
+            VkPipelineColorBlendAttachmentState color_blend_attachments[3] = {};
+            color_blend_attachments[0].colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
+                                                        VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+            color_blend_attachments[0].blendEnable         = VK_FALSE;
+            color_blend_attachments[0].srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
+            color_blend_attachments[0].dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
+            color_blend_attachments[0].colorBlendOp        = VK_BLEND_OP_ADD;
+            color_blend_attachments[0].srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+            color_blend_attachments[0].dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+            color_blend_attachments[0].alphaBlendOp        = VK_BLEND_OP_ADD;
+            color_blend_attachments[1].colorWriteMask      = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
+                                                        VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+            color_blend_attachments[1].blendEnable         = VK_FALSE;
+            color_blend_attachments[1].srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
+            color_blend_attachments[1].dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
+            color_blend_attachments[1].colorBlendOp        = VK_BLEND_OP_ADD;
+            color_blend_attachments[1].srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+            color_blend_attachments[1].dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+            color_blend_attachments[1].alphaBlendOp        = VK_BLEND_OP_ADD;
+            color_blend_attachments[2].colorWriteMask      = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
+                                                        VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+            color_blend_attachments[2].blendEnable         = VK_FALSE;
+            color_blend_attachments[2].srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
+            color_blend_attachments[2].dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
+            color_blend_attachments[2].colorBlendOp        = VK_BLEND_OP_ADD;
+            color_blend_attachments[2].srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+            color_blend_attachments[2].dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+            color_blend_attachments[2].alphaBlendOp        = VK_BLEND_OP_ADD;
+
+            VkPipelineColorBlendStateCreateInfo color_blend_state_create_info = {};
+            color_blend_state_create_info.sType         = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+            color_blend_state_create_info.logicOpEnable = VK_FALSE;
+            color_blend_state_create_info.logicOp       = VK_LOGIC_OP_COPY;
+            color_blend_state_create_info.attachmentCount =
+                sizeof(color_blend_attachments) / sizeof(color_blend_attachments[0]);
+            color_blend_state_create_info.pAttachments      = &color_blend_attachments[0];
+            color_blend_state_create_info.blendConstants[0] = 0.0f;
+            color_blend_state_create_info.blendConstants[1] = 0.0f;
+            color_blend_state_create_info.blendConstants[2] = 0.0f;
+            color_blend_state_create_info.blendConstants[3] = 0.0f;
+
+            // depth state
+            VkPipelineDepthStencilStateCreateInfo depth_stencil_create_info {};
+            depth_stencil_create_info.sType            = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+            depth_stencil_create_info.depthTestEnable  = VK_TRUE;
+            depth_stencil_create_info.depthWriteEnable = VK_TRUE;
+            depth_stencil_create_info.depthCompareOp   = VK_COMPARE_OP_LESS;
+            depth_stencil_create_info.depthBoundsTestEnable = VK_FALSE;
+            depth_stencil_create_info.stencilTestEnable     = VK_FALSE;
+
+            // Dynamic State
+            VkDynamicState                   dynamic_states[] = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
+            VkPipelineDynamicStateCreateInfo dynamic_state_create_info {};
+            dynamic_state_create_info.sType             = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+            dynamic_state_create_info.dynamicStateCount = 2;
+            dynamic_state_create_info.pDynamicStates    = dynamic_states;
+
+            // Pipeline info
+            VkGraphicsPipelineCreateInfo pipelineInfo {};
+            pipelineInfo.sType               = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+            pipelineInfo.stageCount          = 2;
+            pipelineInfo.pStages             = shader_stages;
+            pipelineInfo.pVertexInputState   = &vertex_input_state_create_info;
+            pipelineInfo.pInputAssemblyState = &input_assembly_create_info;
+            pipelineInfo.pViewportState      = &viewport_state_create_info;
+            pipelineInfo.pRasterizationState = &rasterization_state_create_info;
+            pipelineInfo.pMultisampleState   = &multisample_state_create_info;
+            pipelineInfo.pColorBlendState    = &color_blend_state_create_info;
+            pipelineInfo.pDepthStencilState  = &depth_stencil_create_info;
+            pipelineInfo.layout              = m_render_pipelines[_render_pipeline_type_mesh_gbuffer].layout;
+            pipelineInfo.renderPass          = m_framebuffer.render_pass;
+            pipelineInfo.subpass             = _main_camera_subpass_basepass;
+            pipelineInfo.basePipelineHandle  = VK_NULL_HANDLE;
+            pipelineInfo.pDynamicState       = &dynamic_state_create_info;
+
+            // create Pipeline
+            if (VK_SUCCESS !=
+                vkCreateGraphicsPipelines(m_vulkan_api->getLogicDevice(),
+                                          VK_NULL_HANDLE,
+                                          1,
+                                          &pipelineInfo,
+                                          nullptr,
+                                          &m_render_pipelines[_render_pipeline_type_mesh_gbuffer].pipeline))
+            {
+                throw std::runtime_error("create mesh gbuffer graphics pipeline");
+            }
+
+            // destory shader modul
+            m_vulkan_api->destroyShaderModule(vert_shader_module);
+            m_vulkan_api->destroyShaderModule(frag_shader_module);
+        }
+
+        // deferred lighting
+        {
+            // Pipeline Layout
+            VkDescriptorSetLayout      descriptorset_layouts[3] = {m_descriptor_infos[_mesh_global].layout,
+                                                                   m_descriptor_infos[_deferred_lighting].layout,
+                                                                   m_descriptor_infos[_skybox].layout};
+            VkPipelineLayoutCreateInfo pipeline_layout_create_info {};
+            pipeline_layout_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+            pipeline_layout_create_info.setLayoutCount =
+                sizeof(descriptorset_layouts) / sizeof(descriptorset_layouts[0]);
+            pipeline_layout_create_info.pSetLayouts = descriptorset_layouts;
+
+            if (VK_SUCCESS !=
+                vkCreatePipelineLayout(m_vulkan_api->getLogicDevice(),
+                                       &pipeline_layout_create_info,
+                                       nullptr,
+                                       &m_render_pipelines[_render_pipeline_type_deferred_lighting].layout))
+            {
+                throw std::runtime_error("create deferred lighting pipeline layout");
+            }
+
+            // Shader Module
+            VkShaderModule vert_shader_module = m_vulkan_api->createShaderModule(DEFERRED_LIGHTING_VERT);
+            VkShaderModule frag_shader_module = m_vulkan_api->createShaderModule(DEFERRED_LIGHTING_FRAG);
+
+            VkPipelineShaderStageCreateInfo vert_pipeline_shader_stage_create_info {};
+            vert_pipeline_shader_stage_create_info.sType  = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+            vert_pipeline_shader_stage_create_info.stage  = VK_SHADER_STAGE_VERTEX_BIT;
+            vert_pipeline_shader_stage_create_info.module = vert_shader_module;
+            vert_pipeline_shader_stage_create_info.pName  = "main";
+
+            VkPipelineShaderStageCreateInfo frag_pipeline_shader_stage_create_info {};
+            frag_pipeline_shader_stage_create_info.sType  = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+            frag_pipeline_shader_stage_create_info.stage  = VK_SHADER_STAGE_FRAGMENT_BIT;
+            frag_pipeline_shader_stage_create_info.module = frag_shader_module;
+            frag_pipeline_shader_stage_create_info.pName  = "main";
+
+            VkPipelineShaderStageCreateInfo shader_stages[] = {vert_pipeline_shader_stage_create_info,
+                                                               frag_pipeline_shader_stage_create_info};
+
+            // VertexInput state
+            auto                                 vertex_binding_descriptions   = MeshVertex::getBindingDescriptions();
+            auto                                 vertex_attribute_descriptions = MeshVertex::getAttributeDescriptions();
+            VkPipelineVertexInputStateCreateInfo vertex_input_state_create_info {};
+            vertex_input_state_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+            vertex_input_state_create_info.vertexBindingDescriptionCount = 0;
+            vertex_input_state_create_info.pVertexBindingDescriptions    = NULL;
+            vertex_input_state_create_info.vertexBindingDescriptionCount = 0;
+            vertex_input_state_create_info.pVertexAttributeDescriptions  = NULL;
+
+            // Assembly State
+            VkPipelineInputAssemblyStateCreateInfo input_assembly_create_info {};
+            input_assembly_create_info.sType    = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+            input_assembly_create_info.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+            input_assembly_create_info.primitiveRestartEnable = VK_FALSE;
+
+            // Viewport State
+            VkPipelineViewportStateCreateInfo viewport_state_create_info {};
+            viewport_state_create_info.sType         = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+            viewport_state_create_info.viewportCount = 1;
+            viewport_state_create_info.scissorCount  = 1;
+
+            // Rasterization State
+            VkPipelineRasterizationStateCreateInfo rasterization_state_create_info {};
+            rasterization_state_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+            rasterization_state_create_info.depthClampEnable        = VK_FALSE;
+            rasterization_state_create_info.rasterizerDiscardEnable = VK_FALSE;
+            rasterization_state_create_info.polygonMode             = VK_POLYGON_MODE_FILL;
+            rasterization_state_create_info.lineWidth               = 1.0f;
+            rasterization_state_create_info.cullMode                = VK_CULL_MODE_NONE;
+            rasterization_state_create_info.frontFace               = VK_FRONT_FACE_CLOCKWISE;
+            rasterization_state_create_info.depthBiasEnable         = VK_FALSE;
+            rasterization_state_create_info.depthBiasConstantFactor = 0.0f;
+            rasterization_state_create_info.depthBiasClamp          = 0.0f;
+            rasterization_state_create_info.depthBiasSlopeFactor    = 0.0f;
+
+            // Multisample State
+            VkPipelineMultisampleStateCreateInfo multisample_state_create_info {};
+            multisample_state_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+            multisample_state_create_info.sampleShadingEnable  = VK_FALSE;
+            multisample_state_create_info.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+
+            // ColorBlendAttachment State
+            VkPipelineColorBlendAttachmentState color_blend_attachments[1] = {};
+            color_blend_attachments[0].colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
+                                                        VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+            color_blend_attachments[0].blendEnable         = VK_FALSE;
+            color_blend_attachments[0].srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
+            color_blend_attachments[0].dstColorBlendFactor = VK_BLEND_FACTOR_ONE;
+            color_blend_attachments[0].colorBlendOp        = VK_BLEND_OP_ADD;
+            color_blend_attachments[0].srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+            color_blend_attachments[0].dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+            color_blend_attachments[0].alphaBlendOp        = VK_BLEND_OP_ADD;
+
+            VkPipelineColorBlendStateCreateInfo color_blend_state_create_info = {};
+            color_blend_state_create_info.sType         = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+            color_blend_state_create_info.logicOpEnable = VK_FALSE;
+            color_blend_state_create_info.logicOp       = VK_LOGIC_OP_COPY;
+            color_blend_state_create_info.attachmentCount =
+                sizeof(color_blend_attachments) / sizeof(color_blend_attachments[0]);
+            color_blend_state_create_info.pAttachments      = &color_blend_attachments[0];
+            color_blend_state_create_info.blendConstants[0] = 0.0f;
+            color_blend_state_create_info.blendConstants[1] = 0.0f;
+            color_blend_state_create_info.blendConstants[2] = 0.0f;
+            color_blend_state_create_info.blendConstants[3] = 0.0f;
+
+            // depth state
+            VkPipelineDepthStencilStateCreateInfo depth_stencil_create_info {};
+            depth_stencil_create_info.sType            = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+            depth_stencil_create_info.depthTestEnable  = VK_FALSE;
+            depth_stencil_create_info.depthWriteEnable = VK_FALSE;
+            depth_stencil_create_info.depthCompareOp   = VK_COMPARE_OP_ALWAYS;
+            depth_stencil_create_info.depthBoundsTestEnable = VK_FALSE;
+            depth_stencil_create_info.stencilTestEnable     = VK_FALSE;
+
+            // Dynamic State
+            VkDynamicState                   dynamic_states[] = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
+            VkPipelineDynamicStateCreateInfo dynamic_state_create_info {};
+            dynamic_state_create_info.sType             = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+            dynamic_state_create_info.dynamicStateCount = 2;
+            dynamic_state_create_info.pDynamicStates    = dynamic_states;
+
+            // Pipeline info
+            VkGraphicsPipelineCreateInfo pipelineInfo {};
+            pipelineInfo.sType               = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+            pipelineInfo.stageCount          = 2;
+            pipelineInfo.pStages             = shader_stages;
+            pipelineInfo.pVertexInputState   = &vertex_input_state_create_info;
+            pipelineInfo.pInputAssemblyState = &input_assembly_create_info;
+            pipelineInfo.pViewportState      = &viewport_state_create_info;
+            pipelineInfo.pRasterizationState = &rasterization_state_create_info;
+            pipelineInfo.pMultisampleState   = &multisample_state_create_info;
+            pipelineInfo.pColorBlendState    = &color_blend_state_create_info;
+            pipelineInfo.pDynamicState       = &dynamic_state_create_info;
+            pipelineInfo.pDepthStencilState  = &depth_stencil_create_info;
+            pipelineInfo.layout              = m_render_pipelines[_render_pipeline_type_deferred_lighting].layout;
+            pipelineInfo.renderPass          = m_framebuffer.render_pass;
+            pipelineInfo.subpass             = _main_camera_subpass_deferred_lighting;
+            pipelineInfo.basePipelineHandle  = VK_NULL_HANDLE;
+
+            // create Pipeline
+            if (VK_SUCCESS !=
+                vkCreateGraphicsPipelines(m_vulkan_api->getLogicDevice(),
+                                          VK_NULL_HANDLE,
+                                          1,
+                                          &pipelineInfo,
+                                          nullptr,
+                                          &m_render_pipelines[_render_pipeline_type_deferred_lighting].pipeline))
+            {
+                throw std::runtime_error("create deferred lighting graphics pipeline");
+            }
+
+            // destory shader module
+            m_vulkan_api->destroyShaderModule(vert_shader_module);
+            m_vulkan_api->destroyShaderModule(frag_shader_module);
+        }
 
         // forward render
         {
@@ -936,6 +1508,93 @@ namespace VKernel
         setupModelGlobalDescriptorSet();
         setupSkyboxDescriptorSet();
         setupAxisDescriptorSet();
+        setupGbufferLightingDescriptorSet();
+    }
+
+    void MainCameraPass::setupFramebufferDescriptorSet()
+    {
+        // DescriptorSet bind buffer
+        VkDescriptorImageInfo gbuffer_normal_input_attachment_info = {};
+        gbuffer_normal_input_attachment_info.sampler = m_vulkan_api->getOrCreateDefaultSampler(Default_Sampler_Nearest);
+        gbuffer_normal_input_attachment_info.imageView   = m_framebuffer.attachments[_main_camera_pass_gbuffer_a].view;
+        gbuffer_normal_input_attachment_info.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+        VkDescriptorImageInfo gbuffer_metallic_roughness_shadingmodeid_input_attachment_info = {};
+        gbuffer_metallic_roughness_shadingmodeid_input_attachment_info.sampler =
+            m_vulkan_api->getOrCreateDefaultSampler(Default_Sampler_Nearest);
+        gbuffer_metallic_roughness_shadingmodeid_input_attachment_info.imageView =
+            m_framebuffer.attachments[_main_camera_pass_gbuffer_b].view;
+        gbuffer_metallic_roughness_shadingmodeid_input_attachment_info.imageLayout =
+            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+        VkDescriptorImageInfo gbuffer_albedo_input_attachment_info = {};
+        gbuffer_albedo_input_attachment_info.sampler = m_vulkan_api->getOrCreateDefaultSampler(Default_Sampler_Nearest);
+        gbuffer_albedo_input_attachment_info.imageView   = m_framebuffer.attachments[_main_camera_pass_gbuffer_c].view;
+        gbuffer_albedo_input_attachment_info.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+        VkDescriptorImageInfo depth_input_attachment_info = {};
+        depth_input_attachment_info.sampler     = m_vulkan_api->getOrCreateDefaultSampler(Default_Sampler_Nearest);
+        depth_input_attachment_info.imageView   = m_vulkan_api->getDepthImageInfo().depth_image_view;
+        depth_input_attachment_info.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+        VkWriteDescriptorSet deferred_lighting_descriptor_writes_info[4];
+
+        VkWriteDescriptorSet& gbuffer_normal_descriptor_input_attachment_write_info =
+            deferred_lighting_descriptor_writes_info[0];
+        gbuffer_normal_descriptor_input_attachment_write_info.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        gbuffer_normal_descriptor_input_attachment_write_info.pNext = NULL;
+        gbuffer_normal_descriptor_input_attachment_write_info.dstSet =
+            m_descriptor_infos[_deferred_lighting].descriptor_set;
+        gbuffer_normal_descriptor_input_attachment_write_info.dstBinding      = 0;
+        gbuffer_normal_descriptor_input_attachment_write_info.dstArrayElement = 0;
+        gbuffer_normal_descriptor_input_attachment_write_info.descriptorType  = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+        gbuffer_normal_descriptor_input_attachment_write_info.descriptorCount = 1;
+        gbuffer_normal_descriptor_input_attachment_write_info.pImageInfo      = &gbuffer_normal_input_attachment_info;
+
+        VkWriteDescriptorSet& gbuffer_metallic_roughness_shadingmodeid_descriptor_input_attachment_write_info =
+            deferred_lighting_descriptor_writes_info[1];
+        gbuffer_metallic_roughness_shadingmodeid_descriptor_input_attachment_write_info.sType =
+            VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        gbuffer_metallic_roughness_shadingmodeid_descriptor_input_attachment_write_info.pNext = NULL;
+        gbuffer_metallic_roughness_shadingmodeid_descriptor_input_attachment_write_info.dstSet =
+            m_descriptor_infos[_deferred_lighting].descriptor_set;
+        gbuffer_metallic_roughness_shadingmodeid_descriptor_input_attachment_write_info.dstBinding      = 1;
+        gbuffer_metallic_roughness_shadingmodeid_descriptor_input_attachment_write_info.dstArrayElement = 0;
+        gbuffer_metallic_roughness_shadingmodeid_descriptor_input_attachment_write_info.descriptorType =
+            VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+        gbuffer_metallic_roughness_shadingmodeid_descriptor_input_attachment_write_info.descriptorCount = 1;
+        gbuffer_metallic_roughness_shadingmodeid_descriptor_input_attachment_write_info.pImageInfo =
+            &gbuffer_metallic_roughness_shadingmodeid_input_attachment_info;
+
+        VkWriteDescriptorSet& gbuffer_albedo_descriptor_input_attachment_write_info =
+            deferred_lighting_descriptor_writes_info[2];
+        gbuffer_albedo_descriptor_input_attachment_write_info.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        gbuffer_albedo_descriptor_input_attachment_write_info.pNext = NULL;
+        gbuffer_albedo_descriptor_input_attachment_write_info.dstSet =
+            m_descriptor_infos[_deferred_lighting].descriptor_set;
+        gbuffer_albedo_descriptor_input_attachment_write_info.dstBinding      = 2;
+        gbuffer_albedo_descriptor_input_attachment_write_info.dstArrayElement = 0;
+        gbuffer_albedo_descriptor_input_attachment_write_info.descriptorType  = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+        gbuffer_albedo_descriptor_input_attachment_write_info.descriptorCount = 1;
+        gbuffer_albedo_descriptor_input_attachment_write_info.pImageInfo      = &gbuffer_albedo_input_attachment_info;
+
+        VkWriteDescriptorSet& depth_descriptor_input_attachment_write_info =
+            deferred_lighting_descriptor_writes_info[3];
+        depth_descriptor_input_attachment_write_info.sType      = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        depth_descriptor_input_attachment_write_info.pNext      = NULL;
+        depth_descriptor_input_attachment_write_info.dstSet     = m_descriptor_infos[_deferred_lighting].descriptor_set;
+        depth_descriptor_input_attachment_write_info.dstBinding = 3;
+        depth_descriptor_input_attachment_write_info.dstArrayElement = 0;
+        depth_descriptor_input_attachment_write_info.descriptorType  = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+        depth_descriptor_input_attachment_write_info.descriptorCount = 1;
+        depth_descriptor_input_attachment_write_info.pImageInfo      = &depth_input_attachment_info;
+
+        vkUpdateDescriptorSets(m_vulkan_api->getLogicDevice(),
+                               sizeof(deferred_lighting_descriptor_writes_info) /
+                                   sizeof(deferred_lighting_descriptor_writes_info[0]),
+                               deferred_lighting_descriptor_writes_info,
+                               0,
+                               NULL);
     }
 
     void MainCameraPass::setupSwapchainFramebuffers()
@@ -948,6 +1607,9 @@ namespace VKernel
         {
             // image view array
             VkImageView framebuffer_attachments_for_image_view[_main_camera_pass_attachment_count] = {
+                m_framebuffer.attachments[_main_camera_pass_gbuffer_a].view,
+                m_framebuffer.attachments[_main_camera_pass_gbuffer_b].view,
+                m_framebuffer.attachments[_main_camera_pass_gbuffer_c].view,
                 m_framebuffer.attachments[_main_camera_pass_backup_buffer_odd].view,
                 m_framebuffer.attachments[_main_camera_pass_backup_buffer_even].view,
                 m_vulkan_api->getDepthImageInfo().depth_image_view,
@@ -1183,6 +1845,231 @@ namespace VKernel
                                axis_descriptor_writes_info,
                                0,
                                NULL);
+    }
+
+    void MainCameraPass::setupGbufferLightingDescriptorSet()
+    {
+        VkDescriptorSetAllocateInfo gbuffer_light_global_descriptor_set_alloc_info;
+        gbuffer_light_global_descriptor_set_alloc_info.sType          = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+        gbuffer_light_global_descriptor_set_alloc_info.pNext          = NULL;
+        gbuffer_light_global_descriptor_set_alloc_info.descriptorPool = m_vulkan_api->getDescriptorPool();
+        gbuffer_light_global_descriptor_set_alloc_info.descriptorSetCount = 1;
+        gbuffer_light_global_descriptor_set_alloc_info.pSetLayouts = &m_descriptor_infos[_deferred_lighting].layout;
+
+        if (VK_SUCCESS != vkAllocateDescriptorSets(m_vulkan_api->getLogicDevice(),
+                                                   &gbuffer_light_global_descriptor_set_alloc_info,
+                                                   &m_descriptor_infos[_deferred_lighting].descriptor_set))
+        {
+            throw std::runtime_error("allocate gbuffer light global descriptor set");
+        }
+    }
+
+    void MainCameraPass::drawMeshGbuffer()
+    {
+        // write data
+        struct MeshNode
+        {
+            const Matrix4x4* model_matrix {nullptr};
+        };
+
+        std::map<VulkanPBRMaterial*, std::map<VulkanMesh*, std::vector<MeshNode>>> main_camera_mesh_drawcall_batch;
+
+        for (RenderMeshNode& node : *(m_visiable_nodes.p_main_camera_visible_mesh_nodes))
+        {
+            auto& mesh_instanced = main_camera_mesh_drawcall_batch[node.ref_material];
+            auto& mesh_nodes     = mesh_instanced[node.ref_mesh];
+
+            MeshNode temp;
+            temp.model_matrix = node.model_matrix;
+
+            mesh_nodes.push_back(temp);
+        }
+
+        float color[4] = {1.0f, 1.0f, 1.0f, 1.0f};
+        m_vulkan_api->pushEvent(m_vulkan_api->getCurrentCommandBuffer(), "Mesh GBuffer", color);
+
+        // Bind Pipeline
+        vkCmdBindPipeline(m_vulkan_api->getCurrentCommandBuffer(),
+                          VK_PIPELINE_BIND_POINT_GRAPHICS,
+                          m_render_pipelines[_render_pipeline_type_mesh_gbuffer].pipeline);
+        // set viewport and scissor
+        SwapChainDesc swap_chain_desc = m_vulkan_api->getSwapchainInfo();
+        vkCmdSetViewport(m_vulkan_api->getCurrentCommandBuffer(), 0, 1, &swap_chain_desc.viewport);
+        vkCmdSetScissor(m_vulkan_api->getCurrentCommandBuffer(), 0, 1, &swap_chain_desc.scissor);
+
+        // write PV data
+        uint32_t perframe_dynamic_offset =
+            roundUp(m_global_render_resource->_storage_buffer
+                        ._global_upload_ringbuffers_end[m_vulkan_api->getCurrentFrameIndex()],
+                    m_global_render_resource->_storage_buffer._min_storage_buffer_offset_alignment);
+
+        m_global_render_resource->_storage_buffer._global_upload_ringbuffers_end[m_vulkan_api->getCurrentFrameIndex()] =
+            perframe_dynamic_offset + sizeof(MeshPerframeStorageBufferObject);
+        assert(m_global_render_resource->_storage_buffer
+                   ._global_upload_ringbuffers_end[m_vulkan_api->getCurrentFrameIndex()] <=
+               (m_global_render_resource->_storage_buffer
+                    ._global_upload_ringbuffers_begin[m_vulkan_api->getCurrentFrameIndex()] +
+                m_global_render_resource->_storage_buffer
+                    ._global_upload_ringbuffers_size[m_vulkan_api->getCurrentFrameIndex()]));
+
+        (*reinterpret_cast<MeshPerframeStorageBufferObject*>(
+            reinterpret_cast<uintptr_t>(
+                m_global_render_resource->_storage_buffer._global_upload_ringbuffer_memory_pointer) +
+            perframe_dynamic_offset)) = m_mesh_perframe_storage_buffer_object;
+
+        // render
+        for (auto& pair1 : main_camera_mesh_drawcall_batch) ///< Same material
+        {
+            VulkanPBRMaterial& material       = (*pair1.first);
+            auto&              mesh_instanced = pair1.second;
+
+            // bind material
+            vkCmdBindDescriptorSets(m_vulkan_api->getCurrentCommandBuffer(),
+                                    VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                    m_render_pipelines[_render_pipeline_type_mesh_gbuffer].layout,
+                                    1,
+                                    1,
+                                    &material.material_descriptor_set,
+                                    0,
+                                    NULL);
+
+            for (auto& pair2 : mesh_instanced) ///< Same mesh
+            {
+                VulkanMesh& mesh       = (*pair2.first);
+                auto&       mesh_nodes = pair2.second;
+
+                uint32_t total_instance_count = static_cast<uint32_t>(mesh_nodes.size());
+                if (total_instance_count > 0)
+                {
+
+                    // bind vertex buffer
+                    VkBuffer     vertex_buffers[] = {mesh.mesh_vertex_position_buffer,
+                                                     mesh.mesh_vertex_varying_enable_blending_buffer,
+                                                     mesh.mesh_vertex_varying_buffer};
+                    VkDeviceSize offsets[]        = {0, 0, 0};
+                    vkCmdBindVertexBuffers(m_vulkan_api->getCurrentCommandBuffer(),
+                                           0,
+                                           (sizeof(vertex_buffers) / sizeof(vertex_buffers[0])),
+                                           vertex_buffers,
+                                           offsets);
+                    // bind indice buffer
+                    vkCmdBindIndexBuffer(
+                        m_vulkan_api->getCurrentCommandBuffer(), mesh.mesh_index_buffer, 0, VK_INDEX_TYPE_UINT32);
+
+                    // Calculate the number of draw calls required for instance rendering
+                    uint32_t drawcall_max_instance_count =
+                        (sizeof(MeshPerdrawcallStorageBufferObject::mesh_instances) /
+                         sizeof(MeshPerdrawcallStorageBufferObject::mesh_instances[0]));
+                    uint32_t drawcall_count =
+                        roundUp(total_instance_count, drawcall_max_instance_count) / drawcall_max_instance_count;
+
+                    for (uint32_t drawcall_index = 0; drawcall_index < drawcall_count; ++drawcall_index)
+                    {
+                        // Calculate the number of instances to be rendered this time
+                        uint32_t current_instance_count =
+                            ((total_instance_count - drawcall_max_instance_count * drawcall_index) <
+                             drawcall_max_instance_count) ?
+                                (total_instance_count - drawcall_max_instance_count * drawcall_index) :
+                                drawcall_max_instance_count;
+
+                        // write M data
+                        uint32_t perdrawcall_dynamic_offset =
+                            roundUp(m_global_render_resource->_storage_buffer
+                                        ._global_upload_ringbuffers_end[m_vulkan_api->getCurrentFrameIndex()],
+                                    m_global_render_resource->_storage_buffer._min_storage_buffer_offset_alignment);
+                        m_global_render_resource->_storage_buffer
+                            ._global_upload_ringbuffers_end[m_vulkan_api->getCurrentFrameIndex()] =
+                            perdrawcall_dynamic_offset + sizeof(MeshPerdrawcallStorageBufferObject);
+                        assert(m_global_render_resource->_storage_buffer
+                                   ._global_upload_ringbuffers_end[m_vulkan_api->getCurrentFrameIndex()] <=
+                               (m_global_render_resource->_storage_buffer
+                                    ._global_upload_ringbuffers_begin[m_vulkan_api->getCurrentFrameIndex()] +
+                                m_global_render_resource->_storage_buffer
+                                    ._global_upload_ringbuffers_size[m_vulkan_api->getCurrentFrameIndex()]));
+
+                        MeshPerdrawcallStorageBufferObject& perdrawcall_storage_buffer_object =
+                            (*reinterpret_cast<MeshPerdrawcallStorageBufferObject*>(
+                                reinterpret_cast<uintptr_t>(m_global_render_resource->_storage_buffer
+                                                                ._global_upload_ringbuffer_memory_pointer) +
+                                perdrawcall_dynamic_offset));
+                        for (uint32_t i = 0; i < current_instance_count; ++i)
+                        {
+                            perdrawcall_storage_buffer_object.mesh_instances[i].model_matrix =
+                                *mesh_nodes[drawcall_max_instance_count * drawcall_index + i].model_matrix;
+                        }
+
+                        // Bind DescriptorSet
+                        uint32_t dynamic_offsets[2] = {perframe_dynamic_offset, perdrawcall_dynamic_offset};
+                        vkCmdBindDescriptorSets(m_vulkan_api->getCurrentCommandBuffer(),
+                                                VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                                m_render_pipelines[_render_pipeline_type_mesh_gbuffer].layout,
+                                                0,
+                                                1,
+                                                &m_descriptor_infos[_mesh_global].descriptor_set,
+                                                2,
+                                                dynamic_offsets);
+
+                        vkCmdDrawIndexed(m_vulkan_api->getCurrentCommandBuffer(),
+                                         mesh.mesh_index_count,
+                                         current_instance_count,
+                                         0,
+                                         0,
+                                         0);
+                    }
+                }
+            }
+        }
+
+        m_vulkan_api->popEvent(m_vulkan_api->getCurrentCommandBuffer());
+    }
+
+    void MainCameraPass::drawDeferredLighting()
+    {
+        // bind pipline
+        vkCmdBindPipeline(m_vulkan_api->getCurrentCommandBuffer(),
+                          VK_PIPELINE_BIND_POINT_GRAPHICS,
+                          m_render_pipelines[_render_pipeline_type_deferred_lighting].pipeline);
+
+        // set viewport and scissor
+        SwapChainDesc swap_chain_desc = m_vulkan_api->getSwapchainInfo();
+        vkCmdSetViewport(m_vulkan_api->getCurrentCommandBuffer(), 0, 1, &swap_chain_desc.viewport);
+        vkCmdSetScissor(m_vulkan_api->getCurrentCommandBuffer(), 0, 1, &swap_chain_desc.scissor);
+
+        // write PV data
+        uint32_t perframe_dynamic_offset =
+            roundUp(m_global_render_resource->_storage_buffer
+                        ._global_upload_ringbuffers_end[m_vulkan_api->getCurrentFrameIndex()],
+                    m_global_render_resource->_storage_buffer._min_storage_buffer_offset_alignment);
+
+        m_global_render_resource->_storage_buffer._global_upload_ringbuffers_end[m_vulkan_api->getCurrentFrameIndex()] =
+            perframe_dynamic_offset + sizeof(MeshPerframeStorageBufferObject);
+        assert(m_global_render_resource->_storage_buffer
+                   ._global_upload_ringbuffers_end[m_vulkan_api->getCurrentFrameIndex()] <=
+               (m_global_render_resource->_storage_buffer
+                    ._global_upload_ringbuffers_begin[m_vulkan_api->getCurrentFrameIndex()] +
+                m_global_render_resource->_storage_buffer
+                    ._global_upload_ringbuffers_size[m_vulkan_api->getCurrentFrameIndex()]));
+
+        (*reinterpret_cast<MeshPerframeStorageBufferObject*>(
+            reinterpret_cast<uintptr_t>(
+                m_global_render_resource->_storage_buffer._global_upload_ringbuffer_memory_pointer) +
+            perframe_dynamic_offset)) = m_mesh_perframe_storage_buffer_object;
+
+        // Bind DescriptorSet
+        VkDescriptorSet descriptor_sets[3] = {m_descriptor_infos[_mesh_global].descriptor_set,
+                                              m_descriptor_infos[_deferred_lighting].descriptor_set,
+                                              m_descriptor_infos[_skybox].descriptor_set};
+        uint32_t        dynamic_offsets[3] = {perframe_dynamic_offset, 0, 0};
+        vkCmdBindDescriptorSets(m_vulkan_api->getCurrentCommandBuffer(),
+                                VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                m_render_pipelines[_render_pipeline_type_deferred_lighting].layout,
+                                0,
+                                3,
+                                descriptor_sets,
+                                3,
+                                dynamic_offsets);
+
+        vkCmdDraw(m_vulkan_api->getCurrentCommandBuffer(), 3, 1, 0, 0);
     }
 
     void MainCameraPass::drawMeshLighting()

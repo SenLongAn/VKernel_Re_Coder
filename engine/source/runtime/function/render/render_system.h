@@ -60,6 +60,8 @@ namespace VKernel
         void createAxis(std::array<RenderEntity, 3> axis_entities, std::array<RenderMeshData, 3> mesh_datas);
 
     private:
+        RENDER_PIPELINE_TYPE m_render_pipeline_type {RENDER_PIPELINE_TYPE::DEFERRED_PIPELINE}; ///< render mode
+
         // direct management
         std::shared_ptr<VulkanAPI>          m_vulkan_api;
         std::shared_ptr<RenderCamera>       m_render_camera;

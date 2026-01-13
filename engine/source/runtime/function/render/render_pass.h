@@ -12,20 +12,25 @@ namespace VKernel
 {
     enum ///< attachment count
     {
-        _main_camera_pass_backup_buffer_odd       = 0, ///< scene ui
-        _main_camera_pass_backup_buffer_even      = 1, ///< eidtor ui
-        _main_camera_pass_depth                   = 2, ///< depth
-        _main_camera_pass_swap_chain_image        = 3, ///< color
-        _main_camera_pass_attachment_count        = 4, ///< sum attachment count
-        _main_camera_pass_custom_attachment_count = 2  ///< custom attachment count
+        _main_camera_pass_gbuffer_a               = 0, ///< GBuffera
+        _main_camera_pass_gbuffer_b               = 1, ///< GBufferb
+        _main_camera_pass_gbuffer_c               = 2, ///< GBufferc
+        _main_camera_pass_backup_buffer_odd       = 3, ///< scene ui
+        _main_camera_pass_backup_buffer_even      = 4, ///< eidtor ui
+        _main_camera_pass_depth                   = 5, ///< depth
+        _main_camera_pass_swap_chain_image        = 6, ///< color
+        _main_camera_pass_attachment_count        = 7, ///< sum attachment count
+        _main_camera_pass_custom_attachment_count = 5  ///< custom attachment count
     };
 
     enum ///< subpass
     {
-        _main_camera_subpass_forward_lighting = 0, ///< forward render
-        _main_camera_subpass_ui,                   ///< ui
-        _main_camera_subpass_combine_ui,           ///< combine sence and editorUI
-        _main_camera_subpass_count                 ///< sum subpass count
+        _main_camera_subpass_basepass = 0,      ///< deferred GBuffer
+        _main_camera_subpass_deferred_lighting, ///< deferred light
+        _main_camera_subpass_forward_lighting,  ///< forward render
+        _main_camera_subpass_ui,                ///< ui
+        _main_camera_subpass_combine_ui,        ///< combine sence and editorUI
+        _main_camera_subpass_count              ///< sum subpass count
     };
 
     struct VisiableNodes

@@ -10,6 +10,14 @@
 
 namespace VKernel
 {
+
+    enum class RENDER_PIPELINE_TYPE : uint8_t ///< render mode
+    {
+        FORWARD_PIPELINE = 0,
+        DEFERRED_PIPELINE,
+        PIPELINE_TYPE_COUNT
+    };
+
     // mesh
     class BufferData ///< data
     {

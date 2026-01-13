@@ -5,7 +5,6 @@
 #include "runtime/core/math/vector2.h"
 #include "runtime/function/render/vulkan_interface/vulkan_api.h"
 
-
 /**
  * The management of each pass, the core of draw, abstract base class
  */
@@ -32,7 +31,9 @@ namespace VKernel
         virtual void preparePassData(std::shared_ptr<RenderResourceBase> render_resource); ///< prepare processing data
 
         virtual void forwardRender(std::shared_ptr<VulkanAPI>          vulkan_api,
-                                   std::shared_ptr<RenderResourceBase> render_resource) = 0; ///< forward render core
+                                   std::shared_ptr<RenderResourceBase> render_resource)  = 0; ///< forward render core
+        virtual void deferredRender(std::shared_ptr<VulkanAPI>          vulkan_api,
+                                    std::shared_ptr<RenderResourceBase> render_resource) = 0; ///< deferred
 
         void initializeUIRenderBackend(WindowUI* window_ui); ///< init editor ui Backend: vulkan and glfw
 

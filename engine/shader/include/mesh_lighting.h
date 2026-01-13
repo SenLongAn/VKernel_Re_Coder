@@ -72,22 +72,22 @@ highp vec3 BRDF(highp vec3  L,
 }
 
 // tone --------------------------------------------
-vec3 reinhard(vec3 color) { return color / (color + 1.0); }
+highp vec3 reinhard(highp vec3 color) { return color / (color + 1.0); }
 
-vec3 acesFilm(vec3 x)
+highp vec3 acesFilm(highp vec3 x)
 {
-    const float a = 2.51;
-    const float b = 0.03;
-    const float c = 2.43;
-    const float d = 0.59;
-    const float e = 0.14;
+    highp const float a = 2.51;
+    highp const float b = 0.03;
+    highp const float c = 2.43;
+    highp const float d = 0.59;
+    highp const float e = 0.14;
     return clamp((x * (a * x + b)) / (x * (c * x + d) + e), 0.0, 1.0);
 }
 
-vec3 filmic(vec3 x)
+highp vec3 filmic(highp vec3 x)
 {
-    vec3 X      = max(vec3(0.0), x - 0.004);
-    vec3 result = (X * (6.2 * X + 0.5)) / (X * (6.2 * X + 1.7) + 0.06);
+    highp vec3 X      = max(vec3(0.0), x - 0.004);
+    highp vec3 result = (X * (6.2 * X + 0.5)) / (X * (6.2 * X + 1.7) + 0.06);
     return pow(result, vec3(2.2));
 }
 
@@ -118,5 +118,6 @@ highp vec3 blinn_phong(highp vec3  L,
     return color;
 }
 
-// ndc->uv --------------------------------------------
+// ndc<->uv --------------------------------------------
 highp vec2 ndcxy_to_uv(highp vec2 ndcxy) { return ndcxy * vec2(0.5, 0.5) + vec2(0.5, 0.5); }
+highp vec2 uv_to_ndcxy(highp vec2 uv) { return uv * vec2(2.0, 2.0) + vec2(-1.0, -1.0); }

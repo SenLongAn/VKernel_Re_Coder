@@ -18,6 +18,9 @@ namespace VKernel
         virtual void forwardRender(std::shared_ptr<VulkanAPI>          vulkan_api,
                                    std::shared_ptr<RenderResourceBase> render_resource);
 
+        virtual void deferredRender(std::shared_ptr<VulkanAPI>          vulkan_api,
+                                    std::shared_ptr<RenderResourceBase> render_resource) override final;
+
         void passUpdateAfterRecreateSwapchain(); ///< destory and recreate framebuffer
 
         // get

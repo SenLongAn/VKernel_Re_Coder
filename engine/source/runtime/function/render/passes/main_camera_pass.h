@@ -24,12 +24,15 @@ namespace VKernel
             _mesh_per_material, ///< material texture
             _skybox,            ///< skybox
             _axis,              ///< Gizmo axis
+            _deferred_lighting, ///< deferred
             _layout_type_count
         };
 
         enum RenderPipeLineType : uint8_t ///< pipline type
         {
-            _render_pipeline_type_mesh_lighting = 0, ///< forward render
+            _render_pipeline_type_mesh_gbuffer = 0,  ///< deferred GBuffer
+            _render_pipeline_type_deferred_lighting, ///< deferred lighting
+            _render_pipeline_type_mesh_lighting,     ///< forward render
             _render_pipeline_type_skybox,            ///< skybox
             _render_pipeline_type_axis,              ///< Gizmo axis
             _render_pipeline_type_count
@@ -45,9 +48,13 @@ namespace VKernel
 
         void preparePassData(std::shared_ptr<RenderResourceBase> render_resource) override final; ///< get other class
 
+        void draw(UIPass&        ui_pass,
+                  CombineUIPass& combine_ui_pass,
+                  uint32_t       current_swapchain_image_index); ///< deferred
+
         void drawForward(UIPass&        ui_pass,
                          CombineUIPass& combine_ui_pass,
-                         uint32_t       current_swapchain_image_index); ///< draw: all subpass
+                         uint32_t       current_swapchain_image_index); ///< forward
 
         void updateAfterFramebufferRecreate(); ///< recreate framebuffer
 
@@ -69,13 +76,17 @@ namespace VKernel
         void setupDescriptorSetLayout();
         void setupPipelines(); ///< pipline
         void setupDescriptorSet();
+        void setupFramebufferDescriptorSet();
         void setupSwapchainFramebuffers(); ///< Framebuffer
 
         void setupModelGlobalDescriptorSet(); ///< bind buffer and set
         void setupSkyboxDescriptorSet();
         void setupAxisDescriptorSet();
+        void setupGbufferLightingDescriptorSet();
 
         // draw
+        void drawMeshGbuffer();
+        void drawDeferredLighting();
         void drawMeshLighting(); ///< forward render scene
         void drawSkybox();
         void drawAxis();
