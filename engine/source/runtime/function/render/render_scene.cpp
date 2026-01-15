@@ -63,6 +63,7 @@ namespace VKernel
         render_resource->m_mesh_directional_light_shadow_perframe_storage_buffer_object.light_proj_view =
             directional_light_proj_view;
 
+        // clear
         m_directional_light_visible_mesh_nodes.clear();
 
         // TODO: Frustum
@@ -85,6 +86,24 @@ namespace VKernel
 
     void RenderScene::updateVisibleObjectsPointLight(std::shared_ptr<RenderResource> render_resource)
     {
+        // light PV
+        std::vector<std::vector<Matrix4x4>> point_light_proj_view = CalculatePointLightCamera(*this);
+
+        // Set to render_resource
+        uint8_t k = 0;
+        for (int i = 0; i < point_light_proj_view.size(); i++)
+        {
+            for (int j = 0; j < point_light_proj_view[i].size(); j++)
+            {
+                render_resource->m_mesh_perframe_storage_buffer_object.point_light_matrices[k] =
+                    point_light_proj_view[i][j];
+                render_resource->m_mesh_point_light_shadow_perframe_storage_buffer_object.point_light_matrices[k] =
+                    point_light_proj_view[i][j];
+                k++;
+            }
+        }
+
+        // clear
         m_point_lights_visible_mesh_nodes.clear();
 
         // TODO: Frustum

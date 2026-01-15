@@ -1,4 +1,4 @@
-#version 310 es
+#version 450 core
 
 #extension GL_GOOGLE_include_directive : enable
 
@@ -20,7 +20,8 @@ layout(location = 0) out highp vec3 out_position_world_space;
 void main()
 {
     // M
-    highp mat4 model_matrix = mesh_instances[gl_InstanceIndex].model_matrix;
-
-    out_position_world_space = (model_matrix * vec4(in_position, 1.0)).xyz;
+    highp mat4 model_matrix  = mesh_instances[gl_InstanceIndex].model_matrix;
+    highp vec4 world_pos     = model_matrix * vec4(in_position, 1.0);
+    out_position_world_space = world_pos.xyz;
+    gl_Position              = world_pos;
 }

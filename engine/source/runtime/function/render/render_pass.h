@@ -50,6 +50,7 @@ namespace VKernel
             VkDeviceMemory mem   = VK_NULL_HANDLE;
             VkImageView    view  = VK_NULL_HANDLE;
             VkFormat       format;
+            VmaAllocation  allocation;
         };
 
         struct Framebuffer ///< renderpass, framebuffer, attachment

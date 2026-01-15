@@ -166,4 +166,51 @@ namespace VKernel
         return light_proj_view;
     }
 
+    std::vector<std::vector<Matrix4x4>> CalculatePointLightCamera(RenderScene& scene)
+    {
+        uint8_t                             n = scene.m_point_light_list.m_lights.size();
+        std::vector<std::vector<Matrix4x4>> res(n);
+
+        const Vector3 targets[6] = {Vector3(1.0f, 0.0f, 0.0f),
+                                    Vector3(-1.0f, 0.0f, 0.0f),
+                                    Vector3(0.0f, 1.0f, 0.0f),
+                                    Vector3(0.0f, -1.0f, 0.0f),
+                                    Vector3(0.0f, 0.0f, 1.0f),
+                                    Vector3(0.0f, 0.0f, -1.0f)};
+
+        const Vector3 ups[6] = {Vector3(0.0f, -1.0f, 0.0f),
+                                Vector3(0.0f, -1.0f, 0.0f),
+                                Vector3(0.0f, 0.0f, 1.0f),
+                                Vector3(0.0f, 0.0f, -1.0f),
+                                Vector3(0.0f, -1.0f, 0.0f),
+                                Vector3(0.0f, -1.0f, 0.0f)};
+
+        Radian fovy(Math::degreesToRadians(90.0f));
+        float  aspect = 1.0f;
+        float  znear  = 0.01f;
+        float  zfar   = 25.0f;
+
+        for (int i = 0; i < n; i++)
+        {
+            const PointLight& light     = scene.m_point_light_list.m_lights[i];
+            Vector3           light_pos = light.m_position;
+            zfar                        = light.calculateRadius();
+
+            // proj
+            Matrix4x4 light_proj = Math::makePerspectiveMatrix(fovy, aspect, znear, zfar);
+
+            for (size_t face = 0; face < 6; face++)
+            {
+                // view
+                Vector3   target     = light_pos + targets[face];
+                Matrix4x4 light_view = Math::makeLookAtMatrix(light_pos, target, ups[face]);
+
+                // VP
+                Matrix4x4 light_proj_view = (light_proj * light_view);
+                res[i].push_back(light_proj_view);
+            }
+        }
+
+        return res;
+    }
 } // namespace VKernel

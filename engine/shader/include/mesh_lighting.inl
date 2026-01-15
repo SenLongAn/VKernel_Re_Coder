@@ -25,7 +25,7 @@ highp vec3 Libl = (kD * diffuse + specular);
 // point light
 highp vec3 Lo = vec3(0.0, 0.0, 0.0);
 
-for (highp int light_index = 0; light_index < int(point_light_num) && light_index < m_max_point_light_count;
+for (highp int light_index = 0; light_index < int(point_light_num) && light_index < s_max_point_light_count;
      ++light_index) ///< iterate
 {
     highp vec3  point_light_position = scene_point_lights[light_index].position; ///< position
@@ -43,22 +43,18 @@ for (highp int light_index = 0; light_index < int(point_light_num) && light_inde
     {
         highp float shadow;
         {
-            // world position -> uv
-            highp vec3 position_view_space                = in_world_position - point_light_position;
-            highp vec3 position_spherical_function_domain = normalize(position_view_space);
-            highp vec2 position_ndcxy =
-                position_spherical_function_domain.xy / (abs(position_spherical_function_domain.z) + 1.0);
-            highp vec2  uv = ndcxy_to_uv(position_ndcxy);
-            highp float layer_index =
-                (0.5 + 0.5 * sign(position_spherical_function_domain.z)) + 2.0 * float(light_index);
+            // current
+            highp vec3  position_view_space = in_world_position - point_light_position;
+            highp float current_length      = length(position_view_space);
+
+            // sampler
+            highp vec3  position_spherical_function_domain = normalize(position_view_space);
+            highp vec4  coord          = vec4(normalize(position_spherical_function_domain), float(light_index));
+            highp float closest_length = texture(point_lights_shadow, coord).r;
 
             // compare
-            highp float depth          = texture(point_lights_shadow, vec3(uv, layer_index)).r + 0.000075;
-            highp float closest_length = (depth)*point_light_radius;
-
-            highp float current_length = length(position_view_space);
-
-            shadow = (closest_length >= current_length) ? 1.0f : -1.0f;
+            highp float bias = 0.05;
+            shadow           = (closest_length >= (current_length - bias)) ? 1.0f : -1.0f;
         }
 
         if (shadow > 0.0f)

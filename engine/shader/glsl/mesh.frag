@@ -1,6 +1,7 @@
-#version 310 es
+#version 450 core
 
 #extension GL_GOOGLE_include_directive : enable
+#extension GL_EXT_texture_array : enable
 
 #include "constants.h"
 
@@ -33,7 +34,8 @@ layout(set = 0, binding = 0) readonly buffer _unused_name_perframe
     uint             _padding_point_light_num_1;
     uint             _padding_point_light_num_2;
     uint             _padding_point_light_num_3;
-    PointLight       scene_point_lights[m_max_point_light_count];
+    PointLight       scene_point_lights[s_max_point_light_count];
+    highp mat4       point_light_matrices[s_max_point_light_count * 6];
     DirectionalLight scene_directional_light;
     highp mat4       directional_light_proj_view;
 };
@@ -41,7 +43,7 @@ layout(set = 0, binding = 0) readonly buffer _unused_name_perframe
 layout(set = 0, binding = 2) uniform sampler2D brdfLUT_sampler;
 layout(set = 0, binding = 3) uniform samplerCube irradiance_sampler;
 layout(set = 0, binding = 4) uniform samplerCube specular_sampler;
-layout(set = 0, binding = 5) uniform highp sampler2DArray point_lights_shadow;
+layout(set = 0, binding = 5) uniform samplerCubeArray point_lights_shadow;
 layout(set = 0, binding = 6) uniform highp sampler2D directional_light_shadow;
 
 layout(set = 1, binding = 0) uniform sampler2D base_color_texture_sampler;
@@ -76,7 +78,7 @@ void main()
     highp vec3  V           = normalize(camera_position - in_world_position);
     highp vec3  objectColor = texture(base_color_texture_sampler, in_texcoord).xyz;
     highp float metallic    = 0.5;
-    highp float roughness   = 0.5;
+    highp float roughness   = 0.51;
 
     highp vec3 result_color = vec3(0.0, 0.0, 0.0);
 

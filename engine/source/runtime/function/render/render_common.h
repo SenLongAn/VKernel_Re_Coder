@@ -40,11 +40,12 @@ namespace VKernel
 
     struct MeshPointLightShadowPerframeStorageBufferObject
     {
-        uint32_t point_light_num; ///< count
-        uint32_t _padding_point_light_num_1;
-        uint32_t _padding_point_light_num_2;
-        uint32_t _padding_point_light_num_3;
-        Vector4  point_lights_position_and_radius[s_max_point_light_count]; ///< position and radius
+        uint32_t  point_light_num; ///< count
+        uint32_t  _padding_point_light_num_1;
+        uint32_t  _padding_point_light_num_2;
+        uint32_t  _padding_point_light_num_3;
+        Vector4   point_lights_position_and_radius[s_max_point_light_count]; ///< position and radius
+        Matrix4x4 point_light_matrices[s_max_point_light_count * 6];         ///< VP
     };
 
     // MVP
@@ -62,7 +63,8 @@ namespace VKernel
         uint32_t              _padding_point_light_num_1;
         uint32_t              _padding_point_light_num_2;
         uint32_t              _padding_point_light_num_3;
-        VulkanScenePointLight scene_point_lights[s_max_point_light_count]; ///< point lights
+        VulkanScenePointLight scene_point_lights[s_max_point_light_count];       ///< point lights
+        Matrix4x4             point_light_matrices[s_max_point_light_count * 6]; ///< VP
 
         VulkanSceneDirectionalLight scene_directional_light; ///< Directional Light
         Matrix4x4                   directional_light_proj_view;

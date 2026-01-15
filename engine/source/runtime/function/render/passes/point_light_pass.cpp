@@ -66,14 +66,14 @@ namespace VKernel
                                   VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
                                   m_framebuffer.attachments[0].image,
                                   m_framebuffer.attachments[0].mem,
-                                  0,
-                                  2 * s_max_point_light_count, ///< * 2
+                                  VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT,
+                                  6 * s_max_point_light_count,
                                   1);
         m_vulkan_api->createImageView(m_framebuffer.attachments[0].image,
                                       m_framebuffer.attachments[0].format,
                                       VK_IMAGE_ASPECT_COLOR_BIT,
-                                      VK_IMAGE_VIEW_TYPE_2D_ARRAY,
-                                      2 * s_max_point_light_count,
+                                      VK_IMAGE_VIEW_TYPE_CUBE_ARRAY,
+                                      6 * s_max_point_light_count,
                                       1,
                                       m_framebuffer.attachments[0].view);
 
@@ -87,14 +87,14 @@ namespace VKernel
                                   VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
                                   m_framebuffer.attachments[1].image,
                                   m_framebuffer.attachments[1].mem,
-                                  0,
-                                  2 * s_max_point_light_count,
+                                  VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT,
+                                  6 * s_max_point_light_count,
                                   1);
         m_vulkan_api->createImageView(m_framebuffer.attachments[1].image,
                                       m_framebuffer.attachments[1].format,
                                       VK_IMAGE_ASPECT_DEPTH_BIT,
-                                      VK_IMAGE_VIEW_TYPE_2D_ARRAY,
-                                      2 * s_max_point_light_count,
+                                      VK_IMAGE_VIEW_TYPE_CUBE_ARRAY,
+                                      6 * s_max_point_light_count,
                                       1,
                                       m_framebuffer.attachments[1].view);
     }
@@ -183,7 +183,7 @@ namespace VKernel
         framebuffer_create_info.pAttachments    = attachments;
         framebuffer_create_info.width           = s_point_light_shadow_map_dimension;
         framebuffer_create_info.height          = s_point_light_shadow_map_dimension;
-        framebuffer_create_info.layers          = 2 * s_max_point_light_count;
+        framebuffer_create_info.layers          = 6 * s_max_point_light_count;
 
         if (vkCreateFramebuffer(
                 m_vulkan_api->getLogicDevice(), &framebuffer_create_info, nullptr, &m_framebuffer.framebuffer) !=
@@ -519,7 +519,7 @@ namespace VKernel
                     m_global_render_resource->_storage_buffer._min_storage_buffer_offset_alignment);
 
         m_global_render_resource->_storage_buffer._global_upload_ringbuffers_end[m_vulkan_api->getCurrentFrameIndex()] =
-            perframe_dynamic_offset + sizeof(MeshPerframeStorageBufferObject);
+            perframe_dynamic_offset + sizeof(MeshPointLightShadowPerframeStorageBufferObject);
 
         assert(m_global_render_resource->_storage_buffer
                    ._global_upload_ringbuffers_end[m_vulkan_api->getCurrentFrameIndex()] <=

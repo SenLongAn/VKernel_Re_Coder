@@ -54,4 +54,6 @@ namespace VKernel
     Matrix4x4 CalculateDirectionalLightCamera(
         RenderScene&  scene,
         RenderCamera& camera); // Calculate the view-projection matrix of the directional light
+
+    std::vector<std::vector<Matrix4x4>> CalculatePointLightCamera(RenderScene& scene);
 } // namespace VKernel

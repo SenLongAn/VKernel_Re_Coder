@@ -1,4 +1,4 @@
-#version 310 es
+#version 450 core
 
 #extension GL_GOOGLE_include_directive : enable // Enable extension
 
@@ -32,7 +32,8 @@ layout(set = 0, binding = 0) readonly buffer _unused_name_perframe
     uint             _padding_point_light_num_1;
     uint             _padding_point_light_num_2;
     uint             _padding_point_light_num_3;
-    PointLight       scene_point_lights[m_max_point_light_count];
+    PointLight       scene_point_lights[s_max_point_light_count];
+    highp mat4       point_light_matrices[s_max_point_light_count * 6];
     DirectionalLight scene_directional_light;
     highp mat4       directional_light_proj_view;
 };
