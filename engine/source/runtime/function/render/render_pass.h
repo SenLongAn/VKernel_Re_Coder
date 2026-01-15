@@ -36,6 +36,7 @@ namespace VKernel
     struct VisiableNodes
     {
         std::vector<RenderMeshNode>* p_directional_light_visible_mesh_nodes {nullptr}; ///< directional light
+        std::vector<RenderMeshNode>* p_point_lights_visible_mesh_nodes {nullptr};      ///< point light
         std::vector<RenderMeshNode>* p_main_camera_visible_mesh_nodes {nullptr};       ///< main camera
         RenderAxisNode*              p_axis_node {nullptr};                            ///< axis
     };

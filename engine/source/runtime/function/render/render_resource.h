@@ -67,7 +67,8 @@ namespace VKernel
         std::map<size_t, VulkanMesh>        m_vulkan_meshes;        ///< mesh id, mesh buffer
         std::map<size_t, VulkanPBRMaterial> m_vulkan_pbr_materials; ///< material id, material image view
 
-        MeshPerframeStorageBufferObject m_mesh_perframe_storage_buffer_object; ///< Render Resource
+        MeshPerframeStorageBufferObject                 m_mesh_perframe_storage_buffer_object; ///< Render Resource
+        MeshPointLightShadowPerframeStorageBufferObject m_mesh_point_light_shadow_perframe_storage_buffer_object;
         MeshDirectionalLightShadowPerframeStorageBufferObject
                                                        m_mesh_directional_light_shadow_perframe_storage_buffer_object;
         MeshInefficientPickPerframeStorageBufferObject m_mesh_inefficient_pick_perframe_storage_buffer_object;

@@ -28,6 +28,7 @@ namespace VKernel
 
         // visible objects
         std::vector<RenderMeshNode> m_directional_light_visible_mesh_nodes;
+        std::vector<RenderMeshNode> m_point_lights_visible_mesh_nodes;
         std::vector<RenderMeshNode> m_main_camera_visible_mesh_nodes;
         RenderAxisNode              m_axis_node;
 
@@ -65,6 +66,7 @@ namespace VKernel
         // update Visible Object
         void updateVisibleObjectsDirectionalLight(std::shared_ptr<RenderResource> render_resource,
                                                   std::shared_ptr<RenderCamera>   camera);
+        void updateVisibleObjectsPointLight(std::shared_ptr<RenderResource> render_resource);
         void updateVisibleObjectsMainCamera(std::shared_ptr<RenderResource> render_resource,
                                             std::shared_ptr<RenderCamera>   camera);
         void updateVisibleObjectsAxis(std::shared_ptr<RenderResource> render_resource);

@@ -1,18 +1,21 @@
-#include "runtime/function/render/passes/directional_light_pass.h"
+#include "runtime/function/render/passes/point_light_pass.h"
 
 #include "runtime/function/render/render_helper.h"
 #include "runtime/function/render/render_mesh.h"
 #include "runtime/function/render/vulkan_interface/vulkan_api.h"
 #include "runtime/function/render/vulkan_interface/vulkan_util.h"
 
-#include <mesh_directional_light_shadow_frag.h>
-#include <mesh_directional_light_shadow_vert.h>
+#include <mesh_point_light_shadow_frag.h>
+#include <mesh_point_light_shadow_geom.h>
+#include <mesh_point_light_shadow_vert.h>
 
+#include <map>
 #include <stdexcept>
+#include <vector>
 
 namespace VKernel
 {
-    void DirectionalLightShadowPass::initialize(const RenderPassInitInfo* init_info)
+    void PointLightShadowPass::initialize(const RenderPassInitInfo* init_info)
     {
         RenderPass::initialize(nullptr);
 
@@ -22,43 +25,41 @@ namespace VKernel
         setupFramebuffer();
         setupDescriptorSetLayout();
     }
-
-    void DirectionalLightShadowPass::postInitialize()
+    void PointLightShadowPass::postInitialize()
     {
+        // pre init
         setupPipelines();
         setupDescriptorSet();
     }
-
-    void DirectionalLightShadowPass::preparePassData(std::shared_ptr<RenderResourceBase> render_resource)
+    void PointLightShadowPass::preparePassData(std::shared_ptr<RenderResourceBase> render_resource)
     {
         const RenderResource* vulkan_resource = static_cast<const RenderResource*>(render_resource.get());
         if (vulkan_resource)
         {
-            m_mesh_directional_light_shadow_perframe_storage_buffer_object =
-                vulkan_resource->m_mesh_directional_light_shadow_perframe_storage_buffer_object;
+            m_mesh_point_light_shadow_perframe_storage_buffer_object =
+                vulkan_resource->m_mesh_point_light_shadow_perframe_storage_buffer_object;
         }
     }
 
-    void DirectionalLightShadowPass::draw()
+    void PointLightShadowPass::draw()
     {
         float color[4] = {1.0f, 1.0f, 1.0f, 1.0f};
-        m_vulkan_api->pushEvent(m_vulkan_api->getCurrentCommandBuffer(), "direction Light Shadow", color);
+        m_vulkan_api->pushEvent(m_vulkan_api->getCurrentCommandBuffer(), "Point Light Shadow", color);
 
         drawModel();
 
         m_vulkan_api->popEvent(m_vulkan_api->getCurrentCommandBuffer());
     }
 
-    void DirectionalLightShadowPass::setupAttachments()
+    void PointLightShadowPass::setupAttachments()
     {
-        // create image and imageview
         // color and depth
         m_framebuffer.attachments.resize(2);
 
         // color
         m_framebuffer.attachments[0].format = VK_FORMAT_R32_SFLOAT;
-        m_vulkan_api->createImage(s_directional_light_shadow_map_dimension,
-                                  s_directional_light_shadow_map_dimension,
+        m_vulkan_api->createImage(s_point_light_shadow_map_dimension,
+                                  s_point_light_shadow_map_dimension,
                                   m_framebuffer.attachments[0].format,
                                   VK_IMAGE_TILING_OPTIMAL,
                                   VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
@@ -66,20 +67,20 @@ namespace VKernel
                                   m_framebuffer.attachments[0].image,
                                   m_framebuffer.attachments[0].mem,
                                   0,
-                                  1,
+                                  2 * s_max_point_light_count, ///< * 2
                                   1);
         m_vulkan_api->createImageView(m_framebuffer.attachments[0].image,
                                       m_framebuffer.attachments[0].format,
                                       VK_IMAGE_ASPECT_COLOR_BIT,
-                                      VK_IMAGE_VIEW_TYPE_2D,
-                                      1,
+                                      VK_IMAGE_VIEW_TYPE_2D_ARRAY,
+                                      2 * s_max_point_light_count,
                                       1,
                                       m_framebuffer.attachments[0].view);
 
         // depth
         m_framebuffer.attachments[1].format = m_vulkan_api->getDepthImageInfo().depth_image_format;
-        m_vulkan_api->createImage(s_directional_light_shadow_map_dimension,
-                                  s_directional_light_shadow_map_dimension,
+        m_vulkan_api->createImage(s_point_light_shadow_map_dimension,
+                                  s_point_light_shadow_map_dimension,
                                   m_framebuffer.attachments[1].format,
                                   VK_IMAGE_TILING_OPTIMAL,
                                   VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT,
@@ -87,53 +88,52 @@ namespace VKernel
                                   m_framebuffer.attachments[1].image,
                                   m_framebuffer.attachments[1].mem,
                                   0,
-                                  1,
+                                  2 * s_max_point_light_count,
                                   1);
         m_vulkan_api->createImageView(m_framebuffer.attachments[1].image,
                                       m_framebuffer.attachments[1].format,
                                       VK_IMAGE_ASPECT_DEPTH_BIT,
-                                      VK_IMAGE_VIEW_TYPE_2D,
-                                      1,
+                                      VK_IMAGE_VIEW_TYPE_2D_ARRAY,
+                                      2 * s_max_point_light_count,
                                       1,
                                       m_framebuffer.attachments[1].view);
     }
-    void DirectionalLightShadowPass::setupRenderPass()
+    void PointLightShadowPass::setupRenderPass()
     {
         // Attachment Description
         VkAttachmentDescription attachments[2] = {};
 
-        VkAttachmentDescription& directional_light_shadow_color_attachment_description = attachments[0]; ///< color
-        directional_light_shadow_color_attachment_description.format         = m_framebuffer.attachments[0].format;
-        directional_light_shadow_color_attachment_description.samples        = VK_SAMPLE_COUNT_1_BIT;
-        directional_light_shadow_color_attachment_description.loadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR;
-        directional_light_shadow_color_attachment_description.storeOp        = VK_ATTACHMENT_STORE_OP_STORE;
-        directional_light_shadow_color_attachment_description.stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-        directional_light_shadow_color_attachment_description.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        directional_light_shadow_color_attachment_description.initialLayout  = VK_IMAGE_LAYOUT_UNDEFINED;
-        directional_light_shadow_color_attachment_description.finalLayout    = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        VkAttachmentDescription& point_light_shadow_color_attachment_description = attachments[0];
+        point_light_shadow_color_attachment_description.format                   = m_framebuffer.attachments[0].format;
+        point_light_shadow_color_attachment_description.samples                  = VK_SAMPLE_COUNT_1_BIT;
+        point_light_shadow_color_attachment_description.loadOp                   = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        point_light_shadow_color_attachment_description.storeOp                  = VK_ATTACHMENT_STORE_OP_STORE;
+        point_light_shadow_color_attachment_description.stencilLoadOp            = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        point_light_shadow_color_attachment_description.stencilStoreOp           = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        point_light_shadow_color_attachment_description.initialLayout            = VK_IMAGE_LAYOUT_UNDEFINED;
+        point_light_shadow_color_attachment_description.finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
-        VkAttachmentDescription& directional_light_shadow_depth_attachment_description = attachments[1]; ///< depth
-        directional_light_shadow_depth_attachment_description.format         = m_framebuffer.attachments[1].format;
-        directional_light_shadow_depth_attachment_description.samples        = VK_SAMPLE_COUNT_1_BIT;
-        directional_light_shadow_depth_attachment_description.loadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR;
-        directional_light_shadow_depth_attachment_description.storeOp        = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        directional_light_shadow_depth_attachment_description.stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-        directional_light_shadow_depth_attachment_description.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        directional_light_shadow_depth_attachment_description.initialLayout  = VK_IMAGE_LAYOUT_UNDEFINED;
-        directional_light_shadow_depth_attachment_description.finalLayout =
-            VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+        VkAttachmentDescription& point_light_shadow_depth_attachment_description = attachments[1];
+        point_light_shadow_depth_attachment_description.format                   = m_framebuffer.attachments[1].format;
+        point_light_shadow_depth_attachment_description.samples                  = VK_SAMPLE_COUNT_1_BIT;
+        point_light_shadow_depth_attachment_description.loadOp                   = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        point_light_shadow_depth_attachment_description.storeOp                  = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        point_light_shadow_depth_attachment_description.stencilLoadOp            = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        point_light_shadow_depth_attachment_description.stencilStoreOp           = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        point_light_shadow_depth_attachment_description.initialLayout            = VK_IMAGE_LAYOUT_UNDEFINED;
+        point_light_shadow_depth_attachment_description.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
         // Attachment Reference and subpass description
-        VkSubpassDescription subpasses[1] = {}; ///< There must be one
+        VkSubpassDescription subpasses[1] = {};
 
         VkAttachmentReference shadow_pass_color_attachment_reference {};
         shadow_pass_color_attachment_reference.attachment =
-            &directional_light_shadow_color_attachment_description - attachments;
+            &point_light_shadow_color_attachment_description - attachments;
         shadow_pass_color_attachment_reference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
         VkAttachmentReference shadow_pass_depth_attachment_reference {};
         shadow_pass_depth_attachment_reference.attachment =
-            &directional_light_shadow_depth_attachment_description - attachments;
+            &point_light_shadow_depth_attachment_description - attachments;
         shadow_pass_depth_attachment_reference.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
         VkSubpassDescription& shadow_pass   = subpasses[0];
@@ -150,9 +150,9 @@ namespace VKernel
         lighting_pass_dependency.dstSubpass           = VK_SUBPASS_EXTERNAL;
         lighting_pass_dependency.srcStageMask         = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
         lighting_pass_dependency.dstStageMask         = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-        lighting_pass_dependency.srcAccessMask        = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        lighting_pass_dependency.srcAccessMask        = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT; // STORE_OP_STORE
         lighting_pass_dependency.dstAccessMask        = 0;
-        lighting_pass_dependency.dependencyFlags      = 0;
+        lighting_pass_dependency.dependencyFlags      = 0; // NOT BY REGION
 
         // RenderPass
         VkRenderPassCreateInfo renderpass_create_info {};
@@ -164,16 +164,15 @@ namespace VKernel
         renderpass_create_info.dependencyCount = (sizeof(dependencies) / sizeof(dependencies[0]));
         renderpass_create_info.pDependencies   = dependencies;
 
-        if (VK_SUCCESS !=
-            vkCreateRenderPass(
-                m_vulkan_api->getLogicDevice(), &renderpass_create_info, nullptr, &m_framebuffer.render_pass))
+        if (vkCreateRenderPass(
+                m_vulkan_api->getLogicDevice(), &renderpass_create_info, nullptr, &m_framebuffer.render_pass) !=
+            VK_SUCCESS)
         {
-            throw std::runtime_error("create directional light shadow render pass");
+            throw std::runtime_error("create point light shadow render pass");
         }
     }
-    void DirectionalLightShadowPass::setupFramebuffer()
+    void PointLightShadowPass::setupFramebuffer()
     {
-        // create frame buffer
         VkImageView attachments[2] = {m_framebuffer.attachments[0].view, m_framebuffer.attachments[1].view};
 
         VkFramebufferCreateInfo framebuffer_create_info {};
@@ -182,62 +181,60 @@ namespace VKernel
         framebuffer_create_info.renderPass      = m_framebuffer.render_pass;
         framebuffer_create_info.attachmentCount = (sizeof(attachments) / sizeof(attachments[0]));
         framebuffer_create_info.pAttachments    = attachments;
-        framebuffer_create_info.width           = s_directional_light_shadow_map_dimension;
-        framebuffer_create_info.height          = s_directional_light_shadow_map_dimension;
-        framebuffer_create_info.layers          = 1;
+        framebuffer_create_info.width           = s_point_light_shadow_map_dimension;
+        framebuffer_create_info.height          = s_point_light_shadow_map_dimension;
+        framebuffer_create_info.layers          = 2 * s_max_point_light_count;
 
-        if (VK_SUCCESS !=
-            vkCreateFramebuffer(
-                m_vulkan_api->getLogicDevice(), &framebuffer_create_info, nullptr, &m_framebuffer.framebuffer))
+        if (vkCreateFramebuffer(
+                m_vulkan_api->getLogicDevice(), &framebuffer_create_info, nullptr, &m_framebuffer.framebuffer) !=
+            VK_SUCCESS)
         {
-            throw std::runtime_error("create directional light shadow framebuffer");
+            throw std::runtime_error("create point light shadow framebuffer");
         }
     }
-    void DirectionalLightShadowPass::setupDescriptorSetLayout()
+    void PointLightShadowPass::setupDescriptorSetLayout()
     {
         m_descriptor_infos.resize(1);
 
         // bind
-        VkDescriptorSetLayoutBinding mesh_directional_light_shadow_global_layout_bindings[2];
+        VkDescriptorSetLayoutBinding mesh_point_light_shadow_global_layout_bindings[2];
 
-        VkDescriptorSetLayoutBinding& mesh_directional_light_shadow_global_layout_perframe_storage_buffer_binding =
-            mesh_directional_light_shadow_global_layout_bindings[0];
-        mesh_directional_light_shadow_global_layout_perframe_storage_buffer_binding.binding = 0;
-        mesh_directional_light_shadow_global_layout_perframe_storage_buffer_binding.descriptorType =
+        VkDescriptorSetLayoutBinding& mesh_point_light_shadow_global_layout_perframe_storage_buffer_binding =
+            mesh_point_light_shadow_global_layout_bindings[0];
+        mesh_point_light_shadow_global_layout_perframe_storage_buffer_binding.binding = 0;
+        mesh_point_light_shadow_global_layout_perframe_storage_buffer_binding.descriptorType =
             VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC;
-        mesh_directional_light_shadow_global_layout_perframe_storage_buffer_binding.descriptorCount = 1;
-        mesh_directional_light_shadow_global_layout_perframe_storage_buffer_binding.stageFlags =
+        mesh_point_light_shadow_global_layout_perframe_storage_buffer_binding.descriptorCount = 1;
+        mesh_point_light_shadow_global_layout_perframe_storage_buffer_binding.stageFlags =
+            VK_SHADER_STAGE_GEOMETRY_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+
+        VkDescriptorSetLayoutBinding& mesh_point_light_shadow_global_layout_perdrawcall_storage_buffer_binding =
+            mesh_point_light_shadow_global_layout_bindings[1];
+        mesh_point_light_shadow_global_layout_perdrawcall_storage_buffer_binding.binding = 1;
+        mesh_point_light_shadow_global_layout_perdrawcall_storage_buffer_binding.descriptorType =
+            VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC;
+        mesh_point_light_shadow_global_layout_perdrawcall_storage_buffer_binding.descriptorCount = 1;
+        mesh_point_light_shadow_global_layout_perdrawcall_storage_buffer_binding.stageFlags =
             VK_SHADER_STAGE_VERTEX_BIT;
 
-        VkDescriptorSetLayoutBinding& mesh_directional_light_shadow_global_layout_perdrawcall_storage_buffer_binding =
-            mesh_directional_light_shadow_global_layout_bindings[1];
-        mesh_directional_light_shadow_global_layout_perdrawcall_storage_buffer_binding.binding = 1;
-        mesh_directional_light_shadow_global_layout_perdrawcall_storage_buffer_binding.descriptorType =
-            VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC;
-        mesh_directional_light_shadow_global_layout_perdrawcall_storage_buffer_binding.descriptorCount = 1;
-        mesh_directional_light_shadow_global_layout_perdrawcall_storage_buffer_binding.stageFlags =
-            VK_SHADER_STAGE_VERTEX_BIT;
-
-        // DescriptorSetLayout
         VkDescriptorSetLayoutCreateInfo mesh_point_light_shadow_global_layout_create_info;
         mesh_point_light_shadow_global_layout_create_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
         mesh_point_light_shadow_global_layout_create_info.pNext = NULL;
         mesh_point_light_shadow_global_layout_create_info.flags = 0;
         mesh_point_light_shadow_global_layout_create_info.bindingCount =
-            (sizeof(mesh_directional_light_shadow_global_layout_bindings) /
-             sizeof(mesh_directional_light_shadow_global_layout_bindings[0]));
-        mesh_point_light_shadow_global_layout_create_info.pBindings =
-            mesh_directional_light_shadow_global_layout_bindings;
+            (sizeof(mesh_point_light_shadow_global_layout_bindings) /
+             sizeof(mesh_point_light_shadow_global_layout_bindings[0]));
+        mesh_point_light_shadow_global_layout_create_info.pBindings = mesh_point_light_shadow_global_layout_bindings;
 
         if (VK_SUCCESS != vkCreateDescriptorSetLayout(m_vulkan_api->getLogicDevice(),
                                                       &mesh_point_light_shadow_global_layout_create_info,
                                                       nullptr,
                                                       &m_descriptor_infos[0].layout))
         {
-            throw std::runtime_error("create mesh directional light shadow global layout");
+            throw std::runtime_error("create mesh point light shadow global layout");
         }
     }
-    void DirectionalLightShadowPass::setupPipelines()
+    void PointLightShadowPass::setupPipelines()
     {
         m_render_pipelines.resize(1);
 
@@ -248,22 +245,29 @@ namespace VKernel
         pipeline_layout_create_info.setLayoutCount = (sizeof(descriptorset_layouts) / sizeof(descriptorset_layouts[0]));
         pipeline_layout_create_info.pSetLayouts    = descriptorset_layouts;
 
-        if (VK_SUCCESS !=
-            vkCreatePipelineLayout(
-                m_vulkan_api->getLogicDevice(), &pipeline_layout_create_info, nullptr, &m_render_pipelines[0].layout))
+        if (vkCreatePipelineLayout(
+                m_vulkan_api->getLogicDevice(), &pipeline_layout_create_info, nullptr, &m_render_pipelines[0].layout) !=
+            VK_SUCCESS)
         {
-            throw std::runtime_error("create mesh directional light shadow pipeline layout");
+            throw std::runtime_error("create mesh point light shadow pipeline layout");
         }
 
         // Shader Module
-        VkShaderModule vert_shader_module = m_vulkan_api->createShaderModule(MESH_DIRECTIONAL_LIGHT_SHADOW_VERT);
-        VkShaderModule frag_shader_module = m_vulkan_api->createShaderModule(MESH_DIRECTIONAL_LIGHT_SHADOW_FRAG);
+        VkShaderModule vert_shader_module = m_vulkan_api->createShaderModule(MESH_POINT_LIGHT_SHADOW_VERT);
+        VkShaderModule geom_shader_module = m_vulkan_api->createShaderModule(MESH_POINT_LIGHT_SHADOW_GEOM);
+        VkShaderModule frag_shader_module = m_vulkan_api->createShaderModule(MESH_POINT_LIGHT_SHADOW_FRAG);
 
         VkPipelineShaderStageCreateInfo vert_pipeline_shader_stage_create_info {};
         vert_pipeline_shader_stage_create_info.sType  = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
         vert_pipeline_shader_stage_create_info.stage  = VK_SHADER_STAGE_VERTEX_BIT;
         vert_pipeline_shader_stage_create_info.module = vert_shader_module;
         vert_pipeline_shader_stage_create_info.pName  = "main";
+
+        VkPipelineShaderStageCreateInfo geom_pipeline_shader_stage_create_info {};
+        geom_pipeline_shader_stage_create_info.sType  = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+        geom_pipeline_shader_stage_create_info.stage  = VK_SHADER_STAGE_GEOMETRY_BIT;
+        geom_pipeline_shader_stage_create_info.module = geom_shader_module;
+        geom_pipeline_shader_stage_create_info.pName  = "main";
 
         VkPipelineShaderStageCreateInfo frag_pipeline_shader_stage_create_info {};
         frag_pipeline_shader_stage_create_info.sType  = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -272,6 +276,7 @@ namespace VKernel
         frag_pipeline_shader_stage_create_info.pName  = "main";
 
         VkPipelineShaderStageCreateInfo shader_stages[] = {vert_pipeline_shader_stage_create_info,
+                                                           geom_pipeline_shader_stage_create_info,
                                                            frag_pipeline_shader_stage_create_info};
 
         // VertexInput state
@@ -291,10 +296,8 @@ namespace VKernel
         input_assembly_create_info.primitiveRestartEnable = VK_FALSE;
 
         // Viewport State
-        VkViewport viewport = {
-            0, 0, s_directional_light_shadow_map_dimension, s_directional_light_shadow_map_dimension, 0.0, 1.0};
-        VkRect2D scissor = {{0, 0},
-                            {s_directional_light_shadow_map_dimension, s_directional_light_shadow_map_dimension}};
+        VkViewport viewport = {0, 0, s_point_light_shadow_map_dimension, s_point_light_shadow_map_dimension, 0.0, 1.0};
+        VkRect2D   scissor  = {{0, 0}, {s_point_light_shadow_map_dimension, s_point_light_shadow_map_dimension}};
 
         VkPipelineViewportStateCreateInfo viewport_state_create_info {};
         viewport_state_create_info.sType         = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
@@ -335,7 +338,6 @@ namespace VKernel
         color_blend_attachment_state.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
         color_blend_attachment_state.alphaBlendOp        = VK_BLEND_OP_ADD;
 
-        // ColorBlend State
         VkPipelineColorBlendStateCreateInfo color_blend_state_create_info {};
         color_blend_state_create_info.sType             = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
         color_blend_state_create_info.logicOpEnable     = VK_FALSE;
@@ -380,86 +382,85 @@ namespace VKernel
         pipelineInfo.subpass             = 0;
         pipelineInfo.basePipelineHandle  = VK_NULL_HANDLE;
 
-        if (VK_SUCCESS != vkCreateGraphicsPipelines(m_vulkan_api->getLogicDevice(),
-                                                    VK_NULL_HANDLE,
-                                                    1,
-                                                    &pipelineInfo,
-                                                    nullptr,
-                                                    &m_render_pipelines[0].pipeline))
+        if (vkCreateGraphicsPipelines(m_vulkan_api->getLogicDevice(),
+                                      VK_NULL_HANDLE,
+                                      1,
+                                      &pipelineInfo,
+                                      nullptr,
+                                      &m_render_pipelines[0].pipeline) != VK_SUCCESS)
         {
-            throw std::runtime_error("create mesh directional light shadow graphics pipeline");
+            throw std::runtime_error("create mesh point light shadow graphics pipeline");
         }
 
+        // destory
         m_vulkan_api->destroyShaderModule(vert_shader_module);
+        m_vulkan_api->destroyShaderModule(geom_shader_module);
         m_vulkan_api->destroyShaderModule(frag_shader_module);
     }
-    void DirectionalLightShadowPass::setupDescriptorSet()
+
+    void PointLightShadowPass::setupDescriptorSet()
     {
         // DescriptorSet
-        VkDescriptorSetAllocateInfo mesh_directional_light_shadow_global_descriptor_set_alloc_info;
-        mesh_directional_light_shadow_global_descriptor_set_alloc_info.sType =
-            VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-        mesh_directional_light_shadow_global_descriptor_set_alloc_info.pNext = NULL;
-        mesh_directional_light_shadow_global_descriptor_set_alloc_info.descriptorPool =
-            m_vulkan_api->getDescriptorPool();
-        mesh_directional_light_shadow_global_descriptor_set_alloc_info.descriptorSetCount = 1;
-        mesh_directional_light_shadow_global_descriptor_set_alloc_info.pSetLayouts = &m_descriptor_infos[0].layout;
+        VkDescriptorSetAllocateInfo mesh_point_light_shadow_global_descriptor_set_alloc_info;
+        mesh_point_light_shadow_global_descriptor_set_alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+        mesh_point_light_shadow_global_descriptor_set_alloc_info.pNext = NULL;
+        mesh_point_light_shadow_global_descriptor_set_alloc_info.descriptorPool     = m_vulkan_api->getDescriptorPool();
+        mesh_point_light_shadow_global_descriptor_set_alloc_info.descriptorSetCount = 1;
+        mesh_point_light_shadow_global_descriptor_set_alloc_info.pSetLayouts        = &m_descriptor_infos[0].layout;
 
         if (VK_SUCCESS != vkAllocateDescriptorSets(m_vulkan_api->getLogicDevice(),
-                                                   &mesh_directional_light_shadow_global_descriptor_set_alloc_info,
+                                                   &mesh_point_light_shadow_global_descriptor_set_alloc_info,
                                                    &m_descriptor_infos[0].descriptor_set))
         {
-            throw std::runtime_error("allocate mesh directional light shadow global descriptor set");
+            throw std::runtime_error("allocate mesh point light shadow global descriptor set");
         }
 
         // DescriptorSet bind buffer
-        VkDescriptorBufferInfo mesh_directional_light_shadow_perframe_storage_buffer_info = {};
-        mesh_directional_light_shadow_perframe_storage_buffer_info.offset                 = 0;
-        mesh_directional_light_shadow_perframe_storage_buffer_info.range =
-            sizeof(MeshDirectionalLightShadowPerframeStorageBufferObject);
-        mesh_directional_light_shadow_perframe_storage_buffer_info.buffer =
+        VkDescriptorBufferInfo mesh_point_light_shadow_perframe_storage_buffer_info = {};
+        mesh_point_light_shadow_perframe_storage_buffer_info.offset                 = 0;
+        mesh_point_light_shadow_perframe_storage_buffer_info.range =
+            sizeof(MeshPointLightShadowPerframeStorageBufferObject);
+        mesh_point_light_shadow_perframe_storage_buffer_info.buffer =
             m_global_render_resource->_storage_buffer._global_upload_ringbuffer;
-        assert(mesh_directional_light_shadow_perframe_storage_buffer_info.range <
+        assert(mesh_point_light_shadow_perframe_storage_buffer_info.range <
                m_global_render_resource->_storage_buffer._max_storage_buffer_range);
 
-        VkDescriptorBufferInfo mesh_directional_light_shadow_perdrawcall_storage_buffer_info = {};
-        mesh_directional_light_shadow_perdrawcall_storage_buffer_info.offset                 = 0;
-        mesh_directional_light_shadow_perdrawcall_storage_buffer_info.range =
-            sizeof(MeshDirectionalLightShadowPerdrawcallStorageBufferObject);
-        mesh_directional_light_shadow_perdrawcall_storage_buffer_info.buffer =
+        VkDescriptorBufferInfo mesh_point_light_shadow_perdrawcall_storage_buffer_info = {};
+        mesh_point_light_shadow_perdrawcall_storage_buffer_info.offset                 = 0;
+        mesh_point_light_shadow_perdrawcall_storage_buffer_info.range =
+            sizeof(MeshPointLightShadowPerdrawcallStorageBufferObject);
+        mesh_point_light_shadow_perdrawcall_storage_buffer_info.buffer =
             m_global_render_resource->_storage_buffer._global_upload_ringbuffer;
-        assert(mesh_directional_light_shadow_perdrawcall_storage_buffer_info.range <
+        assert(mesh_point_light_shadow_perdrawcall_storage_buffer_info.range <
                m_global_render_resource->_storage_buffer._max_storage_buffer_range);
 
         VkDescriptorSet descriptor_set_to_write = m_descriptor_infos[0].descriptor_set;
 
         VkWriteDescriptorSet descriptor_writes[2];
 
-        VkWriteDescriptorSet& mesh_directional_light_shadow_perframe_storage_buffer_write_info = descriptor_writes[0];
-        mesh_directional_light_shadow_perframe_storage_buffer_write_info.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        mesh_directional_light_shadow_perframe_storage_buffer_write_info.pNext = NULL;
-        mesh_directional_light_shadow_perframe_storage_buffer_write_info.dstSet          = descriptor_set_to_write;
-        mesh_directional_light_shadow_perframe_storage_buffer_write_info.dstBinding      = 0;
-        mesh_directional_light_shadow_perframe_storage_buffer_write_info.dstArrayElement = 0;
-        mesh_directional_light_shadow_perframe_storage_buffer_write_info.descriptorType =
+        VkWriteDescriptorSet& mesh_point_light_shadow_perframe_storage_buffer_write_info = descriptor_writes[0];
+        mesh_point_light_shadow_perframe_storage_buffer_write_info.sType      = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        mesh_point_light_shadow_perframe_storage_buffer_write_info.pNext      = NULL;
+        mesh_point_light_shadow_perframe_storage_buffer_write_info.dstSet     = descriptor_set_to_write;
+        mesh_point_light_shadow_perframe_storage_buffer_write_info.dstBinding = 0;
+        mesh_point_light_shadow_perframe_storage_buffer_write_info.dstArrayElement = 0;
+        mesh_point_light_shadow_perframe_storage_buffer_write_info.descriptorType =
             VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC;
-        mesh_directional_light_shadow_perframe_storage_buffer_write_info.descriptorCount = 1;
-        mesh_directional_light_shadow_perframe_storage_buffer_write_info.pBufferInfo =
-            &mesh_directional_light_shadow_perframe_storage_buffer_info;
+        mesh_point_light_shadow_perframe_storage_buffer_write_info.descriptorCount = 1;
+        mesh_point_light_shadow_perframe_storage_buffer_write_info.pBufferInfo =
+            &mesh_point_light_shadow_perframe_storage_buffer_info;
 
-        VkWriteDescriptorSet& mesh_directional_light_shadow_perdrawcall_storage_buffer_write_info =
-            descriptor_writes[1];
-        mesh_directional_light_shadow_perdrawcall_storage_buffer_write_info.sType =
-            VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        mesh_directional_light_shadow_perdrawcall_storage_buffer_write_info.pNext           = NULL;
-        mesh_directional_light_shadow_perdrawcall_storage_buffer_write_info.dstSet          = descriptor_set_to_write;
-        mesh_directional_light_shadow_perdrawcall_storage_buffer_write_info.dstBinding      = 1;
-        mesh_directional_light_shadow_perdrawcall_storage_buffer_write_info.dstArrayElement = 0;
-        mesh_directional_light_shadow_perdrawcall_storage_buffer_write_info.descriptorType =
+        VkWriteDescriptorSet& mesh_point_light_shadow_perdrawcall_storage_buffer_write_info = descriptor_writes[1];
+        mesh_point_light_shadow_perdrawcall_storage_buffer_write_info.sType  = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        mesh_point_light_shadow_perdrawcall_storage_buffer_write_info.pNext  = NULL;
+        mesh_point_light_shadow_perdrawcall_storage_buffer_write_info.dstSet = descriptor_set_to_write;
+        mesh_point_light_shadow_perdrawcall_storage_buffer_write_info.dstBinding      = 1;
+        mesh_point_light_shadow_perdrawcall_storage_buffer_write_info.dstArrayElement = 0;
+        mesh_point_light_shadow_perdrawcall_storage_buffer_write_info.descriptorType =
             VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC;
-        mesh_directional_light_shadow_perdrawcall_storage_buffer_write_info.descriptorCount = 1;
-        mesh_directional_light_shadow_perdrawcall_storage_buffer_write_info.pBufferInfo =
-            &mesh_directional_light_shadow_perdrawcall_storage_buffer_info;
+        mesh_point_light_shadow_perdrawcall_storage_buffer_write_info.descriptorCount = 1;
+        mesh_point_light_shadow_perdrawcall_storage_buffer_write_info.pBufferInfo =
+            &mesh_point_light_shadow_perdrawcall_storage_buffer_info;
 
         vkUpdateDescriptorSets(m_vulkan_api->getLogicDevice(),
                                (sizeof(descriptor_writes) / sizeof(descriptor_writes[0])),
@@ -467,7 +468,8 @@ namespace VKernel
                                0,
                                NULL);
     }
-    void DirectionalLightShadowPass::drawModel()
+
+    void PointLightShadowPass::drawModel()
     {
         // write data
         struct MeshNode
@@ -475,14 +477,12 @@ namespace VKernel
             const Matrix4x4* model_matrix {nullptr};
         };
 
-        std::map<VulkanPBRMaterial*, std::map<VulkanMesh*, std::vector<MeshNode>>>
-            directional_light_mesh_drawcall_batch;
+        std::map<VulkanPBRMaterial*, std::map<VulkanMesh*, std::vector<MeshNode>>> point_lights_mesh_drawcall_batch;
 
-        for (RenderMeshNode& node : *(m_visiable_nodes.p_directional_light_visible_mesh_nodes))
+        for (RenderMeshNode& node : *(m_visiable_nodes.p_point_lights_visible_mesh_nodes))
         {
-            auto& mesh_instanced = directional_light_mesh_drawcall_batch[node.ref_material]; ///< std::map<VulkanMesh*,
-                                                                                             ///< std::vector<MeshNode>>
-            auto& mesh_nodes = mesh_instanced[node.ref_mesh];                                ///< std::vector<MeshNode>
+            auto& mesh_instanced = point_lights_mesh_drawcall_batch[node.ref_material];
+            auto& mesh_nodes     = mesh_instanced[node.ref_mesh];
 
             MeshNode temp;
             temp.model_matrix = node.model_matrix;
@@ -491,38 +491,36 @@ namespace VKernel
         }
 
         // Begin RenderPass
-        {
-            // begin renderpass info
-            VkRenderPassBeginInfo renderpass_begin_info {};
-            renderpass_begin_info.sType             = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-            renderpass_begin_info.renderPass        = m_framebuffer.render_pass;
-            renderpass_begin_info.framebuffer       = m_framebuffer.framebuffer;
-            renderpass_begin_info.renderArea.offset = {0, 0};
-            renderpass_begin_info.renderArea.extent = {s_directional_light_shadow_map_dimension,
-                                                       s_directional_light_shadow_map_dimension};
-            // clear value
-            VkClearValue clear_values[2];
-            clear_values[0].color                 = {1.0f};
-            clear_values[1].depthStencil          = {1.0f, 0};
-            renderpass_begin_info.clearValueCount = (sizeof(clear_values) / sizeof(clear_values[0]));
-            renderpass_begin_info.pClearValues    = clear_values;
+        VkRenderPassBeginInfo renderpass_begin_info {};
+        renderpass_begin_info.sType             = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+        renderpass_begin_info.renderPass        = m_framebuffer.render_pass;
+        renderpass_begin_info.framebuffer       = m_framebuffer.framebuffer;
+        renderpass_begin_info.renderArea.offset = {0, 0};
+        renderpass_begin_info.renderArea.extent = {s_point_light_shadow_map_dimension,
+                                                   s_point_light_shadow_map_dimension};
 
-            vkCmdBeginRenderPass(
-                m_vulkan_api->getCurrentCommandBuffer(), &renderpass_begin_info, VK_SUBPASS_CONTENTS_INLINE);
-        }
+        VkClearValue clear_values[2];
+        clear_values[0].color                 = {1.0f};
+        clear_values[1].depthStencil          = {1.0f, 0};
+        renderpass_begin_info.clearValueCount = (sizeof(clear_values) / sizeof(clear_values[0]));
+        renderpass_begin_info.pClearValues    = clear_values;
 
-        // Mesh
+        vkCmdBeginRenderPass(
+            m_vulkan_api->getCurrentCommandBuffer(), &renderpass_begin_info, VK_SUBPASS_CONTENTS_INLINE);
+
         // Bind Pipeline
         vkCmdBindPipeline(
             m_vulkan_api->getCurrentCommandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, m_render_pipelines[0].pipeline);
 
-        // write data to storage buffer
+        // perframe storage buffer
         uint32_t perframe_dynamic_offset =
             roundUp(m_global_render_resource->_storage_buffer
                         ._global_upload_ringbuffers_end[m_vulkan_api->getCurrentFrameIndex()],
                     m_global_render_resource->_storage_buffer._min_storage_buffer_offset_alignment);
+
         m_global_render_resource->_storage_buffer._global_upload_ringbuffers_end[m_vulkan_api->getCurrentFrameIndex()] =
             perframe_dynamic_offset + sizeof(MeshPerframeStorageBufferObject);
+
         assert(m_global_render_resource->_storage_buffer
                    ._global_upload_ringbuffers_end[m_vulkan_api->getCurrentFrameIndex()] <=
                (m_global_render_resource->_storage_buffer
@@ -530,34 +528,40 @@ namespace VKernel
                 m_global_render_resource->_storage_buffer
                     ._global_upload_ringbuffers_size[m_vulkan_api->getCurrentFrameIndex()]));
 
-        MeshDirectionalLightShadowPerframeStorageBufferObject& perframe_storage_buffer_object =
-            (*reinterpret_cast<MeshDirectionalLightShadowPerframeStorageBufferObject*>(
+        MeshPointLightShadowPerframeStorageBufferObject& perframe_storage_buffer_object =
+            (*reinterpret_cast<MeshPointLightShadowPerframeStorageBufferObject*>(
                 reinterpret_cast<uintptr_t>(
                     m_global_render_resource->_storage_buffer._global_upload_ringbuffer_memory_pointer) +
                 perframe_dynamic_offset));
-        perframe_storage_buffer_object = m_mesh_directional_light_shadow_perframe_storage_buffer_object;
+        perframe_storage_buffer_object = m_mesh_point_light_shadow_perframe_storage_buffer_object;
 
         // render
-        for (auto& [material, mesh_instanced] : directional_light_mesh_drawcall_batch) ///< Same material
+        for (auto& pair1 : point_lights_mesh_drawcall_batch)
         {
-            for (auto& [mesh, mesh_nodes] : mesh_instanced) ///< Same mesh
+            VulkanPBRMaterial& material       = (*pair1.first);
+            auto&              mesh_instanced = pair1.second;
+
+            for (auto& pair2 : mesh_instanced)
             {
-                uint32_t total_instance_count = static_cast<uint32_t>(mesh_nodes.size()); ///< mesh count
+                VulkanMesh& mesh       = (*pair2.first);
+                auto&       mesh_nodes = pair2.second;
+
+                uint32_t total_instance_count = static_cast<uint32_t>(mesh_nodes.size());
                 if (total_instance_count > 0)
                 {
                     // bind vertex buffer
-                    VkBuffer     vertex_buffers[] = {mesh->mesh_vertex_position_buffer};
+                    VkBuffer     vertex_buffers[] = {mesh.mesh_vertex_position_buffer};
                     VkDeviceSize offsets[]        = {0};
                     vkCmdBindVertexBuffers(m_vulkan_api->getCurrentCommandBuffer(), 0, 1, vertex_buffers, offsets);
 
                     // bind indice buffer
                     vkCmdBindIndexBuffer(
-                        m_vulkan_api->getCurrentCommandBuffer(), mesh->mesh_index_buffer, 0, VK_INDEX_TYPE_UINT16);
+                        m_vulkan_api->getCurrentCommandBuffer(), mesh.mesh_index_buffer, 0, VK_INDEX_TYPE_UINT32);
 
                     // Calculate the number of draw calls required for instance rendering
                     uint32_t drawcall_max_instance_count =
-                        (sizeof(MeshDirectionalLightShadowPerdrawcallStorageBufferObject::mesh_instances) /
-                         sizeof(MeshDirectionalLightShadowPerdrawcallStorageBufferObject::mesh_instances[0]));
+                        (sizeof(MeshPointLightShadowPerdrawcallStorageBufferObject::mesh_instances) /
+                         sizeof(MeshPointLightShadowPerdrawcallStorageBufferObject::mesh_instances[0]));
                     uint32_t drawcall_count =
                         roundUp(total_instance_count, drawcall_max_instance_count) / drawcall_max_instance_count;
 
@@ -570,15 +574,14 @@ namespace VKernel
                                 (total_instance_count - drawcall_max_instance_count * drawcall_index) :
                                 drawcall_max_instance_count;
 
-                        // write data to storage buffer
+                        // perdrawcall storage buffer
                         uint32_t perdrawcall_dynamic_offset =
                             roundUp(m_global_render_resource->_storage_buffer
                                         ._global_upload_ringbuffers_end[m_vulkan_api->getCurrentFrameIndex()],
                                     m_global_render_resource->_storage_buffer._min_storage_buffer_offset_alignment);
                         m_global_render_resource->_storage_buffer
                             ._global_upload_ringbuffers_end[m_vulkan_api->getCurrentFrameIndex()] =
-                            perdrawcall_dynamic_offset +
-                            sizeof(MeshDirectionalLightShadowPerdrawcallStorageBufferObject);
+                            perdrawcall_dynamic_offset + sizeof(MeshPointLightShadowPerdrawcallStorageBufferObject);
                         assert(m_global_render_resource->_storage_buffer
                                    ._global_upload_ringbuffers_end[m_vulkan_api->getCurrentFrameIndex()] <=
                                (m_global_render_resource->_storage_buffer
@@ -586,8 +589,8 @@ namespace VKernel
                                 m_global_render_resource->_storage_buffer
                                     ._global_upload_ringbuffers_size[m_vulkan_api->getCurrentFrameIndex()]));
 
-                        MeshDirectionalLightShadowPerdrawcallStorageBufferObject& perdrawcall_storage_buffer_object =
-                            (*reinterpret_cast<MeshDirectionalLightShadowPerdrawcallStorageBufferObject*>(
+                        MeshPointLightShadowPerdrawcallStorageBufferObject& perdrawcall_storage_buffer_object =
+                            (*reinterpret_cast<MeshPointLightShadowPerdrawcallStorageBufferObject*>(
                                 reinterpret_cast<uintptr_t>(m_global_render_resource->_storage_buffer
                                                                 ._global_upload_ringbuffer_memory_pointer) +
                                 perdrawcall_dynamic_offset));
@@ -598,10 +601,7 @@ namespace VKernel
                         }
 
                         // Bind DescriptorSet
-                        uint32_t dynamic_offsets[2] = {
-                            perframe_dynamic_offset,
-                            perdrawcall_dynamic_offset,
-                        };
+                        uint32_t dynamic_offsets[2] = {perframe_dynamic_offset, perdrawcall_dynamic_offset};
                         vkCmdBindDescriptorSets(m_vulkan_api->getCurrentCommandBuffer(),
                                                 VK_PIPELINE_BIND_POINT_GRAPHICS,
                                                 m_render_pipelines[0].layout,
@@ -613,7 +613,7 @@ namespace VKernel
 
                         // drawcall
                         vkCmdDrawIndexed(m_vulkan_api->getCurrentCommandBuffer(),
-                                         mesh->mesh_index_count,
+                                         mesh.mesh_index_count,
                                          current_instance_count,
                                          0,
                                          0,
@@ -623,6 +623,8 @@ namespace VKernel
             }
         }
 
+        // end renderpass
         vkCmdEndRenderPass(m_vulkan_api->getCurrentCommandBuffer());
     }
+
 } // namespace VKernel

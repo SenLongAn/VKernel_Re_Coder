@@ -41,7 +41,8 @@ layout(set = 0, binding = 0) readonly buffer _unused_name_perframe
 layout(set = 0, binding = 2) uniform sampler2D brdfLUT_sampler;
 layout(set = 0, binding = 3) uniform samplerCube irradiance_sampler;
 layout(set = 0, binding = 4) uniform samplerCube specular_sampler;
-layout(set = 0, binding = 5) uniform highp sampler2D directional_light_shadow;
+layout(set = 0, binding = 5) uniform highp sampler2DArray point_lights_shadow;
+layout(set = 0, binding = 6) uniform highp sampler2D directional_light_shadow;
 
 layout(set = 1, binding = 0) uniform sampler2D base_color_texture_sampler;
 layout(set = 1, binding = 1) uniform sampler2D normal_texture_sampler;

@@ -998,6 +998,7 @@ namespace VKernel
         // device create info
         VkPhysicalDeviceFeatures physical_device_features = {};
         physical_device_features.samplerAnisotropy        = VK_TRUE;
+        physical_device_features.geometryShader           = VK_TRUE;
         VkDeviceCreateInfo device_create_info {};
         device_create_info.sType                   = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
         device_create_info.pQueueCreateInfos       = queue_create_infos.data();

@@ -12,6 +12,7 @@ namespace VKernel
                                            std::shared_ptr<RenderCamera>   camera)
     {
         updateVisibleObjectsDirectionalLight(render_resource, camera);
+        updateVisibleObjectsPointLight(render_resource);
         updateVisibleObjectsMainCamera(render_resource, camera);
         updateVisibleObjectsAxis(render_resource);
     }
@@ -19,6 +20,7 @@ namespace VKernel
     void RenderScene::setVisibleNodesReference()
     {
         RenderPass::m_visiable_nodes.p_directional_light_visible_mesh_nodes = &m_directional_light_visible_mesh_nodes;
+        RenderPass::m_visiable_nodes.p_point_lights_visible_mesh_nodes      = &m_point_lights_visible_mesh_nodes;
         RenderPass::m_visiable_nodes.p_main_camera_visible_mesh_nodes       = &m_main_camera_visible_mesh_nodes;
         RenderPass::m_visiable_nodes.p_axis_node                            = &m_axis_node;
     }
@@ -80,6 +82,30 @@ namespace VKernel
             temp_node.ref_material            = &material_asset;
         }
     }
+
+    void RenderScene::updateVisibleObjectsPointLight(std::shared_ptr<RenderResource> render_resource)
+    {
+        m_point_lights_visible_mesh_nodes.clear();
+
+        // TODO: Frustum
+
+        // Iterative entity
+        for (const RenderEntity& entity : m_render_entities)
+        {
+            // add null node
+            m_point_lights_visible_mesh_nodes.emplace_back();
+            RenderMeshNode& temp_node = m_point_lights_visible_mesh_nodes.back();
+
+            // set node
+            temp_node.node_id                 = entity.m_instance_id;
+            temp_node.model_matrix            = &entity.m_model_matrix;
+            VulkanMesh& mesh_asset            = render_resource->getEntityMesh(entity);
+            temp_node.ref_mesh                = &mesh_asset;
+            VulkanPBRMaterial& material_asset = render_resource->getEntityMaterial(entity);
+            temp_node.ref_material            = &material_asset;
+        }
+    }
+
     void RenderScene::updateVisibleObjectsMainCamera(std::shared_ptr<RenderResource> render_resource,
                                                      std::shared_ptr<RenderCamera>   camera)
     {

@@ -41,9 +41,31 @@ for (highp int light_index = 0; light_index < int(point_light_num) && light_inde
     highp float light_attenuation    = radius_attenuation * distance_attenuation * NoL;
     if (light_attenuation > 0.0) ///< If the attenuation > 0
     {
+        highp float shadow;
+        {
+            // world position -> uv
+            highp vec3 position_view_space                = in_world_position - point_light_position;
+            highp vec3 position_spherical_function_domain = normalize(position_view_space);
+            highp vec2 position_ndcxy =
+                position_spherical_function_domain.xy / (abs(position_spherical_function_domain.z) + 1.0);
+            highp vec2  uv = ndcxy_to_uv(position_ndcxy);
+            highp float layer_index =
+                (0.5 + 0.5 * sign(position_spherical_function_domain.z)) + 2.0 * float(light_index);
 
-        highp vec3 En = scene_point_lights[light_index].intensity * light_attenuation;
-        Lo += BRDF(L, V, N, F0, objectColor, metallic, roughness, En);
+            // compare
+            highp float depth          = texture(point_lights_shadow, vec3(uv, layer_index)).r + 0.000075;
+            highp float closest_length = (depth)*point_light_radius;
+
+            highp float current_length = length(position_view_space);
+
+            shadow = (closest_length >= current_length) ? 1.0f : -1.0f;
+        }
+
+        if (shadow > 0.0f)
+        {
+            highp vec3 En = scene_point_lights[light_index].intensity * light_attenuation;
+            Lo += BRDF(L, V, N, F0, objectColor, metallic, roughness, En);
+        }
     }
 };
 
@@ -82,5 +104,4 @@ for (highp int light_index = 0; light_index < int(point_light_num) && light_inde
 }
 
 result_color = La + Lo + Libl;
-// result_color = Lo;
 result_color = filmic(result_color);

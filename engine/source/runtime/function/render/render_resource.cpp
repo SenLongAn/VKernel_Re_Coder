@@ -33,7 +33,8 @@ namespace VKernel
             render_scene->m_directional_light.m_direction.normalisedCopy();
         m_mesh_perframe_storage_buffer_object.scene_directional_light.color = render_scene->m_directional_light.m_color;
 
-        m_mesh_perframe_storage_buffer_object.point_light_num = point_light_num;
+        m_mesh_perframe_storage_buffer_object.point_light_num                    = point_light_num;
+        m_mesh_point_light_shadow_perframe_storage_buffer_object.point_light_num = point_light_num;
         for (uint32_t i = 0; i < point_light_num; i++)
         {
             Vector3 point_light_position  = render_scene->m_point_light_list.m_lights[i].m_position;
@@ -44,6 +45,9 @@ namespace VKernel
             m_mesh_perframe_storage_buffer_object.scene_point_lights[i].position  = point_light_position;
             m_mesh_perframe_storage_buffer_object.scene_point_lights[i].radius    = radius;
             m_mesh_perframe_storage_buffer_object.scene_point_lights[i].intensity = point_light_intensity;
+
+            m_mesh_point_light_shadow_perframe_storage_buffer_object.point_lights_position_and_radius[i] =
+                Vector4(point_light_position, radius);
         }
 
         m_mesh_inefficient_pick_perframe_storage_buffer_object.proj_view_matrix = proj_view_matrix;

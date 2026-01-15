@@ -14,6 +14,7 @@
 namespace VKernel
 {
     // size
+    static const uint32_t s_point_light_shadow_map_dimension       = 2048;
     static const uint32_t s_directional_light_shadow_map_dimension = 4096;
 
     // max count
@@ -37,6 +38,16 @@ namespace VKernel
         float   _padding_intensity;
     };
 
+    struct MeshPointLightShadowPerframeStorageBufferObject
+    {
+        uint32_t point_light_num; ///< count
+        uint32_t _padding_point_light_num_1;
+        uint32_t _padding_point_light_num_2;
+        uint32_t _padding_point_light_num_3;
+        Vector4  point_lights_position_and_radius[s_max_point_light_count]; ///< position and radius
+    };
+
+    // MVP
     struct MeshPerframeStorageBufferObject ///< Read-only
     {
         Matrix4x4 proj_view_matrix; ///< pv
@@ -57,7 +68,6 @@ namespace VKernel
         Matrix4x4                   directional_light_proj_view;
     };
 
-    // MVP
     struct MeshDirectionalLightShadowPerframeStorageBufferObject
     {
         Matrix4x4 light_proj_view;
@@ -74,6 +84,11 @@ namespace VKernel
     };
 
     struct MeshPerdrawcallStorageBufferObject
+    {
+        VulkanMeshInstance mesh_instances[s_mesh_per_drawcall_max_instance_count];
+    };
+
+    struct MeshPointLightShadowPerdrawcallStorageBufferObject
     {
         VulkanMeshInstance mesh_instances[s_mesh_per_drawcall_max_instance_count];
     };

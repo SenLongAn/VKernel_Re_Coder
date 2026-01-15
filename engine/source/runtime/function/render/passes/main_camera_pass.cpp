@@ -508,7 +508,7 @@ namespace VKernel
 
         // _mesh_global
         {
-            VkDescriptorSetLayoutBinding mesh_global_layout_bindings[6];
+            VkDescriptorSetLayoutBinding mesh_global_layout_bindings[7];
 
             VkDescriptorSetLayoutBinding& mesh_global_layout_perframe_storage_buffer_binding =
                 mesh_global_layout_bindings[0];
@@ -545,10 +545,15 @@ namespace VKernel
             mesh_global_layout_specular_texture_binding         = mesh_global_layout_brdfLUT_texture_binding;
             mesh_global_layout_specular_texture_binding.binding = 4;
 
-            VkDescriptorSetLayoutBinding& mesh_global_layout_directional_light_shadow_texture_binding =
+            VkDescriptorSetLayoutBinding& mesh_global_layout_point_light_shadow_texture_binding =
                 mesh_global_layout_bindings[5];
+            mesh_global_layout_point_light_shadow_texture_binding         = mesh_global_layout_brdfLUT_texture_binding;
+            mesh_global_layout_point_light_shadow_texture_binding.binding = 5;
+
+            VkDescriptorSetLayoutBinding& mesh_global_layout_directional_light_shadow_texture_binding =
+                mesh_global_layout_bindings[6];
             mesh_global_layout_directional_light_shadow_texture_binding = mesh_global_layout_brdfLUT_texture_binding;
-            mesh_global_layout_directional_light_shadow_texture_binding.binding = 5;
+            mesh_global_layout_directional_light_shadow_texture_binding.binding = 6;
 
             VkDescriptorSetLayoutCreateInfo mesh_global_layout_create_info;
             mesh_global_layout_create_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
@@ -1685,13 +1690,19 @@ namespace VKernel
         specular_texture_image_info.imageView   = m_global_render_resource->_ibl_resource._specular_texture_image_view;
         specular_texture_image_info.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
+        VkDescriptorImageInfo point_light_shadow_texture_image_info {};
+        point_light_shadow_texture_image_info.sampler =
+            m_vulkan_api->getOrCreateDefaultSampler(Default_Sampler_Nearest);
+        point_light_shadow_texture_image_info.imageView   = m_point_light_shadow_color_image_view;
+        point_light_shadow_texture_image_info.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
         VkDescriptorImageInfo directional_light_shadow_texture_image_info {}; ///< directional light shadow
         directional_light_shadow_texture_image_info.sampler =
             m_vulkan_api->getOrCreateDefaultSampler(Default_Sampler_Nearest);
         directional_light_shadow_texture_image_info.imageView   = m_directional_light_shadow_color_image_view;
         directional_light_shadow_texture_image_info.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
-        VkWriteDescriptorSet mesh_descriptor_writes_info[6];
+        VkWriteDescriptorSet mesh_descriptor_writes_info[7];
 
         mesh_descriptor_writes_info[0].sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
         mesh_descriptor_writes_info[0].pNext           = NULL;
@@ -1730,7 +1741,11 @@ namespace VKernel
 
         mesh_descriptor_writes_info[5]            = mesh_descriptor_writes_info[2];
         mesh_descriptor_writes_info[5].dstBinding = 5;
-        mesh_descriptor_writes_info[5].pImageInfo = &directional_light_shadow_texture_image_info;
+        mesh_descriptor_writes_info[5].pImageInfo = &point_light_shadow_texture_image_info;
+
+        mesh_descriptor_writes_info[6]            = mesh_descriptor_writes_info[3];
+        mesh_descriptor_writes_info[6].dstBinding = 6;
+        mesh_descriptor_writes_info[6].pImageInfo = &directional_light_shadow_texture_image_info;
 
         vkUpdateDescriptorSets(m_vulkan_api->getLogicDevice(),
                                sizeof(mesh_descriptor_writes_info) / sizeof(mesh_descriptor_writes_info[0]),
