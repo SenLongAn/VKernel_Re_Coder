@@ -1,5 +1,6 @@
 #include "runtime/engine.h"
 
+#include "runtime/core/base/macro.h"
 #include "runtime/function/global/global_context.h"
 #include "runtime/function/render/render_system.h"
 #include "runtime/function/render/window_system.h"
@@ -18,6 +19,8 @@ namespace VKernel
         Reflection::TypeMetaRegister::metaRegister(); ///< meta Register
 
         g_runtime_global_context.startSystems(config_file_path);
+
+        LOG_INFO("engine start");
     }
 
     void VKernelEngine::run() {}

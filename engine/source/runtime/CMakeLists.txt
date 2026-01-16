@@ -23,6 +23,7 @@ target_compile_options(${TARGET_NAME} PUBLIC "$<$<COMPILE_LANG_AND_ID:CXX,MSVC>:
 set(VKERNEL_RUNTIME_HEADS "${HEADER_FILES}" PARENT_SCOPE)
 
 # Link library, including directory
+target_link_libraries(${TARGET_NAME} PUBLIC spdlog::spdlog)
 target_link_libraries(${TARGET_NAME} PUBLIC glfw)
 target_link_libraries(${TARGET_NAME} PUBLIC ${vulkan_lib})
 target_link_libraries(${TARGET_NAME} PRIVATE tinyobjloader stb) ##< tinyobjloader and stb

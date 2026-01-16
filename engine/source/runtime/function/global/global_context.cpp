@@ -1,5 +1,6 @@
 #include "runtime/function/global/global_context.h"
 
+#include "runtime/core/log/log_system.h"
 #include "runtime/function/render/debugdraw/debug_draw_manager.h"
 #include "runtime/function/render/render_system.h"
 #include "runtime/function/render/window_system.h"
@@ -19,6 +20,8 @@ namespace VKernel
     void RuntimeGlobalContext::startSystems(const std::string& config_file_path)
     {
         m_file_system = std::make_shared<FileSystem>();
+
+        m_logger_system = std::make_shared<LogSystem>();
 
         m_config_manager = std::make_shared<ConfigManager>();
         m_config_manager->initialize(config_file_path);
@@ -61,6 +64,8 @@ namespace VKernel
         m_asset_manager.reset();
 
         m_config_manager.reset();
+
+        m_logger_system.reset();
 
         m_file_system.reset();
     }
