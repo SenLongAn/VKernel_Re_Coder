@@ -1,6 +1,7 @@
-#version 310 es
+#version 450 core
 
 #extension GL_GOOGLE_include_directive : enable
+#extension GL_EXT_texture_array : enable
 
 #include "constants.h"
 #include "gbuffer.h"
@@ -33,6 +34,7 @@ layout(set = 0, binding = 0) readonly buffer _mesh_per_frame
     uint             _padding_point_light_num_2;
     uint             _padding_point_light_num_3;
     PointLight       scene_point_lights[s_max_point_light_count];
+    highp mat4       point_light_matrices[s_max_point_light_count * 6];
     DirectionalLight scene_directional_light;
     highp mat4       directional_light_proj_view;
 };
@@ -40,7 +42,8 @@ layout(set = 0, binding = 0) readonly buffer _mesh_per_frame
 layout(set = 0, binding = 2) uniform sampler2D brdfLUT_sampler;
 layout(set = 0, binding = 3) uniform samplerCube irradiance_sampler;
 layout(set = 0, binding = 4) uniform samplerCube specular_sampler;
-layout(set = 0, binding = 5) uniform highp sampler2D directional_light_shadow;
+layout(set = 0, binding = 5) uniform samplerCubeArray point_lights_shadow;
+layout(set = 0, binding = 6) uniform highp sampler2D directional_light_shadow;
 
 layout(input_attachment_index = 0, set = 1, binding = 0) uniform highp subpassInput in_gbuffer_a;
 layout(input_attachment_index = 1, set = 1, binding = 1) uniform highp subpassInput in_gbuffer_b;
