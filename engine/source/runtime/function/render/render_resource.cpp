@@ -4,7 +4,7 @@
 #include "runtime/function/render/render_mesh.h"
 #include "runtime/function/render/render_scene.h"
 
-#include "render_resource.h"
+#include "runtime/core/base/macro.h"
 #include "runtime/resource/res_type/global/global_rendering.h"
 
 #include <iostream>
@@ -137,7 +137,7 @@ namespace VKernel
         }
         else ///< else throw
         {
-            throw std::runtime_error("failed to get entity mesh");
+            LOG_ERROR("failed to get entity mesh");
         }
     }
 
@@ -152,7 +152,7 @@ namespace VKernel
         }
         else
         {
-            throw std::runtime_error("failed to get entity material");
+            LOG_ERROR("failed to get entity material");
         }
     }
 
@@ -314,7 +314,7 @@ namespace VKernel
                                                        &material_descriptor_set_alloc_info,
                                                        &now_material.material_descriptor_set))
             {
-                throw std::runtime_error("allocate material descriptor set");
+                LOG_ERROR("allocate material descriptor set");
             }
 
             // bind descriptor and image view
@@ -608,7 +608,7 @@ namespace VKernel
                             nullptr,
                             &m_global_render_resource._ibl_resource._brdfLUT_texture_sampler) != VK_SUCCESS)
         {
-            throw std::runtime_error("vk create sampler");
+            LOG_ERROR("vk create sampler");
         }
 
         samplerInfo.minLod     = 0.0f;
@@ -628,7 +628,7 @@ namespace VKernel
                             nullptr,
                             &m_global_render_resource._ibl_resource._irradiance_texture_sampler) != VK_SUCCESS)
         {
-            throw std::runtime_error("vk create sampler");
+            LOG_ERROR("vk create sampler");
         }
 
         // specular texture sampler
@@ -644,7 +644,7 @@ namespace VKernel
                             nullptr,
                             &m_global_render_resource._ibl_resource._specular_texture_sampler) != VK_SUCCESS)
         {
-            throw std::runtime_error("vk create sampler");
+            LOG_ERROR("vk create sampler");
         }
     }
 

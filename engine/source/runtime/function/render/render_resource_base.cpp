@@ -4,6 +4,8 @@
 #include "runtime/core/math/vector3.h"
 #include "runtime/core/math/vector4.h"
 
+#include "runtime/core/base/macro.h"
+
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
@@ -62,7 +64,7 @@ namespace VKernel
                 texture->m_format = VkFormat::VK_FORMAT_R32G32B32A32_SFLOAT;
                 break;
             default:
-                throw std::runtime_error("unsupported channels number");
+                LOG_ERROR("unsupported channels number");
                 break;
         }
         texture->m_depth        = 1;
@@ -105,14 +107,14 @@ namespace VKernel
         {
             if (!reader.Error().empty()) ///< if failed
             {
-                throw std::runtime_error("loadMesh failed!");
+                LOG_ERROR("loadMesh failed!");
             }
             assert(0);
         }
 
         if (!reader.Warning().empty())
         {
-            std::cerr << "loadMesh warning!" << std::endl;
+            LOG_INFO("loadMesh warning!");
         }
 
         auto& attrib = reader.GetAttrib(); ///< vertex data

@@ -4,6 +4,8 @@
 #include "runtime/function/render/render_mesh.h"
 #include "runtime/function/render/render_resource.h"
 
+#include "runtime/core/base/macro.h"
+
 #include <axis_frag.h>
 #include <axis_vert.h>
 #include <deferred_lighting_frag.h>
@@ -497,7 +499,7 @@ namespace VKernel
                 m_vulkan_api->getLogicDevice(), &renderpass_create_info, nullptr, &(m_framebuffer.render_pass)) !=
             VK_SUCCESS)
         {
-            throw std::runtime_error("failed to create render pass");
+            LOG_ERROR("failed to create render pass");
         }
     }
 
@@ -568,7 +570,7 @@ namespace VKernel
                                                           nullptr,
                                                           &m_descriptor_infos[_mesh_global].layout))
             {
-                throw std::runtime_error("create mesh global layout");
+                LOG_ERROR("create mesh global layout");
             }
         }
 
@@ -601,7 +603,7 @@ namespace VKernel
                                             nullptr,
                                             &m_descriptor_infos[_mesh_per_material].layout) != VK_SUCCESS)
             {
-                throw std::runtime_error("create mesh material layout");
+                LOG_ERROR("create mesh material layout");
             }
         }
 
@@ -633,7 +635,7 @@ namespace VKernel
                                                           nullptr,
                                                           &m_descriptor_infos[_skybox].layout))
             {
-                throw std::runtime_error("create skybox layout");
+                LOG_ERROR("create skybox layout");
             }
         }
 
@@ -665,7 +667,7 @@ namespace VKernel
                                                           nullptr,
                                                           &m_descriptor_infos[_axis].layout))
             {
-                throw std::runtime_error("create axis layout");
+                LOG_ERROR("create axis layout");
             }
         }
 
@@ -717,7 +719,7 @@ namespace VKernel
                                                           nullptr,
                                                           &m_descriptor_infos[_deferred_lighting].layout))
             {
-                throw std::runtime_error("create deferred lighting global layout");
+                LOG_ERROR("create deferred lighting global layout");
             }
         }
     }
@@ -742,7 +744,7 @@ namespace VKernel
                                        nullptr,
                                        &m_render_pipelines[_render_pipeline_type_mesh_gbuffer].layout) != VK_SUCCESS)
             {
-                throw std::runtime_error("create mesh gbuffer pipeline layout");
+                LOG_ERROR("create mesh gbuffer pipeline layout");
             }
 
             // Shader Module
@@ -891,7 +893,7 @@ namespace VKernel
                                           nullptr,
                                           &m_render_pipelines[_render_pipeline_type_mesh_gbuffer].pipeline))
             {
-                throw std::runtime_error("create mesh gbuffer graphics pipeline");
+                LOG_ERROR("create mesh gbuffer graphics pipeline");
             }
 
             // destory shader modul
@@ -917,7 +919,7 @@ namespace VKernel
                                        nullptr,
                                        &m_render_pipelines[_render_pipeline_type_deferred_lighting].layout))
             {
-                throw std::runtime_error("create deferred lighting pipeline layout");
+                LOG_ERROR("create deferred lighting pipeline layout");
             }
 
             // Shader Module
@@ -1048,7 +1050,7 @@ namespace VKernel
                                           nullptr,
                                           &m_render_pipelines[_render_pipeline_type_deferred_lighting].pipeline))
             {
-                throw std::runtime_error("create deferred lighting graphics pipeline");
+                LOG_ERROR("create deferred lighting graphics pipeline");
             }
 
             // destory shader module
@@ -1071,7 +1073,7 @@ namespace VKernel
                                        nullptr,
                                        &(m_render_pipelines[_render_pipeline_type_mesh_lighting].layout)) != VK_SUCCESS)
             {
-                throw std::runtime_error("create mesh lighting pipeline layout");
+                LOG_ERROR("create mesh lighting pipeline layout");
             }
 
             // Shader Module
@@ -1197,7 +1199,7 @@ namespace VKernel
                                           &(m_render_pipelines[_render_pipeline_type_mesh_lighting].pipeline)) !=
                 VK_SUCCESS)
             {
-                throw std::runtime_error("create mesh lighting graphics pipeline");
+                LOG_ERROR("create mesh lighting graphics pipeline");
             }
 
             // destory shader module
@@ -1219,7 +1221,7 @@ namespace VKernel
                                        nullptr,
                                        &m_render_pipelines[_render_pipeline_type_skybox].layout) != VK_SUCCESS)
             {
-                throw std::runtime_error("create skybox pipeline layout");
+                LOG_ERROR("create skybox pipeline layout");
             }
 
             // Shader Module
@@ -1349,7 +1351,7 @@ namespace VKernel
                                                         nullptr,
                                                         &m_render_pipelines[_render_pipeline_type_skybox].pipeline))
             {
-                throw std::runtime_error("create skybox graphics pipeline");
+                LOG_ERROR("create skybox graphics pipeline");
             }
 
             // destory shader module
@@ -1371,7 +1373,7 @@ namespace VKernel
                                        nullptr,
                                        &m_render_pipelines[_render_pipeline_type_axis].layout) != VK_SUCCESS)
             {
-                throw std::runtime_error("create axis pipeline layout");
+                LOG_ERROR("create axis pipeline layout");
             }
 
             // Shader Module
@@ -1499,7 +1501,7 @@ namespace VKernel
                                                         nullptr,
                                                         &m_render_pipelines[_render_pipeline_type_axis].pipeline))
             {
-                throw std::runtime_error("create axis graphics pipeline");
+                LOG_ERROR("create axis graphics pipeline");
             }
 
             // destory shader module
@@ -1635,7 +1637,7 @@ namespace VKernel
                 vkCreateFramebuffer(
                     m_vulkan_api->getLogicDevice(), &framebuffer_create_info, nullptr, &m_swapchain_framebuffers[i]))
             {
-                throw std::runtime_error("create main camera framebuffer");
+                LOG_ERROR("create main camera framebuffer");
             }
         }
     }
@@ -1654,7 +1656,7 @@ namespace VKernel
                                                    &mesh_global_descriptor_set_alloc_info,
                                                    &m_descriptor_infos[_mesh_global].descriptor_set))
         {
-            throw std::runtime_error("allocate mesh global descriptor set");
+            LOG_ERROR("allocate mesh global descriptor set");
         }
 
         // DescriptorSet bind buffer
@@ -1768,7 +1770,7 @@ namespace VKernel
                                                    &skybox_descriptor_set_alloc_info,
                                                    &m_descriptor_infos[_skybox].descriptor_set))
         {
-            throw std::runtime_error("allocate skybox descriptor set");
+            LOG_ERROR("allocate skybox descriptor set");
         }
 
         // DescriptorSet bind buffer
@@ -1821,7 +1823,7 @@ namespace VKernel
                                                    &axis_descriptor_set_alloc_info,
                                                    &m_descriptor_infos[_axis].descriptor_set))
         {
-            throw std::runtime_error("allocate axis descriptor set");
+            LOG_ERROR("allocate axis descriptor set");
         }
 
         // DescriptorSet bind buffer
@@ -1875,7 +1877,7 @@ namespace VKernel
                                                    &gbuffer_light_global_descriptor_set_alloc_info,
                                                    &m_descriptor_infos[_deferred_lighting].descriptor_set))
         {
-            throw std::runtime_error("allocate gbuffer light global descriptor set");
+            LOG_ERROR("allocate gbuffer light global descriptor set");
         }
     }
 

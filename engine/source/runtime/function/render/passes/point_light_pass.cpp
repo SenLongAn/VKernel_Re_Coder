@@ -5,6 +5,8 @@
 #include "runtime/function/render/vulkan_interface/vulkan_api.h"
 #include "runtime/function/render/vulkan_interface/vulkan_util.h"
 
+#include "runtime/core/base/macro.h"
+
 #include <mesh_point_light_shadow_frag.h>
 #include <mesh_point_light_shadow_geom.h>
 #include <mesh_point_light_shadow_vert.h>
@@ -168,7 +170,7 @@ namespace VKernel
                 m_vulkan_api->getLogicDevice(), &renderpass_create_info, nullptr, &m_framebuffer.render_pass) !=
             VK_SUCCESS)
         {
-            throw std::runtime_error("create point light shadow render pass");
+            LOG_ERROR("create point light shadow render pass");
         }
     }
     void PointLightShadowPass::setupFramebuffer()
@@ -189,7 +191,7 @@ namespace VKernel
                 m_vulkan_api->getLogicDevice(), &framebuffer_create_info, nullptr, &m_framebuffer.framebuffer) !=
             VK_SUCCESS)
         {
-            throw std::runtime_error("create point light shadow framebuffer");
+            LOG_ERROR("create point light shadow framebuffer");
         }
     }
     void PointLightShadowPass::setupDescriptorSetLayout()
@@ -231,7 +233,7 @@ namespace VKernel
                                                       nullptr,
                                                       &m_descriptor_infos[0].layout))
         {
-            throw std::runtime_error("create mesh point light shadow global layout");
+            LOG_ERROR("create mesh point light shadow global layout");
         }
     }
     void PointLightShadowPass::setupPipelines()
@@ -249,7 +251,7 @@ namespace VKernel
                 m_vulkan_api->getLogicDevice(), &pipeline_layout_create_info, nullptr, &m_render_pipelines[0].layout) !=
             VK_SUCCESS)
         {
-            throw std::runtime_error("create mesh point light shadow pipeline layout");
+            LOG_ERROR("create mesh point light shadow pipeline layout");
         }
 
         // Shader Module
@@ -389,7 +391,7 @@ namespace VKernel
                                       nullptr,
                                       &m_render_pipelines[0].pipeline) != VK_SUCCESS)
         {
-            throw std::runtime_error("create mesh point light shadow graphics pipeline");
+            LOG_ERROR("create mesh point light shadow graphics pipeline");
         }
 
         // destory
@@ -412,7 +414,7 @@ namespace VKernel
                                                    &mesh_point_light_shadow_global_descriptor_set_alloc_info,
                                                    &m_descriptor_infos[0].descriptor_set))
         {
-            throw std::runtime_error("allocate mesh point light shadow global descriptor set");
+            LOG_ERROR("allocate mesh point light shadow global descriptor set");
         }
 
         // DescriptorSet bind buffer

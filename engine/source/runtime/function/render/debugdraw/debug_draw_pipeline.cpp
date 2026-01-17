@@ -4,6 +4,8 @@
 #include "runtime/function/render/debugdraw/debug_draw_primitive.h"
 #include "runtime/function/render/render_system.h"
 
+#include "runtime/core/base/macro.h"
+
 #include <debugdraw_frag.h>
 #include <debugdraw_vert.h>
 
@@ -109,7 +111,7 @@ namespace VKernel
                 m_vulkan_api->getLogicDevice(), &renderpass_create_info, nullptr, &m_framebuffer.render_pass) !=
             VK_SUCCESS)
         {
-            throw std::runtime_error("create inefficient pick render pass");
+            LOG_ERROR("create inefficient pick render pass");
         }
     }
 
@@ -138,7 +140,7 @@ namespace VKernel
                                     nullptr,
                                     &m_framebuffer.framebuffers[i]) != VK_SUCCESS)
             {
-                throw std::runtime_error("create inefficient pick framebuffer");
+                LOG_ERROR("create inefficient pick framebuffer");
             }
         }
     }
@@ -172,7 +174,7 @@ namespace VKernel
         if (vkCreateDescriptorSetLayout(m_vulkan_api->getLogicDevice(), &layoutInfo, nullptr, &m_descriptor_layout) !=
             VK_SUCCESS)
         {
-            throw std::runtime_error("create debug draw layout");
+            LOG_ERROR("create debug draw layout");
         }
     }
 
@@ -191,7 +193,7 @@ namespace VKernel
                 m_vulkan_api->getLogicDevice(), &pipeline_layout_create_info, nullptr, &m_render_pipelines[0].layout) !=
             VK_SUCCESS)
         {
-            throw std::runtime_error("create mesh inefficient pick pipeline layout");
+            LOG_ERROR("create mesh inefficient pick pipeline layout");
         }
 
         // Shader Module
@@ -348,7 +350,7 @@ namespace VKernel
                                       nullptr,
                                       &m_render_pipelines[0].pipeline) != VK_SUCCESS)
         {
-            throw std::runtime_error("create debug draw graphics pipeline");
+            LOG_ERROR("create debug draw graphics pipeline");
         }
 
         // destory shader module

@@ -4,6 +4,7 @@
 #include "runtime/function/render/vulkan_interface/vulkan_api.h"
 #include "runtime/function/render/vulkan_interface/vulkan_util.h"
 
+#include "runtime/core/base/macro.h"
 #include "runtime/function/render/render_helper.h"
 
 #include <mesh_inefficient_pick_frag.h>
@@ -116,7 +117,7 @@ namespace VKernel
                 m_vulkan_api->getLogicDevice(), &renderpass_create_info, nullptr, &m_framebuffer.render_pass) !=
             VK_SUCCESS)
         {
-            throw std::runtime_error("create inefficient pick render pass");
+            LOG_ERROR("create inefficient pick render pass");
         }
     }
     void PickPass::setupFramebuffer()
@@ -137,7 +138,7 @@ namespace VKernel
                 m_vulkan_api->getLogicDevice(), &framebuffer_create_info, nullptr, &m_framebuffer.framebuffer) !=
             VK_SUCCESS)
         {
-            throw std::runtime_error("create inefficient pick framebuffer");
+            LOG_ERROR("create inefficient pick framebuffer");
         }
     }
     void PickPass::setupDescriptorSetLayout()
@@ -180,7 +181,7 @@ namespace VKernel
                                                       &m_descriptor_infos[0].layout))
 
         {
-            throw std::runtime_error("create mesh inefficient pick global layout");
+            LOG_ERROR("create mesh inefficient pick global layout");
         }
     }
     void PickPass::setupPipelines()
@@ -199,7 +200,7 @@ namespace VKernel
                 m_vulkan_api->getLogicDevice(), &pipeline_layout_create_info, nullptr, &m_render_pipelines[0].layout) !=
             VK_SUCCESS)
         {
-            throw std::runtime_error("create mesh inefficient pick pipeline layout");
+            LOG_ERROR("create mesh inefficient pick pipeline layout");
         }
 
         // Shader Module
@@ -326,7 +327,7 @@ namespace VKernel
                                       nullptr,
                                       &m_render_pipelines[0].pipeline) != VK_SUCCESS)
         {
-            throw std::runtime_error("create mesh inefficient pick graphics pipeline");
+            LOG_ERROR("create mesh inefficient pick graphics pipeline");
         }
 
         // destory shader module
@@ -347,7 +348,7 @@ namespace VKernel
                                                    &mesh_inefficient_pick_global_descriptor_set_alloc_info,
                                                    &m_descriptor_infos[0].descriptor_set))
         {
-            throw std::runtime_error("allocate mesh inefficient pick global descriptor set");
+            LOG_ERROR("allocate mesh inefficient pick global descriptor set");
         }
 
         // DescriptorSet bind buffer

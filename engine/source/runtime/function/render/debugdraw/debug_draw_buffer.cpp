@@ -4,7 +4,8 @@
 #include "runtime/function/render/render_resource_base.h"
 #include "runtime/function/render/render_system.h"
 
-#include "debug_draw_buffer.h"
+#include "runtime/core/base/macro.h"
+
 #include <iostream>
 
 namespace VKernel
@@ -237,7 +238,7 @@ namespace VKernel
         if (vkCreateDescriptorSetLayout(m_vulkan_api->getLogicDevice(), &layoutInfo, nullptr, &m_descriptor.layout) !=
             VK_SUCCESS)
         {
-            throw std::runtime_error("create debug draw layout");
+            LOG_ERROR("create debug draw layout");
         }
 
         // allocate DescriptorSet
@@ -254,7 +255,7 @@ namespace VKernel
             if (VK_SUCCESS !=
                 vkAllocateDescriptorSets(m_vulkan_api->getLogicDevice(), &allocInfo, &m_descriptor.descriptor_set[i]))
             {
-                throw std::runtime_error("debug draw descriptor set");
+                LOG_ERROR("debug draw descriptor set");
             }
         }
     }

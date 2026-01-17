@@ -2,6 +2,8 @@
 
 #include "runtime/core/meta/serializer/serializer.h"
 
+#include "runtime/core/base/macro.h"
+
 #include <filesystem>
 #include <fstream>
 #include <functional>
@@ -28,7 +30,7 @@ namespace VKernel
             std::ifstream         asset_json_file(asset_path);
             if (!asset_json_file)
             {
-                throw std::runtime_error("open file: failed!");
+                LOG_ERROR("open file: failed!");
                 return false;
             }
 
@@ -41,7 +43,7 @@ namespace VKernel
             auto&&      asset_json = Json::parse(asset_json_text, error);
             if (!error.empty())
             {
-                throw std::runtime_error("parse json file failed!");
+                LOG_ERROR("parse json file failed!");
                 return false;
             }
 
@@ -57,7 +59,7 @@ namespace VKernel
             std::ofstream asset_json_file(getFullPath(asset_url));
             if (!asset_json_file)
             {
-                throw std::runtime_error("open file failed!");
+                LOG_ERROR("open file failed!");
                 return false;
             }
 

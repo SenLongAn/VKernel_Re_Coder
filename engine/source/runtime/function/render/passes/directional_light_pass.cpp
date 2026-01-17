@@ -5,6 +5,8 @@
 #include "runtime/function/render/vulkan_interface/vulkan_api.h"
 #include "runtime/function/render/vulkan_interface/vulkan_util.h"
 
+#include "runtime/core/base/macro.h"
+
 #include <mesh_directional_light_shadow_frag.h>
 #include <mesh_directional_light_shadow_vert.h>
 
@@ -168,7 +170,7 @@ namespace VKernel
             vkCreateRenderPass(
                 m_vulkan_api->getLogicDevice(), &renderpass_create_info, nullptr, &m_framebuffer.render_pass))
         {
-            throw std::runtime_error("create directional light shadow render pass");
+            LOG_ERROR("create directional light shadow render pass");
         }
     }
     void DirectionalLightShadowPass::setupFramebuffer()
@@ -190,7 +192,7 @@ namespace VKernel
             vkCreateFramebuffer(
                 m_vulkan_api->getLogicDevice(), &framebuffer_create_info, nullptr, &m_framebuffer.framebuffer))
         {
-            throw std::runtime_error("create directional light shadow framebuffer");
+            LOG_ERROR("create directional light shadow framebuffer");
         }
     }
     void DirectionalLightShadowPass::setupDescriptorSetLayout()
@@ -234,7 +236,7 @@ namespace VKernel
                                                       nullptr,
                                                       &m_descriptor_infos[0].layout))
         {
-            throw std::runtime_error("create mesh directional light shadow global layout");
+            LOG_ERROR("create mesh directional light shadow global layout");
         }
     }
     void DirectionalLightShadowPass::setupPipelines()
@@ -252,7 +254,7 @@ namespace VKernel
             vkCreatePipelineLayout(
                 m_vulkan_api->getLogicDevice(), &pipeline_layout_create_info, nullptr, &m_render_pipelines[0].layout))
         {
-            throw std::runtime_error("create mesh directional light shadow pipeline layout");
+            LOG_ERROR("create mesh directional light shadow pipeline layout");
         }
 
         // Shader Module
@@ -387,7 +389,7 @@ namespace VKernel
                                                     nullptr,
                                                     &m_render_pipelines[0].pipeline))
         {
-            throw std::runtime_error("create mesh directional light shadow graphics pipeline");
+            LOG_ERROR("create mesh directional light shadow graphics pipeline");
         }
 
         m_vulkan_api->destroyShaderModule(vert_shader_module);
@@ -409,7 +411,7 @@ namespace VKernel
                                                    &mesh_directional_light_shadow_global_descriptor_set_alloc_info,
                                                    &m_descriptor_infos[0].descriptor_set))
         {
-            throw std::runtime_error("allocate mesh directional light shadow global descriptor set");
+            LOG_ERROR("allocate mesh directional light shadow global descriptor set");
         }
 
         // DescriptorSet bind buffer

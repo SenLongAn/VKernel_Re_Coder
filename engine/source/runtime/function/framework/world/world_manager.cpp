@@ -7,7 +7,7 @@
 #include "runtime/function/global/global_context.h"
 
 #include "_generated/serializer/all_serializer.h"
-#include "world_manager.h"
+#include "runtime/core/base/macro.h"
 
 namespace VKernel
 {
@@ -58,7 +58,7 @@ namespace VKernel
         auto active_level = m_current_active_level.lock();
         if (active_level == nullptr)
         {
-            throw std::runtime_error("current level is nil");
+            LOG_ERROR("current level is nil");
             return;
         }
 
@@ -71,7 +71,7 @@ namespace VKernel
         const bool is_load_success = loadLevel(level_url);
         if (!is_load_success)
         {
-            throw std::runtime_error("load level failed");
+            LOG_ERROR("load level failed");
             return;
         }
 
@@ -79,7 +79,7 @@ namespace VKernel
         auto iter = m_loaded_levels.find(level_url);
         if (iter == m_loaded_levels.end())
         {
-            throw std::runtime_error("load level failed");
+            LOG_ERROR("load level failed");
             return;
         }
 
@@ -93,7 +93,7 @@ namespace VKernel
 
         if (active_level == nullptr)
         {
-            throw std::runtime_error("save level failed, no active level");
+            LOG_ERROR("save level failed, no active level");
             return;
         }
 

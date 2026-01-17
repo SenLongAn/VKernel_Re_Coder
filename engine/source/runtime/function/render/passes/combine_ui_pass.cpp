@@ -3,6 +3,8 @@
 #include "runtime/function/render/vulkan_interface/vulkan_api.h"
 #include "runtime/function/render/vulkan_interface/vulkan_util.h"
 
+#include "runtime/core/base/macro.h"
+
 #include <combine_ui_frag.h>
 #include <post_process_vert.h>
 
@@ -60,7 +62,7 @@ namespace VKernel
                                                       nullptr,
                                                       &m_descriptor_infos[0].layout))
         {
-            throw std::runtime_error("create combine ui global layout");
+            LOG_ERROR("create combine ui global layout");
         }
     }
 
@@ -79,7 +81,7 @@ namespace VKernel
             vkCreatePipelineLayout(
                 m_vulkan_api->getLogicDevice(), &pipeline_layout_create_info, nullptr, &m_render_pipelines[0].layout))
         {
-            throw std::runtime_error("create combine ui pipeline layout");
+            LOG_ERROR("create combine ui pipeline layout");
         }
 
         // Shader Module
@@ -206,7 +208,7 @@ namespace VKernel
                                                     nullptr,
                                                     &m_render_pipelines[0].pipeline))
         {
-            throw std::runtime_error("create post process graphics pipeline");
+            LOG_ERROR("create post process graphics pipeline");
         }
 
         // destory
@@ -228,7 +230,7 @@ namespace VKernel
                                                    &post_process_global_descriptor_set_alloc_info,
                                                    &m_descriptor_infos[0].descriptor_set))
         {
-            throw std::runtime_error("allocate post process global descriptor set");
+            LOG_ERROR("allocate post process global descriptor set");
         }
     }
 

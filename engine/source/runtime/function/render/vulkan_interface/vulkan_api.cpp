@@ -3,7 +3,9 @@
 #include "runtime/function/render/vulkan_interface/vulkan_util.h"
 #include "runtime/function/render/window_system.h"
 
+#include "runtime/core/base/macro.h"
 #include "runtime/core/math/math_marcos.h"
+
 
 #include "vulkan_api.h"
 #include <algorithm>
@@ -81,7 +83,7 @@ namespace VKernel
         }
         else if (acquire_image_result != VK_SUCCESS && acquire_image_result != VK_SUBOPTIMAL_KHR)
         {
-            throw std::runtime_error("vkAcquireNextImageKHR failed!");
+            LOG_ERROR("vkAcquireNextImageKHR failed!");
         }
 
         // reset fence
@@ -98,7 +100,7 @@ namespace VKernel
 
         if (VK_SUCCESS != res_begin_command_buffer)
         {
-            throw std::runtime_error("_vkBeginCommandBuffer failed!");
+            LOG_ERROR("_vkBeginCommandBuffer failed!");
             return false;
         }
         return false;
@@ -110,7 +112,7 @@ namespace VKernel
         VkResult res_end_command_buffer = vkEndCommandBuffer(m_command_buffers[m_current_frame_index]);
         if (VK_SUCCESS != res_end_command_buffer)
         {
-            throw std::runtime_error("_vkEndCommandBuffer failed!");
+            LOG_ERROR("_vkEndCommandBuffer failed!");
             return;
         }
 
@@ -133,7 +135,7 @@ namespace VKernel
 
         if (VK_SUCCESS != res_queue_submit)
         {
-            throw std::runtime_error("vkQueueSubmit failed!");
+            LOG_ERROR("vkQueueSubmit failed!");
             return;
         }
 
@@ -156,7 +158,7 @@ namespace VKernel
         }
         else if (VK_SUCCESS != present_result)
         {
-            throw std::runtime_error("vkQueuePresentKHR failed!");
+            LOG_ERROR("vkQueuePresentKHR failed!");
             return;
         }
 
@@ -463,7 +465,7 @@ namespace VKernel
 
         if (vkCreateSwapchainKHR(m_device, &createInfo, nullptr, &m_swapchain) != VK_SUCCESS)
         {
-            throw std::runtime_error("vk create swapchain khr");
+            LOG_ERROR("vk create swapchain khr");
         }
 
         // Get Swapchain Images
@@ -807,7 +809,7 @@ namespace VKernel
             }
         }
 
-        throw std::runtime_error("findSupportedFormat failed");
+        LOG_ERROR("findSupportedFormat failed");
         return VkFormat();
     }
 
@@ -869,7 +871,7 @@ namespace VKernel
         // Verification and validation layer support
         if (m_enable_validation_Layers && !checkValidationLayerSupport())
         {
-            throw std::runtime_error("validation layers requested, but not available!");
+            LOG_ERROR("validation layers requested, but not available!");
         }
 
         // app info
@@ -912,7 +914,7 @@ namespace VKernel
         // create instance
         if (vkCreateInstance(&instance_create_info, nullptr, &m_instance) != VK_SUCCESS)
         {
-            throw std::runtime_error("vk create instance");
+            LOG_ERROR("vk create instance");
         }
     }
 
@@ -924,7 +926,7 @@ namespace VKernel
             populateDebugMessengerCreateInfo(createInfo);
             if (VK_SUCCESS != createDebugUtilsMessengerEXT(m_instance, &createInfo, nullptr, &m_debug_messenger))
             {
-                throw std::runtime_error("failed to set up debug messenger!");
+                LOG_ERROR("failed to set up debug messenger!");
             }
         }
 
@@ -939,7 +941,7 @@ namespace VKernel
         // create surface
         if (glfwCreateWindowSurface(m_instance, m_window, nullptr, &m_surface) != VK_SUCCESS)
         {
-            throw std::runtime_error("glfwCreateWindowSurface failed!");
+            LOG_ERROR("glfwCreateWindowSurface failed!");
         }
     }
 
@@ -950,7 +952,7 @@ namespace VKernel
         vkEnumeratePhysicalDevices(m_instance, &physical_device_count, nullptr);
         if (physical_device_count == 0)
         {
-            throw std::runtime_error("enumerate physical devices failed!");
+            LOG_ERROR("enumerate physical devices failed!");
         }
         else
         {
@@ -969,7 +971,7 @@ namespace VKernel
 
             if (m_physical_device == VK_NULL_HANDLE)
             {
-                throw std::runtime_error("failed to find suitable physical device");
+                LOG_ERROR("failed to find suitable physical device");
             }
         }
     }
@@ -1020,7 +1022,7 @@ namespace VKernel
         // create device
         if (vkCreateDevice(m_physical_device, &device_create_info, nullptr, &m_device) != VK_SUCCESS)
         {
-            throw std::runtime_error("vk create device");
+            LOG_ERROR("vk create device");
         }
 
         // Obtain the queues of this device
@@ -1044,7 +1046,7 @@ namespace VKernel
 
             if (vkCreateCommandPool(m_device, &command_pool_create_info, NULL, &m_api_command_pool) != VK_SUCCESS)
             {
-                throw std::runtime_error("vk create command pool");
+                LOG_ERROR("vk create command pool");
             }
         }
 
@@ -1059,7 +1061,7 @@ namespace VKernel
 
             if (vkCreateCommandPool(m_device, &command_pool_create_info, NULL, &m_command_pool) != VK_SUCCESS)
             {
-                throw std::runtime_error("vk create command pool");
+                LOG_ERROR("vk create command pool");
             }
         }
     }
@@ -1075,7 +1077,7 @@ namespace VKernel
 
         if (vkAllocateCommandBuffers(m_device, &command_buffer_allocate_info, m_command_buffers) != VK_SUCCESS)
         {
-            throw std::runtime_error("vk allocate command buffers");
+            LOG_ERROR("vk allocate command buffers");
         }
     }
 
@@ -1111,7 +1113,7 @@ namespace VKernel
 
         if (vkCreateDescriptorPool(m_device, &pool_info, nullptr, &m_descriptor_pool) != VK_SUCCESS)
         {
-            throw std::runtime_error("create descriptor pool");
+            LOG_ERROR("create descriptor pool");
         }
     }
 
@@ -1135,7 +1137,7 @@ namespace VKernel
                     VK_SUCCESS ||
                 vkCreateFence(m_device, &fence_create_info, nullptr, &m_is_frame_in_flight_fences[i]) != VK_SUCCESS)
             {
-                throw std::runtime_error("vk create semaphore & fence");
+                LOG_ERROR("vk create semaphore & fence");
             }
         }
     }

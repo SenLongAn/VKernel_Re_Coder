@@ -1,5 +1,7 @@
 #include "runtime/function/render/window_system.h"
 
+#include "runtime/core/base/macro.h"
+
 #include <iostream>
 
 namespace VKernel
@@ -14,7 +16,7 @@ namespace VKernel
     {
         if (!glfwInit())
         {
-            throw std::runtime_error("failed to initialize GLFW");
+            LOG_ERROR("failed to initialize GLFW");
             return;
         }
 
@@ -26,7 +28,7 @@ namespace VKernel
         m_window = glfwCreateWindow(create_info.width, create_info.height, create_info.title, nullptr, nullptr);
         if (!m_window)
         {
-            throw std::runtime_error("failed to create window");
+            LOG_ERROR("failed to create window");
             glfwTerminate();
             return;
         }

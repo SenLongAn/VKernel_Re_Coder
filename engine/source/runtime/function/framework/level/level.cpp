@@ -4,8 +4,10 @@
 #include "runtime/resource/asset_manager/asset_manager.h"
 #include "runtime/resource/res_type/common/level.h"
 
+#include "runtime/core/base/macro.h"
 #include "runtime/function/framework/object/object.h"
 #include "runtime/function/global/global_context.h"
+
 
 #include "level.h"
 #include <iostream>
@@ -67,7 +69,7 @@ namespace VKernel
         }
         else
         {
-            throw std::runtime_error("loading object failed");
+            LOG_ERROR("loading object failed");
             return k_invalid_gobject_id;
         }
 
@@ -98,7 +100,7 @@ namespace VKernel
 
         if (is_save_success == false)
         {
-            throw std::runtime_error("failed to save");
+            LOG_ERROR("failed to save");
         }
 
         return is_save_success;

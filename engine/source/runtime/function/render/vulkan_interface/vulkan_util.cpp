@@ -1,6 +1,6 @@
 #include "runtime/function/render/vulkan_interface/vulkan_util.h"
 
-#include "vulkan_util.h"
+#include "runtime/core/base/macro.h"
 #include <iostream>
 
 namespace VKernel
@@ -21,7 +21,7 @@ namespace VKernel
                 return i;
             }
         }
-        throw std::runtime_error("findMemoryType error");
+        LOG_ERROR("findMemoryType error");
         return 0;
     }
 
@@ -58,7 +58,7 @@ namespace VKernel
 
         if (vkCreateBuffer(device, &buffer_create_info, nullptr, &buffer) != VK_SUCCESS)
         {
-            throw std::runtime_error("vkCreateBuffer failed!");
+            LOG_ERROR("vkCreateBuffer failed!");
             return;
         }
 
@@ -75,7 +75,7 @@ namespace VKernel
 
         if (vkAllocateMemory(device, &buffer_memory_allocate_info, nullptr, &buffer_memory) != VK_SUCCESS)
         {
-            throw std::runtime_error("vkAllocateMemory failed!");
+            LOG_ERROR("vkAllocateMemory failed!");
             return;
         }
 
@@ -116,7 +116,7 @@ namespace VKernel
 
         if (vkCreateImage(device, &vulkan_api, nullptr, &image) != VK_SUCCESS)
         {
-            throw std::runtime_error("failed to create image!");
+            LOG_ERROR("failed to create image!");
             return;
         }
 
@@ -135,7 +135,7 @@ namespace VKernel
 
         if (vkAllocateMemory(device, &allocInfo, nullptr, &memory) != VK_SUCCESS)
         {
-            throw std::runtime_error("failed to allocate image memory!");
+            LOG_ERROR("failed to allocate image memory!");
             return;
         }
 
@@ -206,7 +206,7 @@ namespace VKernel
 
         if (vkCreateSampler(device, &samplerInfo, nullptr, &sampler) != VK_SUCCESS)
         {
-            throw std::runtime_error("vk create sampler");
+            LOG_ERROR("vk create sampler");
         }
 
         return sampler;
@@ -240,7 +240,7 @@ namespace VKernel
 
         if (vkCreateSampler(device, &samplerInfo, nullptr, &sampler) != VK_SUCCESS)
         {
-            throw std::runtime_error("vk create sampler");
+            LOG_ERROR("vk create sampler");
         }
 
         return sampler;
@@ -291,7 +291,7 @@ namespace VKernel
                 texture_byte_size = texture_image_width * texture_image_height * 4 * 4;
                 break;
             default:
-                throw std::runtime_error("invalid texture_byte_size");
+                LOG_ERROR("invalid texture_byte_size");
                 break;
         }
 
@@ -384,7 +384,7 @@ namespace VKernel
     {
         if (vulkan_api == nullptr)
         {
-            throw std::runtime_error("vulkan_api is nullptr");
+            LOG_ERROR("vulkan_api is nullptr");
             return;
         }
 
@@ -513,7 +513,7 @@ namespace VKernel
         vkGetPhysicalDeviceFormatProperties(vulkan_api->getPhysicalDevice(), image_format, &format_properties);
         if (!(format_properties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT))
         {
-            throw std::runtime_error("generateTextureMipMaps() : linear bliting not supported!");
+            LOG_ERROR("generateTextureMipMaps() : linear bliting not supported!");
             return;
         }
 
@@ -661,7 +661,7 @@ namespace VKernel
                 break;
             default:
                 texture_layer_byte_size = VkDeviceSize(-1);
-                throw std::runtime_error("invalid texture_layer_byte_size");
+                LOG_ERROR("invalid texture_layer_byte_size");
                 return;
                 break;
         }
@@ -757,7 +757,7 @@ namespace VKernel
     {
         if (vulkan_api == nullptr)
         {
-            throw std::runtime_error("vulkan_api is nullptr");
+            LOG_ERROR("vulkan_api is nullptr");
             return;
         }
 
@@ -828,7 +828,7 @@ namespace VKernel
         }
         else
         {
-            throw std::runtime_error("unsupported layout transition!");
+            LOG_ERROR("unsupported layout transition!");
             return;
         }
 
@@ -848,7 +848,7 @@ namespace VKernel
     {
         if (vulkan_api == nullptr)
         {
-            throw std::runtime_error("vulkan_api is nullptr");
+            LOG_ERROR("vulkan_api is nullptr");
             return;
         }
 
@@ -869,7 +869,7 @@ namespace VKernel
     {
         if (vulkan_api == nullptr)
         {
-            throw std::runtime_error("vulkan_api is nullptr");
+            LOG_ERROR("vulkan_api is nullptr");
             return;
         }
 

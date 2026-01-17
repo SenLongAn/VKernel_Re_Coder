@@ -1,5 +1,7 @@
 #include "runtime/function/framework/object/object_id_allocator.h"
 
+#include "runtime/core/base/macro.h"
+
 #include <stdexcept>
 
 namespace VKernel
@@ -14,7 +16,7 @@ namespace VKernel
 
         if (m_next_id >= k_invalid_gobject_id) ///< If the ID exceeds the valid range
         {
-            throw std::runtime_error("gobject id overflow");
+            LOG_ERROR("gobject id overflow");
         }
 
         return new_object_ret;
