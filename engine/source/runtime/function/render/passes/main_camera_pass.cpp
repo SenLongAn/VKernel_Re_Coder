@@ -46,10 +46,11 @@ namespace VKernel
         }
     }
 
-    void MainCameraPass::draw(FXAAPass&      fxaa_pass,
-                              UIPass&        ui_pass,
-                              CombineUIPass& combine_ui_pass,
-                              uint32_t       current_swapchain_image_index)
+    void MainCameraPass::draw(ToneMappingPass& tone_mapping_pass,
+                              FXAAPass&        fxaa_pass,
+                              UIPass&          ui_pass,
+                              CombineUIPass&   combine_ui_pass,
+                              uint32_t         current_swapchain_image_index)
     {
         // Begin RenderPass
         {
@@ -90,6 +91,10 @@ namespace VKernel
 
         vkCmdNextSubpass(m_vulkan_api->getCurrentCommandBuffer(), VK_SUBPASS_CONTENTS_INLINE);
 
+        tone_mapping_pass.draw();
+
+        vkCmdNextSubpass(m_vulkan_api->getCurrentCommandBuffer(), VK_SUBPASS_CONTENTS_INLINE);
+
         fxaa_pass.draw();
 
         vkCmdNextSubpass(m_vulkan_api->getCurrentCommandBuffer(), VK_SUBPASS_CONTENTS_INLINE);
@@ -104,10 +109,11 @@ namespace VKernel
         vkCmdEndRenderPass(m_vulkan_api->getCurrentCommandBuffer());
     }
 
-    void MainCameraPass::drawForward(FXAAPass&      fxaa_pass,
-                                     UIPass&        ui_pass,
-                                     CombineUIPass& combine_ui_pass,
-                                     uint32_t       current_swapchain_image_index)
+    void MainCameraPass::drawForward(ToneMappingPass& tone_mapping_pass,
+                                     FXAAPass&        fxaa_pass,
+                                     UIPass&          ui_pass,
+                                     CombineUIPass&   combine_ui_pass,
+                                     uint32_t         current_swapchain_image_index)
     {
         // Begin RenderPass
         {
@@ -141,6 +147,10 @@ namespace VKernel
         drawSkybox();
 
         drawAxis();
+
+        vkCmdNextSubpass(m_vulkan_api->getCurrentCommandBuffer(), VK_SUBPASS_CONTENTS_INLINE);
+
+        tone_mapping_pass.draw();
 
         vkCmdNextSubpass(m_vulkan_api->getCurrentCommandBuffer(), VK_SUBPASS_CONTENTS_INLINE);
 
@@ -363,7 +373,7 @@ namespace VKernel
 
         VkAttachmentReference deferred_lighting_pass_color_attachment_reference[1] = {};
         deferred_lighting_pass_color_attachment_reference[0].attachment =
-            &backup_even_color_attachment_description - attachments;
+            &backup_odd_color_attachment_description - attachments;
         deferred_lighting_pass_color_attachment_reference[0].layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
         VkSubpassDescription& deferred_lighting_pass = subpasses[_main_camera_subpass_deferred_lighting];
@@ -380,7 +390,7 @@ namespace VKernel
 
         VkAttachmentReference forward_lighting_pass_color_attachments_reference[1] = {}; ///< forward subpass
         forward_lighting_pass_color_attachments_reference[0].attachment =
-            &backup_even_color_attachment_description - attachments; ///< index
+            &backup_odd_color_attachment_description - attachments; ///< index
         forward_lighting_pass_color_attachments_reference[0].layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
         VkAttachmentReference forward_lighting_pass_depth_attachment_reference {};
@@ -397,6 +407,26 @@ namespace VKernel
         forward_lighting_pass.pDepthStencilAttachment = &forward_lighting_pass_depth_attachment_reference;
         forward_lighting_pass.preserveAttachmentCount = 0;
         forward_lighting_pass.pPreserveAttachments    = NULL;
+
+        VkAttachmentReference tone_mapping_pass_input_attachment_reference {};
+        tone_mapping_pass_input_attachment_reference.attachment =
+            &backup_odd_color_attachment_description - attachments;
+        tone_mapping_pass_input_attachment_reference.layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+        VkAttachmentReference tone_mapping_pass_color_attachment_reference {};
+        tone_mapping_pass_color_attachment_reference.attachment =
+            &backup_even_color_attachment_description - attachments;
+        tone_mapping_pass_color_attachment_reference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+        VkSubpassDescription& tone_mapping_pass   = subpasses[_main_camera_subpass_tone_mapping];
+        tone_mapping_pass.pipelineBindPoint       = VK_PIPELINE_BIND_POINT_GRAPHICS;
+        tone_mapping_pass.inputAttachmentCount    = 1;
+        tone_mapping_pass.pInputAttachments       = &tone_mapping_pass_input_attachment_reference;
+        tone_mapping_pass.colorAttachmentCount    = 1;
+        tone_mapping_pass.pColorAttachments       = &tone_mapping_pass_color_attachment_reference;
+        tone_mapping_pass.pDepthStencilAttachment = NULL;
+        tone_mapping_pass.preserveAttachmentCount = 0;
+        tone_mapping_pass.pPreserveAttachments    = NULL;
 
         VkAttachmentReference fxaa_pass_input_attachment_reference {};
         fxaa_pass_input_attachment_reference.attachment = &backup_even_color_attachment_description - attachments;
@@ -455,7 +485,7 @@ namespace VKernel
         combine_ui_pass.pPreserveAttachments    = NULL;
 
         // Subpass Dependency
-        VkSubpassDependency dependencies[6] = {};
+        VkSubpassDependency dependencies[7] = {};
 
         VkSubpassDependency& deferred_lighting_pass_depend_on_shadow_map_pass = dependencies[0];
         deferred_lighting_pass_depend_on_shadow_map_pass.srcSubpass           = VK_SUBPASS_EXTERNAL;
@@ -492,8 +522,21 @@ namespace VKernel
             VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
         forward_lighting_pass_depend_on_deferred_lighting_pass.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
-        VkSubpassDependency& fxaa_pass_depend_on_color_grading_pass = dependencies[3];
-        fxaa_pass_depend_on_color_grading_pass.srcSubpass           = _main_camera_subpass_forward_lighting;
+        VkSubpassDependency& tone_mapping_pass_depend_on_lighting_pass = dependencies[3];
+        tone_mapping_pass_depend_on_lighting_pass.srcSubpass           = _main_camera_subpass_forward_lighting;
+        tone_mapping_pass_depend_on_lighting_pass.dstSubpass           = _main_camera_subpass_tone_mapping;
+        tone_mapping_pass_depend_on_lighting_pass.srcStageMask =
+            VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        tone_mapping_pass_depend_on_lighting_pass.dstStageMask =
+            VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        tone_mapping_pass_depend_on_lighting_pass.srcAccessMask =
+            VK_ACCESS_SHADER_WRITE_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        tone_mapping_pass_depend_on_lighting_pass.dstAccessMask =
+            VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
+        tone_mapping_pass_depend_on_lighting_pass.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+
+        VkSubpassDependency& fxaa_pass_depend_on_color_grading_pass = dependencies[4];
+        fxaa_pass_depend_on_color_grading_pass.srcSubpass           = _main_camera_subpass_tone_mapping;
         fxaa_pass_depend_on_color_grading_pass.dstSubpass           = _main_camera_subpass_fxaa;
         fxaa_pass_depend_on_color_grading_pass.srcStageMask =
             VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
@@ -504,7 +547,7 @@ namespace VKernel
         fxaa_pass_depend_on_color_grading_pass.dstAccessMask =
             VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
 
-        VkSubpassDependency& ui_pass_depend_on_fxaa_pass = dependencies[4];
+        VkSubpassDependency& ui_pass_depend_on_fxaa_pass = dependencies[5];
         ui_pass_depend_on_fxaa_pass.srcSubpass           = _main_camera_subpass_fxaa;
         ui_pass_depend_on_fxaa_pass.dstSubpass           = _main_camera_subpass_ui;
         ui_pass_depend_on_fxaa_pass.srcStageMask =
@@ -515,7 +558,7 @@ namespace VKernel
         ui_pass_depend_on_fxaa_pass.dstAccessMask   = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
         ui_pass_depend_on_fxaa_pass.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
-        VkSubpassDependency& combine_ui_pass_depend_on_ui_pass = dependencies[5];
+        VkSubpassDependency& combine_ui_pass_depend_on_ui_pass = dependencies[6];
         combine_ui_pass_depend_on_ui_pass.srcSubpass           = _main_camera_subpass_ui;
         combine_ui_pass_depend_on_ui_pass.dstSubpass           = _main_camera_subpass_combine_ui;
         combine_ui_pass_depend_on_ui_pass.srcStageMask =

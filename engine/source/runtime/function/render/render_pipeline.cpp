@@ -8,6 +8,7 @@
 #include "runtime/function/render/passes/main_camera_pass.h"
 #include "runtime/function/render/passes/pick_pass.h"
 #include "runtime/function/render/passes/point_light_pass.h"
+#include "runtime/function/render/passes/tone_mapping_pass.h"
 #include "runtime/function/render/passes/ui_pass.h"
 
 namespace VKernel
@@ -19,6 +20,7 @@ namespace VKernel
         m_point_light_shadow_pass = std::make_shared<PointLightShadowPass>();
         m_directional_light_pass  = std::make_shared<DirectionalLightShadowPass>();
         m_main_camera_pass        = std::make_shared<MainCameraPass>();
+        m_tone_mapping_pass       = std::make_shared<ToneMappingPass>();
         m_ui_pass                 = std::make_shared<UIPass>();
         m_combine_ui_pass         = std::make_shared<CombineUIPass>();
         m_fxaa_pass               = std::make_shared<FXAAPass>();
@@ -32,6 +34,7 @@ namespace VKernel
         m_point_light_shadow_pass->setCommonInfo(pass_common_info);
         m_directional_light_pass->setCommonInfo(pass_common_info);
         m_main_camera_pass->setCommonInfo(pass_common_info);
+        m_tone_mapping_pass->setCommonInfo(pass_common_info);
         m_ui_pass->setCommonInfo(pass_common_info);
         m_combine_ui_pass->setCommonInfo(pass_common_info);
         m_fxaa_pass->setCommonInfo(pass_common_info);
@@ -55,6 +58,12 @@ namespace VKernel
 
         m_point_light_shadow_pass->postInitialize();
         m_directional_light_pass->postInitialize();
+
+        ToneMappingPassInitInfo tone_mapping_init_info;
+        tone_mapping_init_info.render_pass = _main_camera_pass->getRenderPass();
+        tone_mapping_init_info.input_attachment =
+            _main_camera_pass->getFramebufferImageViews()[_main_camera_pass_backup_buffer_odd];
+        m_tone_mapping_pass->initialize(&tone_mapping_init_info);
 
         UIPassInitInfo ui_init_info;
         ui_init_info.render_pass = _main_camera_pass->getRenderPass(); ///< get RenderPass from main camera pass
@@ -109,13 +118,17 @@ namespace VKernel
             ->draw(); ///< directional light pass shadow
         static_cast<PointLightShadowPass*>(m_point_light_shadow_pass.get())->draw();
 
-        FXAAPass&      fxaa_pass       = *(static_cast<FXAAPass*>(m_fxaa_pass.get()));
-        UIPass&        ui_pass         = *(static_cast<UIPass*>(m_ui_pass.get()));
-        CombineUIPass& combine_ui_pass = *(static_cast<CombineUIPass*>(m_combine_ui_pass.get()));
+        ToneMappingPass& tone_mapping_pass = *(static_cast<ToneMappingPass*>(m_tone_mapping_pass.get()));
+        FXAAPass&        fxaa_pass         = *(static_cast<FXAAPass*>(m_fxaa_pass.get()));
+        UIPass&          ui_pass           = *(static_cast<UIPass*>(m_ui_pass.get()));
+        CombineUIPass&   combine_ui_pass   = *(static_cast<CombineUIPass*>(m_combine_ui_pass.get()));
 
         static_cast<MainCameraPass*>(m_main_camera_pass.get())
-            ->drawForward(
-                fxaa_pass, ui_pass, combine_ui_pass, vulkan_api->getCurrentSwapchainImageIndex()); ///< main camera
+            ->drawForward(tone_mapping_pass,
+                          fxaa_pass,
+                          ui_pass,
+                          combine_ui_pass,
+                          vulkan_api->getCurrentSwapchainImageIndex()); ///< main camera
 
         // g_runtime_global_context.m_debugdraw_manager->draw(vulkan_api->getCurrentSwapchainImageIndex()); ///<
         // debugdraw
@@ -154,12 +167,17 @@ namespace VKernel
             ->draw(); ///< directional light pass shadow
         static_cast<PointLightShadowPass*>(m_point_light_shadow_pass.get())->draw();
 
-        FXAAPass&      fxaa_pass       = *(static_cast<FXAAPass*>(m_fxaa_pass.get()));
-        UIPass&        ui_pass         = *(static_cast<UIPass*>(m_ui_pass.get()));
-        CombineUIPass& combine_ui_pass = *(static_cast<CombineUIPass*>(m_combine_ui_pass.get()));
+        ToneMappingPass& tone_mapping_pass = *(static_cast<ToneMappingPass*>(m_tone_mapping_pass.get()));
+        FXAAPass&        fxaa_pass         = *(static_cast<FXAAPass*>(m_fxaa_pass.get()));
+        UIPass&          ui_pass           = *(static_cast<UIPass*>(m_ui_pass.get()));
+        CombineUIPass&   combine_ui_pass   = *(static_cast<CombineUIPass*>(m_combine_ui_pass.get()));
 
         static_cast<MainCameraPass*>(m_main_camera_pass.get())
-            ->draw(fxaa_pass, ui_pass, combine_ui_pass, vulkan_api->getCurrentSwapchainImageIndex()); ///< main camera
+            ->draw(tone_mapping_pass,
+                   fxaa_pass,
+                   ui_pass,
+                   combine_ui_pass,
+                   vulkan_api->getCurrentSwapchainImageIndex()); ///< main camera
 
         // g_runtime_global_context.m_debugdraw_manager->draw(vulkan_api->getCurrentSwapchainImageIndex()); ///<
         // debugdraw
@@ -170,12 +188,15 @@ namespace VKernel
 
     void RenderPipeline::passUpdateAfterRecreateSwapchain()
     {
-        MainCameraPass& main_camera_pass = *(static_cast<MainCameraPass*>(m_main_camera_pass.get()));
-        FXAAPass&       fxaa_pass        = *(static_cast<FXAAPass*>(m_fxaa_pass.get()));
-        CombineUIPass&  combine_ui_pass  = *(static_cast<CombineUIPass*>(m_combine_ui_pass.get()));
-        PickPass&       pick_pass        = *(static_cast<PickPass*>(m_pick_pass.get()));
+        MainCameraPass&  main_camera_pass  = *(static_cast<MainCameraPass*>(m_main_camera_pass.get()));
+        ToneMappingPass& tone_mapping_pass = *(static_cast<ToneMappingPass*>(m_tone_mapping_pass.get()));
+        FXAAPass&        fxaa_pass         = *(static_cast<FXAAPass*>(m_fxaa_pass.get()));
+        CombineUIPass&   combine_ui_pass   = *(static_cast<CombineUIPass*>(m_combine_ui_pass.get()));
+        PickPass&        pick_pass         = *(static_cast<PickPass*>(m_pick_pass.get()));
 
         main_camera_pass.updateAfterFramebufferRecreate();
+        tone_mapping_pass.updateAfterFramebufferRecreate(
+            main_camera_pass.getFramebufferImageViews()[_main_camera_pass_backup_buffer_odd]);
         fxaa_pass.updateAfterFramebufferRecreate(
             main_camera_pass.getFramebufferImageViews()[_main_camera_pass_backup_buffer_even]);
         combine_ui_pass.updateAfterFramebufferRecreate(

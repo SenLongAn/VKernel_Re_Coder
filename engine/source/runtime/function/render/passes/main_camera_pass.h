@@ -2,6 +2,7 @@
 
 #include "runtime/function/render/passes/combine_ui_pass.h"
 #include "runtime/function/render/passes/fxaa_pass.h"
+#include "runtime/function/render/passes/tone_mapping_pass.h"
 #include "runtime/function/render/passes/ui_pass.h"
 #include "runtime/function/render/render_pass.h"
 
@@ -49,15 +50,17 @@ namespace VKernel
 
         void preparePassData(std::shared_ptr<RenderResourceBase> render_resource) override final; ///< get other class
 
-        void draw(FXAAPass&      fxaa_pass,
-                  UIPass&        ui_pass,
-                  CombineUIPass& combine_ui_pass,
-                  uint32_t       current_swapchain_image_index); ///< deferred
+        void draw(ToneMappingPass& tone_mapping_pass,
+                  FXAAPass&        fxaa_pass,
+                  UIPass&          ui_pass,
+                  CombineUIPass&   combine_ui_pass,
+                  uint32_t         current_swapchain_image_index); ///< deferred
 
-        void drawForward(FXAAPass&      fxaa_pass,
-                         UIPass&        ui_pass,
-                         CombineUIPass& combine_ui_pass,
-                         uint32_t       current_swapchain_image_index); ///< forward
+        void drawForward(ToneMappingPass& tone_mapping_pass,
+                         FXAAPass&        fxaa_pass,
+                         UIPass&          ui_pass,
+                         CombineUIPass&   combine_ui_pass,
+                         uint32_t         current_swapchain_image_index); ///< forward
 
         void updateAfterFramebufferRecreate(); ///< recreate framebuffer
 
