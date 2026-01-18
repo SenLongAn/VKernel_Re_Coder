@@ -21,6 +21,7 @@ namespace VKernel
         m_main_camera_pass        = std::make_shared<MainCameraPass>();
         m_ui_pass                 = std::make_shared<UIPass>();
         m_combine_ui_pass         = std::make_shared<CombineUIPass>();
+        m_fxaa_pass               = std::make_shared<FXAAPass>();
         m_pick_pass               = std::make_shared<PickPass>();
 
         // init info
@@ -33,6 +34,7 @@ namespace VKernel
         m_main_camera_pass->setCommonInfo(pass_common_info);
         m_ui_pass->setCommonInfo(pass_common_info);
         m_combine_ui_pass->setCommonInfo(pass_common_info);
+        m_fxaa_pass->setCommonInfo(pass_common_info);
         m_pick_pass->setCommonInfo(pass_common_info);
 
         // init
@@ -68,6 +70,12 @@ namespace VKernel
 
         PickPassInitInfo pick_init_info;
         m_pick_pass->initialize(&pick_init_info);
+
+        FXAAPassInitInfo fxaa_init_info;
+        fxaa_init_info.render_pass = _main_camera_pass->getRenderPass();
+        fxaa_init_info.input_attachment =
+            _main_camera_pass->getFramebufferImageViews()[_main_camera_pass_backup_buffer_even];
+        m_fxaa_pass->initialize(&fxaa_init_info);
     }
 
     void RenderPipeline::forwardRender(std::shared_ptr<VulkanAPI>          vulkan_api,
@@ -101,11 +109,13 @@ namespace VKernel
             ->draw(); ///< directional light pass shadow
         static_cast<PointLightShadowPass*>(m_point_light_shadow_pass.get())->draw();
 
+        FXAAPass&      fxaa_pass       = *(static_cast<FXAAPass*>(m_fxaa_pass.get()));
         UIPass&        ui_pass         = *(static_cast<UIPass*>(m_ui_pass.get()));
         CombineUIPass& combine_ui_pass = *(static_cast<CombineUIPass*>(m_combine_ui_pass.get()));
 
         static_cast<MainCameraPass*>(m_main_camera_pass.get())
-            ->drawForward(ui_pass, combine_ui_pass, vulkan_api->getCurrentSwapchainImageIndex()); ///< main camera
+            ->drawForward(
+                fxaa_pass, ui_pass, combine_ui_pass, vulkan_api->getCurrentSwapchainImageIndex()); ///< main camera
 
         // g_runtime_global_context.m_debugdraw_manager->draw(vulkan_api->getCurrentSwapchainImageIndex()); ///<
         // debugdraw
@@ -144,11 +154,12 @@ namespace VKernel
             ->draw(); ///< directional light pass shadow
         static_cast<PointLightShadowPass*>(m_point_light_shadow_pass.get())->draw();
 
+        FXAAPass&      fxaa_pass       = *(static_cast<FXAAPass*>(m_fxaa_pass.get()));
         UIPass&        ui_pass         = *(static_cast<UIPass*>(m_ui_pass.get()));
         CombineUIPass& combine_ui_pass = *(static_cast<CombineUIPass*>(m_combine_ui_pass.get()));
 
         static_cast<MainCameraPass*>(m_main_camera_pass.get())
-            ->draw(ui_pass, combine_ui_pass, vulkan_api->getCurrentSwapchainImageIndex()); ///< main camera
+            ->draw(fxaa_pass, ui_pass, combine_ui_pass, vulkan_api->getCurrentSwapchainImageIndex()); ///< main camera
 
         // g_runtime_global_context.m_debugdraw_manager->draw(vulkan_api->getCurrentSwapchainImageIndex()); ///<
         // debugdraw
@@ -160,10 +171,13 @@ namespace VKernel
     void RenderPipeline::passUpdateAfterRecreateSwapchain()
     {
         MainCameraPass& main_camera_pass = *(static_cast<MainCameraPass*>(m_main_camera_pass.get()));
+        FXAAPass&       fxaa_pass        = *(static_cast<FXAAPass*>(m_fxaa_pass.get()));
         CombineUIPass&  combine_ui_pass  = *(static_cast<CombineUIPass*>(m_combine_ui_pass.get()));
         PickPass&       pick_pass        = *(static_cast<PickPass*>(m_pick_pass.get()));
 
         main_camera_pass.updateAfterFramebufferRecreate();
+        fxaa_pass.updateAfterFramebufferRecreate(
+            main_camera_pass.getFramebufferImageViews()[_main_camera_pass_backup_buffer_even]);
         combine_ui_pass.updateAfterFramebufferRecreate(
             main_camera_pass.getFramebufferImageViews()[_main_camera_pass_backup_buffer_odd],
             main_camera_pass.getFramebufferImageViews()[_main_camera_pass_backup_buffer_even]);
