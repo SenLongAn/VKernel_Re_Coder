@@ -56,9 +56,15 @@ namespace VKernel
         std::string         m_brdf_map;
     };
 
-    struct LevelResourceDesc ///< level
+    struct LevelColorGradingResourceDesc ///< ColorGrading
     {
-        LevelIBLResourceDesc m_ibl_resource_desc;
+        std::string m_color_grading_map;
+    };
+
+    struct LevelResourceDesc ///< level resource
+    {
+        LevelIBLResourceDesc          m_ibl_resource_desc;
+        LevelColorGradingResourceDesc m_color_grading_resource_desc;
     };
 
     class RenderSwapContext

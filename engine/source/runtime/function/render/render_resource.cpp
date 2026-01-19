@@ -79,6 +79,9 @@ namespace VKernel
 
         std::shared_ptr<TextureData> brdf_map = loadTextureHDR(level_resource_desc.m_ibl_resource_desc.m_brdf_map);
 
+        std::shared_ptr<TextureData> color_grading_map =
+            loadTexture(level_resource_desc.m_color_grading_resource_desc.m_color_grading_map);
+
         // create samplers
         createIBLSamplers(vulkan_api);
 
@@ -104,6 +107,15 @@ namespace VKernel
                                       brdf_map->m_height,
                                       brdf_map->m_pixels,
                                       brdf_map->m_format);
+
+        vulkan_api->createGlobalImage(
+            m_global_render_resource._color_grading_resource._color_grading_LUT_texture_image,
+            m_global_render_resource._color_grading_resource._color_grading_LUT_texture_image_view,
+            m_global_render_resource._color_grading_resource._color_grading_LUT_texture_image_allocation,
+            color_grading_map->m_width,
+            color_grading_map->m_height,
+            color_grading_map->m_pixels,
+            color_grading_map->m_format);
     }
 
     void RenderResource::uploadGameObjectRenderResource(std::shared_ptr<VulkanAPI> vulkan_api,

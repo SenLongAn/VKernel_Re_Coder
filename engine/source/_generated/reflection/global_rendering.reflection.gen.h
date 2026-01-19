@@ -394,6 +394,11 @@ namespace TypeFieldReflectionOparator{
         static void set_m_brdf_map(void* instance, void* field_value){ static_cast<GlobalRenderingRes*>(instance)->m_brdf_map = *static_cast<std::string*>(field_value);}
         static void* get_m_brdf_map(void* instance){ return static_cast<void*>(&(static_cast<GlobalRenderingRes*>(instance)->m_brdf_map));}
         static bool isArray_m_brdf_map(){ return false; }
+        static const char* getFieldName_m_color_grading_map(){ return "m_color_grading_map";}
+        static const char* getFieldTypeName_m_color_grading_map(){ return "std::string";}
+        static void set_m_color_grading_map(void* instance, void* field_value){ static_cast<GlobalRenderingRes*>(instance)->m_color_grading_map = *static_cast<std::string*>(field_value);}
+        static void* get_m_color_grading_map(void* instance){ return static_cast<void*>(&(static_cast<GlobalRenderingRes*>(instance)->m_color_grading_map));}
+        static bool isArray_m_color_grading_map(){ return false; }
         static const char* getFieldName_m_ambient_light(){ return "m_ambient_light";}
         static const char* getFieldTypeName_m_ambient_light(){ return "Color";}
         static void set_m_ambient_light(void* instance, void* field_value){ static_cast<GlobalRenderingRes*>(instance)->m_ambient_light = *static_cast<Color*>(field_value);}
@@ -467,6 +472,14 @@ namespace ArrayReflectionOperator{
             &TypeFieldReflectionOparator::TypeGlobalRenderingResOperator::getFieldTypeName_m_brdf_map,
             &TypeFieldReflectionOparator::TypeGlobalRenderingResOperator::isArray_m_brdf_map);
         REGISTER_FIELD_TO_MAP("GlobalRenderingRes", field_function_tuple_m_brdf_map);
+        FieldFunctionTuple* field_function_tuple_m_color_grading_map=new FieldFunctionTuple(
+            &TypeFieldReflectionOparator::TypeGlobalRenderingResOperator::set_m_color_grading_map,
+            &TypeFieldReflectionOparator::TypeGlobalRenderingResOperator::get_m_color_grading_map,
+            &TypeFieldReflectionOparator::TypeGlobalRenderingResOperator::getClassName,
+            &TypeFieldReflectionOparator::TypeGlobalRenderingResOperator::getFieldName_m_color_grading_map,
+            &TypeFieldReflectionOparator::TypeGlobalRenderingResOperator::getFieldTypeName_m_color_grading_map,
+            &TypeFieldReflectionOparator::TypeGlobalRenderingResOperator::isArray_m_color_grading_map);
+        REGISTER_FIELD_TO_MAP("GlobalRenderingRes", field_function_tuple_m_color_grading_map);
         FieldFunctionTuple* field_function_tuple_m_ambient_light=new FieldFunctionTuple(
             &TypeFieldReflectionOparator::TypeGlobalRenderingResOperator::set_m_ambient_light,
             &TypeFieldReflectionOparator::TypeGlobalRenderingResOperator::get_m_ambient_light,

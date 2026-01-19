@@ -39,6 +39,8 @@ namespace VKernel
         level_resource_desc.m_ibl_resource_desc.m_skybox_irradiance_map = global_rendering_res.m_skybox_irradiance_map;
         level_resource_desc.m_ibl_resource_desc.m_skybox_specular_map   = global_rendering_res.m_skybox_specular_map;
         level_resource_desc.m_ibl_resource_desc.m_brdf_map              = global_rendering_res.m_brdf_map;
+        level_resource_desc.m_color_grading_resource_desc.m_color_grading_map =
+            global_rendering_res.m_color_grading_map;
 
         m_render_resource = std::make_shared<RenderResource>();
         m_render_resource->uploadGlobalRenderResource(m_vulkan_api, level_resource_desc);

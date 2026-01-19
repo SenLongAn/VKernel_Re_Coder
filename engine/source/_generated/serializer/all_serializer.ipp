@@ -804,6 +804,7 @@ namespace VKernel{
         ret_context.insert_or_assign("skybox_irradiance_map", Serializer::write(instance.m_skybox_irradiance_map));
         ret_context.insert_or_assign("skybox_specular_map", Serializer::write(instance.m_skybox_specular_map));
         ret_context.insert_or_assign("brdf_map", Serializer::write(instance.m_brdf_map));
+        ret_context.insert_or_assign("color_grading_map", Serializer::write(instance.m_color_grading_map));
         ret_context.insert_or_assign("ambient_light", Serializer::write(instance.m_ambient_light));
         ret_context.insert_or_assign("camera_config", Serializer::write(instance.m_camera_config));
         ret_context.insert_or_assign("directional_light", Serializer::write(instance.m_directional_light));
@@ -827,6 +828,9 @@ namespace VKernel{
         }
         if(!json_context["brdf_map"].is_null()){
             Serializer::read(json_context["brdf_map"], instance.m_brdf_map);
+        }
+        if(!json_context["color_grading_map"].is_null()){
+            Serializer::read(json_context["color_grading_map"], instance.m_color_grading_map);
         }
         if(!json_context["ambient_light"].is_null()){
             Serializer::read(json_context["ambient_light"], instance.m_ambient_light);

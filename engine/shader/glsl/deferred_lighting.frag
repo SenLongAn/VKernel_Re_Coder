@@ -98,7 +98,8 @@ void main()
     }
 
     // gamma
-    result_color = vec3(pow(result_color.x, 1.0 / 2.2), pow(result_color.y, 1.0 / 2.2), pow(result_color.z, 1.0 / 2.2));
+    // result_color = vec3(pow(result_color.x, 1.0 / 2.2), pow(result_color.y, 1.0 / 2.2), pow(result_color.z, 1.0
+    // / 2.2));
 
     out_color = vec4(result_color, 1.0f);
 }

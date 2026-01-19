@@ -61,7 +61,7 @@ namespace VKernel
                                          uint32_t       texture_image_height,
                                          void*          texture_image_pixels,
                                          VkFormat       texture_image_format,
-                                         uint32_t       miplevels = 0);
+                                         uint32_t       miplevels = 1);
         void           createImage(uint32_t              image_width,
                                    uint32_t              image_height,
                                    VkFormat              format,

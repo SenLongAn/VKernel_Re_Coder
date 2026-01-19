@@ -55,10 +55,18 @@ namespace VKernel
         void*          _axis_inefficient_storage_buffer_memory_pointer;
     };
 
+    struct ColorGradingResource ///< color grading
+    {
+        VkImage       _color_grading_LUT_texture_image;
+        VkImageView   _color_grading_LUT_texture_image_view;
+        VmaAllocation _color_grading_LUT_texture_image_allocation;
+    };
+
     struct GlobalRenderResource
     {
-        IBLResource   _ibl_resource;
-        StorageBuffer _storage_buffer;
+        IBLResource          _ibl_resource;
+        ColorGradingResource _color_grading_resource; ///< color grading
+        StorageBuffer        _storage_buffer;
     };
 
     class RenderResource : public RenderResourceBase

@@ -64,6 +64,7 @@ namespace VKernel
         SkyBoxIrradianceMap m_skybox_irradiance_map;
         SkyBoxSpecularMap   m_skybox_specular_map;
         std::string         m_brdf_map;
+        std::string         m_color_grading_map;
 
         Color m_ambient_light;
 

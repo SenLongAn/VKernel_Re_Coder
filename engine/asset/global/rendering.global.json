@@ -7,6 +7,7 @@
     "negative_z_map": "asset/texture/sky/skybox_irradiance_Z-.hdr",
     "positive_z_map": "asset/texture/sky/skybox_irradiance_Z+.hdr"
   },
+  
   "skybox_specular_map": {
     "negative_x_map": "asset/texture/sky/skybox_specular_X-.hdr",
     "positive_x_map": "asset/texture/sky/skybox_specular_X+.hdr",
@@ -15,8 +16,11 @@
     "negative_z_map": "asset/texture/sky/skybox_specular_Z-.hdr",
     "positive_z_map": "asset/texture/sky/skybox_specular_Z+.hdr"
   },
+  
   "brdf_map": "asset/texture/global/brdf_schilk.hdr",
 
+  "color_grading_map": "asset/texture/lut/color_grading_lut_01.png",
+  
   "ambient_light": {
     "r": 0.3,
     "g": 0.3,
