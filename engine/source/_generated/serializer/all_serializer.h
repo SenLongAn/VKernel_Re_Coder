@@ -16,6 +16,7 @@
 #include "_generated/serializer/camera_component.serializer.gen.h"
 #include "_generated/serializer/mesh.serializer.gen.h"
 #include "_generated/serializer/mesh_component.serializer.gen.h"
+#include "_generated/serializer/motor_component.serializer.gen.h"
 #include "_generated/serializer/camera_config.serializer.gen.h"
 #include "_generated/serializer/transform_component.serializer.gen.h"
 #include "_generated/serializer/material.serializer.gen.h"

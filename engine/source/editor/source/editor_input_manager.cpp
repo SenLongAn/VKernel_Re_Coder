@@ -41,6 +41,7 @@ namespace ReCoder
 
     void EditorInputManager::onKey(int key, int scancode, int action, int mods)
     {
+        return;
         onKeyInEditorMode(key, scancode, action, mods);
     }
 
@@ -49,15 +50,16 @@ namespace ReCoder
         if (g_editor_global_context.m_window_system->isMouseButtonDown(GLFW_MOUSE_BUTTON_RIGHT)) ///< mouse right
         {
             float angularVelocity =
-                180.0f / VKernel::Math::max(g_editor_global_context.m_window_system->getWindowSize()[0],
-                                            g_editor_global_context.m_window_system->getWindowSize()[1]);
+                180.0f /
+                VKernel::Math::max(g_editor_global_context.m_window_system->getWindowSize()[0],
+                                   g_editor_global_context.m_window_system->getWindowSize()[1]); ///< Computing speed
 
             g_editor_global_context.m_render_system->getRenderCamera()->rotate(
-                VKernel::Vector2(ypos - m_mouse_y, xpos - m_mouse_x) * angularVelocity);
+                VKernel::Vector2(ypos - m_mouse_y, xpos - m_mouse_x) * angularVelocity); ///< camera rotate
         }
         else if (g_editor_global_context.m_window_system->isMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT)) ///< mouse left
         {
-            g_editor_global_context.m_scene_manager->moveEntity(
+            g_editor_global_context.m_scene_manager->moveEntity( ///< move entity
                 xpos,
                 ypos,
                 m_mouse_x,
@@ -67,27 +69,33 @@ namespace ReCoder
                 m_cursor_on_axis,
                 g_editor_global_context.m_scene_manager->getSelectedObjectMatrix());
         }
-        else
+        else ///< Otherwise, no clicks
         {
             if (isCursorInRect(m_engine_window_pos, m_engine_window_size)) ///< If the mouse is inside the game window
             {
                 VKernel::Vector2 cursor_uv =
                     VKernel::Vector2((m_mouse_x - m_engine_window_pos.x) / m_engine_window_size.x,
                                      (m_mouse_y - m_engine_window_pos.y) / m_engine_window_size.y); ///< Calculate uv
-                updateCursorOnAxis(cursor_uv); ///< update axis Model matrix
+                updateCursorOnAxis(cursor_uv); ///< Calculate which axis the mouse is hovering over
             }
         }
+
+        // last frame mouse xy
         m_mouse_x = xpos;
         m_mouse_y = ypos;
     }
 
     void EditorInputManager::onScroll(double xoffset, double yoffset)
     {
-        if (isCursorInRect(VKernel::Vector2(0, 0),
-                           VKernel::Vector2(g_editor_global_context.m_window_system->getWindowSize()[0],
-                                            g_editor_global_context.m_window_system->getWindowSize()[1])))
+        if (isCursorInRect(
+                VKernel::Vector2(0, 0),
+                VKernel::Vector2(
+                    g_editor_global_context.m_window_system->getWindowSize()[0],
+                    g_editor_global_context.m_window_system->getWindowSize()[1]))) ///< The mouse is inside the window
         {
-            if (g_editor_global_context.m_window_system->isMouseButtonDown(GLFW_MOUSE_BUTTON_RIGHT))
+            if (g_editor_global_context.m_window_system->isMouseButtonDown(
+                    GLFW_MOUSE_BUTTON_RIGHT)) ///< Press both the right mouse button and the scroll wheel at the same
+                                              ///< time, Adjust movement speed
             {
                 if (yoffset > 0)
                 {
@@ -98,7 +106,7 @@ namespace ReCoder
                     m_camera_speed *= 0.8f;
                 }
             }
-            else
+            else ///< Otherwise, adjust the FOV size
             {
                 g_editor_global_context.m_scene_manager->getEditorCamera()->zoom((float)yoffset * 2.0f);
             }
@@ -110,7 +118,7 @@ namespace ReCoder
         if (m_cursor_on_axis != 3)
             return;
 
-        // Are there any active levels?
+        // Are there any active levels
         std::shared_ptr<VKernel::Level> current_active_level =
             VKernel::g_runtime_global_context.m_world_manager->getCurrentActiveLevel().lock();
         if (current_active_level == nullptr)

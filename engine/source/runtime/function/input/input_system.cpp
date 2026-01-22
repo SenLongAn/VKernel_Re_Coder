@@ -1,9 +1,10 @@
 #include "runtime/function/input/input_system.h"
 
 #include "runtime/function/global/global_context.h"
-#include "runtime/function/render/window_system.h"
-#include "runtime/function/render/render_system.h"
 #include "runtime/function/render/render_camera.h"
+#include "runtime/function/render/render_system.h"
+#include "runtime/function/render/window_system.h"
+
 
 namespace VKernel
 {
@@ -33,6 +34,7 @@ namespace VKernel
 
     void InputSystem::clear()
     {
+        // clear
         m_cursor_delta_x = 0;
         m_cursor_delta_y = 0;
     }
@@ -59,40 +61,40 @@ namespace VKernel
         {
             switch (key)
             {
-            case GLFW_KEY_A:
-                m_game_command |= (unsigned int)GameCommand::left;
-                break;
-            case GLFW_KEY_S:
-                m_game_command |= (unsigned int)GameCommand::backward;
-                break;
-            case GLFW_KEY_W:
-                m_game_command |= (unsigned int)GameCommand::forward;
-                break;
-            case GLFW_KEY_D:
-                m_game_command |= (unsigned int)GameCommand::right;
-                break;
-            default:
-                break;
+                case GLFW_KEY_A:
+                    m_game_command |= (unsigned int)GameCommand::left;
+                    break;
+                case GLFW_KEY_S:
+                    m_game_command |= (unsigned int)GameCommand::backward;
+                    break;
+                case GLFW_KEY_W:
+                    m_game_command |= (unsigned int)GameCommand::forward;
+                    break;
+                case GLFW_KEY_D:
+                    m_game_command |= (unsigned int)GameCommand::right;
+                    break;
+                default:
+                    break;
             }
         }
         else if (action == GLFW_RELEASE) ///< release
         {
             switch (key)
             {
-            case GLFW_KEY_W:
-                m_game_command &= (k_complement_control_command ^ (unsigned int)GameCommand::forward);
-                break;
-            case GLFW_KEY_S:
-                m_game_command &= (k_complement_control_command ^ (unsigned int)GameCommand::backward);
-                break;
-            case GLFW_KEY_A:
-                m_game_command &= (k_complement_control_command ^ (unsigned int)GameCommand::left);
-                break;
-            case GLFW_KEY_D:
-                m_game_command &= (k_complement_control_command ^ (unsigned int)GameCommand::right);
-                break;
-            default:
-                break;
+                case GLFW_KEY_W:
+                    m_game_command &= (k_complement_control_command ^ (unsigned int)GameCommand::forward);
+                    break;
+                case GLFW_KEY_S:
+                    m_game_command &= (k_complement_control_command ^ (unsigned int)GameCommand::backward);
+                    break;
+                case GLFW_KEY_A:
+                    m_game_command &= (k_complement_control_command ^ (unsigned int)GameCommand::left);
+                    break;
+                case GLFW_KEY_D:
+                    m_game_command &= (k_complement_control_command ^ (unsigned int)GameCommand::right);
+                    break;
+                default:
+                    break;
             }
         }
     }
@@ -109,14 +111,14 @@ namespace VKernel
 
         // get camera fov
         std::shared_ptr<RenderCamera> render_camera = g_runtime_global_context.m_render_system->getRenderCamera();
-        const Vector2 &fov = render_camera->getFOV();
+        const Vector2&                fov           = render_camera->getFOV();
 
-        // transition
+        // degrees To Radians
         Radian cursor_delta_x(Math::degreesToRadians(m_cursor_delta_x));
         Radian cursor_delta_y(Math::degreesToRadians(m_cursor_delta_y));
 
-        // Calculate based on the geometric ratio relationship.
-        m_cursor_delta_yaw = (cursor_delta_x / (float)window_size[0]) * fov.x;
+        // Calculate Radians
+        m_cursor_delta_yaw   = (cursor_delta_x / (float)window_size[0]) * fov.x;
         m_cursor_delta_pitch = -(cursor_delta_y / (float)window_size[1]) * fov.y;
     }
-}
+} // namespace VKernel

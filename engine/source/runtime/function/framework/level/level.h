@@ -11,6 +11,7 @@
  */
 namespace VKernel
 {
+    class Character;
     class GObject;
     class ObjectInstanceRes;
 
@@ -29,7 +30,9 @@ namespace VKernel
 
         GObjectID createObject(const ObjectInstanceRes& object_instance_res);
 
-        const std::string& getLevelResUrl() const { return m_level_res_url; } ///< get level url
+        // get
+        const std::string&       getLevelResUrl() const { return m_level_res_url; } ///< get level url
+        std::weak_ptr<Character> getCurrentActiveCharacter() const { return m_current_active_character; }
 
         bool save(); ///< save
 
@@ -43,6 +46,9 @@ namespace VKernel
         LevelObjectsMap m_gobjects; ///< all loaded objects: id, object
 
         bool m_is_loaded {false}; ///< Has the level been loaded
+
+        std::shared_ptr<Character> m_current_active_character; ///< character
+
     protected:
         void clear(); ///< clear
     };

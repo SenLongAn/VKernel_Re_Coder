@@ -8,6 +8,7 @@
 #include "_generated/reflection/vector3.reflection.gen.h"
 #include "_generated/reflection/matrix4.reflection.gen.h"
 #include "_generated/reflection/vector2.reflection.gen.h"
+#include "_generated/reflection/motor_component.reflection.gen.h"
 #include "_generated/reflection/color.reflection.gen.h"
 #include "_generated/reflection/object.reflection.gen.h"
 #include "_generated/reflection/vector4.reflection.gen.h"
@@ -32,6 +33,7 @@ namespace Reflection{
         TypeWrappersRegister::Vector3();
         TypeWrappersRegister::Matrix4();
         TypeWrappersRegister::Vector2();
+        TypeWrappersRegister::MotorComponent();
         TypeWrappersRegister::Color();
         TypeWrappersRegister::Object();
         TypeWrappersRegister::Vector4();

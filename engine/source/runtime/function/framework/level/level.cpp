@@ -5,6 +5,7 @@
 #include "runtime/resource/res_type/common/level.h"
 
 #include "runtime/core/base/macro.h"
+#include "runtime/function/character/character.h"
 #include "runtime/function/framework/object/object.h"
 #include "runtime/function/global/global_context.h"
 
@@ -31,6 +32,20 @@ namespace VKernel
         for (const ObjectInstanceRes& object_instance_res : level_res.m_objects)
         {
             createObject(object_instance_res);
+        }
+
+        // create active character
+        for (const auto& object_pair : m_gobjects) ///< Iterate through each object
+        {
+            std::shared_ptr<GObject> object = object_pair.second;
+            if (object == nullptr)
+                continue;
+
+            if (level_res.m_character_name == object->getName()) ///< If the player is found
+            {
+                m_current_active_character = std::make_shared<Character>(object);
+                break;
+            }
         }
 
         m_is_loaded = true;
@@ -117,5 +132,9 @@ namespace VKernel
         return std::weak_ptr<GObject>();
     }
 
-    void Level::clear() { m_gobjects.clear(); }
+    void Level::clear()
+    {
+        m_current_active_character.reset();
+        m_gobjects.clear();
+    }
 } // namespace VKernel

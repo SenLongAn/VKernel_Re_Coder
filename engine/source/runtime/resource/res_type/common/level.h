@@ -13,6 +13,8 @@ namespace VKernel
         REFLECTION_BODY(LevelRes);
 
     public:
+        std::string m_character_name;
+
         std::vector<ObjectInstanceRes> m_objects;
     };
 } // namespace VKernel

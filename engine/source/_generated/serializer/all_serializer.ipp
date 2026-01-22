@@ -6,6 +6,7 @@
 #include "_generated/serializer/vector3.serializer.gen.h"
 #include "_generated/serializer/matrix4.serializer.gen.h"
 #include "_generated/serializer/vector2.serializer.gen.h"
+#include "_generated/serializer/motor_component.serializer.gen.h"
 #include "_generated/serializer/color.serializer.gen.h"
 #include "_generated/serializer/object.serializer.gen.h"
 #include "_generated/serializer/vector4.serializer.gen.h"
@@ -24,6 +25,7 @@ namespace VKernel{
     Json Serializer::write(const LevelRes& instance){
         Json::object  ret_context;
         
+        ret_context.insert_or_assign("character_name", Serializer::write(instance.m_character_name));
         Json::array m_objects_json;
         for (auto& item : instance.m_objects){
             m_objects_json.emplace_back(Serializer::write(item));
@@ -36,6 +38,9 @@ namespace VKernel{
     LevelRes& Serializer::read(const Json& json_context, LevelRes& instance){
         assert(json_context.is_object());
         
+        if(!json_context["character_name"].is_null()){
+            Serializer::read(json_context["character_name"], instance.m_character_name);
+        }
         if(!json_context["objects"].is_null()){
             assert(json_context["objects"].is_array());
             Json::array array_m_objects = json_context["objects"].array_items();
@@ -254,6 +259,23 @@ namespace VKernel{
         if(!json_context["y"].is_null()){
             Serializer::read(json_context["y"], instance.y);
         }
+        return instance;
+    }
+    template<>
+    Json Serializer::write(const MotorComponent& instance){
+        Json::object  ret_context;
+        auto&&  json_context_0 = Serializer::write(*(VKernel::Component*)&instance);
+        assert(json_context_0.is_object());
+        auto&& json_context_map_0 = json_context_0.object_items();
+        ret_context.insert(json_context_map_0.begin() , json_context_map_0.end());
+        
+        return  Json(ret_context);
+    }
+    template<>
+    MotorComponent& Serializer::read(const Json& json_context, MotorComponent& instance){
+        assert(json_context.is_object());
+        Serializer::read(json_context,*(VKernel::Component*)&instance);
+        
         return instance;
     }
     template<>

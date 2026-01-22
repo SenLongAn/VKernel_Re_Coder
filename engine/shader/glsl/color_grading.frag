@@ -17,19 +17,20 @@ void main()
 
     highp vec4 color = subpassLoad(in_color).rgba;
 
-    // out_color = color;
+    out_color = color;
 
-    highp float b = color.b * _COLORS; ///< Calculation Layer
+    // highp float b = color.b * _COLORS; ///< Calculation Layer
 
-    // Upper and lower levels
-    highp float b_floor = floor(b);
-    highp float b_ceil  = ceil(b);
+    // // Upper and lower levels
+    // highp float b_floor = floor(b);
+    // highp float b_ceil  = ceil(b);
 
-    // sampler color
-    highp vec4 color_floor = texture(color_grading_lut_texture_sampler, vec2((b_floor + color.r) / _COLORS, color.g));
+    // // sampler color
+    // highp vec4 color_floor = texture(color_grading_lut_texture_sampler, vec2((b_floor + color.r) / _COLORS,
+    // color.g));
 
-    highp vec4 color_ceil = texture(color_grading_lut_texture_sampler, vec2((b_ceil + color.r) / _COLORS, color.g));
+    // highp vec4 color_ceil = texture(color_grading_lut_texture_sampler, vec2((b_ceil + color.r) / _COLORS, color.g));
 
-    // Linear interpolation
-    out_color = mix(color_floor, color_ceil, b - b_floor);
+    // // Linear interpolation
+    // out_color = mix(color_floor, color_ceil, b - b_floor);
 }
