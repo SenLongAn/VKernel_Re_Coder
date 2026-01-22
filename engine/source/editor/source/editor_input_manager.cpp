@@ -3,6 +3,7 @@
 #include "editor/include/editor_global_context.h"
 #include "editor/include/editor_scene_manager.h"
 
+#include "runtime/engine.h"
 #include "runtime/function/framework/component/transform/transform_component.h"
 #include "runtime/function/framework/level/level.h"
 #include "runtime/function/framework/world/world_manager.h"
@@ -41,12 +42,17 @@ namespace ReCoder
 
     void EditorInputManager::onKey(int key, int scancode, int action, int mods)
     {
-        return;
+        if (!VKernel::g_is_editor_mode)
+            return;
+
         onKeyInEditorMode(key, scancode, action, mods);
     }
 
     void EditorInputManager::onCursorPos(double xpos, double ypos)
     {
+        if (!VKernel::g_is_editor_mode)
+            return;
+
         if (g_editor_global_context.m_window_system->isMouseButtonDown(GLFW_MOUSE_BUTTON_RIGHT)) ///< mouse right
         {
             float angularVelocity =
@@ -87,6 +93,9 @@ namespace ReCoder
 
     void EditorInputManager::onScroll(double xoffset, double yoffset)
     {
+        if (!VKernel::g_is_editor_mode)
+            return;
+
         if (isCursorInRect(
                 VKernel::Vector2(0, 0),
                 VKernel::Vector2(
@@ -115,6 +124,9 @@ namespace ReCoder
 
     void EditorInputManager::onMouseButtonClicked(int key, int action)
     {
+        if (!VKernel::g_is_editor_mode)
+            return;
+
         if (m_cursor_on_axis != 3)
             return;
 

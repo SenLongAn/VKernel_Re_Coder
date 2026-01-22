@@ -13,7 +13,8 @@ namespace VKernel
         void setObject(std::shared_ptr<GObject> gobject);
 
         // get
-        GObjectID getObjectID() const;
+        GObjectID              getObjectID() const;
+        std::weak_ptr<GObject> getObject() const { return m_character_object; }
 
     private:
         std::shared_ptr<GObject> m_character_object;

@@ -13,6 +13,7 @@ namespace ReCoder
 namespace VKernel
 {
 
+    extern bool g_is_editor_mode;
     class VKernelEngine ///< Engine
     {
 

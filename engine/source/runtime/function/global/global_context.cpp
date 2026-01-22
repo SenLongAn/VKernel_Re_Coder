@@ -13,6 +13,8 @@
 
 #include "runtime/function/input/input_system.h"
 
+#include <iostream>
+
 namespace VKernel
 {
     RuntimeGlobalContext g_runtime_global_context; ///< instance

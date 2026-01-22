@@ -9,7 +9,6 @@
 #include "runtime/function/framework/object/object.h"
 #include "runtime/function/global/global_context.h"
 
-
 #include "level.h"
 #include <iostream>
 #include <limits>
@@ -98,6 +97,8 @@ namespace VKernel
         const size_t                    object_cout    = m_gobjects.size();
         std::vector<ObjectInstanceRes>& output_objects = output_level_res.m_objects;
         output_objects.resize(object_cout);
+
+        output_level_res.m_character_name = m_current_active_character->getObject().lock()->getName();
 
         // Iterate over all objects in the level
         size_t object_index = 0;

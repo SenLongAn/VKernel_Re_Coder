@@ -11,8 +11,11 @@
 
 #include "runtime/core/meta/reflection/reflection_register.h"
 
+#include <iostream>
+
 namespace VKernel
 {
+    bool g_is_editor_mode {false};
 
     void VKernelEngine::startEngine(const std::string& config_file_path)
     {

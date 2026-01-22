@@ -11,9 +11,10 @@
 #include "runtime/function/render/render_scene.h"
 #include "runtime/function/render/vulkan_interface/vulkan_api.h"
 
-#include "render_system.h"
 #include "runtime/resource/asset_manager/asset_manager.h"
 #include "runtime/resource/config_manager/config_manager.h"
+
+#include <iostream>
 
 namespace VKernel
 {

@@ -14,6 +14,7 @@ int main(int argc, char** argv)
 
     VKernel::VKernelEngine* engine = new VKernel::VKernelEngine();
     engine->startEngine(config_file_path.generic_string());
+
     ReCoder::ReCoderEditor* editor = new ReCoder::ReCoderEditor();
     editor->initialize(engine);
 

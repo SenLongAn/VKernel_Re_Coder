@@ -1,10 +1,12 @@
 #include "runtime/function/input/input_system.h"
 
+#include <GLFW/glfw3.h>
+
+#include "runtime/engine.h"
 #include "runtime/function/global/global_context.h"
 #include "runtime/function/render/render_camera.h"
 #include "runtime/function/render/render_system.h"
 #include "runtime/function/render/window_system.h"
-
 
 namespace VKernel
 {
@@ -41,11 +43,17 @@ namespace VKernel
 
     void InputSystem::onKey(int key, int scancode, int action, int mods)
     {
+        if (g_is_editor_mode)
+            return;
+
         onKeyInGameMode(key, scancode, action, mods);
     }
 
     void InputSystem::onCursorPos(double current_cursor_x, double current_cursor_y)
     {
+        if (g_is_editor_mode)
+            return;
+
         // calculate xy delta
         m_cursor_delta_x = m_last_cursor_x - current_cursor_x;
         m_cursor_delta_y = m_last_cursor_y - current_cursor_y;

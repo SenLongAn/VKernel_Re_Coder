@@ -45,7 +45,7 @@ namespace ReCoder
         }
         if (selected_object.use_count())
         {
-            std::cout << "select_mesh_id: " << selected_object.lock()->getID() << std::endl;
+            // std::cout << "select_mesh_id: " << selected_object.lock()->getID() << std::endl;
         }
         return selected_object;
     }

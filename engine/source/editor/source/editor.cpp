@@ -15,7 +15,8 @@ namespace ReCoder
 
     void ReCoderEditor::initialize(VKernel::VKernelEngine* engine_runtime)
     {
-        m_engine_runtime = engine_runtime;
+        VKernel::g_is_editor_mode = true;
+        m_engine_runtime          = engine_runtime;
 
         // init global context
         EditorGlobalContextInitInfo init_info = {VKernel::g_runtime_global_context.m_window_system.get(),

@@ -51,7 +51,10 @@ namespace VKernel
         texture->m_pixels = stbi_loadf(file.c_str(), &iw, &ih, &n, desired_channels);
 
         if (!texture->m_pixels)
+        {
+            std::cout << "Loading failed" << std::endl;
             return nullptr;
+        }
 
         texture->m_width  = iw;
         texture->m_height = ih;

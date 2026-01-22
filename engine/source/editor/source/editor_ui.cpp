@@ -819,6 +819,44 @@ namespace ReCoder
 
             drawAxisToggleButton("Scale", scale_button_ckecked, (int)EditorAxisMode::ScaleMode);
 
+            // editor or game mode
+            ImGui::SameLine();
+
+            // Application Interval
+            float indent_val = 0.0f;
+            float x_scale, y_scale;
+            glfwGetWindowContentScale(g_editor_global_context.m_window_system->getWindow(), &x_scale, &y_scale);
+            float indent_scale = fmaxf(1.0f, fmaxf(x_scale, y_scale));
+            indent_val = g_editor_global_context.m_input_manager->getEngineWindowSize().x - 100.0f * indent_scale;
+            ImGui::Indent(indent_val);
+
+            if (VKernel::g_is_editor_mode)
+            {
+                ImGui::PushID("Editor Mode");
+                if (ImGui::Button("Editor Mode")) ///< button
+                {
+                    // When clicked
+                    VKernel::g_is_editor_mode = false; ///< bool
+                    // g_editor_global_context.m_scene_manager->drawSelectedEntityAxis();
+                    // g_editor_global_context.m_input_manager->resetEditorCommand();
+                    // g_editor_global_context.m_window_system->setFocusMode(true);
+                }
+                ImGui::PopID();
+            }
+            else
+            {
+                if (ImGui::Button("Game Mode")) ///< button
+                {
+                    // When clicked
+                    VKernel::g_is_editor_mode = true;
+                    // g_editor_global_context.m_scene_manager->drawSelectedEntityAxis();
+                    // g_runtime_global_context.m_input_system->resetGameCommand();
+                    // g_editor_global_context.m_render_system->getRenderCamera()->setMainViewMatrix(
+                    //     g_editor_global_context.m_scene_manager->getEditorCamera()->getViewMatrix());
+                }
+            }
+
+            // pop
             ImGui::Unindent();
             ImGui::EndMenuBar();
         }
