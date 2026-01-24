@@ -8,10 +8,12 @@
 #include "runtime/function/framework/level/level.h"
 #include "runtime/function/framework/world/world_manager.h"
 #include "runtime/function/global/global_context.h"
+#include "runtime/function/input/input_system.h"
 #include "runtime/function/render/render_system.h"
 #include "runtime/platform/path/path.h"
 #include "runtime/resource/asset_manager/asset_manager.h"
 #include "runtime/resource/config_manager/config_manager.h"
+
 
 #include "runtime/function/render/window_system.h"
 
@@ -837,8 +839,8 @@ namespace ReCoder
                 {
                     // When clicked
                     VKernel::g_is_editor_mode = false; ///< bool
-                    // g_editor_global_context.m_scene_manager->drawSelectedEntityAxis();
-                    // g_editor_global_context.m_input_manager->resetEditorCommand();
+                    g_editor_global_context.m_scene_manager->drawSelectedEntityAxis();
+                    g_editor_global_context.m_input_manager->resetEditorCommand();
                     // g_editor_global_context.m_window_system->setFocusMode(true);
                 }
                 ImGui::PopID();
@@ -849,8 +851,8 @@ namespace ReCoder
                 {
                     // When clicked
                     VKernel::g_is_editor_mode = true;
-                    // g_editor_global_context.m_scene_manager->drawSelectedEntityAxis();
-                    // g_runtime_global_context.m_input_system->resetGameCommand();
+                    g_editor_global_context.m_scene_manager->drawSelectedEntityAxis();
+                    VKernel::g_runtime_global_context.m_input_system->resetGameCommand();
                     // g_editor_global_context.m_render_system->getRenderCamera()->setMainViewMatrix(
                     //     g_editor_global_context.m_scene_manager->getEditorCamera()->getViewMatrix());
                 }

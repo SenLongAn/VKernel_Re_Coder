@@ -41,6 +41,8 @@ namespace ReCoder
 
         void updateCursorOnAxis(VKernel::Vector2 cursor_uv);
 
+        void resetEditorCommand() { m_editor_command = 0; }
+
     private:
         // mouse data
         float m_mouse_x {0.0f};

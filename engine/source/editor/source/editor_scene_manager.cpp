@@ -1,12 +1,14 @@
 #include "editor/include/editor_scene_manager.h"
 
 #include "editor/include/editor_global_context.h"
+#include "runtime/engine.h"
 #include "runtime/function/framework/component/transform/transform_component.h"
 #include "runtime/function/framework/level/level.h"
 #include "runtime/function/framework/world/world_manager.h"
 #include "runtime/function/global/global_context.h"
 #include "runtime/function/render/render_camera.h"
 #include "runtime/function/render/render_system.h"
+
 
 #include <iostream>
 
@@ -133,7 +135,7 @@ namespace ReCoder
     {
         std::shared_ptr<VKernel::GObject> selected_object = getSelectedGObject().lock(); ///< get selected object
 
-        if (selected_object != nullptr)
+        if (VKernel::g_is_editor_mode && selected_object != nullptr)
         {
             // get selected object TransformComponent
             VKernel::TransformComponent* transform_component =
