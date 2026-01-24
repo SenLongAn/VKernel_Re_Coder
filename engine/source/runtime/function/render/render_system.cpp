@@ -339,6 +339,16 @@ namespace VKernel
                 m_render_camera->setFOVx(*swap_data.m_camera_swap_data->m_fov_x);
             }
 
+            if (swap_data.m_camera_swap_data->m_view_matrix.has_value())
+            {
+                m_render_camera->setMainViewMatrix(*swap_data.m_camera_swap_data->m_view_matrix);
+            }
+
+            if (swap_data.m_camera_swap_data->m_camera_type.has_value())
+            {
+                m_render_camera->setCurrentCameraType(*swap_data.m_camera_swap_data->m_camera_type);
+            }
+
             m_swap_context.resetCameraSwapData();
         }
     }

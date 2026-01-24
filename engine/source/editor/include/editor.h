@@ -17,6 +17,8 @@ namespace ReCoder
     {
 
     public:
+        ReCoderEditor();
+
         void initialize(VKernel::VKernelEngine* engine_runtime); ///< init
         void run();                                              ///< run
         void clear();                                            ///< clear

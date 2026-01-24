@@ -14,6 +14,7 @@
 #include "_generated/serializer/axis_aligned.serializer.gen.h"
 #include "_generated/serializer/component.serializer.gen.h"
 #include "_generated/serializer/render_object.serializer.gen.h"
+#include "_generated/serializer/camera.serializer.gen.h"
 #include "_generated/serializer/camera_component.serializer.gen.h"
 #include "_generated/serializer/mesh.serializer.gen.h"
 #include "_generated/serializer/mesh_component.serializer.gen.h"

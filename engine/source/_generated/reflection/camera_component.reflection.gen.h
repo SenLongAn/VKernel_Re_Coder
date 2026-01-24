@@ -26,7 +26,11 @@ namespace TypeFieldReflectionOparator{
             return count;
         }
         // fields
-        
+        static const char* getFieldName_m_camera_res(){ return "m_camera_res";}
+        static const char* getFieldTypeName_m_camera_res(){ return "CameraComponentRes";}
+        static void set_m_camera_res(void* instance, void* field_value){ static_cast<CameraComponent*>(instance)->m_camera_res = *static_cast<CameraComponentRes*>(field_value);}
+        static void* get_m_camera_res(void* instance){ return static_cast<void*>(&(static_cast<CameraComponent*>(instance)->m_camera_res));}
+        static bool isArray_m_camera_res(){ return false; }
 
         // methods
         
@@ -35,7 +39,14 @@ namespace TypeFieldReflectionOparator{
 
 
     void TypeWrapperRegister_CameraComponent(){
-        
+        FieldFunctionTuple* field_function_tuple_m_camera_res=new FieldFunctionTuple(
+            &TypeFieldReflectionOparator::TypeCameraComponentOperator::set_m_camera_res,
+            &TypeFieldReflectionOparator::TypeCameraComponentOperator::get_m_camera_res,
+            &TypeFieldReflectionOparator::TypeCameraComponentOperator::getClassName,
+            &TypeFieldReflectionOparator::TypeCameraComponentOperator::getFieldName_m_camera_res,
+            &TypeFieldReflectionOparator::TypeCameraComponentOperator::getFieldTypeName_m_camera_res,
+            &TypeFieldReflectionOparator::TypeCameraComponentOperator::isArray_m_camera_res);
+        REGISTER_FIELD_TO_MAP("CameraComponent", field_function_tuple_m_camera_res);
 
         
         

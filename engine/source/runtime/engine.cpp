@@ -15,7 +15,8 @@
 
 namespace VKernel
 {
-    bool g_is_editor_mode {false};
+    bool                            g_is_editor_mode {false};
+    std::unordered_set<std::string> g_editor_tick_component_types {}; ///< Component that only runs in editor mode
 
     void VKernelEngine::startEngine(const std::string& config_file_path)
     {

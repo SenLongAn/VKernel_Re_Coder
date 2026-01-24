@@ -9,6 +9,12 @@
  */
 namespace VKernel
 {
+    enum class RenderCameraType : int ///< camera type: editor or motor
+    {
+        Editor,
+        Motor
+    };
+
     class CameraConfig;
     class RenderCamera
     {
@@ -33,7 +39,8 @@ namespace VKernel
 
         // set
         void setFOVx(float fovx) { m_fovx = fovx; }
-        void setMainViewMatrix(const Matrix4x4& view_matrix);
+        void setCurrentCameraType(RenderCameraType type);
+        void setMainViewMatrix(const Matrix4x4& view_matrix, RenderCameraType type = RenderCameraType::Editor);
         void lookAt(const Vector3& position, const Vector3& target, const Vector3& up);
         void setAspect(float aspect);
         void setZNear(float znear) { m_znear = znear; }
@@ -48,6 +55,12 @@ namespace VKernel
 
     protected:
         std::mutex m_view_matrix_mutex; ///< mutex
+
+        RenderCameraType m_current_camera_type {RenderCameraType::Editor}; ///< camera type
+
+        static constexpr int MAIN_VIEW_MATRIX_INDEX {0}; ///< array index
+
+        std::vector<Matrix4x4> m_view_matrices {Matrix4x4::IDENTITY}; ///< VP matrix
 
         // Camera properties
         static const Vector3 X, Y, Z;

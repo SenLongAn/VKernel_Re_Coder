@@ -5,9 +5,11 @@
 #include "runtime/resource/res_type/common/level.h"
 
 #include "runtime/core/base/macro.h"
+#include "runtime/engine.h"
 #include "runtime/function/character/character.h"
 #include "runtime/function/framework/object/object.h"
 #include "runtime/function/global/global_context.h"
+
 
 #include "level.h"
 #include <iostream>
@@ -68,6 +70,12 @@ namespace VKernel
             {
                 id_object_pair.second->tick(delta_time);
             }
+        }
+
+        // update character
+        if (m_current_active_character && !g_is_editor_mode)
+        {
+            m_current_active_character->tick(delta_time);
         }
     }
 

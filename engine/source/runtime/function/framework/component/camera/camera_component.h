@@ -5,6 +5,7 @@
 #include "runtime/core/math/vector3.h"
 
 #include "runtime/function/render/render_object.h"
+#include "runtime/resource/res_type/components/camera.h"
 
 /**
  * camera component
@@ -23,8 +24,15 @@ namespace VKernel
         void tick(float delta_time) override; ///< tick
 
     private:
-        // camera attribute
-        Vector3 m_position {0.0f, 0.0f, 0.0f};
+        // update
+        void tickThirdPersonCamera(float delta_time);
+
+    private:
+        META(Enable)
+        CameraComponentRes m_camera_res;
+
+        Vector3 m_position {0.0f, 0.0f, 0.0f}; ///< last frame camera position
+
         Vector3 m_forward {Vector3::NEGATIVE_UNIT_Y};
         Vector3 m_up {Vector3::UNIT_Z};
         Vector3 m_left {Vector3::UNIT_X};

@@ -11,7 +11,17 @@ namespace VKernel
 
         // Construct a matrix based on the camera attributes
         auto view_matrix = Matrix4x4::IDENTITY;
-        view_matrix      = Math::makeLookAtMatrix(position(), position() + forward(), up());
+        switch (m_current_camera_type)
+        {
+            case RenderCameraType::Editor:
+                view_matrix = Math::makeLookAtMatrix(position(), position() + forward(), up());
+                break;
+            case RenderCameraType::Motor:
+                view_matrix = m_view_matrices[MAIN_VIEW_MATRIX_INDEX];
+                break;
+            default:
+                break;
+        }
         return view_matrix;
     }
 
@@ -24,9 +34,19 @@ namespace VKernel
         return proj_mat;
     }
 
-    void RenderCamera::setMainViewMatrix(const Matrix4x4& view_matrix)
+    void RenderCamera::setCurrentCameraType(RenderCameraType type)
     {
         std::lock_guard<std::mutex> lock_guard(m_view_matrix_mutex);
+        m_current_camera_type = type;
+    }
+
+    void RenderCamera::setMainViewMatrix(const Matrix4x4& view_matrix, RenderCameraType type)
+    {
+        std::lock_guard<std::mutex> lock_guard(m_view_matrix_mutex);
+
+        // set
+        m_current_camera_type                   = type;
+        m_view_matrices[MAIN_VIEW_MATRIX_INDEX] = view_matrix;
 
         // Extract the position of the camera from the view matrix
         Vector3 s  = Vector3(view_matrix[0][0], view_matrix[0][1], view_matrix[0][2]);

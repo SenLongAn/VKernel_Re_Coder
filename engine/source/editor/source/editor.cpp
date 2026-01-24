@@ -13,6 +13,17 @@
 namespace ReCoder
 {
 
+    void registerEdtorTickComponent(std::string component_type_name)
+    {
+        VKernel::g_editor_tick_component_types.insert(component_type_name);
+    }
+
+    ReCoderEditor::ReCoderEditor()
+    {
+        registerEdtorTickComponent("TransformComponent");
+        registerEdtorTickComponent("MeshComponent");
+    }
+
     void ReCoderEditor::initialize(VKernel::VKernelEngine* engine_runtime)
     {
         VKernel::g_is_editor_mode = true;

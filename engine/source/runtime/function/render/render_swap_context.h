@@ -2,6 +2,7 @@
 
 #include "runtime/core/math/math_headers.h"
 
+#include "runtime/function/render/render_camera.h"
 #include "runtime/function/render/render_object.h"
 #include "runtime/resource/res_type/global/global_rendering.h"
 
@@ -18,8 +19,9 @@ namespace VKernel
 {
     struct CameraSwapData ///< camera data
     {
-        std::optional<float>     m_fov_x;
-        std::optional<Matrix4x4> m_view_matrix;
+        std::optional<float>            m_fov_x;
+        std::optional<Matrix4x4>        m_view_matrix;
+        std::optional<RenderCameraType> m_camera_type;
     };
 
     struct GameObjectResourceDesc

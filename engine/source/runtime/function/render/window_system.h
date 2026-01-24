@@ -46,6 +46,10 @@ namespace VKernel
         void registerOnScrollFunc(onScrollFunc func) { m_onScrollFunc.push_back(func); }
         void registerOnMouseButtonFunc(onMouseButtonFunc func) { m_onMouseButtonFunc.push_back(func); }
 
+        // focus
+        void setFocusMode(bool mode);
+        bool getFocusMode() const { return m_is_focus_mode; }
+
         bool isMouseButtonDown(int button) const ///< press the button?
         {
             if (button < GLFW_MOUSE_BUTTON_1 || button > GLFW_MOUSE_BUTTON_LAST)
@@ -129,9 +133,13 @@ namespace VKernel
         }
 
     private:
+        // window
         GLFWwindow* m_window {nullptr}; ///< window instance
         int         m_width {0};        ///< window width
         int         m_height {0};       ///< window height
+
+        // focus
+        bool m_is_focus_mode {false};
 
         // List of Observers
         std::vector<onKeyFunc>         m_onKeyFunc;

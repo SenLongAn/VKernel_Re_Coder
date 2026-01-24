@@ -15,6 +15,7 @@
 #include "_generated/reflection/axis_aligned.reflection.gen.h"
 #include "_generated/reflection/component.reflection.gen.h"
 #include "_generated/reflection/render_object.reflection.gen.h"
+#include "_generated/reflection/camera.reflection.gen.h"
 #include "_generated/reflection/camera_component.reflection.gen.h"
 #include "_generated/reflection/mesh.reflection.gen.h"
 #include "_generated/reflection/mesh_component.reflection.gen.h"
@@ -40,6 +41,7 @@ namespace Reflection{
         TypeWrappersRegister::AxisAligned();
         TypeWrappersRegister::Component();
         TypeWrappersRegister::RenderObject();
+        TypeWrappersRegister::Camera();
         TypeWrappersRegister::CameraComponent();
         TypeWrappersRegister::Mesh();
         TypeWrappersRegister::MeshComponent();

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <chrono>
+#include <unordered_set>
 
 /**
  * Engine core
@@ -13,7 +14,8 @@ namespace ReCoder
 namespace VKernel
 {
 
-    extern bool g_is_editor_mode;
+    extern bool                            g_is_editor_mode;
+    extern std::unordered_set<std::string> g_editor_tick_component_types;
     class VKernelEngine ///< Engine
     {
 

@@ -11,6 +11,7 @@ namespace VKernel
     {
         REFLECTION_BODY(MotorComponent)
 
+    public:
         // load
         MotorComponent() = default;
         void postLoadResource(std::weak_ptr<GObject> parent_object) override;
@@ -20,6 +21,9 @@ namespace VKernel
         // tick
         void tick(float delta_time) override;
         void tickPlayerMotor(float delta_time);
+
+        // get
+        const Vector3& getTargetPosition() const { return m_target_position; }
 
     private:
         Vector3 m_target_position; ///< target position

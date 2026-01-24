@@ -13,6 +13,7 @@
 #include "_generated/serializer/axis_aligned.serializer.gen.h"
 #include "_generated/serializer/component.serializer.gen.h"
 #include "_generated/serializer/render_object.serializer.gen.h"
+#include "_generated/serializer/camera.serializer.gen.h"
 #include "_generated/serializer/camera_component.serializer.gen.h"
 #include "_generated/serializer/mesh.serializer.gen.h"
 #include "_generated/serializer/mesh_component.serializer.gen.h"
@@ -531,20 +532,77 @@ namespace VKernel{
         return instance;
     }
     template<>
+    Json Serializer::write(const CameraParameter& instance){
+        Json::object  ret_context;
+        
+        ret_context.insert_or_assign("fov", Serializer::write(instance.m_fov));
+        return  Json(ret_context);
+    }
+    template<>
+    CameraParameter& Serializer::read(const Json& json_context, CameraParameter& instance){
+        assert(json_context.is_object());
+        
+        if(!json_context["fov"].is_null()){
+            Serializer::read(json_context["fov"], instance.m_fov);
+        }
+        return instance;
+    }
+    template<>
+    Json Serializer::write(const ThirdPersonCameraParameter& instance){
+        Json::object  ret_context;
+        auto&&  json_context_0 = Serializer::write(*(VKernel::CameraParameter*)&instance);
+        assert(json_context_0.is_object());
+        auto&& json_context_map_0 = json_context_0.object_items();
+        ret_context.insert(json_context_map_0.begin() , json_context_map_0.end());
+        ret_context.insert_or_assign("horizontal_offset", Serializer::write(instance.m_horizontal_offset));
+        ret_context.insert_or_assign("vertical_offset", Serializer::write(instance.m_vertical_offset));
+        return  Json(ret_context);
+    }
+    template<>
+    ThirdPersonCameraParameter& Serializer::read(const Json& json_context, ThirdPersonCameraParameter& instance){
+        assert(json_context.is_object());
+        Serializer::read(json_context,*(VKernel::CameraParameter*)&instance);
+        if(!json_context["horizontal_offset"].is_null()){
+            Serializer::read(json_context["horizontal_offset"], instance.m_horizontal_offset);
+        }
+        if(!json_context["vertical_offset"].is_null()){
+            Serializer::read(json_context["vertical_offset"], instance.m_vertical_offset);
+        }
+        return instance;
+    }
+    template<>
+    Json Serializer::write(const CameraComponentRes& instance){
+        Json::object  ret_context;
+        
+        ret_context.insert_or_assign("parameter", Serializer::write(instance.m_parameter));
+        return  Json(ret_context);
+    }
+    template<>
+    CameraComponentRes& Serializer::read(const Json& json_context, CameraComponentRes& instance){
+        assert(json_context.is_object());
+        
+        if(!json_context["parameter"].is_null()){
+            Serializer::read(json_context["parameter"], instance.m_parameter);
+        }
+        return instance;
+    }
+    template<>
     Json Serializer::write(const CameraComponent& instance){
         Json::object  ret_context;
         auto&&  json_context_0 = Serializer::write(*(VKernel::Component*)&instance);
         assert(json_context_0.is_object());
         auto&& json_context_map_0 = json_context_0.object_items();
         ret_context.insert(json_context_map_0.begin() , json_context_map_0.end());
-        
+        ret_context.insert_or_assign("camera_res", Serializer::write(instance.m_camera_res));
         return  Json(ret_context);
     }
     template<>
     CameraComponent& Serializer::read(const Json& json_context, CameraComponent& instance){
         assert(json_context.is_object());
         Serializer::read(json_context,*(VKernel::Component*)&instance);
-        
+        if(!json_context["camera_res"].is_null()){
+            Serializer::read(json_context["camera_res"], instance.m_camera_res);
+        }
         return instance;
     }
     template<>

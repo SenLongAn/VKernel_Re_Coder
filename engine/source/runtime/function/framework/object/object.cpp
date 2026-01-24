@@ -2,6 +2,7 @@
 
 #include "runtime/resource/asset_manager/asset_manager.h"
 
+#include "runtime/engine.h"
 #include "runtime/function/framework/component/component.h"
 #include "runtime/function/framework/component/transform/transform_component.h"
 #include "runtime/function/global/global_context.h"
@@ -21,6 +22,18 @@ namespace VKernel
             VKERNEL_REFLECTION_DELETE(component);
         }
         m_components.clear();
+    }
+
+    bool shouldComponentTick(std::string component_type_name)
+    {
+        if (g_is_editor_mode)
+        {
+            return g_editor_tick_component_types.find(component_type_name) != g_editor_tick_component_types.end();
+        }
+        else
+        {
+            return true;
+        }
     }
 
     bool GObject::load(const ObjectInstanceRes& object_instance_res)
@@ -70,7 +83,10 @@ namespace VKernel
     {
         for (auto& component : m_components) ///< Iteration
         {
-            component->tick(delta_time);
+            if (shouldComponentTick(component.getTypeName()))
+            {
+                component->tick(delta_time);
+            }
         }
     }
 

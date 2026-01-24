@@ -81,6 +81,11 @@ namespace VKernel
                 case GLFW_KEY_D:
                     m_game_command |= (unsigned int)GameCommand::right;
                     break;
+                case GLFW_KEY_LEFT_ALT: {
+                    std::shared_ptr<WindowSystem> window_system = g_runtime_global_context.m_window_system;
+                    window_system->setFocusMode(!window_system->getFocusMode());
+                }
+                break;
                 default:
                     break;
             }

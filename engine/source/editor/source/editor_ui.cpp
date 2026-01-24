@@ -14,7 +14,6 @@
 #include "runtime/resource/asset_manager/asset_manager.h"
 #include "runtime/resource/config_manager/config_manager.h"
 
-
 #include "runtime/function/render/window_system.h"
 
 #include <imgui.h>
@@ -841,7 +840,7 @@ namespace ReCoder
                     VKernel::g_is_editor_mode = false; ///< bool
                     g_editor_global_context.m_scene_manager->drawSelectedEntityAxis();
                     g_editor_global_context.m_input_manager->resetEditorCommand();
-                    // g_editor_global_context.m_window_system->setFocusMode(true);
+                    g_editor_global_context.m_window_system->setFocusMode(true);
                 }
                 ImGui::PopID();
             }
@@ -853,8 +852,8 @@ namespace ReCoder
                     VKernel::g_is_editor_mode = true;
                     g_editor_global_context.m_scene_manager->drawSelectedEntityAxis();
                     VKernel::g_runtime_global_context.m_input_system->resetGameCommand();
-                    // g_editor_global_context.m_render_system->getRenderCamera()->setMainViewMatrix(
-                    //     g_editor_global_context.m_scene_manager->getEditorCamera()->getViewMatrix());
+                    g_editor_global_context.m_render_system->getRenderCamera()->setMainViewMatrix(
+                        g_editor_global_context.m_scene_manager->getEditorCamera()->getViewMatrix());
                 }
             }
 
