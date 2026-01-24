@@ -15,6 +15,15 @@ namespace VKernel
         virtual ~CameraParameter() {}
     };
 
+    REFLECTION_TYPE(FirstPersonCameraParameter)
+    CLASS(FirstPersonCameraParameter : public CameraParameter, Fields)
+    {
+        REFLECTION_BODY(FirstPersonCameraParameter);
+
+    public:
+        float m_vertical_offset {0.6f};
+    };
+
     REFLECTION_TYPE(ThirdPersonCameraParameter)
     CLASS(ThirdPersonCameraParameter : public CameraParameter, WhiteListFields) ///< Derived class
     {
@@ -27,6 +36,15 @@ namespace VKernel
         float      m_vertical_offset {2.5f};
         Quaternion m_cursor_pitch;
         Quaternion m_cursor_yaw;
+    };
+
+    REFLECTION_TYPE(FreeCameraParameter)
+    CLASS(FreeCameraParameter : public CameraParameter, Fields)
+    {
+        REFLECTION_BODY(FreeCameraParameter);
+
+    public:
+        float m_speed {1.f};
     };
 
     REFLECTION_TYPE(CameraComponentRes)

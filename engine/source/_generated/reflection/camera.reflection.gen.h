@@ -3,7 +3,9 @@
 
 namespace VKernel{
     class CameraParameter;
+    class FirstPersonCameraParameter;
     class ThirdPersonCameraParameter;
+    class FreeCameraParameter;
     class CameraComponentRes;
 namespace Reflection{
 namespace TypeFieldReflectionOparator{
@@ -55,6 +57,58 @@ namespace TypeFieldReflectionOparator{
             &TypeFieldReflectionOparator::TypeCameraParameterOperator::constructorWithJson,
             &TypeFieldReflectionOparator::TypeCameraParameterOperator::writeByName);
         REGISTER_BASE_CLASS_TO_MAP("CameraParameter", class_function_tuple_CameraParameter);
+    }namespace TypeFieldReflectionOparator{
+    class TypeFirstPersonCameraParameterOperator{
+    public:
+        static const char* getClassName(){ return "FirstPersonCameraParameter";}
+        static void* constructorWithJson(const Json& json_context){
+            FirstPersonCameraParameter* ret_instance= new FirstPersonCameraParameter;
+            Serializer::read(json_context, *ret_instance);
+            return ret_instance;
+        }
+        static Json writeByName(void* instance){
+            return Serializer::write(*(FirstPersonCameraParameter*)instance);
+        }
+        // base class
+        static int getFirstPersonCameraParameterBaseClassReflectionInstanceList(ReflectionInstance* &out_list, void* instance){
+            int count = 1;
+            out_list = new ReflectionInstance[count];
+            for (int i=0;i<count;++i){
+               out_list[i] = TypeMetaDef(VKernel::CameraParameter,static_cast<FirstPersonCameraParameter*>(instance));
+            }
+            return count;
+        }
+        // fields
+        static const char* getFieldName_m_vertical_offset(){ return "m_vertical_offset";}
+        static const char* getFieldTypeName_m_vertical_offset(){ return "float";}
+        static void set_m_vertical_offset(void* instance, void* field_value){ static_cast<FirstPersonCameraParameter*>(instance)->m_vertical_offset = *static_cast<float*>(field_value);}
+        static void* get_m_vertical_offset(void* instance){ return static_cast<void*>(&(static_cast<FirstPersonCameraParameter*>(instance)->m_vertical_offset));}
+        static bool isArray_m_vertical_offset(){ return false; }
+
+        // methods
+        
+    };
+}//namespace TypeFieldReflectionOparator
+
+
+    void TypeWrapperRegister_FirstPersonCameraParameter(){
+        FieldFunctionTuple* field_function_tuple_m_vertical_offset=new FieldFunctionTuple(
+            &TypeFieldReflectionOparator::TypeFirstPersonCameraParameterOperator::set_m_vertical_offset,
+            &TypeFieldReflectionOparator::TypeFirstPersonCameraParameterOperator::get_m_vertical_offset,
+            &TypeFieldReflectionOparator::TypeFirstPersonCameraParameterOperator::getClassName,
+            &TypeFieldReflectionOparator::TypeFirstPersonCameraParameterOperator::getFieldName_m_vertical_offset,
+            &TypeFieldReflectionOparator::TypeFirstPersonCameraParameterOperator::getFieldTypeName_m_vertical_offset,
+            &TypeFieldReflectionOparator::TypeFirstPersonCameraParameterOperator::isArray_m_vertical_offset);
+        REGISTER_FIELD_TO_MAP("FirstPersonCameraParameter", field_function_tuple_m_vertical_offset);
+
+        
+        
+        
+        ClassFunctionTuple* class_function_tuple_FirstPersonCameraParameter=new ClassFunctionTuple(
+            &TypeFieldReflectionOparator::TypeFirstPersonCameraParameterOperator::getFirstPersonCameraParameterBaseClassReflectionInstanceList,
+            &TypeFieldReflectionOparator::TypeFirstPersonCameraParameterOperator::constructorWithJson,
+            &TypeFieldReflectionOparator::TypeFirstPersonCameraParameterOperator::writeByName);
+        REGISTER_BASE_CLASS_TO_MAP("FirstPersonCameraParameter", class_function_tuple_FirstPersonCameraParameter);
     }namespace TypeFieldReflectionOparator{
     class TypeThirdPersonCameraParameterOperator{
     public:
@@ -121,6 +175,58 @@ namespace TypeFieldReflectionOparator{
             &TypeFieldReflectionOparator::TypeThirdPersonCameraParameterOperator::writeByName);
         REGISTER_BASE_CLASS_TO_MAP("ThirdPersonCameraParameter", class_function_tuple_ThirdPersonCameraParameter);
     }namespace TypeFieldReflectionOparator{
+    class TypeFreeCameraParameterOperator{
+    public:
+        static const char* getClassName(){ return "FreeCameraParameter";}
+        static void* constructorWithJson(const Json& json_context){
+            FreeCameraParameter* ret_instance= new FreeCameraParameter;
+            Serializer::read(json_context, *ret_instance);
+            return ret_instance;
+        }
+        static Json writeByName(void* instance){
+            return Serializer::write(*(FreeCameraParameter*)instance);
+        }
+        // base class
+        static int getFreeCameraParameterBaseClassReflectionInstanceList(ReflectionInstance* &out_list, void* instance){
+            int count = 1;
+            out_list = new ReflectionInstance[count];
+            for (int i=0;i<count;++i){
+               out_list[i] = TypeMetaDef(VKernel::CameraParameter,static_cast<FreeCameraParameter*>(instance));
+            }
+            return count;
+        }
+        // fields
+        static const char* getFieldName_m_speed(){ return "m_speed";}
+        static const char* getFieldTypeName_m_speed(){ return "float";}
+        static void set_m_speed(void* instance, void* field_value){ static_cast<FreeCameraParameter*>(instance)->m_speed = *static_cast<float*>(field_value);}
+        static void* get_m_speed(void* instance){ return static_cast<void*>(&(static_cast<FreeCameraParameter*>(instance)->m_speed));}
+        static bool isArray_m_speed(){ return false; }
+
+        // methods
+        
+    };
+}//namespace TypeFieldReflectionOparator
+
+
+    void TypeWrapperRegister_FreeCameraParameter(){
+        FieldFunctionTuple* field_function_tuple_m_speed=new FieldFunctionTuple(
+            &TypeFieldReflectionOparator::TypeFreeCameraParameterOperator::set_m_speed,
+            &TypeFieldReflectionOparator::TypeFreeCameraParameterOperator::get_m_speed,
+            &TypeFieldReflectionOparator::TypeFreeCameraParameterOperator::getClassName,
+            &TypeFieldReflectionOparator::TypeFreeCameraParameterOperator::getFieldName_m_speed,
+            &TypeFieldReflectionOparator::TypeFreeCameraParameterOperator::getFieldTypeName_m_speed,
+            &TypeFieldReflectionOparator::TypeFreeCameraParameterOperator::isArray_m_speed);
+        REGISTER_FIELD_TO_MAP("FreeCameraParameter", field_function_tuple_m_speed);
+
+        
+        
+        
+        ClassFunctionTuple* class_function_tuple_FreeCameraParameter=new ClassFunctionTuple(
+            &TypeFieldReflectionOparator::TypeFreeCameraParameterOperator::getFreeCameraParameterBaseClassReflectionInstanceList,
+            &TypeFieldReflectionOparator::TypeFreeCameraParameterOperator::constructorWithJson,
+            &TypeFieldReflectionOparator::TypeFreeCameraParameterOperator::writeByName);
+        REGISTER_BASE_CLASS_TO_MAP("FreeCameraParameter", class_function_tuple_FreeCameraParameter);
+    }namespace TypeFieldReflectionOparator{
     class TypeCameraComponentResOperator{
     public:
         static const char* getClassName(){ return "CameraComponentRes";}
@@ -174,7 +280,9 @@ namespace TypeWrappersRegister{
     void Camera()
     {
         TypeWrapperRegister_CameraParameter();
+    TypeWrapperRegister_FirstPersonCameraParameter();
     TypeWrapperRegister_ThirdPersonCameraParameter();
+    TypeWrapperRegister_FreeCameraParameter();
     TypeWrapperRegister_CameraComponentRes();
     }
 }//namespace TypeWrappersRegister

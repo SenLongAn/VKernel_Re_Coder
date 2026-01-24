@@ -12,6 +12,13 @@
  */
 namespace VKernel
 {
+    enum class CameraMode : unsigned char ///< camera mode
+    {
+        third_person,
+        first_person,
+        invalid
+    };
+
     REFLECTION_TYPE(CameraComponent)
     CLASS(CameraComponent : public Component, WhiteListFields)
     {
@@ -25,11 +32,14 @@ namespace VKernel
 
     private:
         // update
+        void tickFirstPersonCamera(float delta_time);
         void tickThirdPersonCamera(float delta_time);
 
     private:
         META(Enable)
         CameraComponentRes m_camera_res;
+
+        CameraMode m_camera_mode {CameraMode::invalid}; ///< camera mode
 
         Vector3 m_position {0.0f, 0.0f, 0.0f}; ///< last frame camera position
 
