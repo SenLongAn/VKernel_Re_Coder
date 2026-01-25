@@ -67,7 +67,21 @@ namespace VKernel
 
         if (has_move_command)
         {
-            m_move_speed_ratio = 1.0f;
+            bool has_sprint_command = (unsigned int)GameCommand::sprint & command; ///< Was the shift key pressed
+
+            float final_acceleration = m_motor_res.m_move_acceleration;
+            float min_speed_ratio    = 0.f;
+            float max_speed_ratio    = 0.f;
+            max_speed_ratio          = m_motor_res.m_max_move_speed_ratio;
+            if (has_sprint_command)
+            {
+                final_acceleration = m_motor_res.m_sprint_acceleration;
+                min_speed_ratio    = m_motor_res.m_max_move_speed_ratio;
+                max_speed_ratio    = m_motor_res.m_max_sprint_speed_ratio;
+            }
+
+            m_move_speed_ratio += final_acceleration * delta_time;
+            m_move_speed_ratio = std::clamp(m_move_speed_ratio, min_speed_ratio, max_speed_ratio);
         }
         else
         {
@@ -114,7 +128,8 @@ namespace VKernel
 
     void MotorComponent::calculateDesiredDisplacement(float delta_time)
     {
-        m_desired_displacement = m_desired_horizontal_move_direction * 1.0f * m_move_speed_ratio * delta_time;
+        m_desired_displacement =
+            m_desired_horizontal_move_direction * m_motor_res.m_move_speed * m_move_speed_ratio * delta_time;
     }
 
     void MotorComponent::calculateTargetPosition(const Vector3&& current_position)

@@ -26,7 +26,11 @@ namespace TypeFieldReflectionOparator{
             return count;
         }
         // fields
-        
+        static const char* getFieldName_m_motor_res(){ return "m_motor_res";}
+        static const char* getFieldTypeName_m_motor_res(){ return "MotorComponentRes";}
+        static void set_m_motor_res(void* instance, void* field_value){ static_cast<MotorComponent*>(instance)->m_motor_res = *static_cast<MotorComponentRes*>(field_value);}
+        static void* get_m_motor_res(void* instance){ return static_cast<void*>(&(static_cast<MotorComponent*>(instance)->m_motor_res));}
+        static bool isArray_m_motor_res(){ return false; }
 
         // methods
         
@@ -35,7 +39,14 @@ namespace TypeFieldReflectionOparator{
 
 
     void TypeWrapperRegister_MotorComponent(){
-        
+        FieldFunctionTuple* field_function_tuple_m_motor_res=new FieldFunctionTuple(
+            &TypeFieldReflectionOparator::TypeMotorComponentOperator::set_m_motor_res,
+            &TypeFieldReflectionOparator::TypeMotorComponentOperator::get_m_motor_res,
+            &TypeFieldReflectionOparator::TypeMotorComponentOperator::getClassName,
+            &TypeFieldReflectionOparator::TypeMotorComponentOperator::getFieldName_m_motor_res,
+            &TypeFieldReflectionOparator::TypeMotorComponentOperator::getFieldTypeName_m_motor_res,
+            &TypeFieldReflectionOparator::TypeMotorComponentOperator::isArray_m_motor_res);
+        REGISTER_FIELD_TO_MAP("MotorComponent", field_function_tuple_m_motor_res);
 
         
         

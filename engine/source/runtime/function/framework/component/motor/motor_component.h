@@ -1,6 +1,7 @@
 #pragma once
 
 #include "runtime/function/framework/component/component.h"
+#include "runtime/resource/res_type/components/motor.h"
 
 #include "runtime/core/math/vector3.h"
 
@@ -27,6 +28,9 @@ namespace VKernel
         bool           getIsMoving() const { return m_is_moving; }
 
     private:
+        META(Enable)
+        MotorComponentRes m_motor_res;
+
         bool m_is_moving {false};
 
         Vector3 m_target_position; ///< target position

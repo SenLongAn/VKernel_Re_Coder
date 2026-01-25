@@ -57,11 +57,12 @@
         {
             "$context": {
                 "motor_res": {
-                    "controller_config": {
-                        "$context": {
-                        },
-                        "$typeName": "ControllerConfig"
-                    }
+                    "jump_height": 1,
+                    "max_move_speed_ratio": 1,
+                    "max_sprint_speed_ratio": 2,
+                    "move_acceleration": 2,
+                    "move_speed": 2,
+                    "sprint_acceleration": 2
                 }
             },
             "$typeName": "MotorComponent"

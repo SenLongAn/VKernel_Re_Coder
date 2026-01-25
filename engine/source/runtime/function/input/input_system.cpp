@@ -85,7 +85,10 @@ namespace VKernel
                     std::shared_ptr<WindowSystem> window_system = g_runtime_global_context.m_window_system;
                     window_system->setFocusMode(!window_system->getFocusMode());
                 }
-                break;
+                case GLFW_KEY_LEFT_SHIFT:
+                    m_game_command |= (unsigned int)GameCommand::sprint;
+                    break;
+                    break;
                 default:
                     break;
             }
@@ -105,6 +108,9 @@ namespace VKernel
                     break;
                 case GLFW_KEY_D:
                     m_game_command &= (k_complement_control_command ^ (unsigned int)GameCommand::right);
+                    break;
+                case GLFW_KEY_LEFT_SHIFT:
+                    m_game_command &= (k_complement_control_command ^ (unsigned int)GameCommand::sprint);
                     break;
                 default:
                     break;

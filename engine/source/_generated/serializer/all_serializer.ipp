@@ -17,6 +17,7 @@
 #include "_generated/serializer/camera_component.serializer.gen.h"
 #include "_generated/serializer/mesh.serializer.gen.h"
 #include "_generated/serializer/mesh_component.serializer.gen.h"
+#include "_generated/serializer/motor.serializer.gen.h"
 #include "_generated/serializer/camera_config.serializer.gen.h"
 #include "_generated/serializer/transform_component.serializer.gen.h"
 #include "_generated/serializer/material.serializer.gen.h"
@@ -269,14 +270,16 @@ namespace VKernel{
         assert(json_context_0.is_object());
         auto&& json_context_map_0 = json_context_0.object_items();
         ret_context.insert(json_context_map_0.begin() , json_context_map_0.end());
-        
+        ret_context.insert_or_assign("motor_res", Serializer::write(instance.m_motor_res));
         return  Json(ret_context);
     }
     template<>
     MotorComponent& Serializer::read(const Json& json_context, MotorComponent& instance){
         assert(json_context.is_object());
         Serializer::read(json_context,*(VKernel::Component*)&instance);
-        
+        if(!json_context["motor_res"].is_null()){
+            Serializer::read(json_context["motor_res"], instance.m_motor_res);
+        }
         return instance;
     }
     template<>
@@ -709,6 +712,42 @@ namespace VKernel{
         Serializer::read(json_context,*(VKernel::Component*)&instance);
         if(!json_context["mesh_res"].is_null()){
             Serializer::read(json_context["mesh_res"], instance.m_mesh_res);
+        }
+        return instance;
+    }
+    template<>
+    Json Serializer::write(const MotorComponentRes& instance){
+        Json::object  ret_context;
+        
+        ret_context.insert_or_assign("move_speed", Serializer::write(instance.m_move_speed));
+        ret_context.insert_or_assign("jump_height", Serializer::write(instance.m_jump_height));
+        ret_context.insert_or_assign("max_move_speed_ratio", Serializer::write(instance.m_max_move_speed_ratio));
+        ret_context.insert_or_assign("max_sprint_speed_ratio", Serializer::write(instance.m_max_sprint_speed_ratio));
+        ret_context.insert_or_assign("move_acceleration", Serializer::write(instance.m_move_acceleration));
+        ret_context.insert_or_assign("sprint_acceleration", Serializer::write(instance.m_sprint_acceleration));
+        return  Json(ret_context);
+    }
+    template<>
+    MotorComponentRes& Serializer::read(const Json& json_context, MotorComponentRes& instance){
+        assert(json_context.is_object());
+        
+        if(!json_context["move_speed"].is_null()){
+            Serializer::read(json_context["move_speed"], instance.m_move_speed);
+        }
+        if(!json_context["jump_height"].is_null()){
+            Serializer::read(json_context["jump_height"], instance.m_jump_height);
+        }
+        if(!json_context["max_move_speed_ratio"].is_null()){
+            Serializer::read(json_context["max_move_speed_ratio"], instance.m_max_move_speed_ratio);
+        }
+        if(!json_context["max_sprint_speed_ratio"].is_null()){
+            Serializer::read(json_context["max_sprint_speed_ratio"], instance.m_max_sprint_speed_ratio);
+        }
+        if(!json_context["move_acceleration"].is_null()){
+            Serializer::read(json_context["move_acceleration"], instance.m_move_acceleration);
+        }
+        if(!json_context["sprint_acceleration"].is_null()){
+            Serializer::read(json_context["sprint_acceleration"], instance.m_sprint_acceleration);
         }
         return instance;
     }

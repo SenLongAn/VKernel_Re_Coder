@@ -19,6 +19,7 @@
 #include "_generated/reflection/camera_component.reflection.gen.h"
 #include "_generated/reflection/mesh.reflection.gen.h"
 #include "_generated/reflection/mesh_component.reflection.gen.h"
+#include "_generated/reflection/motor.reflection.gen.h"
 #include "_generated/reflection/camera_config.reflection.gen.h"
 #include "_generated/reflection/transform_component.reflection.gen.h"
 #include "_generated/reflection/material.reflection.gen.h"
@@ -45,6 +46,7 @@ namespace Reflection{
         TypeWrappersRegister::CameraComponent();
         TypeWrappersRegister::Mesh();
         TypeWrappersRegister::MeshComponent();
+        TypeWrappersRegister::Motor();
         TypeWrappersRegister::CameraConfig();
         TypeWrappersRegister::TransformComponent();
         TypeWrappersRegister::Material();
