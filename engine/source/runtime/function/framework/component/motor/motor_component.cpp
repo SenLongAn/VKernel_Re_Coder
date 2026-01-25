@@ -89,7 +89,36 @@ namespace VKernel
         }
     }
 
-    void MotorComponent::calculatedDesiredVerticalMoveSpeed(unsigned int command, float delta_time) {}
+    void MotorComponent::calculatedDesiredVerticalMoveSpeed(unsigned int command, float delta_time)
+    {
+        if (m_motor_res.m_jump_height == 0.f)
+            return;
+
+        Vector3     v_gravity {0.f, 0.f, -9.8f};
+        const float gravity = v_gravity.length();
+
+        if (m_jump_state == JumpState::idle)
+        {
+            if ((unsigned int)GameCommand::jump & command)
+            {
+                m_jump_state                  = JumpState::rising;
+                m_vertical_move_speed         = Math::sqrt(m_motor_res.m_jump_height * 2 * gravity);
+                m_jump_horizontal_speed_ratio = m_move_speed_ratio;
+            }
+            else
+            {
+                m_vertical_move_speed = 0.f;
+            }
+        }
+        else if (m_jump_state == JumpState::rising || m_jump_state == JumpState::falling)
+        {
+            m_vertical_move_speed -= gravity * delta_time;
+            if (m_vertical_move_speed <= 0.f)
+            {
+                m_jump_state = JumpState::falling;
+            }
+        }
+    }
 
     void MotorComponent::calculatedDesiredMoveDirection(unsigned int command, const Quaternion& object_rotation)
     {
@@ -129,7 +158,8 @@ namespace VKernel
     void MotorComponent::calculateDesiredDisplacement(float delta_time)
     {
         m_desired_displacement =
-            m_desired_horizontal_move_direction * m_motor_res.m_move_speed * m_move_speed_ratio * delta_time;
+            m_desired_horizontal_move_direction * m_motor_res.m_move_speed * m_move_speed_ratio * delta_time +
+            Vector3::NEGATIVE_UNIT_Y * m_vertical_move_speed * delta_time; ///< horizontal + vertical
     }
 
     void MotorComponent::calculateTargetPosition(const Vector3&& current_position)
@@ -137,6 +167,12 @@ namespace VKernel
         Vector3 final_position;
         final_position    = current_position + m_desired_displacement;
         m_target_position = final_position;
+
+        if (m_jump_state == JumpState::falling && final_position.y + m_desired_displacement.y >= 0.f) ///< stop falling
+        {
+            final_position.y = 0.f;
+            m_jump_state     = JumpState::idle;
+        }
 
         m_is_moving = (final_position - current_position).squaredLength() > 0.f;
     }

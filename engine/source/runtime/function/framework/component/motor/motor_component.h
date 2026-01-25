@@ -7,6 +7,13 @@
 
 namespace VKernel
 {
+    enum class JumpState : unsigned char
+    {
+        idle,
+        rising,
+        falling
+    };
+
     REFLECTION_TYPE(MotorComponent)
     CLASS(MotorComponent : public Component, WhiteListFields, WhiteListMethods)
     {
@@ -29,17 +36,20 @@ namespace VKernel
 
     private:
         META(Enable)
-        MotorComponentRes m_motor_res;
-
-        bool m_is_moving {false};
+        MotorComponentRes m_motor_res; ///< value
 
         Vector3 m_target_position; ///< target position
 
-        float m_move_speed_ratio {0.f}; ///< move speed
-
+        // move
+        bool    m_is_moving {false};
+        float   m_move_speed_ratio {0.f};            ///< move speed
         Vector3 m_desired_horizontal_move_direction; ///< move direction
+        Vector3 m_desired_displacement;              ///< move vector
 
-        Vector3 m_desired_displacement; ///< move vector
+        // jump
+        JumpState m_jump_state {JumpState::idle};      ///< state
+        float     m_vertical_move_speed {0.f};         ///< speed
+        float     m_jump_horizontal_speed_ratio {0.f}; ///< ratio
 
     private:
         void calculatedDesiredHorizontalMoveSpeed(unsigned int command, float delta_time);

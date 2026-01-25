@@ -65,6 +65,8 @@ namespace VKernel
 
     void InputSystem::onKeyInGameMode(int key, int scancode, int action, int mods)
     {
+        m_game_command &= (k_complement_control_command ^ (unsigned int)GameCommand::jump);
+
         if (action == GLFW_PRESS) ///< press
         {
             switch (key)
@@ -80,6 +82,9 @@ namespace VKernel
                     break;
                 case GLFW_KEY_D:
                     m_game_command |= (unsigned int)GameCommand::right;
+                    break;
+                case GLFW_KEY_SPACE:
+                    m_game_command |= (unsigned int)GameCommand::jump;
                     break;
                 case GLFW_KEY_LEFT_ALT: {
                     std::shared_ptr<WindowSystem> window_system = g_runtime_global_context.m_window_system;

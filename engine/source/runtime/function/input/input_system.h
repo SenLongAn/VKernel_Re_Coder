@@ -13,7 +13,8 @@ namespace VKernel
         backward = 1 << 1,                 // S
         left     = 1 << 2,                 // A
         right    = 1 << 3,                 // D
-        sprint   = 1 << 4,                 // sprint
+        jump     = 1 << 4,                 // jump
+        sprint   = 1 << 5,                 // sprint
         invalid  = (unsigned int)(1 << 31) // lost focus
     };
 
