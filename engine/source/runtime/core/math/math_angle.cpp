@@ -8,10 +8,7 @@ namespace VKernel
     // Definition of math member functions
     Math::Math() { k_AngleUnit = AngleUnit::AU_DEGREE; }
 
-    bool Math::realEqual(float a, float b, float tolerance)
-    {
-        return std::fabs(b - a) <= tolerance;
-    }
+    bool Math::realEqual(float a, float b, float tolerance) { return std::fabs(b - a) <= tolerance; }
 
     float Math::degreesToRadians(float degrees) { return degrees * Math_fDeg2Rad; }
 
@@ -191,4 +188,4 @@ namespace VKernel
         return proj_matrix;
     }
 
-}
+} // namespace VKernel

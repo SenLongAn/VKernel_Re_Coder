@@ -1,6 +1,7 @@
 #include "runtime/function/character/character.h"
 
 #include "runtime/function/framework/component/motor/motor_component.h"
+#include "runtime/function/framework/component/transform/transform_component.h"
 
 namespace VKernel
 {
@@ -18,13 +19,22 @@ namespace VKernel
 
     void Character::tick(float delta_time)
     {
+        TransformComponent* transform_component =
+            m_character_object->tryGetComponent(TransformComponent, "TransformComponent");
         MotorComponent* motor_component = m_character_object->tryGetComponent(MotorComponent, "MotorComponent");
         if (motor_component == nullptr)
         {
             return;
         }
 
-        const Vector3& new_position = motor_component->getTargetPosition(); // 获取目标位置
+        // set transform component rotation
+        if (motor_component->getIsMoving())
+        {
+            transform_component->setRotation(m_rotation);
+        }
+
+        // set character target position
+        const Vector3& new_position = motor_component->getTargetPosition();
 
         m_position = new_position;
     }

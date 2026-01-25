@@ -27,7 +27,7 @@ namespace VKernel
 
     Matrix4x4 RenderCamera::getPersProjMatrix() const
     {
-        // Construct a matrix based on the camera attributes
+        // The constructed P matrix needs to be flipped along the y-axis
         Matrix4x4 fix_mat(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
         Matrix4x4 proj_mat = fix_mat * Math::makePerspectiveMatrix(Radian(Degree(m_fovy)), m_aspect, m_znear, m_zfar);
 

@@ -80,8 +80,8 @@ namespace VKernel
     void MotorComponent::calculatedDesiredMoveDirection(unsigned int command, const Quaternion& object_rotation)
     {
         {
-            Vector3 forward_dir = object_rotation * Vector3::NEGATIVE_UNIT_Y;
-            Vector3 left_dir    = object_rotation * Vector3::UNIT_X;
+            Vector3 forward_dir = object_rotation * Vector3::UNIT_Z;
+            Vector3 left_dir    = object_rotation * Vector3::NEGATIVE_UNIT_X;
 
             if (command > 0)
             {
@@ -90,22 +90,22 @@ namespace VKernel
 
             if ((unsigned int)GameCommand::forward & command)
             {
-                m_desired_horizontal_move_direction -= forward_dir;
+                m_desired_horizontal_move_direction += forward_dir;
             }
 
             if ((unsigned int)GameCommand::backward & command)
             {
-                m_desired_horizontal_move_direction += forward_dir;
+                m_desired_horizontal_move_direction -= forward_dir;
             }
 
             if ((unsigned int)GameCommand::left & command)
             {
-                m_desired_horizontal_move_direction -= left_dir;
+                m_desired_horizontal_move_direction += left_dir;
             }
 
             if ((unsigned int)GameCommand::right & command)
             {
-                m_desired_horizontal_move_direction += left_dir;
+                m_desired_horizontal_move_direction -= left_dir;
             }
 
             m_desired_horizontal_move_direction.normalise();
@@ -122,6 +122,8 @@ namespace VKernel
         Vector3 final_position;
         final_position    = current_position + m_desired_displacement;
         m_target_position = final_position;
+
+        m_is_moving = (final_position - current_position).squaredLength() > 0.f;
     }
 
 } // namespace VKernel

@@ -100,10 +100,10 @@ namespace VKernel
         if (current_character == nullptr)
             return;
 
-        // Calculate delta Q
+        // Calculate cursor delta Q
         Quaternion q_yaw, q_pitch;
         q_yaw.fromAngleAxis(g_runtime_global_context.m_input_system->m_cursor_delta_yaw, Vector3::NEGATIVE_UNIT_Y);
-        q_pitch.fromAngleAxis(g_runtime_global_context.m_input_system->m_cursor_delta_pitch, Vector3::UNIT_X);
+        q_pitch.fromAngleAxis(g_runtime_global_context.m_input_system->m_cursor_delta_pitch, Vector3::NEGATIVE_UNIT_X);
 
         // update new pitch Q
         ThirdPersonCameraParameter* param = static_cast<ThirdPersonCameraParameter*>(m_camera_res.m_parameter);
@@ -115,14 +115,16 @@ namespace VKernel
         Vector3     offset            = Vector3(0, vertical_offset, horizontal_offset);
 
         // calculate camera new position
-        Vector3 center_pos = current_character->getPosition() + Vector3::UNIT_Y * vertical_offset;
+        Vector3 center_pos = current_character->getPosition() + Vector3::UNIT_Y * vertical_offset; ///< look at target
         m_position =
-            current_character->getRotation() * param->m_cursor_pitch * offset + current_character->getPosition();
+            current_character->getRotation() * param->m_cursor_pitch * offset +
+            current_character->getPosition(); ///< camera position: yaw * pitch * offset vector + charactor position
 
         // calculate camera new rotation
         m_forward = center_pos - m_position;
-        m_up      = current_character->getRotation() * param->m_cursor_pitch * Vector3::NEGATIVE_UNIT_Y;
-        m_left    = m_up.crossProduct(m_forward);
+        m_up      = current_character->getRotation() * param->m_cursor_pitch *
+               Vector3::NEGATIVE_UNIT_Y; ///<  yaw * pitch * Y vector
+        m_left = m_up.crossProduct(m_forward);
 
         // set charactor new rotation
         current_character->setRotation(q_yaw * current_character->getRotation());

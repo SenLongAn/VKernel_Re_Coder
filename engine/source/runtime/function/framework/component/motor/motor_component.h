@@ -24,8 +24,11 @@ namespace VKernel
 
         // get
         const Vector3& getTargetPosition() const { return m_target_position; }
+        bool           getIsMoving() const { return m_is_moving; }
 
     private:
+        bool m_is_moving {false};
+
         Vector3 m_target_position; ///< target position
 
         float m_move_speed_ratio {0.f}; ///< move speed
