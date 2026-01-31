@@ -43,8 +43,8 @@ namespace VKernel
 
         Vector3 m_position {0.0f, 0.0f, 0.0f}; ///< last frame camera position
 
-        Vector3 m_forward {Vector3::NEGATIVE_UNIT_Y};
-        Vector3 m_up {Vector3::UNIT_Z};
+        Vector3 m_forward {Vector3::UNIT_Z};
+        Vector3 m_up {Vector3::NEGATIVE_UNIT_Y};
         Vector3 m_left {Vector3::UNIT_X};
     };
 } // namespace VKernel

@@ -146,7 +146,7 @@ namespace VKernel
             // diagonal ensures coverage of the entire camera view.
             Vector3 eye    = box_center + scene.m_directional_light.m_direction * box_extents.length();
             Vector3 center = box_center;
-            light_view     = Math::makeLookAtMatrix(eye, center, Vector3(0.0, 0.0, 1.0)); ///< inverse matrix
+            light_view     = Math::makeLookAtMatrix(eye, center, Vector3(0.0, 1.0, 0.0)); ///< inverse matrix
             // Projection matrix of parallel light source
             BoundingBox frustum_bounding_box_light_view = BoundingBoxTransform(
                 frustum_bounding_box, light_view); ///< Transform to light view space to calculate the clipping region

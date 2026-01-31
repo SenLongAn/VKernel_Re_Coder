@@ -6,7 +6,6 @@
 #include "runtime/core/base/macro.h"
 #include "runtime/core/math/math_marcos.h"
 
-
 #include "vulkan_api.h"
 #include <algorithm>
 #include <iostream>

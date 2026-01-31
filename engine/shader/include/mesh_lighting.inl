@@ -53,7 +53,7 @@ for (highp int light_index = 0; light_index < int(point_light_num) && light_inde
             highp float closest_length = texture(point_lights_shadow, coord).r;
 
             // compare
-            highp float bias = 0.05;
+            highp float bias = 0.1;
             shadow           = (closest_length >= (current_length - bias)) ? 1.0f : -1.0f;
         }
 
@@ -80,7 +80,7 @@ for (highp int light_index = 0; light_index < int(point_light_num) && light_inde
             highp vec2 uv            = ndcxy_to_uv(position_ndc.xy);
 
             // compare
-            highp float closest_depth = texture(directional_light_shadow, uv).r + 0.0005;
+            highp float closest_depth = texture(directional_light_shadow, uv).r + 0.01;
             highp float current_depth = position_ndc.z;
             shadow                    = (closest_depth >= current_depth) ? 1.0f : -1.0f;
         }

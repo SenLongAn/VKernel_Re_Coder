@@ -9,7 +9,6 @@
 #include "runtime/function/render/render_camera.h"
 #include "runtime/function/render/render_system.h"
 
-
 #include <iostream>
 
 namespace ReCoder

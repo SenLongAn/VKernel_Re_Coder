@@ -141,8 +141,7 @@ namespace VKernel
                           combine_ui_pass,
                           vulkan_api->getCurrentSwapchainImageIndex()); ///< main camera
 
-        // g_runtime_global_context.m_debugdraw_manager->draw(vulkan_api->getCurrentSwapchainImageIndex()); ///<
-        // debugdraw
+        g_runtime_global_context.m_debugdraw_manager->draw(vulkan_api->getCurrentSwapchainImageIndex()); ///< debugdraw
 
         // end command buffer, submit and present
         vulkan_api->submitRendering(std::bind(&RenderPipeline::passUpdateAfterRecreateSwapchain, this));
@@ -192,8 +191,7 @@ namespace VKernel
                    combine_ui_pass,
                    vulkan_api->getCurrentSwapchainImageIndex()); ///< main camera
 
-        // g_runtime_global_context.m_debugdraw_manager->draw(vulkan_api->getCurrentSwapchainImageIndex()); ///<
-        // debugdraw
+        g_runtime_global_context.m_debugdraw_manager->draw(vulkan_api->getCurrentSwapchainImageIndex()); ///< debugdraw
 
         // end command buffer, submit and present
         vulkan_api->submitRendering(std::bind(&RenderPipeline::passUpdateAfterRecreateSwapchain, this));

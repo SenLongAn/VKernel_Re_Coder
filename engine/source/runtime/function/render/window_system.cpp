@@ -5,7 +5,6 @@
 #include "window_system.h"
 #include <iostream>
 
-
 namespace VKernel
 {
     WindowSystem::~WindowSystem()
@@ -25,7 +24,7 @@ namespace VKernel
         m_width  = create_info.width;
         m_height = create_info.height;
 
-        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API); ///< Vulkan is required.
+        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API); ///< Do not use OpenGL，Vulkan is required.
 
         m_window = glfwCreateWindow(create_info.width, create_info.height, create_info.title, nullptr, nullptr);
         if (!m_window)
