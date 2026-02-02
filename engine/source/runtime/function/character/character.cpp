@@ -3,6 +3,10 @@
 #include "runtime/function/framework/component/motor/motor_component.h"
 #include "runtime/function/framework/component/transform/transform_component.h"
 
+#include "runtime/function/global/global_context.h"
+#include "runtime/function/render/window_system.h"
+#include <GLFW/glfw3.h>
+
 namespace VKernel
 {
     Character::Character(std::shared_ptr<GObject> character_object) { setObject(character_object); }
@@ -30,6 +34,7 @@ namespace VKernel
         // set transform component rotation
         if (motor_component->getIsMoving())
         {
+
             transform_component->setRotation(m_rotation);
         }
 

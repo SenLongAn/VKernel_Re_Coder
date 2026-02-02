@@ -840,7 +840,6 @@ namespace ReCoder
                     VKernel::g_is_editor_mode = false; ///< bool
                     g_editor_global_context.m_scene_manager->drawSelectedEntityAxis();
                     g_editor_global_context.m_input_manager->resetEditorCommand();
-                    g_editor_global_context.m_window_system->setFocusMode(true);
                 }
                 ImGui::PopID();
             }

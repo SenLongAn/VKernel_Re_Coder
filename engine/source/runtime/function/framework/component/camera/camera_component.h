@@ -46,5 +46,8 @@ namespace VKernel
         Vector3 m_forward {Vector3::UNIT_Z};
         Vector3 m_up {Vector3::NEGATIVE_UNIT_Y};
         Vector3 m_left {Vector3::UNIT_X};
+
+        bool isFirst       = false;
+        bool isButtonRight = false;
     };
 } // namespace VKernel

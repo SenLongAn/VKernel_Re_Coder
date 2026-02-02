@@ -10,7 +10,6 @@
 #include "runtime/function/framework/object/object.h"
 #include "runtime/function/global/global_context.h"
 
-
 #include "level.h"
 #include <iostream>
 #include <limits>

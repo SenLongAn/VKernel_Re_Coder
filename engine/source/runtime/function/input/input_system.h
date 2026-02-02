@@ -25,8 +25,8 @@ namespace VKernel
 
     public:
         // current mouse data
-        int    m_cursor_delta_x {0};
-        int    m_cursor_delta_y {0};
+        double m_cursor_delta_x {0};
+        double m_cursor_delta_y {0};
         Radian m_cursor_delta_yaw {0};
         Radian m_cursor_delta_pitch {0};
 
@@ -46,8 +46,8 @@ namespace VKernel
         unsigned int m_game_command {0}; ///< Current key data
 
         // last mouse data
-        int m_last_cursor_x {0};
-        int m_last_cursor_y {0};
+        double m_last_cursor_x {0};
+        double m_last_cursor_y {0};
 
         void onKeyInGameMode(int key, int scancode, int action, int mods); ///< Update the key data
 

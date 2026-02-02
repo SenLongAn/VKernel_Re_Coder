@@ -8,6 +8,8 @@
 #include "runtime/function/render/render_system.h"
 #include "runtime/function/render/window_system.h"
 
+#include <iostream>
+
 namespace VKernel
 {
     unsigned int k_complement_control_command = 0xFFFFFFFF;
@@ -57,6 +59,7 @@ namespace VKernel
         // calculate xy delta
         m_cursor_delta_x = m_last_cursor_x - current_cursor_x;
         m_cursor_delta_y = m_last_cursor_y - current_cursor_y;
+        std::cout << m_cursor_delta_x << std::endl;
 
         // last xy
         m_last_cursor_x = current_cursor_x;
@@ -86,13 +89,8 @@ namespace VKernel
                 case GLFW_KEY_SPACE:
                     m_game_command |= (unsigned int)GameCommand::jump;
                     break;
-                case GLFW_KEY_LEFT_ALT: {
-                    std::shared_ptr<WindowSystem> window_system = g_runtime_global_context.m_window_system;
-                    window_system->setFocusMode(!window_system->getFocusMode());
-                }
                 case GLFW_KEY_LEFT_SHIFT:
                     m_game_command |= (unsigned int)GameCommand::sprint;
-                    break;
                     break;
                 default:
                     break;
