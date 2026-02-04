@@ -27,6 +27,7 @@ namespace VKernel
         m_combine_ui_pass         = std::make_shared<CombineUIPass>();
         m_fxaa_pass               = std::make_shared<FXAAPass>();
         m_pick_pass               = std::make_shared<PickPass>();
+        m_debugdraw_manager       = std::make_shared<DebugDrawManager>();
 
         // init info
         RenderPassCommonInfo pass_common_info;
@@ -94,6 +95,10 @@ namespace VKernel
         fxaa_init_info.input_attachment =
             _main_camera_pass->getFramebufferImageViews()[_main_camera_pass_backup_buffer_even];
         m_fxaa_pass->initialize(&fxaa_init_info);
+
+        DebugPassInitInfo debug_init_info;
+        debug_init_info.render_pass = _main_camera_pass->getRenderPass();
+        m_debugdraw_manager->initialize(&debug_init_info);
     }
 
     void RenderPipeline::forwardRender(std::shared_ptr<VulkanAPI>          vulkan_api,
@@ -140,8 +145,6 @@ namespace VKernel
                           ui_pass,
                           combine_ui_pass,
                           vulkan_api->getCurrentSwapchainImageIndex()); ///< main camera
-
-        g_runtime_global_context.m_debugdraw_manager->draw(vulkan_api->getCurrentSwapchainImageIndex()); ///< debugdraw
 
         // end command buffer, submit and present
         vulkan_api->submitRendering(std::bind(&RenderPipeline::passUpdateAfterRecreateSwapchain, this));
@@ -191,8 +194,6 @@ namespace VKernel
                    combine_ui_pass,
                    vulkan_api->getCurrentSwapchainImageIndex()); ///< main camera
 
-        g_runtime_global_context.m_debugdraw_manager->draw(vulkan_api->getCurrentSwapchainImageIndex()); ///< debugdraw
-
         // end command buffer, submit and present
         vulkan_api->submitRendering(std::bind(&RenderPipeline::passUpdateAfterRecreateSwapchain, this));
     }
@@ -218,7 +219,7 @@ namespace VKernel
             main_camera_pass.getFramebufferImageViews()[_main_camera_pass_backup_buffer_even]);
         pick_pass.recreateFramebuffer();
 
-        g_runtime_global_context.m_debugdraw_manager->updateAfterRecreateSwapchain();
+        // m_debugdraw_manager->updateAfterRecreateSwapchain();
     }
 
     uint32_t RenderPipeline::getGuidOfPickedMesh(const Vector2& picked_uv)

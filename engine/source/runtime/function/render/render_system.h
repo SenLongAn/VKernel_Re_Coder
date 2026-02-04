@@ -40,6 +40,7 @@ namespace VKernel
         GObjectID                           getGObjectIDByMeshID(uint32_t mesh_id) const;
         GuidAllocator<GameObjectPartId>&    getGOInstanceIdAllocator();
         GuidAllocator<MeshSourceDesc>&      getMeshAssetIdAllocator();
+        std::shared_ptr<RenderPipelineBase> getRenderPipline() const;
 
         // set
         void setVisibleAxis(std::optional<RenderEntity> axis);

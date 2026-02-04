@@ -1,21 +1,29 @@
 #include "runtime/function/render/debugdraw/debug_draw_manager.h"
 
+#include "runtime/core/base/macro.h"
 #include "runtime/core/math/math_headers.h"
 #include "runtime/function/global/global_context.h"
 #include "runtime/function/render/render_system.h"
 
-#include "debug_draw_manager.h"
 #include <iostream>
 
 namespace VKernel
 {
-    void DebugDrawManager::initialize()
+    void DebugDrawManager::initialize(const RenderPassInitInfo* init_info)
     {
         // load vulkan api
         m_vulkan_api = g_runtime_global_context.m_render_system->getVulkanAPI();
 
+        // write data
+        const DebugPassInitInfo* _init_info = static_cast<const DebugPassInitInfo*>(init_info);
+        if (init_info == nullptr)
+        {
+            LOG_ERROR("fxaa _init_info is nullptr");
+            return;
+        }
+
         // init
-        setupPipelines();
+        setupPipelines(_init_info);
 
         // create buffer
         m_buffer_allocator = new DebugDrawAllocator();
@@ -142,7 +150,7 @@ namespace VKernel
         delete m_buffer_allocator;
     }
 
-    void DebugDrawManager::setupPipelines()
+    void DebugDrawManager::setupPipelines(const DebugPassInitInfo* init_info)
     {
         // create pipelines
         for (uint8_t i = 0; i < DebugDrawPipelineType::_debug_draw_pipeline_type_count; i++)
@@ -152,22 +160,16 @@ namespace VKernel
             {
                 m_debug_draw_pipeline[i]->initialize(VkAttachmentLoadOp::VK_ATTACHMENT_LOAD_OP_CLEAR,
                                                      VkImageLayout::VK_IMAGE_LAYOUT_UNDEFINED,
-                                                     VkImageLayout::VK_IMAGE_LAYOUT_UNDEFINED);
+                                                     VkImageLayout::VK_IMAGE_LAYOUT_UNDEFINED,
+                                                     init_info->render_pass);
             }
             else
             {
                 m_debug_draw_pipeline[i]->initialize(VkAttachmentLoadOp::VK_ATTACHMENT_LOAD_OP_LOAD,
                                                      VkImageLayout::VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
-                                                     VkImageLayout::VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+                                                     VkImageLayout::VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+                                                     init_info->render_pass);
             }
-        }
-    }
-
-    void DebugDrawManager::updateAfterRecreateSwapchain()
-    {
-        for (uint8_t i = 0; i < DebugDrawPipelineType::_debug_draw_pipeline_type_count; i++)
-        {
-            m_debug_draw_pipeline[i]->recreateAfterSwapchain();
         }
     }
 
@@ -271,18 +273,6 @@ namespace VKernel
             m_debug_draw_pipeline[DebugDrawPipelineType::_debug_draw_pipeline_type_line_no_depth_test],
             m_debug_draw_pipeline[DebugDrawPipelineType::_debug_draw_pipeline_type_triangle_no_depth_test]};
 
-        // Begin RenderPass
-        VkClearValue clear_values[2];
-        clear_values[0].color        = {0.0f, 0.0f, 0.0f, 1.0f};
-        clear_values[1].depthStencil = {1.0f, 0};
-
-        VkRenderPassBeginInfo renderpass_begin_info {};
-        renderpass_begin_info.sType             = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        renderpass_begin_info.renderArea.offset = {0, 0};
-        renderpass_begin_info.renderArea.extent = m_vulkan_api->getSwapchainInfo().extent;
-        renderpass_begin_info.clearValueCount   = (sizeof(clear_values) / sizeof(clear_values[0]));
-        renderpass_begin_info.pClearValues      = clear_values;
-
         // drawcall vertex has indice
         size_t uniform_dynamic_size = m_buffer_allocator->getSizeOfUniformBufferObject();
         dynamicOffset               = 0;
@@ -291,12 +281,6 @@ namespace VKernel
 
         for (size_t i = 0; i < vc_pipelines.size(); i++) ///< Iterative pipeline
         {
-            // begin renderpass
-            renderpass_begin_info.renderPass = vc_pipelines[i]->getFramebuffer().render_pass;
-            renderpass_begin_info.framebuffer =
-                vc_pipelines[i]->getFramebuffer().framebuffers[current_swapchain_image_index];
-            vkCmdBeginRenderPass(
-                m_vulkan_api->getCurrentCommandBuffer(), &renderpass_begin_info, VK_SUBPASS_CONTENTS_INLINE);
 
             // Bind Pipeline
             vkCmdBindPipeline(m_vulkan_api->getCurrentCommandBuffer(),
@@ -366,9 +350,6 @@ namespace VKernel
                     }
                 }
             }
-
-            // end renderpass
-            vkCmdEndRenderPass(m_vulkan_api->getCurrentCommandBuffer());
         }
     }
 } // namespace VKernel

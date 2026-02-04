@@ -12,6 +12,7 @@ namespace VKernel
 {
     class RenderResourceBase;
     class WindowUI;
+    class DebugDrawManager;
 
     struct RenderPipelineInitInfo
     {
@@ -37,20 +38,23 @@ namespace VKernel
 
         void initializeUIRenderBackend(WindowUI* window_ui); ///< init editor ui Backend: vulkan and glfw
 
-        virtual uint32_t getGuidOfPickedMesh(const Vector2& picked_uv) = 0; ///< get uv submesh guid
+        // get
+        virtual uint32_t                  getGuidOfPickedMesh(const Vector2& picked_uv) = 0; ///< get uv submesh guid
+        std::shared_ptr<DebugDrawManager> getDebugManager() { return m_debugdraw_manager; }
 
     protected:
         std::shared_ptr<VulkanAPI> m_vulkan_api; ///< Vulkan interface
 
         // pass
-        std::shared_ptr<RenderPassBase> m_directional_light_pass;
-        std::shared_ptr<RenderPassBase> m_point_light_shadow_pass;
-        std::shared_ptr<RenderPassBase> m_main_camera_pass;
-        std::shared_ptr<RenderPassBase> m_color_grading_pass;
-        std::shared_ptr<RenderPassBase> m_fxaa_pass;
-        std::shared_ptr<RenderPassBase> m_tone_mapping_pass;
-        std::shared_ptr<RenderPassBase> m_ui_pass;
-        std::shared_ptr<RenderPassBase> m_combine_ui_pass;
-        std::shared_ptr<RenderPassBase> m_pick_pass;
+        std::shared_ptr<RenderPassBase>   m_directional_light_pass;
+        std::shared_ptr<RenderPassBase>   m_point_light_shadow_pass;
+        std::shared_ptr<RenderPassBase>   m_main_camera_pass;
+        std::shared_ptr<RenderPassBase>   m_color_grading_pass;
+        std::shared_ptr<RenderPassBase>   m_fxaa_pass;
+        std::shared_ptr<RenderPassBase>   m_tone_mapping_pass;
+        std::shared_ptr<RenderPassBase>   m_ui_pass;
+        std::shared_ptr<RenderPassBase>   m_combine_ui_pass;
+        std::shared_ptr<RenderPassBase>   m_pick_pass;
+        std::shared_ptr<DebugDrawManager> m_debugdraw_manager;
     };
 } // namespace VKernel

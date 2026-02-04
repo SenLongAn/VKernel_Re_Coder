@@ -7,29 +7,11 @@
  */
 namespace VKernel
 {
-    struct DebugDrawFrameBufferAttachment ///< attachment-related
-    {
-        VkImage image = VK_NULL_HANDLE;
-        VkDeviceMemory mem = VK_NULL_HANDLE;
-        VkImageView view = VK_NULL_HANDLE;
-        VkFormat format;
-    };
-
-    struct DebugDrawFramebuffer ///< renderpass, framebuffer, attachment
-    {
-        int width;
-        int height;
-        VkRenderPass render_pass = VK_NULL_HANDLE; ///< render pass
-
-        ///< A render pass can have multiple framebuffer and attachment
-        std::vector<VkFramebuffer> framebuffers;
-        std::vector<DebugDrawFrameBufferAttachment> attachments;
-    };
 
     struct DebugDrawPipelineBase ///< pipelineLayout, pipline
     {
-        VkPipelineLayout layout = VK_NULL_HANDLE;
-        VkPipeline pipeline = VK_NULL_HANDLE;
+        VkPipelineLayout layout   = VK_NULL_HANDLE;
+        VkPipeline       pipeline = VK_NULL_HANDLE;
     };
 
     enum DebugDrawPipelineType : uint8_t ///< pipline type (AssemblyState and DepthStencilState)
@@ -51,19 +33,18 @@ namespace VKernel
 
     public:
         DebugDrawPipeline(DebugDrawPipelineType pipelineType) { m_pipeline_type = pipelineType; } ///< Constructor
-        void initialize(const VkAttachmentLoadOp& load_op, const VkImageLayout& initial_layout, const VkImageLayout& initial_layout_depth);                                                                        ///< init
-        void destory() {}                                                                         /// clear
+        void initialize(const VkAttachmentLoadOp& load_op,
+                        const VkImageLayout&      initial_layout,
+                        const VkImageLayout&      initial_layout_depth,
+                        const VkRenderPass&       renderpass); ///< init
+        void destory() {}                                /// clear
 
         // get
-        const DebugDrawPipelineBase &getPipeline() const;
-        const DebugDrawFramebuffer &getFramebuffer() const;
-
-        void recreateAfterSwapchain(); ///< destory and recreate framebuffer
+        const DebugDrawPipelineBase& getPipeline() const;
 
     private:
         // What needs to be accomplished in the pipeline class
         void setupFramebuffer();
-        void setupRenderPass(const VkAttachmentLoadOp& load_op, const VkImageLayout& initial_layout, const VkImageLayout& initial_layout_depth);
         void setupDescriptorLayout();
         void setupPipelines();
 
@@ -71,8 +52,8 @@ namespace VKernel
         std::shared_ptr<VulkanAPI> m_vulkan_api; ///< Vulkan interface
 
         // What needs to be accomplished in the pipeline class
-        VkDescriptorSetLayout m_descriptor_layout;
-        DebugDrawFramebuffer m_framebuffer;
+        VkDescriptorSetLayout              m_descriptor_layout;
+        VkRenderPass                       render_pass = VK_NULL_HANDLE;
         std::vector<DebugDrawPipelineBase> m_render_pipelines; ///< A render pass can have multiple pipelines
     };
-}
+} // namespace VKernel

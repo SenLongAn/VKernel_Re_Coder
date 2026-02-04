@@ -7,7 +7,6 @@
 #include "runtime/function/render/passes/ui_pass.h"
 #include "runtime/function/render/render_pass.h"
 
-
 /**
  * scene render core
  */

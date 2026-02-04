@@ -3,9 +3,9 @@
 #include "runtime/function/render/debugdraw/debug_draw_buffer.h"
 #include "runtime/function/render/debugdraw/debug_draw_group.h"
 #include "runtime/function/render/debugdraw/debug_draw_pipeline.h"
-#include "runtime/function/render/vulkan_interface/vulkan_api.h"
-
+#include "runtime/function/render/render_pass.h"
 #include "runtime/function/render/render_resource.h"
+#include "runtime/function/render/vulkan_interface/vulkan_api.h"
 
 #include <array>
 
@@ -14,21 +14,24 @@
  */
 namespace VKernel
 {
+    struct DebugPassInitInfo : RenderPassInitInfo
+    {
+        VkRenderPass render_pass;
+    };
+
     class DebugDrawManager
     {
 
     public:
         // base func
-        DebugDrawManager() {};       ///< Constructor
-        ~DebugDrawManager() {}       ///< Destructor
-        void initialize();           ///< init
-        void tick(float delta_time); ///< tick
-        void destory();              ///< clear
+        DebugDrawManager() {};                                ///< Constructor
+        ~DebugDrawManager() {}                                ///< Destructor
+        void initialize(const RenderPassInitInfo* init_info); ///< init
+        void tick(float delta_time);                          ///< tick
+        void destory();                                       ///< clear
 
         // interface
-        void setupPipelines(); ///< pipline and Allocator init
-
-        void updateAfterRecreateSwapchain(); ///< destory and recreate framebuffer
+        void setupPipelines(const DebugPassInitInfo* init_info); ///< pipline and Allocator init
 
         void
         preparePassData(std::shared_ptr<RenderResourceBase> render_resource); ///< Obtain VP data from the resource.

@@ -14,7 +14,9 @@
 #include "runtime/resource/asset_manager/asset_manager.h"
 #include "runtime/resource/config_manager/config_manager.h"
 
+#include "render_system.h"
 #include <iostream>
+
 
 namespace VKernel
 {
@@ -97,7 +99,7 @@ namespace VKernel
         // prepare processing data
         m_render_pipeline->preparePassData(m_render_resource);
 
-        g_runtime_global_context.m_debugdraw_manager->tick(delta_time);
+        m_render_pipeline->getDebugManager()->tick(delta_time);
 
         // prepare render command context, Update m_current_command_buffer
         m_vulkan_api->prepareContext();
@@ -161,6 +163,8 @@ namespace VKernel
     {
         return m_render_scene->getMeshAssetIdAllocator();
     }
+
+    std::shared_ptr<RenderPipelineBase> RenderSystem::getRenderPipline() const { return m_render_pipeline; }
 
     void RenderSystem::setVisibleAxis(std::optional<RenderEntity> axis)
     {

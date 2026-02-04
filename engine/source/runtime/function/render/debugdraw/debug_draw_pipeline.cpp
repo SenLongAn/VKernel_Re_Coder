@@ -2,6 +2,7 @@
 
 #include "runtime/function/global/global_context.h"
 #include "runtime/function/render/debugdraw/debug_draw_primitive.h"
+#include "runtime/function/render/render_pass.h"
 #include "runtime/function/render/render_system.h"
 
 #include "runtime/core/base/macro.h"
@@ -16,134 +17,18 @@ namespace VKernel
 {
     void DebugDrawPipeline::initialize(const VkAttachmentLoadOp& load_op,
                                        const VkImageLayout&      initial_layout,
-                                       const VkImageLayout&      initial_layout_depth)
+                                       const VkImageLayout&      initial_layout_depth,
+                                       const VkRenderPass&       renderpass)
     {
         m_vulkan_api = g_runtime_global_context.m_render_system->getVulkanAPI();
 
-        setupRenderPass(load_op, initial_layout, initial_layout_depth);
-        setupFramebuffer();
+        render_pass = renderpass;
+
         setupDescriptorLayout();
         setupPipelines();
     }
 
     const DebugDrawPipelineBase& DebugDrawPipeline::getPipeline() const { return m_render_pipelines[0]; }
-    const DebugDrawFramebuffer&  DebugDrawPipeline::getFramebuffer() const { return m_framebuffer; }
-
-    void DebugDrawPipeline::recreateAfterSwapchain()
-    {
-        for (auto framebuffer : m_framebuffer.framebuffers)
-        {
-            vkDestroyFramebuffer(m_vulkan_api->getLogicDevice(), framebuffer, nullptr);
-        }
-
-        setupFramebuffer();
-    }
-
-    void DebugDrawPipeline::setupRenderPass(const VkAttachmentLoadOp& load_op,
-                                            const VkImageLayout&      initial_layout,
-                                            const VkImageLayout&      initial_layout_depth)
-    {
-        // color attachment
-        VkAttachmentDescription color_attachment_description {};
-        color_attachment_description.format         = m_vulkan_api->getSwapchainInfo().image_format;
-        color_attachment_description.samples        = VK_SAMPLE_COUNT_1_BIT;
-        color_attachment_description.loadOp         = load_op;
-        color_attachment_description.storeOp        = VK_ATTACHMENT_STORE_OP_STORE;
-        color_attachment_description.stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-        color_attachment_description.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        color_attachment_description.initialLayout  = initial_layout;
-        color_attachment_description.finalLayout    = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-
-        VkAttachmentReference color_attachment_reference {};
-        color_attachment_reference.attachment = 0;
-        color_attachment_reference.layout     = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-        // depth attachment
-        VkAttachmentDescription depth_attachment_description {};
-        depth_attachment_description.format         = m_vulkan_api->getDepthImageInfo().depth_image_format;
-        depth_attachment_description.samples        = VK_SAMPLE_COUNT_1_BIT;
-        depth_attachment_description.loadOp         = load_op;
-        depth_attachment_description.storeOp        = VK_ATTACHMENT_STORE_OP_STORE;
-        depth_attachment_description.stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-        depth_attachment_description.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        depth_attachment_description.initialLayout  = initial_layout_depth;
-        depth_attachment_description.finalLayout    = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-
-        VkAttachmentReference depth_attachment_reference {};
-        depth_attachment_reference.attachment = 1;
-        depth_attachment_reference.layout     = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-
-        // Subpass
-        VkSubpassDescription subpass {};
-        subpass.pipelineBindPoint       = VK_PIPELINE_BIND_POINT_GRAPHICS;
-        subpass.colorAttachmentCount    = 1;
-        subpass.pColorAttachments       = &color_attachment_reference;
-        subpass.pDepthStencilAttachment = &depth_attachment_reference;
-
-        // Subpass Dependency
-        VkSubpassDependency  dependencies[1]       = {};
-        VkSubpassDependency& debug_draw_dependency = dependencies[0];
-        debug_draw_dependency.srcSubpass           = 0;
-        debug_draw_dependency.dstSubpass           = VK_SUBPASS_EXTERNAL;
-        debug_draw_dependency.srcStageMask =
-            VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
-        debug_draw_dependency.dstStageMask =
-            VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
-        debug_draw_dependency.srcAccessMask =
-            VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-        debug_draw_dependency.dstAccessMask =
-            VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-        debug_draw_dependency.dependencyFlags = 0;
-
-        // RenderPass
-        std::array<VkAttachmentDescription, 2> attachments = {color_attachment_description,
-                                                              depth_attachment_description};
-        VkRenderPassCreateInfo                 renderpass_create_info {};
-        renderpass_create_info.sType           = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-        renderpass_create_info.attachmentCount = attachments.size();
-        renderpass_create_info.pAttachments    = attachments.data();
-        renderpass_create_info.subpassCount    = 1;
-        renderpass_create_info.pSubpasses      = &subpass;
-        renderpass_create_info.dependencyCount = 1;
-        renderpass_create_info.pDependencies   = dependencies;
-
-        if (vkCreateRenderPass(
-                m_vulkan_api->getLogicDevice(), &renderpass_create_info, nullptr, &m_framebuffer.render_pass) !=
-            VK_SUCCESS)
-        {
-            LOG_ERROR("create inefficient pick render pass");
-        }
-    }
-
-    void DebugDrawPipeline::setupFramebuffer()
-    {
-        const std::vector<VkImageView> imageViews = m_vulkan_api->getSwapchainInfo().imageViews;
-
-        m_framebuffer.framebuffers.resize(imageViews.size());
-
-        for (size_t i = 0; i < m_framebuffer.framebuffers.size(); i++)
-        {
-
-            VkImageView attachments[2] = {imageViews[i], m_vulkan_api->getDepthImageInfo().depth_image_view};
-
-            VkFramebufferCreateInfo framebuffer_create_info {};
-            framebuffer_create_info.sType           = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-            framebuffer_create_info.renderPass      = m_framebuffer.render_pass;
-            framebuffer_create_info.attachmentCount = sizeof(attachments) / sizeof(attachments[0]);
-            framebuffer_create_info.pAttachments    = attachments;
-            framebuffer_create_info.width           = m_vulkan_api->getSwapchainInfo().extent.width;
-            framebuffer_create_info.height          = m_vulkan_api->getSwapchainInfo().extent.height;
-            framebuffer_create_info.layers          = 1;
-
-            if (vkCreateFramebuffer(m_vulkan_api->getLogicDevice(),
-                                    &framebuffer_create_info,
-                                    nullptr,
-                                    &m_framebuffer.framebuffers[i]) != VK_SUCCESS)
-            {
-                LOG_ERROR("create inefficient pick framebuffer");
-            }
-        }
-    }
 
     void DebugDrawPipeline::setupDescriptorLayout()
     {
@@ -237,9 +122,6 @@ namespace VKernel
         viewport_state_create_info.sType         = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
         viewport_state_create_info.viewportCount = 1;
         viewport_state_create_info.scissorCount  = 1;
-        // SwapChainDesc swapChainInfo = m_vulkan_api->getSwapchainInfo();
-        // viewport_state_create_info.pViewports = &swapChainInfo.viewport;
-        // viewport_state_create_info.pScissors = &swapChainInfo.scissor;
 
         // Rasterization State
         VkPipelineRasterizationStateCreateInfo rasterization_state_create_info {};
@@ -309,8 +191,8 @@ namespace VKernel
         pipelineInfo.pDynamicState       = &dynamic_state_create_info;
         pipelineInfo.pDepthStencilState  = &depth_stencil_create_info;
         pipelineInfo.layout              = m_render_pipelines[0].layout;
-        pipelineInfo.renderPass          = m_framebuffer.render_pass;
-        pipelineInfo.subpass             = 0;
+        pipelineInfo.renderPass          = render_pass;
+        pipelineInfo.subpass             = _main_camera_subpass_forward_lighting; ///< forward render
         pipelineInfo.basePipelineHandle  = VK_NULL_HANDLE;
 
         // Adjust according to the pipeline type

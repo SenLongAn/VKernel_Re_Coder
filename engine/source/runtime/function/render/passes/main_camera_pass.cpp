@@ -1,8 +1,10 @@
 #include "runtime/function/render/passes/main_camera_pass.h"
 
+#include "runtime/function/render/debugdraw/debug_draw_manager.h"
 #include "runtime/function/render/render_helper.h"
 #include "runtime/function/render/render_mesh.h"
 #include "runtime/function/render/render_resource.h"
+#include "runtime/function/render/render_system.h"
 
 #include "runtime/core/base/macro.h"
 
@@ -16,7 +18,6 @@
 #include <skybox_frag.h>
 #include <skybox_vert.h>
 
-#include "main_camera_pass.h"
 #include <map>
 #include <stdexcept>
 
@@ -88,6 +89,9 @@ namespace VKernel
 
         vkCmdNextSubpass(m_vulkan_api->getCurrentCommandBuffer(), VK_SUBPASS_CONTENTS_INLINE);
 
+        g_runtime_global_context.m_render_system->getRenderPipline()->getDebugManager()->draw(
+            m_vulkan_api->getCurrentSwapchainImageIndex()); ///< debugdraw
+
         drawAxis();
 
         vkCmdNextSubpass(m_vulkan_api->getCurrentCommandBuffer(), VK_SUBPASS_CONTENTS_INLINE);
@@ -151,6 +155,9 @@ namespace VKernel
         drawMeshLighting();
 
         drawSkybox();
+
+        g_runtime_global_context.m_render_system->getRenderPipline()->getDebugManager()->draw(
+            m_vulkan_api->getCurrentSwapchainImageIndex()); ///< debugdraw
 
         drawAxis();
 
@@ -515,7 +522,7 @@ namespace VKernel
         combine_ui_pass.pPreserveAttachments    = NULL;
 
         // Subpass Dependency
-        VkSubpassDependency dependencies[8] = {};
+        VkSubpassDependency dependencies[_main_camera_subpass_count] = {};
 
         VkSubpassDependency& deferred_lighting_pass_depend_on_shadow_map_pass = dependencies[0];
         deferred_lighting_pass_depend_on_shadow_map_pass.srcSubpass           = VK_SUBPASS_EXTERNAL;
