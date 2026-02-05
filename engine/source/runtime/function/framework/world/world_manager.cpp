@@ -8,6 +8,7 @@
 
 #include "_generated/serializer/all_serializer.h"
 #include "runtime/core/base/macro.h"
+#include "world_manager.h"
 
 namespace VKernel
 {
@@ -77,6 +78,41 @@ namespace VKernel
 
         // Validation
         auto iter = m_loaded_levels.find(level_url);
+        if (iter == m_loaded_levels.end())
+        {
+            LOG_ERROR("load level failed");
+            return;
+        }
+
+        // reset current active level
+        m_current_active_level = iter->second;
+    }
+
+    void WorldManager::loadNewLevel(const std::string new_level_url)
+    {
+        // find current active level
+        auto active_level = m_current_active_level.lock();
+        if (active_level == nullptr)
+        {
+            LOG_ERROR("current level is nil");
+            return;
+        }
+
+        // clear current active level
+        const std::string level_url = active_level->getLevelResUrl();
+        active_level->unload();
+        m_loaded_levels.erase(level_url);
+
+        // reload this level
+        const bool is_load_success = loadLevel(new_level_url);
+        if (!is_load_success)
+        {
+            LOG_ERROR("load level failed");
+            return;
+        }
+
+        // Validation
+        auto iter = m_loaded_levels.find(new_level_url);
         if (iter == m_loaded_levels.end())
         {
             LOG_ERROR("load level failed");

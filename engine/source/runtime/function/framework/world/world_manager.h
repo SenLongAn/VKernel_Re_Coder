@@ -22,7 +22,8 @@ namespace VKernel
         void tick(float delta_time); ///< tick
 
         void reloadCurrentLevel(); ///< reload current level
-        void saveCurrentLevel();   ///< save current level
+        void loadNewLevel(const std::string new_level_url);
+        void saveCurrentLevel(); ///< save current level
 
         // get
         std::weak_ptr<Level> getCurrentActiveLevel() const { return m_current_active_level; }

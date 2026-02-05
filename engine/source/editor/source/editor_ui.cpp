@@ -517,7 +517,8 @@ namespace ReCoder
                                   ImGuiTreeNodeFlags_SpanFullWidth); ///< create treenode
 
             // If clicked
-            if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
+            if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen() &&
+                ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
             {
                 onFileContentItemClicked(node);
             }
@@ -1022,7 +1023,7 @@ namespace ReCoder
     void EditorUI::onFileContentItemClicked(EditorFileNode* node)
     {
         // Cannot be created if it is not of type object
-        if (node->m_file_type != "object")
+        if (node->m_file_type != "object" && node->m_file_type != "level")
             return;
 
         // Find the currently active level
@@ -1031,17 +1032,26 @@ namespace ReCoder
         if (level == nullptr)
             return;
 
-        // create new object
-        const unsigned int         new_object_index = ++m_new_object_index_map[node->m_file_name];
-        VKernel::ObjectInstanceRes new_object_instance_res;
-        new_object_instance_res.m_name = "New_" + VKernel::Path::getFilePureName(node->m_file_name) + "_" +
-                                         std::to_string(new_object_index); ///< Set the name of the new object
-        new_object_instance_res.m_definition =
-            VKernel::g_runtime_global_context.m_asset_manager->getFullPath(node->m_file_path).generic_string();
-        size_t new_gobject_id = level->createObject(new_object_instance_res); ///< create new object
-        if (new_gobject_id != VKernel::k_invalid_gobject_id)
+        if (node->m_file_type == "object")
         {
-            g_editor_global_context.m_scene_manager->onGObjectSelected(new_gobject_id); ///< Update Selected Object
+            // create new object
+            const unsigned int         new_object_index = ++m_new_object_index_map[node->m_file_name];
+            VKernel::ObjectInstanceRes new_object_instance_res;
+            new_object_instance_res.m_name = "New_" + VKernel::Path::getFilePureName(node->m_file_name) + "_" +
+                                             std::to_string(new_object_index); ///< Set the name of the new object
+            new_object_instance_res.m_definition =
+                VKernel::g_runtime_global_context.m_asset_manager->getFullPath(node->m_file_path).generic_string();
+            size_t new_gobject_id = level->createObject(new_object_instance_res); ///< create new object
+            if (new_gobject_id != VKernel::k_invalid_gobject_id)
+            {
+                g_editor_global_context.m_scene_manager->onGObjectSelected(new_gobject_id); ///< Update Selected Object
+            }
+        }
+        else if (node->m_file_type == "level")
+        {
+            VKernel::g_runtime_global_context.m_world_manager->loadNewLevel(node->m_file_path); ///< reload level
+            VKernel::g_runtime_global_context.m_render_system->clearForLevelReloading();        ///< clear and reset
+            g_editor_global_context.m_input_manager->resetCameraSpeed();
         }
     }
 

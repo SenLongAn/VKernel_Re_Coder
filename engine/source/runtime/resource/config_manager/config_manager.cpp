@@ -8,7 +8,8 @@
 
 namespace VKernel
 {
-    void ConfigManager::initialize(const std::filesystem::path& config_file_path) ///< build/.../ReCoderEditor.ini
+    void ConfigManager::initialize(
+        const std::filesystem::path& config_file_path) ///< Absolute Path: ……/bin/ReCoderEditor.ini
     {
         // Read the file content line by line
         std::ifstream config_file(config_file_path);
@@ -19,17 +20,18 @@ namespace VKernel
             size_t seperate_pos = config_line.find_first_of('=');
             if (seperate_pos > 0 && seperate_pos < (config_line.length() - 1))
             {
+                // name, value
                 std::string name  = config_line.substr(0, seperate_pos);
                 std::string value = config_line.substr(seperate_pos + 1, config_line.length() - seperate_pos - 1);
 
                 // Match the key and look up the value
                 if (name == "BinaryRootFolder")
                 {
-                    m_root_folder = config_file_path.parent_path() / value; ///< bin
+                    m_root_folder = config_file_path.parent_path() / value; ///< ……/bin
                 }
                 else if (name == "AssetFolder")
                 {
-                    m_asset_folder = m_root_folder / value; ///< bin/asset
+                    m_asset_folder = m_root_folder / value; ///< ……/bin/asset
                 }
                 else if (name == "DefaultWorld") ///< bin/asset/world/1.world.json
                 {

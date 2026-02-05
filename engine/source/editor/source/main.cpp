@@ -8,9 +8,9 @@
  */
 int main(int argc, char** argv)
 {
-    std::filesystem::path executable_path(argv[0]);
+    std::filesystem::path executable_path(argv[0]); ///< Absolute Path: ……/bin/ReCoderEditor.exe
     std::filesystem::path config_file_path =
-        executable_path.parent_path() / "ReCoderEditor.ini"; ///< build/.../ReCoderEditor.ini
+        executable_path.parent_path() / "ReCoderEditor.ini"; ///< bin/ReCoderEditor.ini
 
     VKernel::VKernelEngine* engine = new VKernel::VKernelEngine();
     engine->startEngine(config_file_path.generic_string());
