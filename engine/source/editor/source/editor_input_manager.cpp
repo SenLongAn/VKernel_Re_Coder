@@ -210,6 +210,10 @@ namespace ReCoder
                 case GLFW_KEY_D:
                     m_editor_command |= (unsigned int)EditorCommand::camera_right;
                     break;
+                case GLFW_KEY_F11:
+                    VKernel::g_is_full_screen_mode = !VKernel::g_is_full_screen_mode;
+                    VKernel::g_runtime_global_context.m_window_system->showTitleBar(!VKernel::g_is_full_screen_mode);
+                    break;
                 default:
                     break;
             }

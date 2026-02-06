@@ -452,7 +452,54 @@ namespace ReCoder
         init_info.render_system->initializeUIRenderBackend(this);
     }
 
-    void EditorUI::preRender() { showEditorUI(); }
+    void EditorUI::preRender()
+    {
+        static bool is_first = true;
+        static int  pre_window_x, pre_window_y, pre_window_width, pre_window_height;
+        if (!VKernel::g_is_full_screen_mode)
+        {
+            if (!is_first)
+            {
+                glfwSetWindowSize(
+                    g_editor_global_context.m_window_system->getWindow(), pre_window_width, pre_window_height);
+                glfwSetWindowPos(g_editor_global_context.m_window_system->getWindow(), pre_window_x, pre_window_y);
+            }
+            showEditorUI();
+            is_first = true;
+        }
+        else
+        {
+            int window_x, window_y, window_width, window_height;
+            glfwGetWindowPos(g_editor_global_context.m_window_system->getWindow(), &window_x, &window_y);
+            glfwGetWindowSize(g_editor_global_context.m_window_system->getWindow(), &window_width, &window_height);
+            if (is_first)
+            {
+                pre_window_x      = window_x;
+                pre_window_y      = window_y;
+                pre_window_width  = window_width;
+                pre_window_height = window_height;
+                glfwSetWindowSize(
+                    g_editor_global_context.m_window_system->getWindow(), window_width, window_height + 35);
+                glfwSetWindowPos(g_editor_global_context.m_window_system->getWindow(), window_x, window_y - 35);
+                glfwGetWindowPos(g_editor_global_context.m_window_system->getWindow(), &window_x, &window_y);
+                glfwGetWindowSize(g_editor_global_context.m_window_system->getWindow(), &window_width, &window_height);
+                is_first = false;
+            }
+
+            VKernel::Vector2 render_target_window_pos  = VKernel::Vector2(0, 0);
+            VKernel::Vector2 render_target_window_size = VKernel::Vector2(window_width, window_height);
+
+            VKernel::g_runtime_global_context.m_render_system->updateEngineContentViewport(render_target_window_pos.x,
+                                                                                           render_target_window_pos.y,
+                                                                                           render_target_window_size.x,
+                                                                                           render_target_window_size.y);
+
+            g_editor_global_context.m_input_manager->setEngineWindowPos(render_target_window_pos);
+            g_editor_global_context.m_input_manager->setEngineWindowSize(render_target_window_size);
+
+            showEditorMenu(&m_editor_menu_window_open);
+        }
+    }
 
     void EditorUI::drawAxisToggleButton(const char* string_id, bool check_state, int axis_mode)
     {
@@ -610,39 +657,43 @@ namespace ReCoder
         ImGui::DockSpace(main_docking_id); ///< render dockSapce
 
         // MenuBar
-        if (ImGui::BeginMenuBar())
+        if (!VKernel::g_is_full_screen_mode)
         {
-            if (ImGui::BeginMenu("Menu"))
+            if (ImGui::BeginMenuBar())
             {
-                if (ImGui::MenuItem("Reload Current Level"))
+                if (ImGui::BeginMenu("Menu"))
                 {
-                    VKernel::g_runtime_global_context.m_world_manager->reloadCurrentLevel();     ///< reload level
-                    VKernel::g_runtime_global_context.m_render_system->clearForLevelReloading(); ///< clear and reset
-                    g_editor_global_context.m_input_manager->resetCameraSpeed();
-                }
-                if (ImGui::MenuItem("Save Current Level"))
-                {
-                    VKernel::g_runtime_global_context.m_world_manager->saveCurrentLevel();
-                }
-                if (ImGui::MenuItem("Exit"))
-                {
-                    g_editor_global_context.m_engine_runtime->shutdownEngine();
-                    exit(0);
+                    if (ImGui::MenuItem("Reload Current Level"))
+                    {
+                        VKernel::g_runtime_global_context.m_world_manager->reloadCurrentLevel(); ///< reload level
+                        VKernel::g_runtime_global_context.m_render_system
+                            ->clearForLevelReloading(); ///< clear and reset
+                        g_editor_global_context.m_input_manager->resetCameraSpeed();
+                    }
+                    if (ImGui::MenuItem("Save Current Level"))
+                    {
+                        VKernel::g_runtime_global_context.m_world_manager->saveCurrentLevel();
+                    }
+                    if (ImGui::MenuItem("Exit"))
+                    {
+                        g_editor_global_context.m_engine_runtime->shutdownEngine();
+                        exit(0);
+                    }
+
+                    ImGui::EndMenu();
                 }
 
-                ImGui::EndMenu();
+                if (ImGui::BeginMenu("Window"))
+                {
+                    ImGui::MenuItem("World Objects", nullptr, &m_asset_window_open);
+                    ImGui::MenuItem("Game", nullptr, &m_game_engine_window_open);
+                    ImGui::MenuItem("File Content", nullptr, &m_file_content_window_open);
+                    ImGui::MenuItem("Detail", nullptr, &m_detail_window_open);
+                    ImGui::EndMenu();
+                }
+
+                ImGui::EndMenuBar();
             }
-
-            if (ImGui::BeginMenu("Window"))
-            {
-                ImGui::MenuItem("World Objects", nullptr, &m_asset_window_open);
-                ImGui::MenuItem("Game", nullptr, &m_game_engine_window_open);
-                ImGui::MenuItem("File Content", nullptr, &m_file_content_window_open);
-                ImGui::MenuItem("Detail", nullptr, &m_detail_window_open);
-                ImGui::EndMenu();
-            }
-
-            ImGui::EndMenuBar();
         }
 
         // close window

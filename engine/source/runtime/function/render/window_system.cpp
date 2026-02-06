@@ -52,9 +52,21 @@ namespace VKernel
 
     bool WindowSystem::shouldClose() const { return glfwWindowShouldClose(m_window); }
 
-    void VKernel::WindowSystem::setFocusMode(bool mode)
+    void WindowSystem::setFocusMode(bool mode)
     {
         m_is_focus_mode = mode;
         glfwSetInputMode(m_window, GLFW_CURSOR, m_is_focus_mode ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
+    }
+
+    void WindowSystem::showTitleBar(bool is_show_title_bar)
+    {
+        if (is_show_title_bar)
+        {
+            glfwSetWindowAttrib(m_window, GLFW_DECORATED, GLFW_TRUE);
+        }
+        else
+        {
+            glfwSetWindowAttrib(m_window, GLFW_DECORATED, GLFW_FALSE);
+        }
     }
 } // namespace VKernel

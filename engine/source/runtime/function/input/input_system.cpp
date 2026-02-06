@@ -59,7 +59,6 @@ namespace VKernel
         // calculate xy delta
         m_cursor_delta_x = m_last_cursor_x - current_cursor_x;
         m_cursor_delta_y = m_last_cursor_y - current_cursor_y;
-        std::cout << m_cursor_delta_x << std::endl;
 
         // last xy
         m_last_cursor_x = current_cursor_x;
@@ -91,6 +90,10 @@ namespace VKernel
                     break;
                 case GLFW_KEY_LEFT_SHIFT:
                     m_game_command |= (unsigned int)GameCommand::sprint;
+                    break;
+                case GLFW_KEY_F11:
+                    g_is_full_screen_mode = !g_is_full_screen_mode;
+                    g_runtime_global_context.m_window_system->showTitleBar(!g_is_full_screen_mode);
                     break;
                 default:
                     break;

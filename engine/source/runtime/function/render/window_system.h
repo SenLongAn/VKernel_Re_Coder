@@ -59,6 +59,9 @@ namespace VKernel
             return glfwGetMouseButton(m_window, button) == GLFW_PRESS;
         }
 
+        // Title Bar
+        void showTitleBar(bool is_show_title_bar);
+
     protected:
         // callbacks func
         static void windowSizeCallback(GLFWwindow* window, int width, int height)
