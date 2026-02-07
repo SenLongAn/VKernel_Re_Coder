@@ -38,22 +38,14 @@ namespace VKernel
         Quaternion m_cursor_yaw;
     };
 
-    REFLECTION_TYPE(FreeCameraParameter)
-    CLASS(FreeCameraParameter : public CameraParameter, Fields)
-    {
-        REFLECTION_BODY(FreeCameraParameter);
-
-    public:
-        float m_speed {1.f};
-    };
-
     REFLECTION_TYPE(CameraComponentRes)
     CLASS(CameraComponentRes, Fields)
     {
         REFLECTION_BODY(CameraComponentRes);
 
     public:
-        Reflection::ReflectionPtr<CameraParameter> m_parameter;
+        FirstPersonCameraParameter m_first_camera;
+        ThirdPersonCameraParameter m_third_camera;
 
         CameraComponentRes() = default;
         CameraComponentRes(const CameraComponentRes& res);

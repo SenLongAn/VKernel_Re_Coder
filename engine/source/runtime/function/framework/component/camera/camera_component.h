@@ -39,15 +39,16 @@ namespace VKernel
         META(Enable)
         CameraComponentRes m_camera_res;
 
-        CameraMode m_camera_mode {CameraMode::invalid}; ///< camera mode
+        CameraMode m_camera_mode {CameraMode::third_person}; ///< camera mode
+        CameraMode m_pre_camera_mode {CameraMode::invalid};  ///< camera mode
 
-        Vector3 m_position {0.0f, 0.0f, 0.0f}; ///< last frame camera position
+        Vector3 m_position {0.0f, 0.0f, 0.0f}; ///< camera position
 
-        Vector3 m_forward {Vector3::UNIT_Z};
+        Vector3 m_forward {Vector3::UNIT_Z}; ///< camera rotate
         Vector3 m_up {Vector3::NEGATIVE_UNIT_Y};
         Vector3 m_left {Vector3::UNIT_X};
 
-        bool isFirst       = false;
         bool isButtonRight = false;
+        bool isFirst       = true;
     };
 } // namespace VKernel

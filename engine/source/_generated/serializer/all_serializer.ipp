@@ -593,37 +593,22 @@ namespace VKernel{
         return instance;
     }
     template<>
-    Json Serializer::write(const FreeCameraParameter& instance){
-        Json::object  ret_context;
-        auto&&  json_context_0 = Serializer::write(*(VKernel::CameraParameter*)&instance);
-        assert(json_context_0.is_object());
-        auto&& json_context_map_0 = json_context_0.object_items();
-        ret_context.insert(json_context_map_0.begin() , json_context_map_0.end());
-        ret_context.insert_or_assign("speed", Serializer::write(instance.m_speed));
-        return  Json(ret_context);
-    }
-    template<>
-    FreeCameraParameter& Serializer::read(const Json& json_context, FreeCameraParameter& instance){
-        assert(json_context.is_object());
-        Serializer::read(json_context,*(VKernel::CameraParameter*)&instance);
-        if(!json_context["speed"].is_null()){
-            Serializer::read(json_context["speed"], instance.m_speed);
-        }
-        return instance;
-    }
-    template<>
     Json Serializer::write(const CameraComponentRes& instance){
         Json::object  ret_context;
         
-        ret_context.insert_or_assign("parameter", Serializer::write(instance.m_parameter));
+        ret_context.insert_or_assign("first_camera", Serializer::write(instance.m_first_camera));
+        ret_context.insert_or_assign("third_camera", Serializer::write(instance.m_third_camera));
         return  Json(ret_context);
     }
     template<>
     CameraComponentRes& Serializer::read(const Json& json_context, CameraComponentRes& instance){
         assert(json_context.is_object());
         
-        if(!json_context["parameter"].is_null()){
-            Serializer::read(json_context["parameter"], instance.m_parameter);
+        if(!json_context["first_camera"].is_null()){
+            Serializer::read(json_context["first_camera"], instance.m_first_camera);
+        }
+        if(!json_context["third_camera"].is_null()){
+            Serializer::read(json_context["third_camera"], instance.m_third_camera);
         }
         return instance;
     }

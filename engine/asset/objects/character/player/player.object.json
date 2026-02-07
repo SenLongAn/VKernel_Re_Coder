@@ -29,7 +29,7 @@
                     "sub_meshes": [
                         {
                             "material": "asset/objects/character/player/components/mesh/player.material.json",
-                            "obj_file_ref": "asset/objects/character/player/components/mesh/cube.obj",
+                            "obj_file_ref": "asset/objects/character/player/components/mesh/sphere.obj",
                             "transform": {
                                 "position": {
                                     "x": 0,
@@ -57,13 +57,13 @@
         {
             "$context": {
                 "camera_res": {
-                    "parameter": {
-                        "$context": {
-                            "fov": 70,
-                            "horizontal_offset": -4,
-                            "vertical_offset": -1
-                        },
-                        "$typeName": "ThirdPersonCameraParameter"
+                    "first_camera": {
+                        "vertical_offset": -0.5
+                    },
+                    "third_camera": {
+                        "fov": 70,
+                        "horizontal_offset": -4,
+                        "vertical_offset": -1
                     }
                 }
             },

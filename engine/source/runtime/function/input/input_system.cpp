@@ -95,6 +95,9 @@ namespace VKernel
                     g_is_full_screen_mode = !g_is_full_screen_mode;
                     g_runtime_global_context.m_window_system->showTitleBar(!g_is_full_screen_mode);
                     break;
+                case GLFW_KEY_F:
+                    m_game_command ^= (unsigned int)GameCommand::first_camera;
+                    break;
                 default:
                     break;
             }

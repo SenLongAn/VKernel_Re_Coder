@@ -4,11 +4,7 @@
 
 namespace VKernel
 {
-    CameraComponentRes::CameraComponentRes(const CameraComponentRes& res)
-    {
-        m_parameter = VKERNEL_REFLECTION_NEW(ThirdPersonCameraParameter);
-        VKERNEL_REFLECTION_DEEP_COPY(ThirdPersonCameraParameter, m_parameter, res.m_parameter);
-    }
+    CameraComponentRes::CameraComponentRes(const CameraComponentRes& res) {}
 
-    CameraComponentRes::~CameraComponentRes() { VKERNEL_REFLECTION_DELETE(m_parameter); }
+    CameraComponentRes::~CameraComponentRes() {}
 } // namespace VKernel
