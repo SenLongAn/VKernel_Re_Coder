@@ -2,7 +2,6 @@
 
 #include "runtime/function/framework/object/object.h"
 #include "runtime/resource/asset_manager/asset_manager.h"
-#include "runtime/resource/res_type/common/level.h"
 
 #include "runtime/core/base/macro.h"
 #include "runtime/engine.h"
@@ -21,7 +20,6 @@ namespace VKernel
         m_level_res_url = level_res_url;
 
         // load level
-        LevelRes   level_res;
         const bool is_load_success = g_runtime_global_context.m_asset_manager->loadAsset(level_res_url, level_res);
         if (is_load_success == false)
         {
@@ -35,18 +33,27 @@ namespace VKernel
         }
 
         // create active character
-        for (const auto& object_pair : m_gobjects) ///< Iterate through each object
+        for (auto& current_character_name : level_res.m_character_name)
         {
-            std::shared_ptr<GObject> object = object_pair.second;
-            if (object == nullptr)
-                continue;
-
-            if (level_res.m_character_name == object->getName()) ///< If the player is found
+            if (m_go.count(current_character_name))
             {
-                m_current_active_character = std::make_shared<Character>(object);
-                break;
+                std::shared_ptr<GObject> object = m_go[current_character_name];
+                if (object == nullptr)
+                    continue;
+
+                std::shared_ptr<Character> character =
+                    g_runtime_global_context.m_character_Manager->registerCharacter(object->getName(), object);
+                if (level_res.m_current_character_name == current_character_name)
+                {
+                    g_runtime_global_context.m_character_Manager->setCurrentCharacter(character);
+                    m_current_active_character = character;
+                }
             }
         }
+        // for (const auto& object_pair : m_gobjects) ///< Iterate through each object
+        // {
+        //     std::shared_ptr<GObject> object = object_pair.second;
+        // }
 
         m_is_loaded = true;
 
@@ -87,6 +94,7 @@ namespace VKernel
         if (is_loaded)
         {
             m_gobjects.emplace(object_id, gobject); ///< add to map
+            m_go.emplace(gobject->getName(), gobject);
         }
         else
         {
@@ -105,7 +113,9 @@ namespace VKernel
         std::vector<ObjectInstanceRes>& output_objects = output_level_res.m_objects;
         output_objects.resize(object_cout);
 
-        output_level_res.m_character_name = m_current_active_character->getObject().lock()->getName();
+        output_level_res.m_character_name         = level_res.m_character_name;
+        output_level_res.m_current_character_name = level_res.m_current_character_name;
+        // m_current_active_character->getObject().lock()->getName();
 
         // Iterate over all objects in the level
         size_t object_index = 0;

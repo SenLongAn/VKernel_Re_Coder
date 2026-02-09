@@ -4,14 +4,14 @@
 #include "_generated/serializer/transform.serializer.gen.h"
 #include "_generated/serializer/world.serializer.gen.h"
 #include "_generated/serializer/vector3.serializer.gen.h"
-#include "_generated/serializer/matrix4.serializer.gen.h"
-#include "_generated/serializer/vector2.serializer.gen.h"
+#include "_generated/serializer/vector4.serializer.gen.h"
+#include "_generated/serializer/object.serializer.gen.h"
 #include "_generated/serializer/motor_component.serializer.gen.h"
 #include "_generated/serializer/color.serializer.gen.h"
-#include "_generated/serializer/object.serializer.gen.h"
-#include "_generated/serializer/vector4.serializer.gen.h"
-#include "_generated/serializer/axis_aligned.serializer.gen.h"
+#include "_generated/serializer/vector2.serializer.gen.h"
+#include "_generated/serializer/matrix4.serializer.gen.h"
 #include "_generated/serializer/component.serializer.gen.h"
+#include "_generated/serializer/axis_aligned.serializer.gen.h"
 #include "_generated/serializer/render_object.serializer.gen.h"
 #include "_generated/serializer/camera.serializer.gen.h"
 #include "_generated/serializer/camera_component.serializer.gen.h"
@@ -27,7 +27,13 @@ namespace VKernel{
     Json Serializer::write(const LevelRes& instance){
         Json::object  ret_context;
         
-        ret_context.insert_or_assign("character_name", Serializer::write(instance.m_character_name));
+        Json::array m_character_name_json;
+        for (auto& item : instance.m_character_name){
+            m_character_name_json.emplace_back(Serializer::write(item));
+        }
+        ret_context.insert_or_assign("character_name",m_character_name_json);
+        
+        ret_context.insert_or_assign("current_character_name", Serializer::write(instance.m_current_character_name));
         Json::array m_objects_json;
         for (auto& item : instance.m_objects){
             m_objects_json.emplace_back(Serializer::write(item));
@@ -41,7 +47,15 @@ namespace VKernel{
         assert(json_context.is_object());
         
         if(!json_context["character_name"].is_null()){
-            Serializer::read(json_context["character_name"], instance.m_character_name);
+            assert(json_context["character_name"].is_array());
+            Json::array array_m_character_name = json_context["character_name"].array_items();
+            instance.m_character_name.resize(array_m_character_name.size());
+            for (size_t index=0; index < array_m_character_name.size();++index){
+                Serializer::read(array_m_character_name[index], instance.m_character_name[index]);
+            }
+        }
+        if(!json_context["current_character_name"].is_null()){
+            Serializer::read(json_context["current_character_name"], instance.m_current_character_name);
         }
         if(!json_context["objects"].is_null()){
             assert(json_context["objects"].is_array());
@@ -168,91 +182,17 @@ namespace VKernel{
         return instance;
     }
     template<>
-    Json Serializer::write(const Matrix4x4_& instance){
-        Json::object  ret_context;
-        
-        ret_context.insert_or_assign("v0", Serializer::write(instance.v0));
-        ret_context.insert_or_assign("v1", Serializer::write(instance.v1));
-        ret_context.insert_or_assign("v2", Serializer::write(instance.v2));
-        ret_context.insert_or_assign("v3", Serializer::write(instance.v3));
-        ret_context.insert_or_assign("v4", Serializer::write(instance.v4));
-        ret_context.insert_or_assign("v5", Serializer::write(instance.v5));
-        ret_context.insert_or_assign("v6", Serializer::write(instance.v6));
-        ret_context.insert_or_assign("v7", Serializer::write(instance.v7));
-        ret_context.insert_or_assign("v8", Serializer::write(instance.v8));
-        ret_context.insert_or_assign("v9", Serializer::write(instance.v9));
-        ret_context.insert_or_assign("v10", Serializer::write(instance.v10));
-        ret_context.insert_or_assign("v11", Serializer::write(instance.v11));
-        ret_context.insert_or_assign("v12", Serializer::write(instance.v12));
-        ret_context.insert_or_assign("v13", Serializer::write(instance.v13));
-        ret_context.insert_or_assign("v14", Serializer::write(instance.v14));
-        ret_context.insert_or_assign("v15", Serializer::write(instance.v15));
-        return  Json(ret_context);
-    }
-    template<>
-    Matrix4x4_& Serializer::read(const Json& json_context, Matrix4x4_& instance){
-        assert(json_context.is_object());
-        
-        if(!json_context["v0"].is_null()){
-            Serializer::read(json_context["v0"], instance.v0);
-        }
-        if(!json_context["v1"].is_null()){
-            Serializer::read(json_context["v1"], instance.v1);
-        }
-        if(!json_context["v2"].is_null()){
-            Serializer::read(json_context["v2"], instance.v2);
-        }
-        if(!json_context["v3"].is_null()){
-            Serializer::read(json_context["v3"], instance.v3);
-        }
-        if(!json_context["v4"].is_null()){
-            Serializer::read(json_context["v4"], instance.v4);
-        }
-        if(!json_context["v5"].is_null()){
-            Serializer::read(json_context["v5"], instance.v5);
-        }
-        if(!json_context["v6"].is_null()){
-            Serializer::read(json_context["v6"], instance.v6);
-        }
-        if(!json_context["v7"].is_null()){
-            Serializer::read(json_context["v7"], instance.v7);
-        }
-        if(!json_context["v8"].is_null()){
-            Serializer::read(json_context["v8"], instance.v8);
-        }
-        if(!json_context["v9"].is_null()){
-            Serializer::read(json_context["v9"], instance.v9);
-        }
-        if(!json_context["v10"].is_null()){
-            Serializer::read(json_context["v10"], instance.v10);
-        }
-        if(!json_context["v11"].is_null()){
-            Serializer::read(json_context["v11"], instance.v11);
-        }
-        if(!json_context["v12"].is_null()){
-            Serializer::read(json_context["v12"], instance.v12);
-        }
-        if(!json_context["v13"].is_null()){
-            Serializer::read(json_context["v13"], instance.v13);
-        }
-        if(!json_context["v14"].is_null()){
-            Serializer::read(json_context["v14"], instance.v14);
-        }
-        if(!json_context["v15"].is_null()){
-            Serializer::read(json_context["v15"], instance.v15);
-        }
-        return instance;
-    }
-    template<>
-    Json Serializer::write(const Vector2& instance){
+    Json Serializer::write(const Vector4& instance){
         Json::object  ret_context;
         
         ret_context.insert_or_assign("x", Serializer::write(instance.x));
         ret_context.insert_or_assign("y", Serializer::write(instance.y));
+        ret_context.insert_or_assign("z", Serializer::write(instance.z));
+        ret_context.insert_or_assign("w", Serializer::write(instance.w));
         return  Json(ret_context);
     }
     template<>
-    Vector2& Serializer::read(const Json& json_context, Vector2& instance){
+    Vector4& Serializer::read(const Json& json_context, Vector4& instance){
         assert(json_context.is_object());
         
         if(!json_context["x"].is_null()){
@@ -261,48 +201,11 @@ namespace VKernel{
         if(!json_context["y"].is_null()){
             Serializer::read(json_context["y"], instance.y);
         }
-        return instance;
-    }
-    template<>
-    Json Serializer::write(const MotorComponent& instance){
-        Json::object  ret_context;
-        auto&&  json_context_0 = Serializer::write(*(VKernel::Component*)&instance);
-        assert(json_context_0.is_object());
-        auto&& json_context_map_0 = json_context_0.object_items();
-        ret_context.insert(json_context_map_0.begin() , json_context_map_0.end());
-        ret_context.insert_or_assign("motor_res", Serializer::write(instance.m_motor_res));
-        return  Json(ret_context);
-    }
-    template<>
-    MotorComponent& Serializer::read(const Json& json_context, MotorComponent& instance){
-        assert(json_context.is_object());
-        Serializer::read(json_context,*(VKernel::Component*)&instance);
-        if(!json_context["motor_res"].is_null()){
-            Serializer::read(json_context["motor_res"], instance.m_motor_res);
+        if(!json_context["z"].is_null()){
+            Serializer::read(json_context["z"], instance.z);
         }
-        return instance;
-    }
-    template<>
-    Json Serializer::write(const Color& instance){
-        Json::object  ret_context;
-        
-        ret_context.insert_or_assign("r", Serializer::write(instance.r));
-        ret_context.insert_or_assign("g", Serializer::write(instance.g));
-        ret_context.insert_or_assign("b", Serializer::write(instance.b));
-        return  Json(ret_context);
-    }
-    template<>
-    Color& Serializer::read(const Json& json_context, Color& instance){
-        assert(json_context.is_object());
-        
-        if(!json_context["r"].is_null()){
-            Serializer::read(json_context["r"], instance.r);
-        }
-        if(!json_context["g"].is_null()){
-            Serializer::read(json_context["g"], instance.g);
-        }
-        if(!json_context["b"].is_null()){
-            Serializer::read(json_context["b"], instance.b);
+        if(!json_context["w"].is_null()){
+            Serializer::read(json_context["w"], instance.w);
         }
         return instance;
     }
@@ -387,17 +290,58 @@ namespace VKernel{
         return instance;
     }
     template<>
-    Json Serializer::write(const Vector4& instance){
+    Json Serializer::write(const MotorComponent& instance){
+        Json::object  ret_context;
+        auto&&  json_context_0 = Serializer::write(*(VKernel::Component*)&instance);
+        assert(json_context_0.is_object());
+        auto&& json_context_map_0 = json_context_0.object_items();
+        ret_context.insert(json_context_map_0.begin() , json_context_map_0.end());
+        ret_context.insert_or_assign("motor_res", Serializer::write(instance.m_motor_res));
+        return  Json(ret_context);
+    }
+    template<>
+    MotorComponent& Serializer::read(const Json& json_context, MotorComponent& instance){
+        assert(json_context.is_object());
+        Serializer::read(json_context,*(VKernel::Component*)&instance);
+        if(!json_context["motor_res"].is_null()){
+            Serializer::read(json_context["motor_res"], instance.m_motor_res);
+        }
+        return instance;
+    }
+    template<>
+    Json Serializer::write(const Color& instance){
+        Json::object  ret_context;
+        
+        ret_context.insert_or_assign("r", Serializer::write(instance.r));
+        ret_context.insert_or_assign("g", Serializer::write(instance.g));
+        ret_context.insert_or_assign("b", Serializer::write(instance.b));
+        return  Json(ret_context);
+    }
+    template<>
+    Color& Serializer::read(const Json& json_context, Color& instance){
+        assert(json_context.is_object());
+        
+        if(!json_context["r"].is_null()){
+            Serializer::read(json_context["r"], instance.r);
+        }
+        if(!json_context["g"].is_null()){
+            Serializer::read(json_context["g"], instance.g);
+        }
+        if(!json_context["b"].is_null()){
+            Serializer::read(json_context["b"], instance.b);
+        }
+        return instance;
+    }
+    template<>
+    Json Serializer::write(const Vector2& instance){
         Json::object  ret_context;
         
         ret_context.insert_or_assign("x", Serializer::write(instance.x));
         ret_context.insert_or_assign("y", Serializer::write(instance.y));
-        ret_context.insert_or_assign("z", Serializer::write(instance.z));
-        ret_context.insert_or_assign("w", Serializer::write(instance.w));
         return  Json(ret_context);
     }
     template<>
-    Vector4& Serializer::read(const Json& json_context, Vector4& instance){
+    Vector2& Serializer::read(const Json& json_context, Vector2& instance){
         assert(json_context.is_object());
         
         if(!json_context["x"].is_null()){
@@ -406,12 +350,96 @@ namespace VKernel{
         if(!json_context["y"].is_null()){
             Serializer::read(json_context["y"], instance.y);
         }
-        if(!json_context["z"].is_null()){
-            Serializer::read(json_context["z"], instance.z);
+        return instance;
+    }
+    template<>
+    Json Serializer::write(const Matrix4x4_& instance){
+        Json::object  ret_context;
+        
+        ret_context.insert_or_assign("v0", Serializer::write(instance.v0));
+        ret_context.insert_or_assign("v1", Serializer::write(instance.v1));
+        ret_context.insert_or_assign("v2", Serializer::write(instance.v2));
+        ret_context.insert_or_assign("v3", Serializer::write(instance.v3));
+        ret_context.insert_or_assign("v4", Serializer::write(instance.v4));
+        ret_context.insert_or_assign("v5", Serializer::write(instance.v5));
+        ret_context.insert_or_assign("v6", Serializer::write(instance.v6));
+        ret_context.insert_or_assign("v7", Serializer::write(instance.v7));
+        ret_context.insert_or_assign("v8", Serializer::write(instance.v8));
+        ret_context.insert_or_assign("v9", Serializer::write(instance.v9));
+        ret_context.insert_or_assign("v10", Serializer::write(instance.v10));
+        ret_context.insert_or_assign("v11", Serializer::write(instance.v11));
+        ret_context.insert_or_assign("v12", Serializer::write(instance.v12));
+        ret_context.insert_or_assign("v13", Serializer::write(instance.v13));
+        ret_context.insert_or_assign("v14", Serializer::write(instance.v14));
+        ret_context.insert_or_assign("v15", Serializer::write(instance.v15));
+        return  Json(ret_context);
+    }
+    template<>
+    Matrix4x4_& Serializer::read(const Json& json_context, Matrix4x4_& instance){
+        assert(json_context.is_object());
+        
+        if(!json_context["v0"].is_null()){
+            Serializer::read(json_context["v0"], instance.v0);
         }
-        if(!json_context["w"].is_null()){
-            Serializer::read(json_context["w"], instance.w);
+        if(!json_context["v1"].is_null()){
+            Serializer::read(json_context["v1"], instance.v1);
         }
+        if(!json_context["v2"].is_null()){
+            Serializer::read(json_context["v2"], instance.v2);
+        }
+        if(!json_context["v3"].is_null()){
+            Serializer::read(json_context["v3"], instance.v3);
+        }
+        if(!json_context["v4"].is_null()){
+            Serializer::read(json_context["v4"], instance.v4);
+        }
+        if(!json_context["v5"].is_null()){
+            Serializer::read(json_context["v5"], instance.v5);
+        }
+        if(!json_context["v6"].is_null()){
+            Serializer::read(json_context["v6"], instance.v6);
+        }
+        if(!json_context["v7"].is_null()){
+            Serializer::read(json_context["v7"], instance.v7);
+        }
+        if(!json_context["v8"].is_null()){
+            Serializer::read(json_context["v8"], instance.v8);
+        }
+        if(!json_context["v9"].is_null()){
+            Serializer::read(json_context["v9"], instance.v9);
+        }
+        if(!json_context["v10"].is_null()){
+            Serializer::read(json_context["v10"], instance.v10);
+        }
+        if(!json_context["v11"].is_null()){
+            Serializer::read(json_context["v11"], instance.v11);
+        }
+        if(!json_context["v12"].is_null()){
+            Serializer::read(json_context["v12"], instance.v12);
+        }
+        if(!json_context["v13"].is_null()){
+            Serializer::read(json_context["v13"], instance.v13);
+        }
+        if(!json_context["v14"].is_null()){
+            Serializer::read(json_context["v14"], instance.v14);
+        }
+        if(!json_context["v15"].is_null()){
+            Serializer::read(json_context["v15"], instance.v15);
+        }
+        return instance;
+    }
+    template<>
+    Json Serializer::write(const Component& instance){
+        Json::object  ret_context;
+        
+        
+        return  Json(ret_context);
+    }
+    template<>
+    Component& Serializer::read(const Json& json_context, Component& instance){
+        assert(json_context.is_object());
+        
+        
         return instance;
     }
     template<>
@@ -440,20 +468,6 @@ namespace VKernel{
         if(!json_context["max_corner"].is_null()){
             Serializer::read(json_context["max_corner"], instance.m_max_corner);
         }
-        return instance;
-    }
-    template<>
-    Json Serializer::write(const Component& instance){
-        Json::object  ret_context;
-        
-        
-        return  Json(ret_context);
-    }
-    template<>
-    Component& Serializer::read(const Json& json_context, Component& instance){
-        assert(json_context.is_object());
-        
-        
         return instance;
     }
     template<>

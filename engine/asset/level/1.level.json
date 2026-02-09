@@ -1,8 +1,9 @@
 {
-  "character_name": "Player",  
+  "character_name": ["ControlCabin"],
+  "current_character_name": "ControlCabin",
   "objects": [
         {
-          "name": "Player",
+          "name": "ControlCabin",
           "instanced_components": [
             {
               "$typeName": "TransformComponent",
@@ -42,7 +43,7 @@
                     "z": 0.0
                   },
                   "euler_rotation": {
-                    "x": 89.0,
+                    "x": 90.0,
                     "y": 0.0,
                     "z": 0.0
                   },

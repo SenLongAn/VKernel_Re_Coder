@@ -7,6 +7,19 @@
 
 namespace VKernel
 {
+    class Character;
+    class GObject;
+    class Component;
+    class TransformComponent;
+} // namespace VKernel
+
+namespace Games
+{
+    class ControlCabin;
+}
+
+namespace VKernel
+{
     enum class JumpState : unsigned char
     {
         idle,
@@ -15,14 +28,14 @@ namespace VKernel
     };
 
     REFLECTION_TYPE(MotorComponent)
-    CLASS(MotorComponent : public Component, WhiteListFields, WhiteListMethods)
+    CLASS(MotorComponent : public VKernel::Component, WhiteListFields, WhiteListMethods)
     {
         REFLECTION_BODY(MotorComponent)
 
     public:
         // load
         MotorComponent() = default;
-        void postLoadResource(std::weak_ptr<GObject> parent_object) override;
+        void postLoadResource(std::weak_ptr<VKernel::GObject> parent_object) override;
 
         ~MotorComponent() override;
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "runtime/function/framework/object/object_id_allocator.h"
+#include "runtime/resource/res_type/common/level.h"
 
 #include <memory>
 #include <string>
@@ -43,7 +44,10 @@ namespace VKernel
     protected:
         std::string m_level_res_url; ///< level url
 
-        LevelObjectsMap m_gobjects; ///< all loaded objects: id, object
+        LevelRes level_res;
+
+        LevelObjectsMap                                           m_gobjects; ///< all loaded objects: id, object
+        std::unordered_map<std::string, std::shared_ptr<GObject>> m_go;       ///< name, GO
 
         bool m_is_loaded {false}; ///< Has the level been loaded
 

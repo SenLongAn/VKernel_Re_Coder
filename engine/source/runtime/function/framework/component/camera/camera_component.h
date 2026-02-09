@@ -12,6 +12,17 @@
  */
 namespace VKernel
 {
+    class Character;
+    class GObject;
+    class Component;
+} // namespace VKernel
+
+namespace Games
+{
+    class ControlCabin;
+}
+namespace VKernel
+{
     enum class CameraMode : unsigned char ///< camera mode
     {
         third_person,
@@ -20,13 +31,13 @@ namespace VKernel
     };
 
     REFLECTION_TYPE(CameraComponent)
-    CLASS(CameraComponent : public Component, WhiteListFields)
+    CLASS(CameraComponent : public VKernel::Component, WhiteListFields)
     {
         REFLECTION_BODY(CameraComponent)
     public:
         CameraComponent() = default; ///< Destructor
 
-        void postLoadResource(std::weak_ptr<GObject> parent_object) override; ///< load resource
+        void postLoadResource(std::weak_ptr<VKernel::GObject> parent_object) override; ///< load resource
 
         void tick(float delta_time) override; ///< tick
 

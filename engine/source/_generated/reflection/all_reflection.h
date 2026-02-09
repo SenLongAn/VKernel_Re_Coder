@@ -6,14 +6,14 @@
 #include "_generated/reflection/transform.reflection.gen.h"
 #include "_generated/reflection/world.reflection.gen.h"
 #include "_generated/reflection/vector3.reflection.gen.h"
-#include "_generated/reflection/matrix4.reflection.gen.h"
-#include "_generated/reflection/vector2.reflection.gen.h"
+#include "_generated/reflection/vector4.reflection.gen.h"
+#include "_generated/reflection/object.reflection.gen.h"
 #include "_generated/reflection/motor_component.reflection.gen.h"
 #include "_generated/reflection/color.reflection.gen.h"
-#include "_generated/reflection/object.reflection.gen.h"
-#include "_generated/reflection/vector4.reflection.gen.h"
-#include "_generated/reflection/axis_aligned.reflection.gen.h"
+#include "_generated/reflection/vector2.reflection.gen.h"
+#include "_generated/reflection/matrix4.reflection.gen.h"
 #include "_generated/reflection/component.reflection.gen.h"
+#include "_generated/reflection/axis_aligned.reflection.gen.h"
 #include "_generated/reflection/render_object.reflection.gen.h"
 #include "_generated/reflection/camera.reflection.gen.h"
 #include "_generated/reflection/camera_component.reflection.gen.h"
@@ -33,14 +33,14 @@ namespace Reflection{
         TypeWrappersRegister::Transform();
         TypeWrappersRegister::World();
         TypeWrappersRegister::Vector3();
-        TypeWrappersRegister::Matrix4();
-        TypeWrappersRegister::Vector2();
+        TypeWrappersRegister::Vector4();
+        TypeWrappersRegister::Object();
         TypeWrappersRegister::MotorComponent();
         TypeWrappersRegister::Color();
-        TypeWrappersRegister::Object();
-        TypeWrappersRegister::Vector4();
-        TypeWrappersRegister::AxisAligned();
+        TypeWrappersRegister::Vector2();
+        TypeWrappersRegister::Matrix4();
         TypeWrappersRegister::Component();
+        TypeWrappersRegister::AxisAligned();
         TypeWrappersRegister::RenderObject();
         TypeWrappersRegister::Camera();
         TypeWrappersRegister::CameraComponent();

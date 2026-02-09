@@ -5,6 +5,8 @@
 
 #include "runtime/resource/res_type/common/object.h"
 
+#include <unordered_set>
+
 namespace VKernel
 {
     REFLECTION_TYPE(LevelRes)
@@ -13,7 +15,9 @@ namespace VKernel
         REFLECTION_BODY(LevelRes);
 
     public:
-        std::string m_character_name;
+        std::vector<std::string> m_character_name;
+
+        std::string m_current_character_name;
 
         std::vector<ObjectInstanceRes> m_objects;
     };

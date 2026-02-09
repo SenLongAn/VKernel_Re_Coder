@@ -1,15 +1,42 @@
 #include "runtime/function/character/character.h"
 
-#include "runtime/function/framework/component/motor/motor_component.h"
-#include "runtime/function/framework/component/transform/transform_component.h"
-
-#include "runtime/function/global/global_context.h"
-#include "runtime/function/render/window_system.h"
-#include <GLFW/glfw3.h>
-
 namespace VKernel
 {
-    Character::Character(std::shared_ptr<GObject> character_object) { setObject(character_object); }
+    CharacterManager::CharacterManager() {}
+
+    std::shared_ptr<Character> CharacterManager::registerCharacter(const std::string& characterType,
+
+                                                                   std::shared_ptr<GObject> characterObject)
+    {
+        auto character = CharacterFactory::getInstance().createCharacter(characterType, characterObject);
+
+        if (character)
+        {
+            m_characters.push_back(character);
+        }
+
+        return character;
+    }
+
+    void CharacterManager::setCurrentCharacter(std::shared_ptr<Character> character)
+    {
+        Character::setCurrentCharacter(character);
+    }
+
+    void CharacterManager::updateCurrentCharacter(float delta_time)
+    {
+        if (Character::getCurrentCharacter())
+        {
+            Character::getCurrentCharacter()->tick(delta_time);
+        }
+    }
+
+    void CharacterManager::clearCharacters() { m_characters.clear(); }
+
+    std::shared_ptr<Character> Character::m_current_character = nullptr;
+    std::shared_ptr<Character> Character::getCurrentCharacter() { return m_current_character; }
+
+    void Character::setObject(std::shared_ptr<GObject> gobject) { m_character_object = gobject; }
 
     GObjectID Character::getObjectID() const
     {
@@ -20,29 +47,4 @@ namespace VKernel
 
         return k_invalid_gobject_id;
     }
-
-    void Character::tick(float delta_time)
-    {
-        TransformComponent* transform_component =
-            m_character_object->tryGetComponent(TransformComponent, "TransformComponent");
-        MotorComponent* motor_component = m_character_object->tryGetComponent(MotorComponent, "MotorComponent");
-        if (motor_component == nullptr)
-        {
-            return;
-        }
-
-        // set transform component rotation
-        if (motor_component->getIsMoving())
-        {
-
-            transform_component->setRotation(m_rotation);
-        }
-
-        // set character target position
-        const Vector3& new_position = motor_component->getTargetPosition();
-
-        m_position = new_position;
-    }
-
-    void Character::setObject(std::shared_ptr<GObject> gobject) { m_character_object = gobject; }
 } // namespace VKernel

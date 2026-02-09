@@ -16,6 +16,7 @@ namespace VKernel
     class WorldManager;
     class WindowSystem;
     class RenderSystem;
+    class CharacterManager;
 
     class RuntimeGlobalContext ///< Management system and manager
     {
@@ -29,14 +30,15 @@ namespace VKernel
         because multiple classes need to share it; It cannot use a regular pointer because shared_ptr has automatic
         lifecycle management, which is more convenient.
         */
-        std::shared_ptr<LogSystem>     m_logger_system;
-        std::shared_ptr<FileSystem>    m_file_system;
-        std::shared_ptr<InputSystem>   m_input_system;
-        std::shared_ptr<WorldManager>  m_world_manager;
-        std::shared_ptr<WindowSystem>  m_window_system;
-        std::shared_ptr<RenderSystem>  m_render_system;
-        std::shared_ptr<AssetManager>  m_asset_manager;
-        std::shared_ptr<ConfigManager> m_config_manager;
+        std::shared_ptr<LogSystem>        m_logger_system;
+        std::shared_ptr<FileSystem>       m_file_system;
+        std::shared_ptr<InputSystem>      m_input_system;
+        std::shared_ptr<WorldManager>     m_world_manager;
+        std::shared_ptr<WindowSystem>     m_window_system;
+        std::shared_ptr<RenderSystem>     m_render_system;
+        std::shared_ptr<AssetManager>     m_asset_manager;
+        std::shared_ptr<ConfigManager>    m_config_manager;
+        std::shared_ptr<CharacterManager> m_character_Manager;
 
     public:
         void startSystems(const std::string& config_file_path); ///< Start all systems

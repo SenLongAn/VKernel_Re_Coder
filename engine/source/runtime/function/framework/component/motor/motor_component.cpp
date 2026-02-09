@@ -1,3 +1,4 @@
+// #include "runtime/Games/the_celestial_console/component/motor/motor_component.h"
 #include "runtime/function/framework/component/motor/motor_component.h"
 
 #include "runtime/function/character/character.h"
@@ -7,15 +8,17 @@
 #include "runtime/function/global/global_context.h"
 #include "runtime/function/input/input_system.h"
 
+#include "runtime/Games/the_celestial_console/control_cabin.h"
+
 namespace VKernel
 {
-    void MotorComponent::postLoadResource(std::weak_ptr<GObject> parent_object)
+    void MotorComponent::postLoadResource(std::weak_ptr<VKernel::GObject> parent_object)
     {
         // set parent object
         m_parent_object = parent_object;
 
         // init target position
-        TransformComponent* transform_component =
+        VKernel::TransformComponent* transform_component =
             parent_object.lock()->tryGetComponent(VKernel::TransformComponent, "TransformComponent");
 
         m_target_position = transform_component->getPosition();
@@ -33,14 +36,14 @@ namespace VKernel
 
         // Check if the player exists
         std::shared_ptr<Level> current_level = g_runtime_global_context.m_world_manager->getCurrentActiveLevel().lock();
-        std::shared_ptr<Character> current_character = current_level->getCurrentActiveCharacter().lock();
+        std::shared_ptr<VKernel::Character> current_character = current_level->getCurrentActiveCharacter().lock();
         if (current_character == nullptr)
             return;
         if (current_character->getObjectID() != m_parent_object.lock()->getID())
             return;
 
-        // get TransformComponent
-        TransformComponent* transform_component =
+        // get VKernel::TransformComponent
+        VKernel::TransformComponent* transform_component =
             m_parent_object.lock()->tryGetComponent(VKernel::TransformComponent, "TransformComponent");
 
         // Check if it is in running mode

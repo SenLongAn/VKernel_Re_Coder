@@ -1,3 +1,4 @@
+// #include "runtime/Games/the_celestial_console/component/camera/camera_component.h"
 #include "runtime/function/framework/component/camera/camera_component.h"
 
 #include "runtime/core/base/macro.h"
@@ -13,10 +14,12 @@
 #include "runtime/function/render/render_system.h"
 #include "runtime/function/render/window_system.h"
 
+#include "runtime/Games/the_celestial_console/control_cabin.h"
+
 #include <iostream>
 namespace VKernel
 {
-    void CameraComponent::postLoadResource(std::weak_ptr<GObject> parent_object)
+    void CameraComponent::postLoadResource(std::weak_ptr<VKernel::GObject> parent_object)
     {
         // Set Associated Object
         m_parent_object = parent_object;
@@ -28,7 +31,7 @@ namespace VKernel
         if (!m_parent_object.lock())
             return;
         std::shared_ptr<Level> current_level = g_runtime_global_context.m_world_manager->getCurrentActiveLevel().lock();
-        std::shared_ptr<Character> current_character = current_level->getCurrentActiveCharacter().lock();
+        std::shared_ptr<VKernel::Character> current_character = current_level->getCurrentActiveCharacter().lock();
         if (current_character == nullptr)
             return;
         if (current_character->getObjectID() != m_parent_object.lock()->getID())
@@ -76,7 +79,7 @@ namespace VKernel
             // get character
             std::shared_ptr<Level> current_level =
                 g_runtime_global_context.m_world_manager->getCurrentActiveLevel().lock();
-            std::shared_ptr<Character> current_character = current_level->getCurrentActiveCharacter().lock();
+            std::shared_ptr<VKernel::Character> current_character = current_level->getCurrentActiveCharacter().lock();
             if (current_character == nullptr)
                 return;
 
@@ -90,21 +93,25 @@ namespace VKernel
                 // calculate camera new position
                 FirstPersonCameraParameter* param  = &(m_camera_res.m_first_camera);
                 const float                 offset = param->m_vertical_offset;
-                m_position                         = current_character->getPosition() + offset * Vector3::UNIT_Y;
+                m_position = std::static_pointer_cast<Games::ControlCabin>(current_character)->getPosition() +
+                             offset * Vector3::UNIT_Y;
 
                 // calculate camera new rotation
                 m_forward = q_yaw * q_pitch * m_forward;
                 m_left    = q_yaw * q_pitch * m_left;
                 m_up      = m_forward.crossProduct(m_left);
 
-                current_character->setRotation(q_yaw * current_character->getRotation());
+                std::static_pointer_cast<Games::ControlCabin>(current_character)
+                    ->setRotation(q_yaw *
+                                  std::static_pointer_cast<Games::ControlCabin>(current_character)->getRotation());
             }
             else
             {
                 // calculate camera new position
                 FirstPersonCameraParameter* param  = &(m_camera_res.m_first_camera);
                 const float                 offset = param->m_vertical_offset;
-                m_position                         = current_character->getPosition() + offset * Vector3::UNIT_Y;
+                m_position = std::static_pointer_cast<Games::ControlCabin>(current_character)->getPosition() +
+                             offset * Vector3::UNIT_Y;
 
                 isFirst = false;
             }
@@ -129,7 +136,7 @@ namespace VKernel
             // get character
             std::shared_ptr<Level> current_level =
                 g_runtime_global_context.m_world_manager->getCurrentActiveLevel().lock();
-            std::shared_ptr<Character> current_character = current_level->getCurrentActiveCharacter().lock();
+            std::shared_ptr<VKernel::Character> current_character = current_level->getCurrentActiveCharacter().lock();
             if (current_character == nullptr)
                 return;
 
@@ -154,27 +161,30 @@ namespace VKernel
                 isFirst)
             {
                 // calculate camera new position
-                m_position = current_character->getRotation() * param->m_cursor_pitch * offset +
-                             current_character
+                m_position = std::static_pointer_cast<Games::ControlCabin>(current_character)->getRotation() *
+                                 param->m_cursor_pitch * offset +
+                             std::static_pointer_cast<Games::ControlCabin>(current_character)
                                  ->getPosition(); ///< camera position: yaw * pitch * offset vector + charactor position
 
                 // calculate camera new rotation
-                Vector3 center_pos =
-                    current_character->getPosition() + Vector3::UNIT_Y * vertical_offset; ///< look at target
+                Vector3 center_pos = std::static_pointer_cast<Games::ControlCabin>(current_character)->getPosition() +
+                                     Vector3::UNIT_Y * vertical_offset; ///< look at target
                 m_forward = center_pos - m_position;
-                m_up      = current_character->getRotation() * param->m_cursor_pitch *
-                       Vector3::NEGATIVE_UNIT_Y; ///<  yaw * pitch * Y vector
+                m_up      = std::static_pointer_cast<Games::ControlCabin>(current_character)->getRotation() *
+                       param->m_cursor_pitch * Vector3::NEGATIVE_UNIT_Y; ///<  yaw * pitch * Y vector
                 m_left = m_up.crossProduct(m_forward);
 
                 last_pitch = param->m_cursor_pitch;
-                last_yaw   = current_character->getRotation();
+                last_yaw   = std::static_pointer_cast<Games::ControlCabin>(current_character)->getRotation();
 
                 isButtonRight = true;
 
                 if (g_runtime_global_context.m_window_system->isMouseButtonDown(GLFW_MOUSE_BUTTON_RIGHT))
                 {
                     // update new yaw and pitch
-                    current_character->setRotation(q_yaw * current_character->getRotation());
+                    std::static_pointer_cast<Games::ControlCabin>(current_character)
+                        ->setRotation(q_yaw *
+                                      std::static_pointer_cast<Games::ControlCabin>(current_character)->getRotation());
                     param->m_cursor_pitch = q_pitch * param->m_cursor_pitch;
                 }
                 else
@@ -186,7 +196,8 @@ namespace VKernel
             else
             {
                 // calculate camera new position
-                m_position = last_yaw * last_pitch * offset + current_character->getPosition();
+                m_position = last_yaw * last_pitch * offset +
+                             std::static_pointer_cast<Games::ControlCabin>(current_character)->getPosition();
             }
 
             // set swap data

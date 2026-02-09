@@ -1,16 +1,14 @@
 #include "runtime/function/global/global_context.h"
 
 #include "runtime/core/log/log_system.h"
+#include "runtime/function/character/character.h"
+#include "runtime/function/framework/world/world_manager.h"
+#include "runtime/function/input/input_system.h"
 #include "runtime/function/render/render_system.h"
 #include "runtime/function/render/window_system.h"
-
+#include "runtime/platform/file_service/file_service.h"
 #include "runtime/resource/asset_manager/asset_manager.h"
 #include "runtime/resource/config_manager/config_manager.h"
-
-#include "runtime/function/framework/world/world_manager.h"
-#include "runtime/platform/file_service/file_service.h"
-
-#include "runtime/function/input/input_system.h"
 
 #include <iostream>
 
@@ -41,6 +39,8 @@ namespace VKernel
 
         m_render_system = std::make_shared<RenderSystem>();
         m_render_system->initialize(m_window_system);
+
+        m_character_Manager = std::make_shared<CharacterManager>();
     }
 
     void RuntimeGlobalContext::shutdownSystems()
@@ -63,5 +63,7 @@ namespace VKernel
         m_logger_system.reset();
 
         m_file_system.reset();
+
+        m_character_Manager.reset();
     }
 } // namespace VKernel
