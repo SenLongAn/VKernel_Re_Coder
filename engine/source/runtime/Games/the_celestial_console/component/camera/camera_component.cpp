@@ -2,6 +2,7 @@
 
 #include "runtime/core/base/macro.h"
 
+#include "runtime/Games/the_celestial_console/component/motor/motor_component.h"
 #include "runtime/function/character/character.h"
 #include "runtime/function/framework/component/transform/transform_component.h"
 #include "runtime/function/framework/level/level.h"
@@ -71,7 +72,11 @@ namespace Games
 
     void CameraComponent::tickFirstPersonCamera(float delta_time)
     {
-        unsigned int command = VKernel::g_runtime_global_context.m_input_system->getGameCommand();
+        unsigned int    command         = VKernel::g_runtime_global_context.m_input_system->getGameCommand();
+        MotorComponent* motor_component = (VKernel::g_runtime_global_context.m_character_Manager->getCurrentCharacter())
+                                              ->getObject()
+                                              .lock()
+                                              ->tryGetComponent(MotorComponent, "MotorComponent");
 
         if (VKernel::g_runtime_global_context.m_window_system->isMouseButtonDown(GLFW_MOUSE_BUTTON_RIGHT) ||
             command < (unsigned int)VKernel::GameCommand::invalid || isFirst)
@@ -102,10 +107,6 @@ namespace Games
                 m_forward = q_yaw * q_pitch * m_forward;
                 m_left    = q_yaw * q_pitch * m_left;
                 m_up      = m_forward.crossProduct(m_left);
-
-                std::static_pointer_cast<Games::ControlCabin>(current_character)
-                    ->setRotation(q_yaw *
-                                  std::static_pointer_cast<Games::ControlCabin>(current_character)->getRotation());
             }
             else
             {
@@ -131,8 +132,11 @@ namespace Games
 
     void CameraComponent::tickThirdPersonCamera(float delta_time)
     {
-        unsigned int command = VKernel::g_runtime_global_context.m_input_system->getGameCommand();
-
+        unsigned int    command         = VKernel::g_runtime_global_context.m_input_system->getGameCommand();
+        MotorComponent* motor_component = (VKernel::g_runtime_global_context.m_character_Manager->getCurrentCharacter())
+                                              ->getObject()
+                                              .lock()
+                                              ->tryGetComponent(MotorComponent, "MotorComponent");
         if (VKernel::g_runtime_global_context.m_window_system->isMouseButtonDown(GLFW_MOUSE_BUTTON_RIGHT) ||
             command < (unsigned int)VKernel::GameCommand::invalid || isFirst)
         {
@@ -149,6 +153,8 @@ namespace Games
                                 VKernel::Vector3::NEGATIVE_UNIT_Y);
             q_pitch.fromAngleAxis(VKernel::g_runtime_global_context.m_input_system->m_cursor_delta_pitch,
                                   VKernel::Vector3::NEGATIVE_UNIT_X);
+            std::cout << q_yaw.getX() << " : " << q_yaw.getY() << " : " << q_yaw.getZ() << " : " << q_yaw.getW()
+                      << " : " << std::endl;
 
             // get
             VKernel::ThirdPersonCameraParameter* param             = &(m_camera_res.m_third_camera);
@@ -165,8 +171,7 @@ namespace Games
                 isButtonRight || isFirst)
             {
                 // calculate camera new position
-                m_position = std::static_pointer_cast<Games::ControlCabin>(current_character)->getRotation() *
-                                 param->m_cursor_pitch * offset +
+                m_position = motor_component->getTargetRotation() * param->m_cursor_pitch * offset +
                              std::static_pointer_cast<Games::ControlCabin>(current_character)
                                  ->getPosition(); ///< camera position: yaw * pitch * offset vector + charactor position
 
@@ -175,21 +180,18 @@ namespace Games
                     std::static_pointer_cast<Games::ControlCabin>(current_character)->getPosition() +
                     VKernel::Vector3::UNIT_Y * vertical_offset; ///< look at target
                 m_forward = center_pos - m_position;
-                m_up      = std::static_pointer_cast<Games::ControlCabin>(current_character)->getRotation() *
-                       param->m_cursor_pitch * VKernel::Vector3::NEGATIVE_UNIT_Y; ///<  yaw * pitch * Y vector
+                m_up      = motor_component->getTargetRotation() * param->m_cursor_pitch *
+                       VKernel::Vector3::NEGATIVE_UNIT_Y; ///<  yaw * pitch * Y vector
                 m_left = m_up.crossProduct(m_forward);
 
                 last_pitch = param->m_cursor_pitch;
-                last_yaw   = std::static_pointer_cast<Games::ControlCabin>(current_character)->getRotation();
+                last_yaw   = motor_component->getTargetRotation();
 
                 isButtonRight = true;
 
                 if (VKernel::g_runtime_global_context.m_window_system->isMouseButtonDown(GLFW_MOUSE_BUTTON_RIGHT))
                 {
                     // update new yaw and pitch
-                    std::static_pointer_cast<Games::ControlCabin>(current_character)
-                        ->setRotation(q_yaw *
-                                      std::static_pointer_cast<Games::ControlCabin>(current_character)->getRotation());
                     param->m_cursor_pitch = q_pitch * param->m_cursor_pitch;
                 }
                 else

@@ -10,14 +10,6 @@
 /**
  * camera component
  */
-// namespace VKernel
-// {
-//     class Character;
-//     class GObject;
-//     class Component;
-//     class Vector3;
-//     class CameraComponentRes;
-// } // namespace VKernel
 
 namespace Games
 {

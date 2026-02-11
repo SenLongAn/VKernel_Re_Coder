@@ -5,14 +5,6 @@
 
 #include "runtime/core/math/vector3.h"
 
-// namespace VKernel
-// {
-//     class Character;
-//     class GObject;
-//     class Component;
-//     class TransformComponent;
-// } // namespace VKernel
-
 namespace Games
 {
     enum class JumpState : unsigned char
@@ -42,17 +34,19 @@ namespace Games
         void tickPlayerMotor(float delta_time);
 
         // get
-        const VKernel::Vector3& getTargetPosition() const { return m_target_position; }
-        bool                    getIsMoving() const { return m_is_moving; }
+        const VKernel::Vector3&    getTargetPosition() const { return m_target_position; }
+        bool                       getIsMoving() const { return m_is_moving; }
+        const VKernel::Quaternion& getTargetRotation() const { return m_character_rotation; }
 
     private:
         VKernel::Vector3 m_target_position; ///< target position
 
         // move
-        bool             m_is_moving {false};
-        float            m_move_speed_ratio {0.f};            ///< move speed
-        VKernel::Vector3 m_desired_horizontal_move_direction; ///< move direction
-        VKernel::Vector3 m_desired_displacement;              ///< move vector
+        bool                m_is_moving {false};
+        float               m_move_speed_ratio {0.f};            ///< move speed
+        VKernel::Vector3    m_desired_horizontal_move_direction; ///< move direction
+        VKernel::Vector3    m_desired_displacement;              ///< move vector
+        VKernel::Quaternion m_character_rotation;
 
         // jump
         JumpState m_jump_state {JumpState::idle};      ///< state

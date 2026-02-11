@@ -95,6 +95,7 @@ public: \
         // tick
         void setCurrentCharacter(std::shared_ptr<Character> character); ///< Only one player can be registered at a time
         void updateCurrentCharacter(float delta_time);
+        std::shared_ptr<Character> getCurrentCharacter() { return Character::getCurrentCharacter(); }
 
         // clear
         void clearCharacters();

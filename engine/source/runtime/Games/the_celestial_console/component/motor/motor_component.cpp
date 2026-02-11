@@ -6,6 +6,7 @@
 #include "runtime/function/framework/world/world_manager.h"
 #include "runtime/function/global/global_context.h"
 #include "runtime/function/input/input_system.h"
+#include "runtime/function/render/window_system.h"
 
 #include "runtime/Games/the_celestial_console/control_cabin.h"
 
@@ -51,15 +52,20 @@ namespace Games
         if (command >= (unsigned int)VKernel::GameCommand::invalid)
             return;
 
-        // calculated target position
+        // calculated target position and rotation
         calculatedDesiredHorizontalMoveSpeed(command, delta_time);
         calculatedDesiredVerticalMoveSpeed(command, delta_time);
         calculatedDesiredMoveDirection(command, transform_component->getRotation());
         calculateDesiredDisplacement(delta_time);
         calculateTargetPosition(transform_component->getPosition());
 
-        // update GO position
-        transform_component->setPosition(m_target_position);
+        if (VKernel::g_runtime_global_context.m_window_system->isMouseButtonDown(GLFW_MOUSE_BUTTON_RIGHT))
+        {
+            VKernel::Quaternion q_yaw;
+            q_yaw.fromAngleAxis(VKernel::g_runtime_global_context.m_input_system->m_cursor_delta_yaw,
+                                VKernel::Vector3::NEGATIVE_UNIT_Y);
+            m_character_rotation = q_yaw * m_character_rotation;
+        }
     }
 
     void MotorComponent::calculatedDesiredHorizontalMoveSpeed(unsigned int command, float delta_time)

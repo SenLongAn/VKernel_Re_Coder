@@ -2,6 +2,8 @@
 
 #include "runtime/Games/the_celestial_console/component/motor/motor_component.h"
 #include "runtime/function/framework/component/transform/transform_component.h"
+#include "runtime/function/global/global_context.h"
+#include "runtime/function/render/window_system.h"
 
 namespace Games
 {
@@ -20,16 +22,33 @@ namespace Games
             return;
         }
 
-        // set transform component rotation
-        if (motor_component->getIsMoving())
+        // set transform component position and rotation
+        static bool                isFirst      = true;
+        const VKernel::Quaternion& new_rotation = motor_component->getTargetRotation();
+        if ((motor_component->getIsMoving() &&
+             VKernel::g_runtime_global_context.m_window_system->isMouseButtonDown(GLFW_MOUSE_BUTTON_RIGHT)))
         {
-
-            transform_component->setRotation(m_rotation);
+            isFirst    = true;
+            m_rotation = new_rotation;
+            transform_component->setRotation(new_rotation);
+        }
+        else if (VKernel::g_runtime_global_context.m_window_system->isMouseButtonDown(GLFW_MOUSE_BUTTON_RIGHT))
+        {
+            isFirst    = true;
+            m_rotation = new_rotation;
+        }
+        else if (motor_component->getIsMoving())
+        {
+            if (isFirst)
+            {
+                m_rotation = new_rotation;
+                transform_component->setRotation(new_rotation);
+            }
+            isFirst = false;
         }
 
-        // set character target position
         const VKernel::Vector3& new_position = motor_component->getTargetPosition();
-
-        m_position = new_position;
+        m_position                           = new_position;
+        transform_component->setPosition(new_position);
     }
 } // namespace Games
