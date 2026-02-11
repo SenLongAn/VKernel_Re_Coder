@@ -2,19 +2,19 @@
 #include "runtime/core/math/axis_aligned.h"
 
 namespace VKernel{
-    class AxisAlignedBox;
+    class VKernel::AxisAlignedBox;
 namespace Reflection{
 namespace TypeFieldReflectionOparator{
     class TypeAxisAlignedBoxOperator{
     public:
         static const char* getClassName(){ return "AxisAlignedBox";}
         static void* constructorWithJson(const Json& json_context){
-            AxisAlignedBox* ret_instance= new AxisAlignedBox;
+            VKernel::AxisAlignedBox* ret_instance= new VKernel::AxisAlignedBox;
             Serializer::read(json_context, *ret_instance);
             return ret_instance;
         }
         static Json writeByName(void* instance){
-            return Serializer::write(*(AxisAlignedBox*)instance);
+            return Serializer::write(*(VKernel::AxisAlignedBox*)instance);
         }
         // base class
         static int getAxisAlignedBoxBaseClassReflectionInstanceList(ReflectionInstance* &out_list, void* instance){
@@ -25,23 +25,23 @@ namespace TypeFieldReflectionOparator{
         // fields
         static const char* getFieldName_m_center(){ return "m_center";}
         static const char* getFieldTypeName_m_center(){ return "Vector3";}
-        static void set_m_center(void* instance, void* field_value){ static_cast<AxisAlignedBox*>(instance)->m_center = *static_cast<Vector3*>(field_value);}
-        static void* get_m_center(void* instance){ return static_cast<void*>(&(static_cast<AxisAlignedBox*>(instance)->m_center));}
+        static void set_m_center(void* instance, void* field_value){ static_cast<VKernel::AxisAlignedBox*>(instance)->m_center = *static_cast<Vector3*>(field_value);}
+        static void* get_m_center(void* instance){ return static_cast<void*>(&(static_cast<VKernel::AxisAlignedBox*>(instance)->m_center));}
         static bool isArray_m_center(){ return false; }
         static const char* getFieldName_m_half_extent(){ return "m_half_extent";}
         static const char* getFieldTypeName_m_half_extent(){ return "Vector3";}
-        static void set_m_half_extent(void* instance, void* field_value){ static_cast<AxisAlignedBox*>(instance)->m_half_extent = *static_cast<Vector3*>(field_value);}
-        static void* get_m_half_extent(void* instance){ return static_cast<void*>(&(static_cast<AxisAlignedBox*>(instance)->m_half_extent));}
+        static void set_m_half_extent(void* instance, void* field_value){ static_cast<VKernel::AxisAlignedBox*>(instance)->m_half_extent = *static_cast<Vector3*>(field_value);}
+        static void* get_m_half_extent(void* instance){ return static_cast<void*>(&(static_cast<VKernel::AxisAlignedBox*>(instance)->m_half_extent));}
         static bool isArray_m_half_extent(){ return false; }
         static const char* getFieldName_m_min_corner(){ return "m_min_corner";}
         static const char* getFieldTypeName_m_min_corner(){ return "Vector3";}
-        static void set_m_min_corner(void* instance, void* field_value){ static_cast<AxisAlignedBox*>(instance)->m_min_corner = *static_cast<Vector3*>(field_value);}
-        static void* get_m_min_corner(void* instance){ return static_cast<void*>(&(static_cast<AxisAlignedBox*>(instance)->m_min_corner));}
+        static void set_m_min_corner(void* instance, void* field_value){ static_cast<VKernel::AxisAlignedBox*>(instance)->m_min_corner = *static_cast<Vector3*>(field_value);}
+        static void* get_m_min_corner(void* instance){ return static_cast<void*>(&(static_cast<VKernel::AxisAlignedBox*>(instance)->m_min_corner));}
         static bool isArray_m_min_corner(){ return false; }
         static const char* getFieldName_m_max_corner(){ return "m_max_corner";}
         static const char* getFieldTypeName_m_max_corner(){ return "Vector3";}
-        static void set_m_max_corner(void* instance, void* field_value){ static_cast<AxisAlignedBox*>(instance)->m_max_corner = *static_cast<Vector3*>(field_value);}
-        static void* get_m_max_corner(void* instance){ return static_cast<void*>(&(static_cast<AxisAlignedBox*>(instance)->m_max_corner));}
+        static void set_m_max_corner(void* instance, void* field_value){ static_cast<VKernel::AxisAlignedBox*>(instance)->m_max_corner = *static_cast<Vector3*>(field_value);}
+        static void* get_m_max_corner(void* instance){ return static_cast<void*>(&(static_cast<VKernel::AxisAlignedBox*>(instance)->m_max_corner));}
         static bool isArray_m_max_corner(){ return false; }
 
         // methods

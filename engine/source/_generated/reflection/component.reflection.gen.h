@@ -2,19 +2,19 @@
 #include "runtime/function/framework/component/component.h"
 
 namespace VKernel{
-    class Component;
+    class VKernel::Component;
 namespace Reflection{
 namespace TypeFieldReflectionOparator{
     class TypeComponentOperator{
     public:
         static const char* getClassName(){ return "Component";}
         static void* constructorWithJson(const Json& json_context){
-            Component* ret_instance= new Component;
+            VKernel::Component* ret_instance= new VKernel::Component;
             Serializer::read(json_context, *ret_instance);
             return ret_instance;
         }
         static Json writeByName(void* instance){
-            return Serializer::write(*(Component*)instance);
+            return Serializer::write(*(VKernel::Component*)instance);
         }
         // base class
         static int getComponentBaseClassReflectionInstanceList(ReflectionInstance* &out_list, void* instance){

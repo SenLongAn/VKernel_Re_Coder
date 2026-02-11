@@ -1,5 +1,4 @@
-// #include "runtime/Games/the_celestial_console/component/camera/camera_component.h"
-#include "runtime/function/framework/component/camera/camera_component.h"
+#include "runtime/Games/the_celestial_console/component/camera/camera_component.h"
 
 #include "runtime/core/base/macro.h"
 
@@ -17,7 +16,8 @@
 #include "runtime/Games/the_celestial_console/control_cabin.h"
 
 #include <iostream>
-namespace VKernel
+
+namespace Games
 {
     void CameraComponent::postLoadResource(std::weak_ptr<VKernel::GObject> parent_object)
     {
@@ -30,7 +30,8 @@ namespace VKernel
         // Check
         if (!m_parent_object.lock())
             return;
-        std::shared_ptr<Level> current_level = g_runtime_global_context.m_world_manager->getCurrentActiveLevel().lock();
+        std::shared_ptr<VKernel::Level> current_level =
+            VKernel::g_runtime_global_context.m_world_manager->getCurrentActiveLevel().lock();
         std::shared_ptr<VKernel::Character> current_character = current_level->getCurrentActiveCharacter().lock();
         if (current_character == nullptr)
             return;
@@ -38,8 +39,8 @@ namespace VKernel
             return;
 
         // update camera mode
-        unsigned int command = g_runtime_global_context.m_input_system->getGameCommand();
-        if ((((unsigned int)GameCommand::first_camera & command) > 0))
+        unsigned int command = VKernel::g_runtime_global_context.m_input_system->getGameCommand();
+        if ((((unsigned int)VKernel::GameCommand::first_camera & command) > 0))
         {
             m_camera_mode = CameraMode::first_person;
         }
@@ -70,31 +71,32 @@ namespace VKernel
 
     void CameraComponent::tickFirstPersonCamera(float delta_time)
     {
-        unsigned int command = g_runtime_global_context.m_input_system->getGameCommand();
+        unsigned int command = VKernel::g_runtime_global_context.m_input_system->getGameCommand();
 
-        if (g_runtime_global_context.m_window_system->isMouseButtonDown(GLFW_MOUSE_BUTTON_RIGHT) ||
-            command < (unsigned int)GameCommand::invalid || isFirst)
+        if (VKernel::g_runtime_global_context.m_window_system->isMouseButtonDown(GLFW_MOUSE_BUTTON_RIGHT) ||
+            command < (unsigned int)VKernel::GameCommand::invalid || isFirst)
         {
 
             // get character
-            std::shared_ptr<Level> current_level =
-                g_runtime_global_context.m_world_manager->getCurrentActiveLevel().lock();
+            std::shared_ptr<VKernel::Level> current_level =
+                VKernel::g_runtime_global_context.m_world_manager->getCurrentActiveLevel().lock();
             std::shared_ptr<VKernel::Character> current_character = current_level->getCurrentActiveCharacter().lock();
             if (current_character == nullptr)
                 return;
 
             // Calculate delta Q
-            Quaternion q_yaw, q_pitch;
-            q_yaw.fromAngleAxis(g_runtime_global_context.m_input_system->m_cursor_delta_yaw, Vector3::NEGATIVE_UNIT_Y);
-            q_pitch.fromAngleAxis(g_runtime_global_context.m_input_system->m_cursor_delta_pitch, m_left);
+            VKernel::Quaternion q_yaw, q_pitch;
+            q_yaw.fromAngleAxis(VKernel::g_runtime_global_context.m_input_system->m_cursor_delta_yaw,
+                                VKernel::Vector3::NEGATIVE_UNIT_Y);
+            q_pitch.fromAngleAxis(VKernel::g_runtime_global_context.m_input_system->m_cursor_delta_pitch, m_left);
 
-            if (g_runtime_global_context.m_window_system->isMouseButtonDown(GLFW_MOUSE_BUTTON_RIGHT))
+            if (VKernel::g_runtime_global_context.m_window_system->isMouseButtonDown(GLFW_MOUSE_BUTTON_RIGHT))
             {
                 // calculate camera new position
-                FirstPersonCameraParameter* param  = &(m_camera_res.m_first_camera);
-                const float                 offset = param->m_vertical_offset;
+                VKernel::FirstPersonCameraParameter* param  = &(m_camera_res.m_first_camera);
+                const float                          offset = param->m_vertical_offset;
                 m_position = std::static_pointer_cast<Games::ControlCabin>(current_character)->getPosition() +
-                             offset * Vector3::UNIT_Y;
+                             offset * VKernel::Vector3::UNIT_Y;
 
                 // calculate camera new rotation
                 m_forward = q_yaw * q_pitch * m_forward;
@@ -108,19 +110,20 @@ namespace VKernel
             else
             {
                 // calculate camera new position
-                FirstPersonCameraParameter* param  = &(m_camera_res.m_first_camera);
-                const float                 offset = param->m_vertical_offset;
+                VKernel::FirstPersonCameraParameter* param  = &(m_camera_res.m_first_camera);
+                const float                          offset = param->m_vertical_offset;
                 m_position = std::static_pointer_cast<Games::ControlCabin>(current_character)->getPosition() +
-                             offset * Vector3::UNIT_Y;
+                             offset * VKernel::Vector3::UNIT_Y;
 
                 isFirst = false;
             }
 
             // set swap data
-            Matrix4x4          desired_mat  = Math::makeLookAtMatrix(m_position, m_position + m_forward, m_up);
-            RenderSwapContext& swap_context = g_runtime_global_context.m_render_system->getSwapContext();
-            CameraSwapData     camera_swap_data;
-            camera_swap_data.m_camera_type                     = RenderCameraType::Motor;
+            VKernel::Matrix4x4 desired_mat = VKernel::Math::makeLookAtMatrix(m_position, m_position + m_forward, m_up);
+            VKernel::RenderSwapContext& swap_context =
+                VKernel::g_runtime_global_context.m_render_system->getSwapContext();
+            VKernel::CameraSwapData camera_swap_data;
+            camera_swap_data.m_camera_type                     = VKernel::RenderCameraType::Motor;
             camera_swap_data.m_view_matrix                     = desired_mat;
             swap_context.getLogicSwapData().m_camera_swap_data = camera_swap_data;
         }
@@ -128,37 +131,38 @@ namespace VKernel
 
     void CameraComponent::tickThirdPersonCamera(float delta_time)
     {
-        unsigned int command = g_runtime_global_context.m_input_system->getGameCommand();
+        unsigned int command = VKernel::g_runtime_global_context.m_input_system->getGameCommand();
 
-        if (g_runtime_global_context.m_window_system->isMouseButtonDown(GLFW_MOUSE_BUTTON_RIGHT) ||
-            command < (unsigned int)GameCommand::invalid || isFirst)
+        if (VKernel::g_runtime_global_context.m_window_system->isMouseButtonDown(GLFW_MOUSE_BUTTON_RIGHT) ||
+            command < (unsigned int)VKernel::GameCommand::invalid || isFirst)
         {
             // get character
-            std::shared_ptr<Level> current_level =
-                g_runtime_global_context.m_world_manager->getCurrentActiveLevel().lock();
+            std::shared_ptr<VKernel::Level> current_level =
+                VKernel::g_runtime_global_context.m_world_manager->getCurrentActiveLevel().lock();
             std::shared_ptr<VKernel::Character> current_character = current_level->getCurrentActiveCharacter().lock();
             if (current_character == nullptr)
                 return;
 
             // Calculate cursor delta Q
-            Quaternion q_yaw, q_pitch;
-            q_yaw.fromAngleAxis(g_runtime_global_context.m_input_system->m_cursor_delta_yaw, Vector3::NEGATIVE_UNIT_Y);
-            q_pitch.fromAngleAxis(g_runtime_global_context.m_input_system->m_cursor_delta_pitch,
-                                  Vector3::NEGATIVE_UNIT_X);
+            VKernel::Quaternion q_yaw, q_pitch;
+            q_yaw.fromAngleAxis(VKernel::g_runtime_global_context.m_input_system->m_cursor_delta_yaw,
+                                VKernel::Vector3::NEGATIVE_UNIT_Y);
+            q_pitch.fromAngleAxis(VKernel::g_runtime_global_context.m_input_system->m_cursor_delta_pitch,
+                                  VKernel::Vector3::NEGATIVE_UNIT_X);
 
             // get
-            ThirdPersonCameraParameter* param             = &(m_camera_res.m_third_camera);
-            const float                 vertical_offset   = param->m_vertical_offset;
-            const float                 horizontal_offset = param->m_horizontal_offset;
-            Vector3                     offset            = Vector3(0, vertical_offset, horizontal_offset);
+            VKernel::ThirdPersonCameraParameter* param             = &(m_camera_res.m_third_camera);
+            const float                          vertical_offset   = param->m_vertical_offset;
+            const float                          horizontal_offset = param->m_horizontal_offset;
+            VKernel::Vector3                     offset = VKernel::Vector3(0, vertical_offset, horizontal_offset);
 
-            static Quaternion last_pitch;
-            static Quaternion last_yaw;
+            static VKernel::Quaternion last_pitch;
+            static VKernel::Quaternion last_yaw;
 
             // set charactor new rotation
 
-            if (g_runtime_global_context.m_window_system->isMouseButtonDown(GLFW_MOUSE_BUTTON_RIGHT) || isButtonRight ||
-                isFirst)
+            if (VKernel::g_runtime_global_context.m_window_system->isMouseButtonDown(GLFW_MOUSE_BUTTON_RIGHT) ||
+                isButtonRight || isFirst)
             {
                 // calculate camera new position
                 m_position = std::static_pointer_cast<Games::ControlCabin>(current_character)->getRotation() *
@@ -167,11 +171,12 @@ namespace VKernel
                                  ->getPosition(); ///< camera position: yaw * pitch * offset vector + charactor position
 
                 // calculate camera new rotation
-                Vector3 center_pos = std::static_pointer_cast<Games::ControlCabin>(current_character)->getPosition() +
-                                     Vector3::UNIT_Y * vertical_offset; ///< look at target
+                VKernel::Vector3 center_pos =
+                    std::static_pointer_cast<Games::ControlCabin>(current_character)->getPosition() +
+                    VKernel::Vector3::UNIT_Y * vertical_offset; ///< look at target
                 m_forward = center_pos - m_position;
                 m_up      = std::static_pointer_cast<Games::ControlCabin>(current_character)->getRotation() *
-                       param->m_cursor_pitch * Vector3::NEGATIVE_UNIT_Y; ///<  yaw * pitch * Y vector
+                       param->m_cursor_pitch * VKernel::Vector3::NEGATIVE_UNIT_Y; ///<  yaw * pitch * Y vector
                 m_left = m_up.crossProduct(m_forward);
 
                 last_pitch = param->m_cursor_pitch;
@@ -179,7 +184,7 @@ namespace VKernel
 
                 isButtonRight = true;
 
-                if (g_runtime_global_context.m_window_system->isMouseButtonDown(GLFW_MOUSE_BUTTON_RIGHT))
+                if (VKernel::g_runtime_global_context.m_window_system->isMouseButtonDown(GLFW_MOUSE_BUTTON_RIGHT))
                 {
                     // update new yaw and pitch
                     std::static_pointer_cast<Games::ControlCabin>(current_character)
@@ -201,12 +206,13 @@ namespace VKernel
             }
 
             // set swap data
-            Matrix4x4          desired_mat  = Math::makeLookAtMatrix(m_position, m_position + m_forward, m_up);
-            RenderSwapContext& swap_context = g_runtime_global_context.m_render_system->getSwapContext();
-            CameraSwapData     camera_swap_data;
+            VKernel::Matrix4x4 desired_mat = VKernel::Math::makeLookAtMatrix(m_position, m_position + m_forward, m_up);
+            VKernel::RenderSwapContext& swap_context =
+                VKernel::g_runtime_global_context.m_render_system->getSwapContext();
+            VKernel::CameraSwapData camera_swap_data;
             camera_swap_data.m_view_matrix                     = desired_mat;
-            camera_swap_data.m_camera_type                     = RenderCameraType::Motor;
+            camera_swap_data.m_camera_type                     = VKernel::RenderCameraType::Motor;
             swap_context.getLogicSwapData().m_camera_swap_data = camera_swap_data;
         }
     }
-} // namespace VKernel
+} // namespace Games

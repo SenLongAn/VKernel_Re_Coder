@@ -1,11 +1,11 @@
 #pragma once
-#include "runtime/function/framework/component/camera/camera_component.h"
+#include "runtime/Games/the_celestial_console/component/camera/camera_component.h"
 #include "_generated/serializer/component.serializer.gen.h"
 
 namespace VKernel{
     template<>
-    Json Serializer::write(const CameraComponent& instance);
+    Json Serializer::write(const Games::CameraComponent& instance);
     template<>
-    CameraComponent& Serializer::read(const Json& json_context, CameraComponent& instance);
+    Games::CameraComponent& Serializer::read(const Json& json_context, Games::CameraComponent& instance);
 }//namespace
 

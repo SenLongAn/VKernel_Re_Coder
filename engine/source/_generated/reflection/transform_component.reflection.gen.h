@@ -2,34 +2,34 @@
 #include "runtime/function/framework/component/transform/transform_component.h"
 
 namespace VKernel{
-    class TransformComponent;
+    class VKernel::TransformComponent;
 namespace Reflection{
 namespace TypeFieldReflectionOparator{
     class TypeTransformComponentOperator{
     public:
         static const char* getClassName(){ return "TransformComponent";}
         static void* constructorWithJson(const Json& json_context){
-            TransformComponent* ret_instance= new TransformComponent;
+            VKernel::TransformComponent* ret_instance= new VKernel::TransformComponent;
             Serializer::read(json_context, *ret_instance);
             return ret_instance;
         }
         static Json writeByName(void* instance){
-            return Serializer::write(*(TransformComponent*)instance);
+            return Serializer::write(*(VKernel::TransformComponent*)instance);
         }
         // base class
         static int getTransformComponentBaseClassReflectionInstanceList(ReflectionInstance* &out_list, void* instance){
             int count = 1;
             out_list = new ReflectionInstance[count];
             for (int i=0;i<count;++i){
-               out_list[i] = TypeMetaDef(VKernel::Component,static_cast<TransformComponent*>(instance));
+               out_list[i] = TypeMetaDef(VKernel::Component,static_cast<VKernel::TransformComponent*>(instance));
             }
             return count;
         }
         // fields
         static const char* getFieldName_m_transform(){ return "m_transform";}
         static const char* getFieldTypeName_m_transform(){ return "Transform";}
-        static void set_m_transform(void* instance, void* field_value){ static_cast<TransformComponent*>(instance)->m_transform = *static_cast<Transform*>(field_value);}
-        static void* get_m_transform(void* instance){ return static_cast<void*>(&(static_cast<TransformComponent*>(instance)->m_transform));}
+        static void set_m_transform(void* instance, void* field_value){ static_cast<VKernel::TransformComponent*>(instance)->m_transform = *static_cast<Transform*>(field_value);}
+        static void* get_m_transform(void* instance){ return static_cast<void*>(&(static_cast<VKernel::TransformComponent*>(instance)->m_transform));}
         static bool isArray_m_transform(){ return false; }
 
         // methods

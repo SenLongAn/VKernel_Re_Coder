@@ -68,7 +68,7 @@ namespace VKernel
 
     // create instance function
 #define CHARACTER_CLASS(ClassName) \
-private: \
+public: \
     static bool _s_registered; \
 \
 public: \
@@ -80,7 +80,6 @@ public: \
     // Register function to m_creators
 #define CHARACTER_REGISTER(ClassName) \
     bool ClassName::_s_registered = []() { \
-        std::cout << "1" << std::endl; \
         VKernel::CharacterFactory::getInstance().registerCharacterType<ClassName>(#ClassName); \
         return true; \
     }();

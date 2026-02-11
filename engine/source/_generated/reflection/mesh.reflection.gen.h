@@ -2,20 +2,20 @@
 #include "runtime/resource/res_type/components/mesh.h"
 
 namespace VKernel{
-    class SubMeshRes;
-    class MeshComponentRes;
+    class VKernel::SubMeshRes;
+    class VKernel::MeshComponentRes;
 namespace Reflection{
 namespace TypeFieldReflectionOparator{
     class TypeSubMeshResOperator{
     public:
         static const char* getClassName(){ return "SubMeshRes";}
         static void* constructorWithJson(const Json& json_context){
-            SubMeshRes* ret_instance= new SubMeshRes;
+            VKernel::SubMeshRes* ret_instance= new VKernel::SubMeshRes;
             Serializer::read(json_context, *ret_instance);
             return ret_instance;
         }
         static Json writeByName(void* instance){
-            return Serializer::write(*(SubMeshRes*)instance);
+            return Serializer::write(*(VKernel::SubMeshRes*)instance);
         }
         // base class
         static int getSubMeshResBaseClassReflectionInstanceList(ReflectionInstance* &out_list, void* instance){
@@ -26,18 +26,18 @@ namespace TypeFieldReflectionOparator{
         // fields
         static const char* getFieldName_m_obj_file_ref(){ return "m_obj_file_ref";}
         static const char* getFieldTypeName_m_obj_file_ref(){ return "std::string";}
-        static void set_m_obj_file_ref(void* instance, void* field_value){ static_cast<SubMeshRes*>(instance)->m_obj_file_ref = *static_cast<std::string*>(field_value);}
-        static void* get_m_obj_file_ref(void* instance){ return static_cast<void*>(&(static_cast<SubMeshRes*>(instance)->m_obj_file_ref));}
+        static void set_m_obj_file_ref(void* instance, void* field_value){ static_cast<VKernel::SubMeshRes*>(instance)->m_obj_file_ref = *static_cast<std::string*>(field_value);}
+        static void* get_m_obj_file_ref(void* instance){ return static_cast<void*>(&(static_cast<VKernel::SubMeshRes*>(instance)->m_obj_file_ref));}
         static bool isArray_m_obj_file_ref(){ return false; }
         static const char* getFieldName_m_transform(){ return "m_transform";}
         static const char* getFieldTypeName_m_transform(){ return "Transform";}
-        static void set_m_transform(void* instance, void* field_value){ static_cast<SubMeshRes*>(instance)->m_transform = *static_cast<Transform*>(field_value);}
-        static void* get_m_transform(void* instance){ return static_cast<void*>(&(static_cast<SubMeshRes*>(instance)->m_transform));}
+        static void set_m_transform(void* instance, void* field_value){ static_cast<VKernel::SubMeshRes*>(instance)->m_transform = *static_cast<Transform*>(field_value);}
+        static void* get_m_transform(void* instance){ return static_cast<void*>(&(static_cast<VKernel::SubMeshRes*>(instance)->m_transform));}
         static bool isArray_m_transform(){ return false; }
         static const char* getFieldName_m_material(){ return "m_material";}
         static const char* getFieldTypeName_m_material(){ return "std::string";}
-        static void set_m_material(void* instance, void* field_value){ static_cast<SubMeshRes*>(instance)->m_material = *static_cast<std::string*>(field_value);}
-        static void* get_m_material(void* instance){ return static_cast<void*>(&(static_cast<SubMeshRes*>(instance)->m_material));}
+        static void set_m_material(void* instance, void* field_value){ static_cast<VKernel::SubMeshRes*>(instance)->m_material = *static_cast<std::string*>(field_value);}
+        static void* get_m_material(void* instance){ return static_cast<void*>(&(static_cast<VKernel::SubMeshRes*>(instance)->m_material));}
         static bool isArray_m_material(){ return false; }
 
         // methods
@@ -85,12 +85,12 @@ namespace TypeFieldReflectionOparator{
     public:
         static const char* getClassName(){ return "MeshComponentRes";}
         static void* constructorWithJson(const Json& json_context){
-            MeshComponentRes* ret_instance= new MeshComponentRes;
+            VKernel::MeshComponentRes* ret_instance= new VKernel::MeshComponentRes;
             Serializer::read(json_context, *ret_instance);
             return ret_instance;
         }
         static Json writeByName(void* instance){
-            return Serializer::write(*(MeshComponentRes*)instance);
+            return Serializer::write(*(VKernel::MeshComponentRes*)instance);
         }
         // base class
         static int getMeshComponentResBaseClassReflectionInstanceList(ReflectionInstance* &out_list, void* instance){
@@ -101,8 +101,8 @@ namespace TypeFieldReflectionOparator{
         // fields
         static const char* getFieldName_m_sub_meshes(){ return "m_sub_meshes";}
         static const char* getFieldTypeName_m_sub_meshes(){ return "std::vector<SubMeshRes>";}
-        static void set_m_sub_meshes(void* instance, void* field_value){ static_cast<MeshComponentRes*>(instance)->m_sub_meshes = *static_cast<std::vector<SubMeshRes>*>(field_value);}
-        static void* get_m_sub_meshes(void* instance){ return static_cast<void*>(&(static_cast<MeshComponentRes*>(instance)->m_sub_meshes));}
+        static void set_m_sub_meshes(void* instance, void* field_value){ static_cast<VKernel::MeshComponentRes*>(instance)->m_sub_meshes = *static_cast<std::vector<SubMeshRes>*>(field_value);}
+        static void* get_m_sub_meshes(void* instance){ return static_cast<void*>(&(static_cast<VKernel::MeshComponentRes*>(instance)->m_sub_meshes));}
         static bool isArray_m_sub_meshes(){ return true; }
 
         // methods

@@ -2,19 +2,19 @@
 #include "runtime/core/math/vector2.h"
 
 namespace VKernel{
-    class Vector2;
+    class VKernel::Vector2;
 namespace Reflection{
 namespace TypeFieldReflectionOparator{
     class TypeVector2Operator{
     public:
         static const char* getClassName(){ return "Vector2";}
         static void* constructorWithJson(const Json& json_context){
-            Vector2* ret_instance= new Vector2;
+            VKernel::Vector2* ret_instance= new VKernel::Vector2;
             Serializer::read(json_context, *ret_instance);
             return ret_instance;
         }
         static Json writeByName(void* instance){
-            return Serializer::write(*(Vector2*)instance);
+            return Serializer::write(*(VKernel::Vector2*)instance);
         }
         // base class
         static int getVector2BaseClassReflectionInstanceList(ReflectionInstance* &out_list, void* instance){
@@ -25,13 +25,13 @@ namespace TypeFieldReflectionOparator{
         // fields
         static const char* getFieldName_x(){ return "x";}
         static const char* getFieldTypeName_x(){ return "float";}
-        static void set_x(void* instance, void* field_value){ static_cast<Vector2*>(instance)->x = *static_cast<float*>(field_value);}
-        static void* get_x(void* instance){ return static_cast<void*>(&(static_cast<Vector2*>(instance)->x));}
+        static void set_x(void* instance, void* field_value){ static_cast<VKernel::Vector2*>(instance)->x = *static_cast<float*>(field_value);}
+        static void* get_x(void* instance){ return static_cast<void*>(&(static_cast<VKernel::Vector2*>(instance)->x));}
         static bool isArray_x(){ return false; }
         static const char* getFieldName_y(){ return "y";}
         static const char* getFieldTypeName_y(){ return "float";}
-        static void set_y(void* instance, void* field_value){ static_cast<Vector2*>(instance)->y = *static_cast<float*>(field_value);}
-        static void* get_y(void* instance){ return static_cast<void*>(&(static_cast<Vector2*>(instance)->y));}
+        static void set_y(void* instance, void* field_value){ static_cast<VKernel::Vector2*>(instance)->y = *static_cast<float*>(field_value);}
+        static void* get_y(void* instance){ return static_cast<void*>(&(static_cast<VKernel::Vector2*>(instance)->y));}
         static bool isArray_y(){ return false; }
 
         // methods

@@ -2,19 +2,19 @@
 #include "runtime/core/color/color.h"
 
 namespace VKernel{
-    class Color;
+    class VKernel::Color;
 namespace Reflection{
 namespace TypeFieldReflectionOparator{
     class TypeColorOperator{
     public:
         static const char* getClassName(){ return "Color";}
         static void* constructorWithJson(const Json& json_context){
-            Color* ret_instance= new Color;
+            VKernel::Color* ret_instance= new VKernel::Color;
             Serializer::read(json_context, *ret_instance);
             return ret_instance;
         }
         static Json writeByName(void* instance){
-            return Serializer::write(*(Color*)instance);
+            return Serializer::write(*(VKernel::Color*)instance);
         }
         // base class
         static int getColorBaseClassReflectionInstanceList(ReflectionInstance* &out_list, void* instance){
@@ -25,18 +25,18 @@ namespace TypeFieldReflectionOparator{
         // fields
         static const char* getFieldName_r(){ return "r";}
         static const char* getFieldTypeName_r(){ return "float";}
-        static void set_r(void* instance, void* field_value){ static_cast<Color*>(instance)->r = *static_cast<float*>(field_value);}
-        static void* get_r(void* instance){ return static_cast<void*>(&(static_cast<Color*>(instance)->r));}
+        static void set_r(void* instance, void* field_value){ static_cast<VKernel::Color*>(instance)->r = *static_cast<float*>(field_value);}
+        static void* get_r(void* instance){ return static_cast<void*>(&(static_cast<VKernel::Color*>(instance)->r));}
         static bool isArray_r(){ return false; }
         static const char* getFieldName_g(){ return "g";}
         static const char* getFieldTypeName_g(){ return "float";}
-        static void set_g(void* instance, void* field_value){ static_cast<Color*>(instance)->g = *static_cast<float*>(field_value);}
-        static void* get_g(void* instance){ return static_cast<void*>(&(static_cast<Color*>(instance)->g));}
+        static void set_g(void* instance, void* field_value){ static_cast<VKernel::Color*>(instance)->g = *static_cast<float*>(field_value);}
+        static void* get_g(void* instance){ return static_cast<void*>(&(static_cast<VKernel::Color*>(instance)->g));}
         static bool isArray_g(){ return false; }
         static const char* getFieldName_b(){ return "b";}
         static const char* getFieldTypeName_b(){ return "float";}
-        static void set_b(void* instance, void* field_value){ static_cast<Color*>(instance)->b = *static_cast<float*>(field_value);}
-        static void* get_b(void* instance){ return static_cast<void*>(&(static_cast<Color*>(instance)->b));}
+        static void set_b(void* instance, void* field_value){ static_cast<VKernel::Color*>(instance)->b = *static_cast<float*>(field_value);}
+        static void* get_b(void* instance){ return static_cast<void*>(&(static_cast<VKernel::Color*>(instance)->b));}
         static bool isArray_b(){ return false; }
 
         // methods

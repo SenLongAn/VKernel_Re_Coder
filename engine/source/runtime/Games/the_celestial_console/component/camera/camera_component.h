@@ -10,18 +10,16 @@
 /**
  * camera component
  */
-namespace VKernel
-{
-    class Character;
-    class GObject;
-    class Component;
-} // namespace VKernel
+// namespace VKernel
+// {
+//     class Character;
+//     class GObject;
+//     class Component;
+//     class Vector3;
+//     class CameraComponentRes;
+// } // namespace VKernel
 
 namespace Games
-{
-    class ControlCabin;
-}
-namespace VKernel
 {
     enum class CameraMode : unsigned char ///< camera mode
     {
@@ -35,6 +33,10 @@ namespace VKernel
     {
         REFLECTION_BODY(CameraComponent)
     public:
+        META(Enable)
+        VKernel::CameraComponentRes m_camera_res;
+
+    public:
         CameraComponent() = default; ///< Destructor
 
         void postLoadResource(std::weak_ptr<VKernel::GObject> parent_object) override; ///< load resource
@@ -47,19 +49,16 @@ namespace VKernel
         void tickThirdPersonCamera(float delta_time);
 
     private:
-        META(Enable)
-        CameraComponentRes m_camera_res;
-
         CameraMode m_camera_mode {CameraMode::third_person}; ///< camera mode
         CameraMode m_pre_camera_mode {CameraMode::invalid};  ///< camera mode
 
-        Vector3 m_position {0.0f, 0.0f, 0.0f}; ///< camera position
+        VKernel::Vector3 m_position {0.0f, 0.0f, 0.0f}; ///< camera position
 
-        Vector3 m_forward {Vector3::UNIT_Z}; ///< camera rotate
-        Vector3 m_up {Vector3::NEGATIVE_UNIT_Y};
-        Vector3 m_left {Vector3::UNIT_X};
+        VKernel::Vector3 m_forward {VKernel::Vector3::UNIT_Z}; ///< camera rotate
+        VKernel::Vector3 m_up {VKernel::Vector3::NEGATIVE_UNIT_Y};
+        VKernel::Vector3 m_left {VKernel::Vector3::UNIT_X};
 
         bool isButtonRight = false;
         bool isFirst       = true;
     };
-} // namespace VKernel
+} // namespace Games

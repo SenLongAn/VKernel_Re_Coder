@@ -1,35 +1,35 @@
 #pragma once
-#include "runtime/function/framework/component/motor/motor_component.h"
+#include "runtime/Games/the_celestial_console/component/motor/motor_component.h"
 
 namespace VKernel{
-    class MotorComponent;
+    class Games::MotorComponent;
 namespace Reflection{
 namespace TypeFieldReflectionOparator{
     class TypeMotorComponentOperator{
     public:
         static const char* getClassName(){ return "MotorComponent";}
         static void* constructorWithJson(const Json& json_context){
-            MotorComponent* ret_instance= new MotorComponent;
+            Games::MotorComponent* ret_instance= new Games::MotorComponent;
             Serializer::read(json_context, *ret_instance);
             return ret_instance;
         }
         static Json writeByName(void* instance){
-            return Serializer::write(*(MotorComponent*)instance);
+            return Serializer::write(*(Games::MotorComponent*)instance);
         }
         // base class
         static int getMotorComponentBaseClassReflectionInstanceList(ReflectionInstance* &out_list, void* instance){
             int count = 1;
             out_list = new ReflectionInstance[count];
             for (int i=0;i<count;++i){
-               out_list[i] = TypeMetaDef(VKernel::Component,static_cast<MotorComponent*>(instance));
+               out_list[i] = TypeMetaDef(VKernel::Component,static_cast<Games::MotorComponent*>(instance));
             }
             return count;
         }
         // fields
         static const char* getFieldName_m_motor_res(){ return "m_motor_res";}
         static const char* getFieldTypeName_m_motor_res(){ return "MotorComponentRes";}
-        static void set_m_motor_res(void* instance, void* field_value){ static_cast<MotorComponent*>(instance)->m_motor_res = *static_cast<MotorComponentRes*>(field_value);}
-        static void* get_m_motor_res(void* instance){ return static_cast<void*>(&(static_cast<MotorComponent*>(instance)->m_motor_res));}
+        static void set_m_motor_res(void* instance, void* field_value){ static_cast<Games::MotorComponent*>(instance)->m_motor_res = *static_cast<MotorComponentRes*>(field_value);}
+        static void* get_m_motor_res(void* instance){ return static_cast<void*>(&(static_cast<Games::MotorComponent*>(instance)->m_motor_res));}
         static bool isArray_m_motor_res(){ return false; }
 
         // methods

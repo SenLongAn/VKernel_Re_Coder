@@ -5,20 +5,15 @@
 
 #include "runtime/core/math/vector3.h"
 
-namespace VKernel
-{
-    class Character;
-    class GObject;
-    class Component;
-    class TransformComponent;
-} // namespace VKernel
+// namespace VKernel
+// {
+//     class Character;
+//     class GObject;
+//     class Component;
+//     class TransformComponent;
+// } // namespace VKernel
 
 namespace Games
-{
-    class ControlCabin;
-}
-
-namespace VKernel
 {
     enum class JumpState : unsigned char
     {
@@ -31,6 +26,9 @@ namespace VKernel
     CLASS(MotorComponent : public VKernel::Component, WhiteListFields, WhiteListMethods)
     {
         REFLECTION_BODY(MotorComponent)
+    public:
+        META(Enable)
+        VKernel::MotorComponentRes m_motor_res; ///< value
 
     public:
         // load
@@ -44,20 +42,17 @@ namespace VKernel
         void tickPlayerMotor(float delta_time);
 
         // get
-        const Vector3& getTargetPosition() const { return m_target_position; }
-        bool           getIsMoving() const { return m_is_moving; }
+        const VKernel::Vector3& getTargetPosition() const { return m_target_position; }
+        bool                    getIsMoving() const { return m_is_moving; }
 
     private:
-        META(Enable)
-        MotorComponentRes m_motor_res; ///< value
-
-        Vector3 m_target_position; ///< target position
+        VKernel::Vector3 m_target_position; ///< target position
 
         // move
-        bool    m_is_moving {false};
-        float   m_move_speed_ratio {0.f};            ///< move speed
-        Vector3 m_desired_horizontal_move_direction; ///< move direction
-        Vector3 m_desired_displacement;              ///< move vector
+        bool             m_is_moving {false};
+        float            m_move_speed_ratio {0.f};            ///< move speed
+        VKernel::Vector3 m_desired_horizontal_move_direction; ///< move direction
+        VKernel::Vector3 m_desired_displacement;              ///< move vector
 
         // jump
         JumpState m_jump_state {JumpState::idle};      ///< state
@@ -67,8 +62,8 @@ namespace VKernel
     private:
         void calculatedDesiredHorizontalMoveSpeed(unsigned int command, float delta_time);
         void calculatedDesiredVerticalMoveSpeed(unsigned int command, float delta_time);
-        void calculatedDesiredMoveDirection(unsigned int command, const Quaternion& object_rotation);
+        void calculatedDesiredMoveDirection(unsigned int command, const VKernel::Quaternion& object_rotation);
         void calculateDesiredDisplacement(float delta_time);
-        void calculateTargetPosition(const Vector3&& current_position);
+        void calculateTargetPosition(const VKernel::Vector3&& current_position);
     };
-} // namespace VKernel
+} // namespace Games

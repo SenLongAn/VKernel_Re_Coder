@@ -4,8 +4,8 @@
 
 namespace VKernel{
     template<>
-    Json Serializer::write(const MeshComponent& instance);
+    Json Serializer::write(const VKernel::MeshComponent& instance);
     template<>
-    MeshComponent& Serializer::read(const Json& json_context, MeshComponent& instance);
+    VKernel::MeshComponent& Serializer::read(const Json& json_context, VKernel::MeshComponent& instance);
 }//namespace
 

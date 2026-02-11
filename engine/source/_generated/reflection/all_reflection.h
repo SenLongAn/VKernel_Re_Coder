@@ -8,18 +8,18 @@
 #include "_generated/reflection/vector3.reflection.gen.h"
 #include "_generated/reflection/vector4.reflection.gen.h"
 #include "_generated/reflection/object.reflection.gen.h"
-#include "_generated/reflection/motor_component.reflection.gen.h"
-#include "_generated/reflection/color.reflection.gen.h"
 #include "_generated/reflection/vector2.reflection.gen.h"
 #include "_generated/reflection/matrix4.reflection.gen.h"
 #include "_generated/reflection/component.reflection.gen.h"
-#include "_generated/reflection/axis_aligned.reflection.gen.h"
 #include "_generated/reflection/render_object.reflection.gen.h"
 #include "_generated/reflection/camera.reflection.gen.h"
 #include "_generated/reflection/camera_component.reflection.gen.h"
+#include "_generated/reflection/motor.reflection.gen.h"
+#include "_generated/reflection/motor_component.reflection.gen.h"
+#include "_generated/reflection/color.reflection.gen.h"
+#include "_generated/reflection/axis_aligned.reflection.gen.h"
 #include "_generated/reflection/mesh.reflection.gen.h"
 #include "_generated/reflection/mesh_component.reflection.gen.h"
-#include "_generated/reflection/motor.reflection.gen.h"
 #include "_generated/reflection/camera_config.reflection.gen.h"
 #include "_generated/reflection/transform_component.reflection.gen.h"
 #include "_generated/reflection/material.reflection.gen.h"
@@ -35,18 +35,18 @@ namespace Reflection{
         TypeWrappersRegister::Vector3();
         TypeWrappersRegister::Vector4();
         TypeWrappersRegister::Object();
-        TypeWrappersRegister::MotorComponent();
-        TypeWrappersRegister::Color();
         TypeWrappersRegister::Vector2();
         TypeWrappersRegister::Matrix4();
         TypeWrappersRegister::Component();
-        TypeWrappersRegister::AxisAligned();
         TypeWrappersRegister::RenderObject();
         TypeWrappersRegister::Camera();
         TypeWrappersRegister::CameraComponent();
+        TypeWrappersRegister::Motor();
+        TypeWrappersRegister::MotorComponent();
+        TypeWrappersRegister::Color();
+        TypeWrappersRegister::AxisAligned();
         TypeWrappersRegister::Mesh();
         TypeWrappersRegister::MeshComponent();
-        TypeWrappersRegister::Motor();
         TypeWrappersRegister::CameraConfig();
         TypeWrappersRegister::TransformComponent();
         TypeWrappersRegister::Material();

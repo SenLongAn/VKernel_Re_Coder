@@ -2,23 +2,23 @@
 #include "runtime/resource/res_type/global/global_rendering.h"
 
 namespace VKernel{
-    class SkyBoxIrradianceMap;
-    class SkyBoxSpecularMap;
-    class DirectionalLight;
-    class PointLights;
-    class GlobalRenderingRes;
+    class VKernel::SkyBoxIrradianceMap;
+    class VKernel::SkyBoxSpecularMap;
+    class VKernel::DirectionalLight;
+    class VKernel::PointLights;
+    class VKernel::GlobalRenderingRes;
 namespace Reflection{
 namespace TypeFieldReflectionOparator{
     class TypeSkyBoxIrradianceMapOperator{
     public:
         static const char* getClassName(){ return "SkyBoxIrradianceMap";}
         static void* constructorWithJson(const Json& json_context){
-            SkyBoxIrradianceMap* ret_instance= new SkyBoxIrradianceMap;
+            VKernel::SkyBoxIrradianceMap* ret_instance= new VKernel::SkyBoxIrradianceMap;
             Serializer::read(json_context, *ret_instance);
             return ret_instance;
         }
         static Json writeByName(void* instance){
-            return Serializer::write(*(SkyBoxIrradianceMap*)instance);
+            return Serializer::write(*(VKernel::SkyBoxIrradianceMap*)instance);
         }
         // base class
         static int getSkyBoxIrradianceMapBaseClassReflectionInstanceList(ReflectionInstance* &out_list, void* instance){
@@ -29,33 +29,33 @@ namespace TypeFieldReflectionOparator{
         // fields
         static const char* getFieldName_m_negative_x_map(){ return "m_negative_x_map";}
         static const char* getFieldTypeName_m_negative_x_map(){ return "std::string";}
-        static void set_m_negative_x_map(void* instance, void* field_value){ static_cast<SkyBoxIrradianceMap*>(instance)->m_negative_x_map = *static_cast<std::string*>(field_value);}
-        static void* get_m_negative_x_map(void* instance){ return static_cast<void*>(&(static_cast<SkyBoxIrradianceMap*>(instance)->m_negative_x_map));}
+        static void set_m_negative_x_map(void* instance, void* field_value){ static_cast<VKernel::SkyBoxIrradianceMap*>(instance)->m_negative_x_map = *static_cast<std::string*>(field_value);}
+        static void* get_m_negative_x_map(void* instance){ return static_cast<void*>(&(static_cast<VKernel::SkyBoxIrradianceMap*>(instance)->m_negative_x_map));}
         static bool isArray_m_negative_x_map(){ return false; }
         static const char* getFieldName_m_positive_x_map(){ return "m_positive_x_map";}
         static const char* getFieldTypeName_m_positive_x_map(){ return "std::string";}
-        static void set_m_positive_x_map(void* instance, void* field_value){ static_cast<SkyBoxIrradianceMap*>(instance)->m_positive_x_map = *static_cast<std::string*>(field_value);}
-        static void* get_m_positive_x_map(void* instance){ return static_cast<void*>(&(static_cast<SkyBoxIrradianceMap*>(instance)->m_positive_x_map));}
+        static void set_m_positive_x_map(void* instance, void* field_value){ static_cast<VKernel::SkyBoxIrradianceMap*>(instance)->m_positive_x_map = *static_cast<std::string*>(field_value);}
+        static void* get_m_positive_x_map(void* instance){ return static_cast<void*>(&(static_cast<VKernel::SkyBoxIrradianceMap*>(instance)->m_positive_x_map));}
         static bool isArray_m_positive_x_map(){ return false; }
         static const char* getFieldName_m_negative_y_map(){ return "m_negative_y_map";}
         static const char* getFieldTypeName_m_negative_y_map(){ return "std::string";}
-        static void set_m_negative_y_map(void* instance, void* field_value){ static_cast<SkyBoxIrradianceMap*>(instance)->m_negative_y_map = *static_cast<std::string*>(field_value);}
-        static void* get_m_negative_y_map(void* instance){ return static_cast<void*>(&(static_cast<SkyBoxIrradianceMap*>(instance)->m_negative_y_map));}
+        static void set_m_negative_y_map(void* instance, void* field_value){ static_cast<VKernel::SkyBoxIrradianceMap*>(instance)->m_negative_y_map = *static_cast<std::string*>(field_value);}
+        static void* get_m_negative_y_map(void* instance){ return static_cast<void*>(&(static_cast<VKernel::SkyBoxIrradianceMap*>(instance)->m_negative_y_map));}
         static bool isArray_m_negative_y_map(){ return false; }
         static const char* getFieldName_m_positive_y_map(){ return "m_positive_y_map";}
         static const char* getFieldTypeName_m_positive_y_map(){ return "std::string";}
-        static void set_m_positive_y_map(void* instance, void* field_value){ static_cast<SkyBoxIrradianceMap*>(instance)->m_positive_y_map = *static_cast<std::string*>(field_value);}
-        static void* get_m_positive_y_map(void* instance){ return static_cast<void*>(&(static_cast<SkyBoxIrradianceMap*>(instance)->m_positive_y_map));}
+        static void set_m_positive_y_map(void* instance, void* field_value){ static_cast<VKernel::SkyBoxIrradianceMap*>(instance)->m_positive_y_map = *static_cast<std::string*>(field_value);}
+        static void* get_m_positive_y_map(void* instance){ return static_cast<void*>(&(static_cast<VKernel::SkyBoxIrradianceMap*>(instance)->m_positive_y_map));}
         static bool isArray_m_positive_y_map(){ return false; }
         static const char* getFieldName_m_negative_z_map(){ return "m_negative_z_map";}
         static const char* getFieldTypeName_m_negative_z_map(){ return "std::string";}
-        static void set_m_negative_z_map(void* instance, void* field_value){ static_cast<SkyBoxIrradianceMap*>(instance)->m_negative_z_map = *static_cast<std::string*>(field_value);}
-        static void* get_m_negative_z_map(void* instance){ return static_cast<void*>(&(static_cast<SkyBoxIrradianceMap*>(instance)->m_negative_z_map));}
+        static void set_m_negative_z_map(void* instance, void* field_value){ static_cast<VKernel::SkyBoxIrradianceMap*>(instance)->m_negative_z_map = *static_cast<std::string*>(field_value);}
+        static void* get_m_negative_z_map(void* instance){ return static_cast<void*>(&(static_cast<VKernel::SkyBoxIrradianceMap*>(instance)->m_negative_z_map));}
         static bool isArray_m_negative_z_map(){ return false; }
         static const char* getFieldName_m_positive_z_map(){ return "m_positive_z_map";}
         static const char* getFieldTypeName_m_positive_z_map(){ return "std::string";}
-        static void set_m_positive_z_map(void* instance, void* field_value){ static_cast<SkyBoxIrradianceMap*>(instance)->m_positive_z_map = *static_cast<std::string*>(field_value);}
-        static void* get_m_positive_z_map(void* instance){ return static_cast<void*>(&(static_cast<SkyBoxIrradianceMap*>(instance)->m_positive_z_map));}
+        static void set_m_positive_z_map(void* instance, void* field_value){ static_cast<VKernel::SkyBoxIrradianceMap*>(instance)->m_positive_z_map = *static_cast<std::string*>(field_value);}
+        static void* get_m_positive_z_map(void* instance){ return static_cast<void*>(&(static_cast<VKernel::SkyBoxIrradianceMap*>(instance)->m_positive_z_map));}
         static bool isArray_m_positive_z_map(){ return false; }
 
         // methods
@@ -127,12 +127,12 @@ namespace TypeFieldReflectionOparator{
     public:
         static const char* getClassName(){ return "SkyBoxSpecularMap";}
         static void* constructorWithJson(const Json& json_context){
-            SkyBoxSpecularMap* ret_instance= new SkyBoxSpecularMap;
+            VKernel::SkyBoxSpecularMap* ret_instance= new VKernel::SkyBoxSpecularMap;
             Serializer::read(json_context, *ret_instance);
             return ret_instance;
         }
         static Json writeByName(void* instance){
-            return Serializer::write(*(SkyBoxSpecularMap*)instance);
+            return Serializer::write(*(VKernel::SkyBoxSpecularMap*)instance);
         }
         // base class
         static int getSkyBoxSpecularMapBaseClassReflectionInstanceList(ReflectionInstance* &out_list, void* instance){
@@ -143,33 +143,33 @@ namespace TypeFieldReflectionOparator{
         // fields
         static const char* getFieldName_m_negative_x_map(){ return "m_negative_x_map";}
         static const char* getFieldTypeName_m_negative_x_map(){ return "std::string";}
-        static void set_m_negative_x_map(void* instance, void* field_value){ static_cast<SkyBoxSpecularMap*>(instance)->m_negative_x_map = *static_cast<std::string*>(field_value);}
-        static void* get_m_negative_x_map(void* instance){ return static_cast<void*>(&(static_cast<SkyBoxSpecularMap*>(instance)->m_negative_x_map));}
+        static void set_m_negative_x_map(void* instance, void* field_value){ static_cast<VKernel::SkyBoxSpecularMap*>(instance)->m_negative_x_map = *static_cast<std::string*>(field_value);}
+        static void* get_m_negative_x_map(void* instance){ return static_cast<void*>(&(static_cast<VKernel::SkyBoxSpecularMap*>(instance)->m_negative_x_map));}
         static bool isArray_m_negative_x_map(){ return false; }
         static const char* getFieldName_m_positive_x_map(){ return "m_positive_x_map";}
         static const char* getFieldTypeName_m_positive_x_map(){ return "std::string";}
-        static void set_m_positive_x_map(void* instance, void* field_value){ static_cast<SkyBoxSpecularMap*>(instance)->m_positive_x_map = *static_cast<std::string*>(field_value);}
-        static void* get_m_positive_x_map(void* instance){ return static_cast<void*>(&(static_cast<SkyBoxSpecularMap*>(instance)->m_positive_x_map));}
+        static void set_m_positive_x_map(void* instance, void* field_value){ static_cast<VKernel::SkyBoxSpecularMap*>(instance)->m_positive_x_map = *static_cast<std::string*>(field_value);}
+        static void* get_m_positive_x_map(void* instance){ return static_cast<void*>(&(static_cast<VKernel::SkyBoxSpecularMap*>(instance)->m_positive_x_map));}
         static bool isArray_m_positive_x_map(){ return false; }
         static const char* getFieldName_m_negative_y_map(){ return "m_negative_y_map";}
         static const char* getFieldTypeName_m_negative_y_map(){ return "std::string";}
-        static void set_m_negative_y_map(void* instance, void* field_value){ static_cast<SkyBoxSpecularMap*>(instance)->m_negative_y_map = *static_cast<std::string*>(field_value);}
-        static void* get_m_negative_y_map(void* instance){ return static_cast<void*>(&(static_cast<SkyBoxSpecularMap*>(instance)->m_negative_y_map));}
+        static void set_m_negative_y_map(void* instance, void* field_value){ static_cast<VKernel::SkyBoxSpecularMap*>(instance)->m_negative_y_map = *static_cast<std::string*>(field_value);}
+        static void* get_m_negative_y_map(void* instance){ return static_cast<void*>(&(static_cast<VKernel::SkyBoxSpecularMap*>(instance)->m_negative_y_map));}
         static bool isArray_m_negative_y_map(){ return false; }
         static const char* getFieldName_m_positive_y_map(){ return "m_positive_y_map";}
         static const char* getFieldTypeName_m_positive_y_map(){ return "std::string";}
-        static void set_m_positive_y_map(void* instance, void* field_value){ static_cast<SkyBoxSpecularMap*>(instance)->m_positive_y_map = *static_cast<std::string*>(field_value);}
-        static void* get_m_positive_y_map(void* instance){ return static_cast<void*>(&(static_cast<SkyBoxSpecularMap*>(instance)->m_positive_y_map));}
+        static void set_m_positive_y_map(void* instance, void* field_value){ static_cast<VKernel::SkyBoxSpecularMap*>(instance)->m_positive_y_map = *static_cast<std::string*>(field_value);}
+        static void* get_m_positive_y_map(void* instance){ return static_cast<void*>(&(static_cast<VKernel::SkyBoxSpecularMap*>(instance)->m_positive_y_map));}
         static bool isArray_m_positive_y_map(){ return false; }
         static const char* getFieldName_m_negative_z_map(){ return "m_negative_z_map";}
         static const char* getFieldTypeName_m_negative_z_map(){ return "std::string";}
-        static void set_m_negative_z_map(void* instance, void* field_value){ static_cast<SkyBoxSpecularMap*>(instance)->m_negative_z_map = *static_cast<std::string*>(field_value);}
-        static void* get_m_negative_z_map(void* instance){ return static_cast<void*>(&(static_cast<SkyBoxSpecularMap*>(instance)->m_negative_z_map));}
+        static void set_m_negative_z_map(void* instance, void* field_value){ static_cast<VKernel::SkyBoxSpecularMap*>(instance)->m_negative_z_map = *static_cast<std::string*>(field_value);}
+        static void* get_m_negative_z_map(void* instance){ return static_cast<void*>(&(static_cast<VKernel::SkyBoxSpecularMap*>(instance)->m_negative_z_map));}
         static bool isArray_m_negative_z_map(){ return false; }
         static const char* getFieldName_m_positive_z_map(){ return "m_positive_z_map";}
         static const char* getFieldTypeName_m_positive_z_map(){ return "std::string";}
-        static void set_m_positive_z_map(void* instance, void* field_value){ static_cast<SkyBoxSpecularMap*>(instance)->m_positive_z_map = *static_cast<std::string*>(field_value);}
-        static void* get_m_positive_z_map(void* instance){ return static_cast<void*>(&(static_cast<SkyBoxSpecularMap*>(instance)->m_positive_z_map));}
+        static void set_m_positive_z_map(void* instance, void* field_value){ static_cast<VKernel::SkyBoxSpecularMap*>(instance)->m_positive_z_map = *static_cast<std::string*>(field_value);}
+        static void* get_m_positive_z_map(void* instance){ return static_cast<void*>(&(static_cast<VKernel::SkyBoxSpecularMap*>(instance)->m_positive_z_map));}
         static bool isArray_m_positive_z_map(){ return false; }
 
         // methods
@@ -241,12 +241,12 @@ namespace TypeFieldReflectionOparator{
     public:
         static const char* getClassName(){ return "DirectionalLight";}
         static void* constructorWithJson(const Json& json_context){
-            DirectionalLight* ret_instance= new DirectionalLight;
+            VKernel::DirectionalLight* ret_instance= new VKernel::DirectionalLight;
             Serializer::read(json_context, *ret_instance);
             return ret_instance;
         }
         static Json writeByName(void* instance){
-            return Serializer::write(*(DirectionalLight*)instance);
+            return Serializer::write(*(VKernel::DirectionalLight*)instance);
         }
         // base class
         static int getDirectionalLightBaseClassReflectionInstanceList(ReflectionInstance* &out_list, void* instance){
@@ -257,13 +257,13 @@ namespace TypeFieldReflectionOparator{
         // fields
         static const char* getFieldName_m_direction(){ return "m_direction";}
         static const char* getFieldTypeName_m_direction(){ return "Vector3";}
-        static void set_m_direction(void* instance, void* field_value){ static_cast<DirectionalLight*>(instance)->m_direction = *static_cast<Vector3*>(field_value);}
-        static void* get_m_direction(void* instance){ return static_cast<void*>(&(static_cast<DirectionalLight*>(instance)->m_direction));}
+        static void set_m_direction(void* instance, void* field_value){ static_cast<VKernel::DirectionalLight*>(instance)->m_direction = *static_cast<Vector3*>(field_value);}
+        static void* get_m_direction(void* instance){ return static_cast<void*>(&(static_cast<VKernel::DirectionalLight*>(instance)->m_direction));}
         static bool isArray_m_direction(){ return false; }
         static const char* getFieldName_m_color(){ return "m_color";}
         static const char* getFieldTypeName_m_color(){ return "Color";}
-        static void set_m_color(void* instance, void* field_value){ static_cast<DirectionalLight*>(instance)->m_color = *static_cast<Color*>(field_value);}
-        static void* get_m_color(void* instance){ return static_cast<void*>(&(static_cast<DirectionalLight*>(instance)->m_color));}
+        static void set_m_color(void* instance, void* field_value){ static_cast<VKernel::DirectionalLight*>(instance)->m_color = *static_cast<Color*>(field_value);}
+        static void* get_m_color(void* instance){ return static_cast<void*>(&(static_cast<VKernel::DirectionalLight*>(instance)->m_color));}
         static bool isArray_m_color(){ return false; }
 
         // methods
@@ -303,12 +303,12 @@ namespace TypeFieldReflectionOparator{
     public:
         static const char* getClassName(){ return "PointLights";}
         static void* constructorWithJson(const Json& json_context){
-            PointLights* ret_instance= new PointLights;
+            VKernel::PointLights* ret_instance= new VKernel::PointLights;
             Serializer::read(json_context, *ret_instance);
             return ret_instance;
         }
         static Json writeByName(void* instance){
-            return Serializer::write(*(PointLights*)instance);
+            return Serializer::write(*(VKernel::PointLights*)instance);
         }
         // base class
         static int getPointLightsBaseClassReflectionInstanceList(ReflectionInstance* &out_list, void* instance){
@@ -319,13 +319,13 @@ namespace TypeFieldReflectionOparator{
         // fields
         static const char* getFieldName_m_position(){ return "m_position";}
         static const char* getFieldTypeName_m_position(){ return "Vector3";}
-        static void set_m_position(void* instance, void* field_value){ static_cast<PointLights*>(instance)->m_position = *static_cast<Vector3*>(field_value);}
-        static void* get_m_position(void* instance){ return static_cast<void*>(&(static_cast<PointLights*>(instance)->m_position));}
+        static void set_m_position(void* instance, void* field_value){ static_cast<VKernel::PointLights*>(instance)->m_position = *static_cast<Vector3*>(field_value);}
+        static void* get_m_position(void* instance){ return static_cast<void*>(&(static_cast<VKernel::PointLights*>(instance)->m_position));}
         static bool isArray_m_position(){ return false; }
         static const char* getFieldName_m_flux(){ return "m_flux";}
         static const char* getFieldTypeName_m_flux(){ return "Vector3";}
-        static void set_m_flux(void* instance, void* field_value){ static_cast<PointLights*>(instance)->m_flux = *static_cast<Vector3*>(field_value);}
-        static void* get_m_flux(void* instance){ return static_cast<void*>(&(static_cast<PointLights*>(instance)->m_flux));}
+        static void set_m_flux(void* instance, void* field_value){ static_cast<VKernel::PointLights*>(instance)->m_flux = *static_cast<Vector3*>(field_value);}
+        static void* get_m_flux(void* instance){ return static_cast<void*>(&(static_cast<VKernel::PointLights*>(instance)->m_flux));}
         static bool isArray_m_flux(){ return false; }
 
         // methods
@@ -365,12 +365,12 @@ namespace TypeFieldReflectionOparator{
     public:
         static const char* getClassName(){ return "GlobalRenderingRes";}
         static void* constructorWithJson(const Json& json_context){
-            GlobalRenderingRes* ret_instance= new GlobalRenderingRes;
+            VKernel::GlobalRenderingRes* ret_instance= new VKernel::GlobalRenderingRes;
             Serializer::read(json_context, *ret_instance);
             return ret_instance;
         }
         static Json writeByName(void* instance){
-            return Serializer::write(*(GlobalRenderingRes*)instance);
+            return Serializer::write(*(VKernel::GlobalRenderingRes*)instance);
         }
         // base class
         static int getGlobalRenderingResBaseClassReflectionInstanceList(ReflectionInstance* &out_list, void* instance){
@@ -381,43 +381,43 @@ namespace TypeFieldReflectionOparator{
         // fields
         static const char* getFieldName_m_skybox_irradiance_map(){ return "m_skybox_irradiance_map";}
         static const char* getFieldTypeName_m_skybox_irradiance_map(){ return "SkyBoxIrradianceMap";}
-        static void set_m_skybox_irradiance_map(void* instance, void* field_value){ static_cast<GlobalRenderingRes*>(instance)->m_skybox_irradiance_map = *static_cast<SkyBoxIrradianceMap*>(field_value);}
-        static void* get_m_skybox_irradiance_map(void* instance){ return static_cast<void*>(&(static_cast<GlobalRenderingRes*>(instance)->m_skybox_irradiance_map));}
+        static void set_m_skybox_irradiance_map(void* instance, void* field_value){ static_cast<VKernel::GlobalRenderingRes*>(instance)->m_skybox_irradiance_map = *static_cast<SkyBoxIrradianceMap*>(field_value);}
+        static void* get_m_skybox_irradiance_map(void* instance){ return static_cast<void*>(&(static_cast<VKernel::GlobalRenderingRes*>(instance)->m_skybox_irradiance_map));}
         static bool isArray_m_skybox_irradiance_map(){ return false; }
         static const char* getFieldName_m_skybox_specular_map(){ return "m_skybox_specular_map";}
         static const char* getFieldTypeName_m_skybox_specular_map(){ return "SkyBoxSpecularMap";}
-        static void set_m_skybox_specular_map(void* instance, void* field_value){ static_cast<GlobalRenderingRes*>(instance)->m_skybox_specular_map = *static_cast<SkyBoxSpecularMap*>(field_value);}
-        static void* get_m_skybox_specular_map(void* instance){ return static_cast<void*>(&(static_cast<GlobalRenderingRes*>(instance)->m_skybox_specular_map));}
+        static void set_m_skybox_specular_map(void* instance, void* field_value){ static_cast<VKernel::GlobalRenderingRes*>(instance)->m_skybox_specular_map = *static_cast<SkyBoxSpecularMap*>(field_value);}
+        static void* get_m_skybox_specular_map(void* instance){ return static_cast<void*>(&(static_cast<VKernel::GlobalRenderingRes*>(instance)->m_skybox_specular_map));}
         static bool isArray_m_skybox_specular_map(){ return false; }
         static const char* getFieldName_m_brdf_map(){ return "m_brdf_map";}
         static const char* getFieldTypeName_m_brdf_map(){ return "std::string";}
-        static void set_m_brdf_map(void* instance, void* field_value){ static_cast<GlobalRenderingRes*>(instance)->m_brdf_map = *static_cast<std::string*>(field_value);}
-        static void* get_m_brdf_map(void* instance){ return static_cast<void*>(&(static_cast<GlobalRenderingRes*>(instance)->m_brdf_map));}
+        static void set_m_brdf_map(void* instance, void* field_value){ static_cast<VKernel::GlobalRenderingRes*>(instance)->m_brdf_map = *static_cast<std::string*>(field_value);}
+        static void* get_m_brdf_map(void* instance){ return static_cast<void*>(&(static_cast<VKernel::GlobalRenderingRes*>(instance)->m_brdf_map));}
         static bool isArray_m_brdf_map(){ return false; }
         static const char* getFieldName_m_color_grading_map(){ return "m_color_grading_map";}
         static const char* getFieldTypeName_m_color_grading_map(){ return "std::string";}
-        static void set_m_color_grading_map(void* instance, void* field_value){ static_cast<GlobalRenderingRes*>(instance)->m_color_grading_map = *static_cast<std::string*>(field_value);}
-        static void* get_m_color_grading_map(void* instance){ return static_cast<void*>(&(static_cast<GlobalRenderingRes*>(instance)->m_color_grading_map));}
+        static void set_m_color_grading_map(void* instance, void* field_value){ static_cast<VKernel::GlobalRenderingRes*>(instance)->m_color_grading_map = *static_cast<std::string*>(field_value);}
+        static void* get_m_color_grading_map(void* instance){ return static_cast<void*>(&(static_cast<VKernel::GlobalRenderingRes*>(instance)->m_color_grading_map));}
         static bool isArray_m_color_grading_map(){ return false; }
         static const char* getFieldName_m_ambient_light(){ return "m_ambient_light";}
         static const char* getFieldTypeName_m_ambient_light(){ return "Color";}
-        static void set_m_ambient_light(void* instance, void* field_value){ static_cast<GlobalRenderingRes*>(instance)->m_ambient_light = *static_cast<Color*>(field_value);}
-        static void* get_m_ambient_light(void* instance){ return static_cast<void*>(&(static_cast<GlobalRenderingRes*>(instance)->m_ambient_light));}
+        static void set_m_ambient_light(void* instance, void* field_value){ static_cast<VKernel::GlobalRenderingRes*>(instance)->m_ambient_light = *static_cast<Color*>(field_value);}
+        static void* get_m_ambient_light(void* instance){ return static_cast<void*>(&(static_cast<VKernel::GlobalRenderingRes*>(instance)->m_ambient_light));}
         static bool isArray_m_ambient_light(){ return false; }
         static const char* getFieldName_m_camera_config(){ return "m_camera_config";}
         static const char* getFieldTypeName_m_camera_config(){ return "CameraConfig";}
-        static void set_m_camera_config(void* instance, void* field_value){ static_cast<GlobalRenderingRes*>(instance)->m_camera_config = *static_cast<CameraConfig*>(field_value);}
-        static void* get_m_camera_config(void* instance){ return static_cast<void*>(&(static_cast<GlobalRenderingRes*>(instance)->m_camera_config));}
+        static void set_m_camera_config(void* instance, void* field_value){ static_cast<VKernel::GlobalRenderingRes*>(instance)->m_camera_config = *static_cast<CameraConfig*>(field_value);}
+        static void* get_m_camera_config(void* instance){ return static_cast<void*>(&(static_cast<VKernel::GlobalRenderingRes*>(instance)->m_camera_config));}
         static bool isArray_m_camera_config(){ return false; }
         static const char* getFieldName_m_directional_light(){ return "m_directional_light";}
         static const char* getFieldTypeName_m_directional_light(){ return "DirectionalLight";}
-        static void set_m_directional_light(void* instance, void* field_value){ static_cast<GlobalRenderingRes*>(instance)->m_directional_light = *static_cast<DirectionalLight*>(field_value);}
-        static void* get_m_directional_light(void* instance){ return static_cast<void*>(&(static_cast<GlobalRenderingRes*>(instance)->m_directional_light));}
+        static void set_m_directional_light(void* instance, void* field_value){ static_cast<VKernel::GlobalRenderingRes*>(instance)->m_directional_light = *static_cast<DirectionalLight*>(field_value);}
+        static void* get_m_directional_light(void* instance){ return static_cast<void*>(&(static_cast<VKernel::GlobalRenderingRes*>(instance)->m_directional_light));}
         static bool isArray_m_directional_light(){ return false; }
         static const char* getFieldName_m_point_lights(){ return "m_point_lights";}
         static const char* getFieldTypeName_m_point_lights(){ return "std::vector<PointLights>";}
-        static void set_m_point_lights(void* instance, void* field_value){ static_cast<GlobalRenderingRes*>(instance)->m_point_lights = *static_cast<std::vector<PointLights>*>(field_value);}
-        static void* get_m_point_lights(void* instance){ return static_cast<void*>(&(static_cast<GlobalRenderingRes*>(instance)->m_point_lights));}
+        static void set_m_point_lights(void* instance, void* field_value){ static_cast<VKernel::GlobalRenderingRes*>(instance)->m_point_lights = *static_cast<std::vector<PointLights>*>(field_value);}
+        static void* get_m_point_lights(void* instance){ return static_cast<void*>(&(static_cast<VKernel::GlobalRenderingRes*>(instance)->m_point_lights));}
         static bool isArray_m_point_lights(){ return true; }
 
         // methods

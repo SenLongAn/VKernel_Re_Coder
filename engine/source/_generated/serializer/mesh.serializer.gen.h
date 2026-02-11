@@ -3,12 +3,12 @@
 
 namespace VKernel{
     template<>
-    Json Serializer::write(const SubMeshRes& instance);
+    Json Serializer::write(const VKernel::SubMeshRes& instance);
     template<>
-    SubMeshRes& Serializer::read(const Json& json_context, SubMeshRes& instance);
+    VKernel::SubMeshRes& Serializer::read(const Json& json_context, VKernel::SubMeshRes& instance);
     template<>
-    Json Serializer::write(const MeshComponentRes& instance);
+    Json Serializer::write(const VKernel::MeshComponentRes& instance);
     template<>
-    MeshComponentRes& Serializer::read(const Json& json_context, MeshComponentRes& instance);
+    VKernel::MeshComponentRes& Serializer::read(const Json& json_context, VKernel::MeshComponentRes& instance);
 }//namespace
 

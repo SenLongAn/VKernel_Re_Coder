@@ -2,19 +2,19 @@
 #include "runtime/core/math/quaternion.h"
 
 namespace VKernel{
-    class Quaternion;
+    class VKernel::Quaternion;
 namespace Reflection{
 namespace TypeFieldReflectionOparator{
     class TypeQuaternionOperator{
     public:
         static const char* getClassName(){ return "Quaternion";}
         static void* constructorWithJson(const Json& json_context){
-            Quaternion* ret_instance= new Quaternion;
+            VKernel::Quaternion* ret_instance= new VKernel::Quaternion;
             Serializer::read(json_context, *ret_instance);
             return ret_instance;
         }
         static Json writeByName(void* instance){
-            return Serializer::write(*(Quaternion*)instance);
+            return Serializer::write(*(VKernel::Quaternion*)instance);
         }
         // base class
         static int getQuaternionBaseClassReflectionInstanceList(ReflectionInstance* &out_list, void* instance){
@@ -25,23 +25,23 @@ namespace TypeFieldReflectionOparator{
         // fields
         static const char* getFieldName_w(){ return "w";}
         static const char* getFieldTypeName_w(){ return "float";}
-        static void set_w(void* instance, void* field_value){ static_cast<Quaternion*>(instance)->w = *static_cast<float*>(field_value);}
-        static void* get_w(void* instance){ return static_cast<void*>(&(static_cast<Quaternion*>(instance)->w));}
+        static void set_w(void* instance, void* field_value){ static_cast<VKernel::Quaternion*>(instance)->w = *static_cast<float*>(field_value);}
+        static void* get_w(void* instance){ return static_cast<void*>(&(static_cast<VKernel::Quaternion*>(instance)->w));}
         static bool isArray_w(){ return false; }
         static const char* getFieldName_x(){ return "x";}
         static const char* getFieldTypeName_x(){ return "float";}
-        static void set_x(void* instance, void* field_value){ static_cast<Quaternion*>(instance)->x = *static_cast<float*>(field_value);}
-        static void* get_x(void* instance){ return static_cast<void*>(&(static_cast<Quaternion*>(instance)->x));}
+        static void set_x(void* instance, void* field_value){ static_cast<VKernel::Quaternion*>(instance)->x = *static_cast<float*>(field_value);}
+        static void* get_x(void* instance){ return static_cast<void*>(&(static_cast<VKernel::Quaternion*>(instance)->x));}
         static bool isArray_x(){ return false; }
         static const char* getFieldName_y(){ return "y";}
         static const char* getFieldTypeName_y(){ return "float";}
-        static void set_y(void* instance, void* field_value){ static_cast<Quaternion*>(instance)->y = *static_cast<float*>(field_value);}
-        static void* get_y(void* instance){ return static_cast<void*>(&(static_cast<Quaternion*>(instance)->y));}
+        static void set_y(void* instance, void* field_value){ static_cast<VKernel::Quaternion*>(instance)->y = *static_cast<float*>(field_value);}
+        static void* get_y(void* instance){ return static_cast<void*>(&(static_cast<VKernel::Quaternion*>(instance)->y));}
         static bool isArray_y(){ return false; }
         static const char* getFieldName_z(){ return "z";}
         static const char* getFieldTypeName_z(){ return "float";}
-        static void set_z(void* instance, void* field_value){ static_cast<Quaternion*>(instance)->z = *static_cast<float*>(field_value);}
-        static void* get_z(void* instance){ return static_cast<void*>(&(static_cast<Quaternion*>(instance)->z));}
+        static void set_z(void* instance, void* field_value){ static_cast<VKernel::Quaternion*>(instance)->z = *static_cast<float*>(field_value);}
+        static void* get_z(void* instance){ return static_cast<void*>(&(static_cast<VKernel::Quaternion*>(instance)->z));}
         static bool isArray_z(){ return false; }
 
         // methods

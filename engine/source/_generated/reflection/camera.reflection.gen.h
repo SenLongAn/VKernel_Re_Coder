@@ -2,22 +2,22 @@
 #include "runtime/resource/res_type/components/camera.h"
 
 namespace VKernel{
-    class CameraParameter;
-    class FirstPersonCameraParameter;
-    class ThirdPersonCameraParameter;
-    class CameraComponentRes;
+    class VKernel::CameraParameter;
+    class VKernel::FirstPersonCameraParameter;
+    class VKernel::ThirdPersonCameraParameter;
+    class VKernel::CameraComponentRes;
 namespace Reflection{
 namespace TypeFieldReflectionOparator{
     class TypeCameraParameterOperator{
     public:
         static const char* getClassName(){ return "CameraParameter";}
         static void* constructorWithJson(const Json& json_context){
-            CameraParameter* ret_instance= new CameraParameter;
+            VKernel::CameraParameter* ret_instance= new VKernel::CameraParameter;
             Serializer::read(json_context, *ret_instance);
             return ret_instance;
         }
         static Json writeByName(void* instance){
-            return Serializer::write(*(CameraParameter*)instance);
+            return Serializer::write(*(VKernel::CameraParameter*)instance);
         }
         // base class
         static int getCameraParameterBaseClassReflectionInstanceList(ReflectionInstance* &out_list, void* instance){
@@ -28,8 +28,8 @@ namespace TypeFieldReflectionOparator{
         // fields
         static const char* getFieldName_m_fov(){ return "m_fov";}
         static const char* getFieldTypeName_m_fov(){ return "float";}
-        static void set_m_fov(void* instance, void* field_value){ static_cast<CameraParameter*>(instance)->m_fov = *static_cast<float*>(field_value);}
-        static void* get_m_fov(void* instance){ return static_cast<void*>(&(static_cast<CameraParameter*>(instance)->m_fov));}
+        static void set_m_fov(void* instance, void* field_value){ static_cast<VKernel::CameraParameter*>(instance)->m_fov = *static_cast<float*>(field_value);}
+        static void* get_m_fov(void* instance){ return static_cast<void*>(&(static_cast<VKernel::CameraParameter*>(instance)->m_fov));}
         static bool isArray_m_fov(){ return false; }
 
         // methods
@@ -61,27 +61,27 @@ namespace TypeFieldReflectionOparator{
     public:
         static const char* getClassName(){ return "FirstPersonCameraParameter";}
         static void* constructorWithJson(const Json& json_context){
-            FirstPersonCameraParameter* ret_instance= new FirstPersonCameraParameter;
+            VKernel::FirstPersonCameraParameter* ret_instance= new VKernel::FirstPersonCameraParameter;
             Serializer::read(json_context, *ret_instance);
             return ret_instance;
         }
         static Json writeByName(void* instance){
-            return Serializer::write(*(FirstPersonCameraParameter*)instance);
+            return Serializer::write(*(VKernel::FirstPersonCameraParameter*)instance);
         }
         // base class
         static int getFirstPersonCameraParameterBaseClassReflectionInstanceList(ReflectionInstance* &out_list, void* instance){
             int count = 1;
             out_list = new ReflectionInstance[count];
             for (int i=0;i<count;++i){
-               out_list[i] = TypeMetaDef(VKernel::CameraParameter,static_cast<FirstPersonCameraParameter*>(instance));
+               out_list[i] = TypeMetaDef(VKernel::CameraParameter,static_cast<VKernel::FirstPersonCameraParameter*>(instance));
             }
             return count;
         }
         // fields
         static const char* getFieldName_m_vertical_offset(){ return "m_vertical_offset";}
         static const char* getFieldTypeName_m_vertical_offset(){ return "float";}
-        static void set_m_vertical_offset(void* instance, void* field_value){ static_cast<FirstPersonCameraParameter*>(instance)->m_vertical_offset = *static_cast<float*>(field_value);}
-        static void* get_m_vertical_offset(void* instance){ return static_cast<void*>(&(static_cast<FirstPersonCameraParameter*>(instance)->m_vertical_offset));}
+        static void set_m_vertical_offset(void* instance, void* field_value){ static_cast<VKernel::FirstPersonCameraParameter*>(instance)->m_vertical_offset = *static_cast<float*>(field_value);}
+        static void* get_m_vertical_offset(void* instance){ return static_cast<void*>(&(static_cast<VKernel::FirstPersonCameraParameter*>(instance)->m_vertical_offset));}
         static bool isArray_m_vertical_offset(){ return false; }
 
         // methods
@@ -113,32 +113,32 @@ namespace TypeFieldReflectionOparator{
     public:
         static const char* getClassName(){ return "ThirdPersonCameraParameter";}
         static void* constructorWithJson(const Json& json_context){
-            ThirdPersonCameraParameter* ret_instance= new ThirdPersonCameraParameter;
+            VKernel::ThirdPersonCameraParameter* ret_instance= new VKernel::ThirdPersonCameraParameter;
             Serializer::read(json_context, *ret_instance);
             return ret_instance;
         }
         static Json writeByName(void* instance){
-            return Serializer::write(*(ThirdPersonCameraParameter*)instance);
+            return Serializer::write(*(VKernel::ThirdPersonCameraParameter*)instance);
         }
         // base class
         static int getThirdPersonCameraParameterBaseClassReflectionInstanceList(ReflectionInstance* &out_list, void* instance){
             int count = 1;
             out_list = new ReflectionInstance[count];
             for (int i=0;i<count;++i){
-               out_list[i] = TypeMetaDef(VKernel::CameraParameter,static_cast<ThirdPersonCameraParameter*>(instance));
+               out_list[i] = TypeMetaDef(VKernel::CameraParameter,static_cast<VKernel::ThirdPersonCameraParameter*>(instance));
             }
             return count;
         }
         // fields
         static const char* getFieldName_m_horizontal_offset(){ return "m_horizontal_offset";}
         static const char* getFieldTypeName_m_horizontal_offset(){ return "float";}
-        static void set_m_horizontal_offset(void* instance, void* field_value){ static_cast<ThirdPersonCameraParameter*>(instance)->m_horizontal_offset = *static_cast<float*>(field_value);}
-        static void* get_m_horizontal_offset(void* instance){ return static_cast<void*>(&(static_cast<ThirdPersonCameraParameter*>(instance)->m_horizontal_offset));}
+        static void set_m_horizontal_offset(void* instance, void* field_value){ static_cast<VKernel::ThirdPersonCameraParameter*>(instance)->m_horizontal_offset = *static_cast<float*>(field_value);}
+        static void* get_m_horizontal_offset(void* instance){ return static_cast<void*>(&(static_cast<VKernel::ThirdPersonCameraParameter*>(instance)->m_horizontal_offset));}
         static bool isArray_m_horizontal_offset(){ return false; }
         static const char* getFieldName_m_vertical_offset(){ return "m_vertical_offset";}
         static const char* getFieldTypeName_m_vertical_offset(){ return "float";}
-        static void set_m_vertical_offset(void* instance, void* field_value){ static_cast<ThirdPersonCameraParameter*>(instance)->m_vertical_offset = *static_cast<float*>(field_value);}
-        static void* get_m_vertical_offset(void* instance){ return static_cast<void*>(&(static_cast<ThirdPersonCameraParameter*>(instance)->m_vertical_offset));}
+        static void set_m_vertical_offset(void* instance, void* field_value){ static_cast<VKernel::ThirdPersonCameraParameter*>(instance)->m_vertical_offset = *static_cast<float*>(field_value);}
+        static void* get_m_vertical_offset(void* instance){ return static_cast<void*>(&(static_cast<VKernel::ThirdPersonCameraParameter*>(instance)->m_vertical_offset));}
         static bool isArray_m_vertical_offset(){ return false; }
 
         // methods
@@ -178,12 +178,12 @@ namespace TypeFieldReflectionOparator{
     public:
         static const char* getClassName(){ return "CameraComponentRes";}
         static void* constructorWithJson(const Json& json_context){
-            CameraComponentRes* ret_instance= new CameraComponentRes;
+            VKernel::CameraComponentRes* ret_instance= new VKernel::CameraComponentRes;
             Serializer::read(json_context, *ret_instance);
             return ret_instance;
         }
         static Json writeByName(void* instance){
-            return Serializer::write(*(CameraComponentRes*)instance);
+            return Serializer::write(*(VKernel::CameraComponentRes*)instance);
         }
         // base class
         static int getCameraComponentResBaseClassReflectionInstanceList(ReflectionInstance* &out_list, void* instance){
@@ -194,13 +194,13 @@ namespace TypeFieldReflectionOparator{
         // fields
         static const char* getFieldName_m_first_camera(){ return "m_first_camera";}
         static const char* getFieldTypeName_m_first_camera(){ return "FirstPersonCameraParameter";}
-        static void set_m_first_camera(void* instance, void* field_value){ static_cast<CameraComponentRes*>(instance)->m_first_camera = *static_cast<FirstPersonCameraParameter*>(field_value);}
-        static void* get_m_first_camera(void* instance){ return static_cast<void*>(&(static_cast<CameraComponentRes*>(instance)->m_first_camera));}
+        static void set_m_first_camera(void* instance, void* field_value){ static_cast<VKernel::CameraComponentRes*>(instance)->m_first_camera = *static_cast<FirstPersonCameraParameter*>(field_value);}
+        static void* get_m_first_camera(void* instance){ return static_cast<void*>(&(static_cast<VKernel::CameraComponentRes*>(instance)->m_first_camera));}
         static bool isArray_m_first_camera(){ return false; }
         static const char* getFieldName_m_third_camera(){ return "m_third_camera";}
         static const char* getFieldTypeName_m_third_camera(){ return "ThirdPersonCameraParameter";}
-        static void set_m_third_camera(void* instance, void* field_value){ static_cast<CameraComponentRes*>(instance)->m_third_camera = *static_cast<ThirdPersonCameraParameter*>(field_value);}
-        static void* get_m_third_camera(void* instance){ return static_cast<void*>(&(static_cast<CameraComponentRes*>(instance)->m_third_camera));}
+        static void set_m_third_camera(void* instance, void* field_value){ static_cast<VKernel::CameraComponentRes*>(instance)->m_third_camera = *static_cast<ThirdPersonCameraParameter*>(field_value);}
+        static void* get_m_third_camera(void* instance){ return static_cast<void*>(&(static_cast<VKernel::CameraComponentRes*>(instance)->m_third_camera));}
         static bool isArray_m_third_camera(){ return false; }
 
         // methods

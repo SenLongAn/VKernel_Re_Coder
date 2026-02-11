@@ -2,20 +2,20 @@
 #include "runtime/resource/res_type/data/camera_config.h"
 
 namespace VKernel{
-    class CameraPose;
-    class CameraConfig;
+    class VKernel::CameraPose;
+    class VKernel::CameraConfig;
 namespace Reflection{
 namespace TypeFieldReflectionOparator{
     class TypeCameraPoseOperator{
     public:
         static const char* getClassName(){ return "CameraPose";}
         static void* constructorWithJson(const Json& json_context){
-            CameraPose* ret_instance= new CameraPose;
+            VKernel::CameraPose* ret_instance= new VKernel::CameraPose;
             Serializer::read(json_context, *ret_instance);
             return ret_instance;
         }
         static Json writeByName(void* instance){
-            return Serializer::write(*(CameraPose*)instance);
+            return Serializer::write(*(VKernel::CameraPose*)instance);
         }
         // base class
         static int getCameraPoseBaseClassReflectionInstanceList(ReflectionInstance* &out_list, void* instance){
@@ -26,18 +26,18 @@ namespace TypeFieldReflectionOparator{
         // fields
         static const char* getFieldName_m_position(){ return "m_position";}
         static const char* getFieldTypeName_m_position(){ return "Vector3";}
-        static void set_m_position(void* instance, void* field_value){ static_cast<CameraPose*>(instance)->m_position = *static_cast<Vector3*>(field_value);}
-        static void* get_m_position(void* instance){ return static_cast<void*>(&(static_cast<CameraPose*>(instance)->m_position));}
+        static void set_m_position(void* instance, void* field_value){ static_cast<VKernel::CameraPose*>(instance)->m_position = *static_cast<Vector3*>(field_value);}
+        static void* get_m_position(void* instance){ return static_cast<void*>(&(static_cast<VKernel::CameraPose*>(instance)->m_position));}
         static bool isArray_m_position(){ return false; }
         static const char* getFieldName_m_target(){ return "m_target";}
         static const char* getFieldTypeName_m_target(){ return "Vector3";}
-        static void set_m_target(void* instance, void* field_value){ static_cast<CameraPose*>(instance)->m_target = *static_cast<Vector3*>(field_value);}
-        static void* get_m_target(void* instance){ return static_cast<void*>(&(static_cast<CameraPose*>(instance)->m_target));}
+        static void set_m_target(void* instance, void* field_value){ static_cast<VKernel::CameraPose*>(instance)->m_target = *static_cast<Vector3*>(field_value);}
+        static void* get_m_target(void* instance){ return static_cast<void*>(&(static_cast<VKernel::CameraPose*>(instance)->m_target));}
         static bool isArray_m_target(){ return false; }
         static const char* getFieldName_m_up(){ return "m_up";}
         static const char* getFieldTypeName_m_up(){ return "Vector3";}
-        static void set_m_up(void* instance, void* field_value){ static_cast<CameraPose*>(instance)->m_up = *static_cast<Vector3*>(field_value);}
-        static void* get_m_up(void* instance){ return static_cast<void*>(&(static_cast<CameraPose*>(instance)->m_up));}
+        static void set_m_up(void* instance, void* field_value){ static_cast<VKernel::CameraPose*>(instance)->m_up = *static_cast<Vector3*>(field_value);}
+        static void* get_m_up(void* instance){ return static_cast<void*>(&(static_cast<VKernel::CameraPose*>(instance)->m_up));}
         static bool isArray_m_up(){ return false; }
 
         // methods
@@ -85,12 +85,12 @@ namespace TypeFieldReflectionOparator{
     public:
         static const char* getClassName(){ return "CameraConfig";}
         static void* constructorWithJson(const Json& json_context){
-            CameraConfig* ret_instance= new CameraConfig;
+            VKernel::CameraConfig* ret_instance= new VKernel::CameraConfig;
             Serializer::read(json_context, *ret_instance);
             return ret_instance;
         }
         static Json writeByName(void* instance){
-            return Serializer::write(*(CameraConfig*)instance);
+            return Serializer::write(*(VKernel::CameraConfig*)instance);
         }
         // base class
         static int getCameraConfigBaseClassReflectionInstanceList(ReflectionInstance* &out_list, void* instance){
@@ -101,23 +101,23 @@ namespace TypeFieldReflectionOparator{
         // fields
         static const char* getFieldName_m_pose(){ return "m_pose";}
         static const char* getFieldTypeName_m_pose(){ return "CameraPose";}
-        static void set_m_pose(void* instance, void* field_value){ static_cast<CameraConfig*>(instance)->m_pose = *static_cast<CameraPose*>(field_value);}
-        static void* get_m_pose(void* instance){ return static_cast<void*>(&(static_cast<CameraConfig*>(instance)->m_pose));}
+        static void set_m_pose(void* instance, void* field_value){ static_cast<VKernel::CameraConfig*>(instance)->m_pose = *static_cast<CameraPose*>(field_value);}
+        static void* get_m_pose(void* instance){ return static_cast<void*>(&(static_cast<VKernel::CameraConfig*>(instance)->m_pose));}
         static bool isArray_m_pose(){ return false; }
         static const char* getFieldName_m_aspect(){ return "m_aspect";}
         static const char* getFieldTypeName_m_aspect(){ return "Vector2";}
-        static void set_m_aspect(void* instance, void* field_value){ static_cast<CameraConfig*>(instance)->m_aspect = *static_cast<Vector2*>(field_value);}
-        static void* get_m_aspect(void* instance){ return static_cast<void*>(&(static_cast<CameraConfig*>(instance)->m_aspect));}
+        static void set_m_aspect(void* instance, void* field_value){ static_cast<VKernel::CameraConfig*>(instance)->m_aspect = *static_cast<Vector2*>(field_value);}
+        static void* get_m_aspect(void* instance){ return static_cast<void*>(&(static_cast<VKernel::CameraConfig*>(instance)->m_aspect));}
         static bool isArray_m_aspect(){ return false; }
         static const char* getFieldName_m_z_far(){ return "m_z_far";}
         static const char* getFieldTypeName_m_z_far(){ return "float";}
-        static void set_m_z_far(void* instance, void* field_value){ static_cast<CameraConfig*>(instance)->m_z_far = *static_cast<float*>(field_value);}
-        static void* get_m_z_far(void* instance){ return static_cast<void*>(&(static_cast<CameraConfig*>(instance)->m_z_far));}
+        static void set_m_z_far(void* instance, void* field_value){ static_cast<VKernel::CameraConfig*>(instance)->m_z_far = *static_cast<float*>(field_value);}
+        static void* get_m_z_far(void* instance){ return static_cast<void*>(&(static_cast<VKernel::CameraConfig*>(instance)->m_z_far));}
         static bool isArray_m_z_far(){ return false; }
         static const char* getFieldName_m_z_near(){ return "m_z_near";}
         static const char* getFieldTypeName_m_z_near(){ return "float";}
-        static void set_m_z_near(void* instance, void* field_value){ static_cast<CameraConfig*>(instance)->m_z_near = *static_cast<float*>(field_value);}
-        static void* get_m_z_near(void* instance){ return static_cast<void*>(&(static_cast<CameraConfig*>(instance)->m_z_near));}
+        static void set_m_z_near(void* instance, void* field_value){ static_cast<VKernel::CameraConfig*>(instance)->m_z_near = *static_cast<float*>(field_value);}
+        static void* get_m_z_near(void* instance){ return static_cast<void*>(&(static_cast<VKernel::CameraConfig*>(instance)->m_z_near));}
         static bool isArray_m_z_near(){ return false; }
 
         // methods

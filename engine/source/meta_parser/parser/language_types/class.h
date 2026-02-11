@@ -35,11 +35,13 @@ public:
     using SharedPtrVector = std::vector<std::shared_ptr<T>>;
 
     std::string getClassName(void);
+    std::string getClassNameNameSpace(void);
 
     SharedPtrVector<BaseClass> m_base_classes;
 
 public:
-    std::string m_name; ///< complete identifier
+    std::string m_name;           ///< complete identifier
+    std::string m_name_namespace; ///< complete identifier
 
     std::string m_qualified_name; ///< type
 

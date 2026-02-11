@@ -1,5 +1,7 @@
 #include "runtime/function/character/character.h"
 
+#include "runtime/Games/the_celestial_console/control_cabin.h"
+
 namespace VKernel
 {
     CharacterManager::CharacterManager() {}

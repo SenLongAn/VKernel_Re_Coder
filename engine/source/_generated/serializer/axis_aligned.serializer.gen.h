@@ -3,8 +3,8 @@
 
 namespace VKernel{
     template<>
-    Json Serializer::write(const AxisAlignedBox& instance);
+    Json Serializer::write(const VKernel::AxisAlignedBox& instance);
     template<>
-    AxisAlignedBox& Serializer::read(const Json& json_context, AxisAlignedBox& instance);
+    VKernel::AxisAlignedBox& Serializer::read(const Json& json_context, VKernel::AxisAlignedBox& instance);
 }//namespace
 

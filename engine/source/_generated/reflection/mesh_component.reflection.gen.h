@@ -2,34 +2,34 @@
 #include "runtime/function/framework/component/mesh/mesh_component.h"
 
 namespace VKernel{
-    class MeshComponent;
+    class VKernel::MeshComponent;
 namespace Reflection{
 namespace TypeFieldReflectionOparator{
     class TypeMeshComponentOperator{
     public:
         static const char* getClassName(){ return "MeshComponent";}
         static void* constructorWithJson(const Json& json_context){
-            MeshComponent* ret_instance= new MeshComponent;
+            VKernel::MeshComponent* ret_instance= new VKernel::MeshComponent;
             Serializer::read(json_context, *ret_instance);
             return ret_instance;
         }
         static Json writeByName(void* instance){
-            return Serializer::write(*(MeshComponent*)instance);
+            return Serializer::write(*(VKernel::MeshComponent*)instance);
         }
         // base class
         static int getMeshComponentBaseClassReflectionInstanceList(ReflectionInstance* &out_list, void* instance){
             int count = 1;
             out_list = new ReflectionInstance[count];
             for (int i=0;i<count;++i){
-               out_list[i] = TypeMetaDef(VKernel::Component,static_cast<MeshComponent*>(instance));
+               out_list[i] = TypeMetaDef(VKernel::Component,static_cast<VKernel::MeshComponent*>(instance));
             }
             return count;
         }
         // fields
         static const char* getFieldName_m_mesh_res(){ return "m_mesh_res";}
         static const char* getFieldTypeName_m_mesh_res(){ return "MeshComponentRes";}
-        static void set_m_mesh_res(void* instance, void* field_value){ static_cast<MeshComponent*>(instance)->m_mesh_res = *static_cast<MeshComponentRes*>(field_value);}
-        static void* get_m_mesh_res(void* instance){ return static_cast<void*>(&(static_cast<MeshComponent*>(instance)->m_mesh_res));}
+        static void set_m_mesh_res(void* instance, void* field_value){ static_cast<VKernel::MeshComponent*>(instance)->m_mesh_res = *static_cast<MeshComponentRes*>(field_value);}
+        static void* get_m_mesh_res(void* instance){ return static_cast<void*>(&(static_cast<VKernel::MeshComponent*>(instance)->m_mesh_res));}
         static bool isArray_m_mesh_res(){ return false; }
 
         // methods

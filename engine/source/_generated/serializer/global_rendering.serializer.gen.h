@@ -3,24 +3,24 @@
 
 namespace VKernel{
     template<>
-    Json Serializer::write(const SkyBoxIrradianceMap& instance);
+    Json Serializer::write(const VKernel::SkyBoxIrradianceMap& instance);
     template<>
-    SkyBoxIrradianceMap& Serializer::read(const Json& json_context, SkyBoxIrradianceMap& instance);
+    VKernel::SkyBoxIrradianceMap& Serializer::read(const Json& json_context, VKernel::SkyBoxIrradianceMap& instance);
     template<>
-    Json Serializer::write(const SkyBoxSpecularMap& instance);
+    Json Serializer::write(const VKernel::SkyBoxSpecularMap& instance);
     template<>
-    SkyBoxSpecularMap& Serializer::read(const Json& json_context, SkyBoxSpecularMap& instance);
+    VKernel::SkyBoxSpecularMap& Serializer::read(const Json& json_context, VKernel::SkyBoxSpecularMap& instance);
     template<>
-    Json Serializer::write(const DirectionalLight& instance);
+    Json Serializer::write(const VKernel::DirectionalLight& instance);
     template<>
-    DirectionalLight& Serializer::read(const Json& json_context, DirectionalLight& instance);
+    VKernel::DirectionalLight& Serializer::read(const Json& json_context, VKernel::DirectionalLight& instance);
     template<>
-    Json Serializer::write(const PointLights& instance);
+    Json Serializer::write(const VKernel::PointLights& instance);
     template<>
-    PointLights& Serializer::read(const Json& json_context, PointLights& instance);
+    VKernel::PointLights& Serializer::read(const Json& json_context, VKernel::PointLights& instance);
     template<>
-    Json Serializer::write(const GlobalRenderingRes& instance);
+    Json Serializer::write(const VKernel::GlobalRenderingRes& instance);
     template<>
-    GlobalRenderingRes& Serializer::read(const Json& json_context, GlobalRenderingRes& instance);
+    VKernel::GlobalRenderingRes& Serializer::read(const Json& json_context, VKernel::GlobalRenderingRes& instance);
 }//namespace
 

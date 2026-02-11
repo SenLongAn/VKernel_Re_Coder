@@ -1,6 +1,6 @@
 #include "runtime/Games/the_celestial_console/control_cabin.h"
 
-#include "runtime/function/framework/component/motor/motor_component.h"
+#include "runtime/Games/the_celestial_console/component/motor/motor_component.h"
 #include "runtime/function/framework/component/transform/transform_component.h"
 
 namespace Games
@@ -14,8 +14,7 @@ namespace Games
         // get component
         VKernel::TransformComponent* transform_component =
             m_character_object->tryGetComponent(VKernel::TransformComponent, "TransformComponent");
-        VKernel::MotorComponent* motor_component =
-            m_character_object->tryGetComponent(VKernel::MotorComponent, "MotorComponent");
+        MotorComponent* motor_component = m_character_object->tryGetComponent(MotorComponent, "MotorComponent");
         if (transform_component == nullptr || motor_component == nullptr)
         {
             return;

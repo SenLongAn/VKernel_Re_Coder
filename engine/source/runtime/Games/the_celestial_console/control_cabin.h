@@ -12,8 +12,8 @@ namespace Games
 {
     class ControlCabin : public VKernel::Character, public std::enable_shared_from_this<ControlCabin>
     {
+    public:
         CHARACTER_CLASS(ControlCabin)
-
     public:
         ControlCabin(std::shared_ptr<VKernel::GObject> character_object);
 
@@ -31,4 +31,5 @@ namespace Games
         VKernel::Vector3    m_position; ///< last frame position
         VKernel::Quaternion m_rotation; ///< last frame rotation
     };
+
 } // namespace Games

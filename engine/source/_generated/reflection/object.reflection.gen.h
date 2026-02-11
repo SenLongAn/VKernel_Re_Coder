@@ -2,21 +2,21 @@
 #include "runtime/resource/res_type/common/object.h"
 
 namespace VKernel{
-    class ComponentDefinitionRes;
-    class ObjectDefinitionRes;
-    class ObjectInstanceRes;
+    class VKernel::ComponentDefinitionRes;
+    class VKernel::ObjectDefinitionRes;
+    class VKernel::ObjectInstanceRes;
 namespace Reflection{
 namespace TypeFieldReflectionOparator{
     class TypeComponentDefinitionResOperator{
     public:
         static const char* getClassName(){ return "ComponentDefinitionRes";}
         static void* constructorWithJson(const Json& json_context){
-            ComponentDefinitionRes* ret_instance= new ComponentDefinitionRes;
+            VKernel::ComponentDefinitionRes* ret_instance= new VKernel::ComponentDefinitionRes;
             Serializer::read(json_context, *ret_instance);
             return ret_instance;
         }
         static Json writeByName(void* instance){
-            return Serializer::write(*(ComponentDefinitionRes*)instance);
+            return Serializer::write(*(VKernel::ComponentDefinitionRes*)instance);
         }
         // base class
         static int getComponentDefinitionResBaseClassReflectionInstanceList(ReflectionInstance* &out_list, void* instance){
@@ -27,13 +27,13 @@ namespace TypeFieldReflectionOparator{
         // fields
         static const char* getFieldName_m_type_name(){ return "m_type_name";}
         static const char* getFieldTypeName_m_type_name(){ return "std::string";}
-        static void set_m_type_name(void* instance, void* field_value){ static_cast<ComponentDefinitionRes*>(instance)->m_type_name = *static_cast<std::string*>(field_value);}
-        static void* get_m_type_name(void* instance){ return static_cast<void*>(&(static_cast<ComponentDefinitionRes*>(instance)->m_type_name));}
+        static void set_m_type_name(void* instance, void* field_value){ static_cast<VKernel::ComponentDefinitionRes*>(instance)->m_type_name = *static_cast<std::string*>(field_value);}
+        static void* get_m_type_name(void* instance){ return static_cast<void*>(&(static_cast<VKernel::ComponentDefinitionRes*>(instance)->m_type_name));}
         static bool isArray_m_type_name(){ return false; }
         static const char* getFieldName_m_component(){ return "m_component";}
         static const char* getFieldTypeName_m_component(){ return "std::string";}
-        static void set_m_component(void* instance, void* field_value){ static_cast<ComponentDefinitionRes*>(instance)->m_component = *static_cast<std::string*>(field_value);}
-        static void* get_m_component(void* instance){ return static_cast<void*>(&(static_cast<ComponentDefinitionRes*>(instance)->m_component));}
+        static void set_m_component(void* instance, void* field_value){ static_cast<VKernel::ComponentDefinitionRes*>(instance)->m_component = *static_cast<std::string*>(field_value);}
+        static void* get_m_component(void* instance){ return static_cast<void*>(&(static_cast<VKernel::ComponentDefinitionRes*>(instance)->m_component));}
         static bool isArray_m_component(){ return false; }
 
         // methods
@@ -73,12 +73,12 @@ namespace TypeFieldReflectionOparator{
     public:
         static const char* getClassName(){ return "ObjectDefinitionRes";}
         static void* constructorWithJson(const Json& json_context){
-            ObjectDefinitionRes* ret_instance= new ObjectDefinitionRes;
+            VKernel::ObjectDefinitionRes* ret_instance= new VKernel::ObjectDefinitionRes;
             Serializer::read(json_context, *ret_instance);
             return ret_instance;
         }
         static Json writeByName(void* instance){
-            return Serializer::write(*(ObjectDefinitionRes*)instance);
+            return Serializer::write(*(VKernel::ObjectDefinitionRes*)instance);
         }
         // base class
         static int getObjectDefinitionResBaseClassReflectionInstanceList(ReflectionInstance* &out_list, void* instance){
@@ -89,8 +89,8 @@ namespace TypeFieldReflectionOparator{
         // fields
         static const char* getFieldName_m_components(){ return "m_components";}
         static const char* getFieldTypeName_m_components(){ return "std::vector<Reflection::ReflectionPtr<Component>>";}
-        static void set_m_components(void* instance, void* field_value){ static_cast<ObjectDefinitionRes*>(instance)->m_components = *static_cast<std::vector<Reflection::ReflectionPtr<Component>>*>(field_value);}
-        static void* get_m_components(void* instance){ return static_cast<void*>(&(static_cast<ObjectDefinitionRes*>(instance)->m_components));}
+        static void set_m_components(void* instance, void* field_value){ static_cast<VKernel::ObjectDefinitionRes*>(instance)->m_components = *static_cast<std::vector<Reflection::ReflectionPtr<Component>>*>(field_value);}
+        static void* get_m_components(void* instance){ return static_cast<void*>(&(static_cast<VKernel::ObjectDefinitionRes*>(instance)->m_components));}
         static bool isArray_m_components(){ return true; }
 
         // methods
@@ -149,12 +149,12 @@ namespace ArrayReflectionOperator{
     public:
         static const char* getClassName(){ return "ObjectInstanceRes";}
         static void* constructorWithJson(const Json& json_context){
-            ObjectInstanceRes* ret_instance= new ObjectInstanceRes;
+            VKernel::ObjectInstanceRes* ret_instance= new VKernel::ObjectInstanceRes;
             Serializer::read(json_context, *ret_instance);
             return ret_instance;
         }
         static Json writeByName(void* instance){
-            return Serializer::write(*(ObjectInstanceRes*)instance);
+            return Serializer::write(*(VKernel::ObjectInstanceRes*)instance);
         }
         // base class
         static int getObjectInstanceResBaseClassReflectionInstanceList(ReflectionInstance* &out_list, void* instance){
@@ -165,18 +165,18 @@ namespace ArrayReflectionOperator{
         // fields
         static const char* getFieldName_m_name(){ return "m_name";}
         static const char* getFieldTypeName_m_name(){ return "std::string";}
-        static void set_m_name(void* instance, void* field_value){ static_cast<ObjectInstanceRes*>(instance)->m_name = *static_cast<std::string*>(field_value);}
-        static void* get_m_name(void* instance){ return static_cast<void*>(&(static_cast<ObjectInstanceRes*>(instance)->m_name));}
+        static void set_m_name(void* instance, void* field_value){ static_cast<VKernel::ObjectInstanceRes*>(instance)->m_name = *static_cast<std::string*>(field_value);}
+        static void* get_m_name(void* instance){ return static_cast<void*>(&(static_cast<VKernel::ObjectInstanceRes*>(instance)->m_name));}
         static bool isArray_m_name(){ return false; }
         static const char* getFieldName_m_definition(){ return "m_definition";}
         static const char* getFieldTypeName_m_definition(){ return "std::string";}
-        static void set_m_definition(void* instance, void* field_value){ static_cast<ObjectInstanceRes*>(instance)->m_definition = *static_cast<std::string*>(field_value);}
-        static void* get_m_definition(void* instance){ return static_cast<void*>(&(static_cast<ObjectInstanceRes*>(instance)->m_definition));}
+        static void set_m_definition(void* instance, void* field_value){ static_cast<VKernel::ObjectInstanceRes*>(instance)->m_definition = *static_cast<std::string*>(field_value);}
+        static void* get_m_definition(void* instance){ return static_cast<void*>(&(static_cast<VKernel::ObjectInstanceRes*>(instance)->m_definition));}
         static bool isArray_m_definition(){ return false; }
         static const char* getFieldName_m_instanced_components(){ return "m_instanced_components";}
         static const char* getFieldTypeName_m_instanced_components(){ return "std::vector<Reflection::ReflectionPtr<Component>>";}
-        static void set_m_instanced_components(void* instance, void* field_value){ static_cast<ObjectInstanceRes*>(instance)->m_instanced_components = *static_cast<std::vector<Reflection::ReflectionPtr<Component>>*>(field_value);}
-        static void* get_m_instanced_components(void* instance){ return static_cast<void*>(&(static_cast<ObjectInstanceRes*>(instance)->m_instanced_components));}
+        static void set_m_instanced_components(void* instance, void* field_value){ static_cast<VKernel::ObjectInstanceRes*>(instance)->m_instanced_components = *static_cast<std::vector<Reflection::ReflectionPtr<Component>>*>(field_value);}
+        static void* get_m_instanced_components(void* instance){ return static_cast<void*>(&(static_cast<VKernel::ObjectInstanceRes*>(instance)->m_instanced_components));}
         static bool isArray_m_instanced_components(){ return true; }
 
         // methods

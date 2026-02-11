@@ -3,8 +3,8 @@
 
 namespace VKernel{
     template<>
-    Json Serializer::write(const Vector3& instance);
+    Json Serializer::write(const VKernel::Vector3& instance);
     template<>
-    Vector3& Serializer::read(const Json& json_context, Vector3& instance);
+    VKernel::Vector3& Serializer::read(const Json& json_context, VKernel::Vector3& instance);
 }//namespace
 

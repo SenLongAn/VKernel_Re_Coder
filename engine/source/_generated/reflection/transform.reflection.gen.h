@@ -2,19 +2,19 @@
 #include "runtime/core/math/transform.h"
 
 namespace VKernel{
-    class Transform;
+    class VKernel::Transform;
 namespace Reflection{
 namespace TypeFieldReflectionOparator{
     class TypeTransformOperator{
     public:
         static const char* getClassName(){ return "Transform";}
         static void* constructorWithJson(const Json& json_context){
-            Transform* ret_instance= new Transform;
+            VKernel::Transform* ret_instance= new VKernel::Transform;
             Serializer::read(json_context, *ret_instance);
             return ret_instance;
         }
         static Json writeByName(void* instance){
-            return Serializer::write(*(Transform*)instance);
+            return Serializer::write(*(VKernel::Transform*)instance);
         }
         // base class
         static int getTransformBaseClassReflectionInstanceList(ReflectionInstance* &out_list, void* instance){
@@ -25,23 +25,23 @@ namespace TypeFieldReflectionOparator{
         // fields
         static const char* getFieldName_m_position(){ return "m_position";}
         static const char* getFieldTypeName_m_position(){ return "Vector3";}
-        static void set_m_position(void* instance, void* field_value){ static_cast<Transform*>(instance)->m_position = *static_cast<Vector3*>(field_value);}
-        static void* get_m_position(void* instance){ return static_cast<void*>(&(static_cast<Transform*>(instance)->m_position));}
+        static void set_m_position(void* instance, void* field_value){ static_cast<VKernel::Transform*>(instance)->m_position = *static_cast<Vector3*>(field_value);}
+        static void* get_m_position(void* instance){ return static_cast<void*>(&(static_cast<VKernel::Transform*>(instance)->m_position));}
         static bool isArray_m_position(){ return false; }
         static const char* getFieldName_m_scale(){ return "m_scale";}
         static const char* getFieldTypeName_m_scale(){ return "Vector3";}
-        static void set_m_scale(void* instance, void* field_value){ static_cast<Transform*>(instance)->m_scale = *static_cast<Vector3*>(field_value);}
-        static void* get_m_scale(void* instance){ return static_cast<void*>(&(static_cast<Transform*>(instance)->m_scale));}
+        static void set_m_scale(void* instance, void* field_value){ static_cast<VKernel::Transform*>(instance)->m_scale = *static_cast<Vector3*>(field_value);}
+        static void* get_m_scale(void* instance){ return static_cast<void*>(&(static_cast<VKernel::Transform*>(instance)->m_scale));}
         static bool isArray_m_scale(){ return false; }
         static const char* getFieldName_m_euler_rotation(){ return "m_euler_rotation";}
         static const char* getFieldTypeName_m_euler_rotation(){ return "Vector3";}
-        static void set_m_euler_rotation(void* instance, void* field_value){ static_cast<Transform*>(instance)->m_euler_rotation = *static_cast<Vector3*>(field_value);}
-        static void* get_m_euler_rotation(void* instance){ return static_cast<void*>(&(static_cast<Transform*>(instance)->m_euler_rotation));}
+        static void set_m_euler_rotation(void* instance, void* field_value){ static_cast<VKernel::Transform*>(instance)->m_euler_rotation = *static_cast<Vector3*>(field_value);}
+        static void* get_m_euler_rotation(void* instance){ return static_cast<void*>(&(static_cast<VKernel::Transform*>(instance)->m_euler_rotation));}
         static bool isArray_m_euler_rotation(){ return false; }
         static const char* getFieldName_m_is_serialization(){ return "m_is_serialization";}
         static const char* getFieldTypeName_m_is_serialization(){ return "bool";}
-        static void set_m_is_serialization(void* instance, void* field_value){ static_cast<Transform*>(instance)->m_is_serialization = *static_cast<bool*>(field_value);}
-        static void* get_m_is_serialization(void* instance){ return static_cast<void*>(&(static_cast<Transform*>(instance)->m_is_serialization));}
+        static void set_m_is_serialization(void* instance, void* field_value){ static_cast<VKernel::Transform*>(instance)->m_is_serialization = *static_cast<bool*>(field_value);}
+        static void* get_m_is_serialization(void* instance){ return static_cast<void*>(&(static_cast<VKernel::Transform*>(instance)->m_is_serialization));}
         static bool isArray_m_is_serialization(){ return false; }
 
         // methods

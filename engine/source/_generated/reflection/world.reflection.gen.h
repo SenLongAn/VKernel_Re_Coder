@@ -2,19 +2,19 @@
 #include "runtime/resource/res_type/common/world.h"
 
 namespace VKernel{
-    class WorldRes;
+    class VKernel::WorldRes;
 namespace Reflection{
 namespace TypeFieldReflectionOparator{
     class TypeWorldResOperator{
     public:
         static const char* getClassName(){ return "WorldRes";}
         static void* constructorWithJson(const Json& json_context){
-            WorldRes* ret_instance= new WorldRes;
+            VKernel::WorldRes* ret_instance= new VKernel::WorldRes;
             Serializer::read(json_context, *ret_instance);
             return ret_instance;
         }
         static Json writeByName(void* instance){
-            return Serializer::write(*(WorldRes*)instance);
+            return Serializer::write(*(VKernel::WorldRes*)instance);
         }
         // base class
         static int getWorldResBaseClassReflectionInstanceList(ReflectionInstance* &out_list, void* instance){
@@ -25,18 +25,18 @@ namespace TypeFieldReflectionOparator{
         // fields
         static const char* getFieldName_m_name(){ return "m_name";}
         static const char* getFieldTypeName_m_name(){ return "std::string";}
-        static void set_m_name(void* instance, void* field_value){ static_cast<WorldRes*>(instance)->m_name = *static_cast<std::string*>(field_value);}
-        static void* get_m_name(void* instance){ return static_cast<void*>(&(static_cast<WorldRes*>(instance)->m_name));}
+        static void set_m_name(void* instance, void* field_value){ static_cast<VKernel::WorldRes*>(instance)->m_name = *static_cast<std::string*>(field_value);}
+        static void* get_m_name(void* instance){ return static_cast<void*>(&(static_cast<VKernel::WorldRes*>(instance)->m_name));}
         static bool isArray_m_name(){ return false; }
         static const char* getFieldName_m_level_urls(){ return "m_level_urls";}
         static const char* getFieldTypeName_m_level_urls(){ return "std::vector<std::string>";}
-        static void set_m_level_urls(void* instance, void* field_value){ static_cast<WorldRes*>(instance)->m_level_urls = *static_cast<std::vector<std::string>*>(field_value);}
-        static void* get_m_level_urls(void* instance){ return static_cast<void*>(&(static_cast<WorldRes*>(instance)->m_level_urls));}
+        static void set_m_level_urls(void* instance, void* field_value){ static_cast<VKernel::WorldRes*>(instance)->m_level_urls = *static_cast<std::vector<std::string>*>(field_value);}
+        static void* get_m_level_urls(void* instance){ return static_cast<void*>(&(static_cast<VKernel::WorldRes*>(instance)->m_level_urls));}
         static bool isArray_m_level_urls(){ return true; }
         static const char* getFieldName_m_default_level_url(){ return "m_default_level_url";}
         static const char* getFieldTypeName_m_default_level_url(){ return "std::string";}
-        static void set_m_default_level_url(void* instance, void* field_value){ static_cast<WorldRes*>(instance)->m_default_level_url = *static_cast<std::string*>(field_value);}
-        static void* get_m_default_level_url(void* instance){ return static_cast<void*>(&(static_cast<WorldRes*>(instance)->m_default_level_url));}
+        static void set_m_default_level_url(void* instance, void* field_value){ static_cast<VKernel::WorldRes*>(instance)->m_default_level_url = *static_cast<std::string*>(field_value);}
+        static void* get_m_default_level_url(void* instance){ return static_cast<void*>(&(static_cast<VKernel::WorldRes*>(instance)->m_default_level_url));}
         static bool isArray_m_default_level_url(){ return false; }
 
         // methods

@@ -7,9 +7,15 @@ BaseClass::BaseClass(const Cursor& cursor) : name(Utils::getTypeNameWithoutNames
 Class::Class(const Cursor& cursor, const Namespace& current_namespace) :
     TypeInfo(cursor, current_namespace), ///< Base class constructor
     m_name(cursor.getDisplayName()),     ///< Get the complete identifier
-    m_qualified_name(Utils::getTypeNameWithoutNamespace(cursor.getType())),
+    m_name_namespace(""), m_qualified_name(Utils::getTypeNameWithoutNamespace(cursor.getType())),
     m_display_name(Utils::getNameWithoutFirstM(m_qualified_name))
 {
+    for (auto& x : current_namespace)
+    {
+        m_name_namespace = m_name_namespace + x + "::";
+    }
+    m_name_namespace = m_name_namespace + cursor.getDisplayName();
+
     Utils::replaceAll(m_name, " ", "");
     Utils::replaceAll(m_name, "VKernel::", "");
 
@@ -52,5 +58,7 @@ bool Class::shouldCompileMethods(void) const
 }
 
 std::string Class::getClassName(void) { return m_name; }
+
+std::string Class::getClassNameNameSpace(void) { return m_name_namespace; }
 
 bool Class::isAccessible(void) const { return m_enabled; }

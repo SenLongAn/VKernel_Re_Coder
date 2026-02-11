@@ -3,8 +3,8 @@
 
 namespace VKernel{
     template<>
-    Json Serializer::write(const LevelRes& instance);
+    Json Serializer::write(const VKernel::LevelRes& instance);
     template<>
-    LevelRes& Serializer::read(const Json& json_context, LevelRes& instance);
+    VKernel::LevelRes& Serializer::read(const Json& json_context, VKernel::LevelRes& instance);
 }//namespace
 

@@ -2,19 +2,19 @@
 #include "runtime/resource/res_type/common/level.h"
 
 namespace VKernel{
-    class LevelRes;
+    class VKernel::LevelRes;
 namespace Reflection{
 namespace TypeFieldReflectionOparator{
     class TypeLevelResOperator{
     public:
         static const char* getClassName(){ return "LevelRes";}
         static void* constructorWithJson(const Json& json_context){
-            LevelRes* ret_instance= new LevelRes;
+            VKernel::LevelRes* ret_instance= new VKernel::LevelRes;
             Serializer::read(json_context, *ret_instance);
             return ret_instance;
         }
         static Json writeByName(void* instance){
-            return Serializer::write(*(LevelRes*)instance);
+            return Serializer::write(*(VKernel::LevelRes*)instance);
         }
         // base class
         static int getLevelResBaseClassReflectionInstanceList(ReflectionInstance* &out_list, void* instance){
@@ -25,18 +25,18 @@ namespace TypeFieldReflectionOparator{
         // fields
         static const char* getFieldName_m_character_name(){ return "m_character_name";}
         static const char* getFieldTypeName_m_character_name(){ return "std::vector<std::string>";}
-        static void set_m_character_name(void* instance, void* field_value){ static_cast<LevelRes*>(instance)->m_character_name = *static_cast<std::vector<std::string>*>(field_value);}
-        static void* get_m_character_name(void* instance){ return static_cast<void*>(&(static_cast<LevelRes*>(instance)->m_character_name));}
+        static void set_m_character_name(void* instance, void* field_value){ static_cast<VKernel::LevelRes*>(instance)->m_character_name = *static_cast<std::vector<std::string>*>(field_value);}
+        static void* get_m_character_name(void* instance){ return static_cast<void*>(&(static_cast<VKernel::LevelRes*>(instance)->m_character_name));}
         static bool isArray_m_character_name(){ return true; }
         static const char* getFieldName_m_current_character_name(){ return "m_current_character_name";}
         static const char* getFieldTypeName_m_current_character_name(){ return "std::string";}
-        static void set_m_current_character_name(void* instance, void* field_value){ static_cast<LevelRes*>(instance)->m_current_character_name = *static_cast<std::string*>(field_value);}
-        static void* get_m_current_character_name(void* instance){ return static_cast<void*>(&(static_cast<LevelRes*>(instance)->m_current_character_name));}
+        static void set_m_current_character_name(void* instance, void* field_value){ static_cast<VKernel::LevelRes*>(instance)->m_current_character_name = *static_cast<std::string*>(field_value);}
+        static void* get_m_current_character_name(void* instance){ return static_cast<void*>(&(static_cast<VKernel::LevelRes*>(instance)->m_current_character_name));}
         static bool isArray_m_current_character_name(){ return false; }
         static const char* getFieldName_m_objects(){ return "m_objects";}
         static const char* getFieldTypeName_m_objects(){ return "std::vector<ObjectInstanceRes>";}
-        static void set_m_objects(void* instance, void* field_value){ static_cast<LevelRes*>(instance)->m_objects = *static_cast<std::vector<ObjectInstanceRes>*>(field_value);}
-        static void* get_m_objects(void* instance){ return static_cast<void*>(&(static_cast<LevelRes*>(instance)->m_objects));}
+        static void set_m_objects(void* instance, void* field_value){ static_cast<VKernel::LevelRes*>(instance)->m_objects = *static_cast<std::vector<ObjectInstanceRes>*>(field_value);}
+        static void* get_m_objects(void* instance){ return static_cast<void*>(&(static_cast<VKernel::LevelRes*>(instance)->m_objects));}
         static bool isArray_m_objects(){ return true; }
 
         // methods

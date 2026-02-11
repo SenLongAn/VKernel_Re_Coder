@@ -3,20 +3,20 @@
 
 namespace VKernel{
     template<>
-    Json Serializer::write(const CameraParameter& instance);
+    Json Serializer::write(const VKernel::CameraParameter& instance);
     template<>
-    CameraParameter& Serializer::read(const Json& json_context, CameraParameter& instance);
+    VKernel::CameraParameter& Serializer::read(const Json& json_context, VKernel::CameraParameter& instance);
     template<>
-    Json Serializer::write(const FirstPersonCameraParameter& instance);
+    Json Serializer::write(const VKernel::FirstPersonCameraParameter& instance);
     template<>
-    FirstPersonCameraParameter& Serializer::read(const Json& json_context, FirstPersonCameraParameter& instance);
+    VKernel::FirstPersonCameraParameter& Serializer::read(const Json& json_context, VKernel::FirstPersonCameraParameter& instance);
     template<>
-    Json Serializer::write(const ThirdPersonCameraParameter& instance);
+    Json Serializer::write(const VKernel::ThirdPersonCameraParameter& instance);
     template<>
-    ThirdPersonCameraParameter& Serializer::read(const Json& json_context, ThirdPersonCameraParameter& instance);
+    VKernel::ThirdPersonCameraParameter& Serializer::read(const Json& json_context, VKernel::ThirdPersonCameraParameter& instance);
     template<>
-    Json Serializer::write(const CameraComponentRes& instance);
+    Json Serializer::write(const VKernel::CameraComponentRes& instance);
     template<>
-    CameraComponentRes& Serializer::read(const Json& json_context, CameraComponentRes& instance);
+    VKernel::CameraComponentRes& Serializer::read(const Json& json_context, VKernel::CameraComponentRes& instance);
 }//namespace
 

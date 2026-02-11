@@ -18,6 +18,7 @@ namespace Generator
         // baise info
         class_def.set("class_name",
                       class_temp->getClassName()); ///< Get metadata information from the Class and write it to the data
+        class_def.set("class_name_namespace", class_temp->getClassNameNameSpace());
         class_def.set("class_base_class_size", std::to_string(class_temp->m_base_classes.size()));
         class_def.set("class_need_register", true);
 

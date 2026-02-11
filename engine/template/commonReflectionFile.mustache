@@ -4,7 +4,7 @@
 {{/include_headfiles}}
 
 namespace VKernel{
-    {{#class_defines}}class {{class_name}};
+    {{#class_defines}}class {{class_name_namespace}};
     {{/class_defines}}
 namespace Reflection{
 {{#class_defines}}namespace TypeFieldReflectionOparator{
@@ -12,12 +12,12 @@ namespace Reflection{
     public:
         static const char* getClassName(){ return "{{class_name}}";}
         static void* constructorWithJson(const Json& json_context){
-            {{class_name}}* ret_instance= new {{class_name}};
+            {{class_name_namespace}}* ret_instance= new {{class_name_namespace}};
             Serializer::read(json_context, *ret_instance);
             return ret_instance;
         }
         static Json writeByName(void* instance){
-            return Serializer::write(*({{class_name}}*)instance);
+            return Serializer::write(*({{class_name_namespace}}*)instance);
         }
         // base class
         static int get{{class_name}}BaseClassReflectionInstanceList(ReflectionInstance* &out_list, void* instance){
@@ -25,7 +25,7 @@ namespace Reflection{
             {{#class_has_base}}out_list = new ReflectionInstance[count];
             for (int i=0;i<count;++i){
             {{#class_base_class_defines}}
-               out_list[i] = TypeMetaDef({{class_base_class_name}},static_cast<{{class_name}}*>(instance));
+               out_list[i] = TypeMetaDef({{class_base_class_name}},static_cast<{{class_name_namespace}}*>(instance));
             {{/class_base_class_defines}}
             }{{/class_has_base}}
             return count;
@@ -33,15 +33,15 @@ namespace Reflection{
         // fields
         {{#class_field_defines}}static const char* getFieldName_{{class_field_name}}(){ return "{{class_field_name}}";}
         static const char* getFieldTypeName_{{class_field_name}}(){ return "{{{class_field_type}}}";}
-        static void set_{{class_field_name}}(void* instance, void* field_value){ static_cast<{{class_name}}*>(instance)->{{class_field_name}} = *static_cast<{{{class_field_type}}}*>(field_value);}
-        static void* get_{{class_field_name}}(void* instance){ return static_cast<void*>(&(static_cast<{{class_name}}*>(instance)->{{class_field_name}}));}
+        static void set_{{class_field_name}}(void* instance, void* field_value){ static_cast<{{class_name_namespace}}*>(instance)->{{class_field_name}} = *static_cast<{{{class_field_type}}}*>(field_value);}
+        static void* get_{{class_field_name}}(void* instance){ return static_cast<void*>(&(static_cast<{{class_name_namespace}}*>(instance)->{{class_field_name}}));}
         static bool isArray_{{class_field_name}}(){ {{#class_field_is_vector}}return true;{{/class_field_is_vector}}{{^class_field_is_vector}}return false;{{/class_field_is_vector}} }
         {{/class_field_defines}}
 
         // methods
         {{#class_method_defines}}
         static const char* getMethodName_{{class_method_name}}(){ return "{{class_method_name}}";}
-        static void invoke_{{class_method_name}}(void * instance){static_cast<{{class_name}}*>(instance)->{{class_method_name}}();}
+        static void invoke_{{class_method_name}}(void * instance){static_cast<{{class_name_namespace}}*>(instance)->{{class_method_name}}();}
         {{/class_method_defines}}
     };
 }//namespace TypeFieldReflectionOparator

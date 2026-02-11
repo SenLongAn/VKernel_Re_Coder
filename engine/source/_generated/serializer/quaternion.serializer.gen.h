@@ -3,8 +3,8 @@
 
 namespace VKernel{
     template<>
-    Json Serializer::write(const Quaternion& instance);
+    Json Serializer::write(const VKernel::Quaternion& instance);
     template<>
-    Quaternion& Serializer::read(const Json& json_context, Quaternion& instance);
+    VKernel::Quaternion& Serializer::read(const Json& json_context, VKernel::Quaternion& instance);
 }//namespace
 

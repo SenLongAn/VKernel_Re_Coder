@@ -3,20 +3,20 @@
 
 namespace VKernel{
     template<>
-    Json Serializer::write(const GameObjectMeshDesc& instance);
+    Json Serializer::write(const VKernel::GameObjectMeshDesc& instance);
     template<>
-    GameObjectMeshDesc& Serializer::read(const Json& json_context, GameObjectMeshDesc& instance);
+    VKernel::GameObjectMeshDesc& Serializer::read(const Json& json_context, VKernel::GameObjectMeshDesc& instance);
     template<>
-    Json Serializer::write(const GameObjectMaterialDesc& instance);
+    Json Serializer::write(const VKernel::GameObjectMaterialDesc& instance);
     template<>
-    GameObjectMaterialDesc& Serializer::read(const Json& json_context, GameObjectMaterialDesc& instance);
+    VKernel::GameObjectMaterialDesc& Serializer::read(const Json& json_context, VKernel::GameObjectMaterialDesc& instance);
     template<>
-    Json Serializer::write(const GameObjectTransformDesc& instance);
+    Json Serializer::write(const VKernel::GameObjectTransformDesc& instance);
     template<>
-    GameObjectTransformDesc& Serializer::read(const Json& json_context, GameObjectTransformDesc& instance);
+    VKernel::GameObjectTransformDesc& Serializer::read(const Json& json_context, VKernel::GameObjectTransformDesc& instance);
     template<>
-    Json Serializer::write(const GameObjectPartDesc& instance);
+    Json Serializer::write(const VKernel::GameObjectPartDesc& instance);
     template<>
-    GameObjectPartDesc& Serializer::read(const Json& json_context, GameObjectPartDesc& instance);
+    VKernel::GameObjectPartDesc& Serializer::read(const Json& json_context, VKernel::GameObjectPartDesc& instance);
 }//namespace
 

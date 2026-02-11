@@ -1,5 +1,4 @@
-// #include "runtime/Games/the_celestial_console/component/motor/motor_component.h"
-#include "runtime/function/framework/component/motor/motor_component.h"
+#include "runtime/Games/the_celestial_console/component/motor/motor_component.h"
 
 #include "runtime/function/character/character.h"
 #include "runtime/function/framework/component/transform/transform_component.h"
@@ -10,7 +9,7 @@
 
 #include "runtime/Games/the_celestial_console/control_cabin.h"
 
-namespace VKernel
+namespace Games
 {
     void MotorComponent::postLoadResource(std::weak_ptr<VKernel::GObject> parent_object)
     {
@@ -35,7 +34,8 @@ namespace VKernel
             return;
 
         // Check if the player exists
-        std::shared_ptr<Level> current_level = g_runtime_global_context.m_world_manager->getCurrentActiveLevel().lock();
+        std::shared_ptr<VKernel::Level> current_level =
+            VKernel::g_runtime_global_context.m_world_manager->getCurrentActiveLevel().lock();
         std::shared_ptr<VKernel::Character> current_character = current_level->getCurrentActiveCharacter().lock();
         if (current_character == nullptr)
             return;
@@ -47,8 +47,8 @@ namespace VKernel
             m_parent_object.lock()->tryGetComponent(VKernel::TransformComponent, "TransformComponent");
 
         // Check if it is in running mode
-        unsigned int command = g_runtime_global_context.m_input_system->getGameCommand();
-        if (command >= (unsigned int)GameCommand::invalid)
+        unsigned int command = VKernel::g_runtime_global_context.m_input_system->getGameCommand();
+        if (command >= (unsigned int)VKernel::GameCommand::invalid)
             return;
 
         // calculated target position
@@ -64,13 +64,15 @@ namespace VKernel
 
     void MotorComponent::calculatedDesiredHorizontalMoveSpeed(unsigned int command, float delta_time)
     {
-        bool has_move_command = ((unsigned int)GameCommand::forward | (unsigned int)GameCommand::backward |
-                                 (unsigned int)GameCommand::left | (unsigned int)GameCommand::right) &
-                                command;
+        bool has_move_command =
+            ((unsigned int)VKernel::GameCommand::forward | (unsigned int)VKernel::GameCommand::backward |
+             (unsigned int)VKernel::GameCommand::left | (unsigned int)VKernel::GameCommand::right) &
+            command;
 
         if (has_move_command)
         {
-            bool has_sprint_command = (unsigned int)GameCommand::sprint & command; ///< Was the shift key pressed
+            bool has_sprint_command =
+                (unsigned int)VKernel::GameCommand::sprint & command; ///< Was the shift key pressed
 
             float final_acceleration = m_motor_res.m_move_acceleration;
             float min_speed_ratio    = 0.f;
@@ -97,15 +99,15 @@ namespace VKernel
         if (m_motor_res.m_jump_height == 0.f)
             return;
 
-        Vector3     v_gravity {0.f, 0.f, -9.8f};
-        const float gravity = v_gravity.length();
+        VKernel::Vector3 v_gravity {0.f, 0.f, -9.8f};
+        const float      gravity = v_gravity.length();
 
         if (m_jump_state == JumpState::idle)
         {
-            if ((unsigned int)GameCommand::jump & command)
+            if ((unsigned int)VKernel::GameCommand::jump & command)
             {
                 m_jump_state                  = JumpState::rising;
-                m_vertical_move_speed         = Math::sqrt(m_motor_res.m_jump_height * 2 * gravity);
+                m_vertical_move_speed         = VKernel::Math::sqrt(m_motor_res.m_jump_height * 2 * gravity);
                 m_jump_horizontal_speed_ratio = m_move_speed_ratio;
             }
             else
@@ -123,33 +125,34 @@ namespace VKernel
         }
     }
 
-    void MotorComponent::calculatedDesiredMoveDirection(unsigned int command, const Quaternion& object_rotation)
+    void MotorComponent::calculatedDesiredMoveDirection(unsigned int               command,
+                                                        const VKernel::Quaternion& object_rotation)
     {
         {
-            Vector3 forward_dir = object_rotation * Vector3::UNIT_Z;
-            Vector3 left_dir    = object_rotation * Vector3::NEGATIVE_UNIT_X;
+            VKernel::Vector3 forward_dir = object_rotation * VKernel::Vector3::UNIT_Z;
+            VKernel::Vector3 left_dir    = object_rotation * VKernel::Vector3::NEGATIVE_UNIT_X;
 
             if (command > 0)
             {
-                m_desired_horizontal_move_direction = Vector3::ZERO;
+                m_desired_horizontal_move_direction = VKernel::Vector3::ZERO;
             }
 
-            if ((unsigned int)GameCommand::forward & command)
+            if ((unsigned int)VKernel::GameCommand::forward & command)
             {
                 m_desired_horizontal_move_direction += forward_dir;
             }
 
-            if ((unsigned int)GameCommand::backward & command)
+            if ((unsigned int)VKernel::GameCommand::backward & command)
             {
                 m_desired_horizontal_move_direction -= forward_dir;
             }
 
-            if ((unsigned int)GameCommand::left & command)
+            if ((unsigned int)VKernel::GameCommand::left & command)
             {
                 m_desired_horizontal_move_direction += left_dir;
             }
 
-            if ((unsigned int)GameCommand::right & command)
+            if ((unsigned int)VKernel::GameCommand::right & command)
             {
                 m_desired_horizontal_move_direction -= left_dir;
             }
@@ -162,12 +165,12 @@ namespace VKernel
     {
         m_desired_displacement =
             m_desired_horizontal_move_direction * m_motor_res.m_move_speed * m_move_speed_ratio * delta_time +
-            Vector3::NEGATIVE_UNIT_Y * m_vertical_move_speed * delta_time; ///< horizontal + vertical
+            VKernel::Vector3::NEGATIVE_UNIT_Y * m_vertical_move_speed * delta_time; ///< horizontal + vertical
     }
 
-    void MotorComponent::calculateTargetPosition(const Vector3&& current_position)
+    void MotorComponent::calculateTargetPosition(const VKernel::Vector3&& current_position)
     {
-        Vector3 final_position;
+        VKernel::Vector3 final_position;
         final_position    = current_position + m_desired_displacement;
         m_target_position = final_position;
 
@@ -180,4 +183,4 @@ namespace VKernel
         m_is_moving = (final_position - current_position).squaredLength() > 0.f;
     }
 
-} // namespace VKernel
+} // namespace Games

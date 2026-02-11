@@ -3,12 +3,12 @@
 
 namespace VKernel{
     template<>
-    Json Serializer::write(const CameraPose& instance);
+    Json Serializer::write(const VKernel::CameraPose& instance);
     template<>
-    CameraPose& Serializer::read(const Json& json_context, CameraPose& instance);
+    VKernel::CameraPose& Serializer::read(const Json& json_context, VKernel::CameraPose& instance);
     template<>
-    Json Serializer::write(const CameraConfig& instance);
+    Json Serializer::write(const VKernel::CameraConfig& instance);
     template<>
-    CameraConfig& Serializer::read(const Json& json_context, CameraConfig& instance);
+    VKernel::CameraConfig& Serializer::read(const Json& json_context, VKernel::CameraConfig& instance);
 }//namespace
 

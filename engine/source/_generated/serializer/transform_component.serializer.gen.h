@@ -4,8 +4,8 @@
 
 namespace VKernel{
     template<>
-    Json Serializer::write(const TransformComponent& instance);
+    Json Serializer::write(const VKernel::TransformComponent& instance);
     template<>
-    TransformComponent& Serializer::read(const Json& json_context, TransformComponent& instance);
+    VKernel::TransformComponent& Serializer::read(const Json& json_context, VKernel::TransformComponent& instance);
 }//namespace
 
