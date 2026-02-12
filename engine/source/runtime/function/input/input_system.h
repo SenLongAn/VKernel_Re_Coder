@@ -28,8 +28,6 @@ namespace VKernel
         // current mouse data
         double m_cursor_delta_x {0};
         double m_cursor_delta_y {0};
-        Radian m_cursor_delta_yaw {0};
-        Radian m_cursor_delta_pitch {0};
 
     public:
         void initialize(); ///< init
@@ -51,7 +49,5 @@ namespace VKernel
         double m_last_cursor_y {0};
 
         void onKeyInGameMode(int key, int scancode, int action, int mods); ///< Update the key data
-
-        void calculateCursorDeltaAngles(); ///< calculate Cursor Delta Angles
     };
 } // namespace VKernel

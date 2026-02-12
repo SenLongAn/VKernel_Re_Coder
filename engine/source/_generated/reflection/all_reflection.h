@@ -1,6 +1,7 @@
 #pragma once
 #include "runtime/core/meta/reflection/reflection.h"
 #include "_generated/serializer/all_serializer.h"
+#include "_generated/reflection/camera.reflection.gen.h"
 #include "_generated/reflection/level.reflection.gen.h"
 #include "_generated/reflection/quaternion.reflection.gen.h"
 #include "_generated/reflection/transform.reflection.gen.h"
@@ -12,7 +13,6 @@
 #include "_generated/reflection/matrix4.reflection.gen.h"
 #include "_generated/reflection/component.reflection.gen.h"
 #include "_generated/reflection/render_object.reflection.gen.h"
-#include "_generated/reflection/camera.reflection.gen.h"
 #include "_generated/reflection/camera_component.reflection.gen.h"
 #include "_generated/reflection/motor.reflection.gen.h"
 #include "_generated/reflection/motor_component.reflection.gen.h"
@@ -28,6 +28,7 @@
 namespace VKernel{
 namespace Reflection{
     void TypeMetaRegister::metaRegister(){
+        TypeWrappersRegister::Camera();
         TypeWrappersRegister::Level();
         TypeWrappersRegister::Quaternion();
         TypeWrappersRegister::Transform();
@@ -39,7 +40,6 @@ namespace Reflection{
         TypeWrappersRegister::Matrix4();
         TypeWrappersRegister::Component();
         TypeWrappersRegister::RenderObject();
-        TypeWrappersRegister::Camera();
         TypeWrappersRegister::CameraComponent();
         TypeWrappersRegister::Motor();
         TypeWrappersRegister::MotorComponent();

@@ -22,6 +22,14 @@ namespace VKernel
         }
     }
 
+    void RenderSwapContext::setMotorCameraVP(Matrix4x4 desired_mat)
+    {
+        CameraSwapData camera_swap_data;
+        camera_swap_data.m_camera_type        = VKernel::RenderCameraType::Motor;
+        camera_swap_data.m_view_matrix        = desired_mat;
+        getLogicSwapData().m_camera_swap_data = camera_swap_data;
+    }
+
     bool RenderSwapContext::isReadyToSwap() const
     {
         return !(m_swap_data[m_render_swap_data_index].m_camera_swap_data.has_value());

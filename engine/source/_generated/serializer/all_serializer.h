@@ -1,5 +1,6 @@
 #pragma once
 #include "runtime/core/meta/serializer/serializer.h"
+#include "_generated/serializer/camera.serializer.gen.h"
 #include "_generated/serializer/level.serializer.gen.h"
 #include "_generated/serializer/quaternion.serializer.gen.h"
 #include "_generated/serializer/transform.serializer.gen.h"
@@ -11,7 +12,6 @@
 #include "_generated/serializer/matrix4.serializer.gen.h"
 #include "_generated/serializer/component.serializer.gen.h"
 #include "_generated/serializer/render_object.serializer.gen.h"
-#include "_generated/serializer/camera.serializer.gen.h"
 #include "_generated/serializer/camera_component.serializer.gen.h"
 #include "_generated/serializer/motor.serializer.gen.h"
 #include "_generated/serializer/motor_component.serializer.gen.h"

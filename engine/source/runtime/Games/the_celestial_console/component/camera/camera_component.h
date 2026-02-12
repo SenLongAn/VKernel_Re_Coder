@@ -4,8 +4,8 @@
 
 #include "runtime/core/math/vector3.h"
 
+#include "runtime/Games/the_celestial_console/component/camera/camera.h"
 #include "runtime/function/render/render_object.h"
-#include "runtime/resource/res_type/components/camera.h"
 
 /**
  * camera component
@@ -34,6 +34,8 @@ namespace Games
         void postLoadResource(std::weak_ptr<VKernel::GObject> parent_object) override; ///< load resource
 
         void tick(float delta_time) override; ///< tick
+
+        std::pair<VKernel::Radian, VKernel::Radian> calculateCursorDeltaAngles(double delta_x, double delta_y);
 
     private:
         // update

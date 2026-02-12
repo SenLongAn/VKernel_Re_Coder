@@ -45,15 +45,10 @@ namespace VKernel
                     g_runtime_global_context.m_character_Manager->registerCharacter(object->getName(), object);
                 if (level_res.m_current_character_name == current_character_name)
                 {
-                    g_runtime_global_context.m_character_Manager->setCurrentCharacter(character);
                     m_current_active_character = character;
                 }
             }
         }
-        // for (const auto& object_pair : m_gobjects) ///< Iterate through each object
-        // {
-        //     std::shared_ptr<GObject> object = object_pair.second;
-        // }
 
         m_is_loaded = true;
 
@@ -69,6 +64,8 @@ namespace VKernel
             return;
         }
 
+        g_runtime_global_context.m_character_Manager->setCurrentCharacter();
+
         // Update All gobjcets
         for (const auto& id_object_pair : m_gobjects)
         {
@@ -79,9 +76,9 @@ namespace VKernel
         }
 
         // update character
-        if (m_current_active_character && !g_is_editor_mode)
+        if (!g_is_editor_mode)
         {
-            m_current_active_character->tick(delta_time);
+            g_runtime_global_context.m_character_Manager->updateCurrentCharacter(delta_time);
         }
     }
 

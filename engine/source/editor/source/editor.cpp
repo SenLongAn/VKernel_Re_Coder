@@ -13,7 +13,7 @@
 namespace ReCoder
 {
 
-    void registerEdtorTickComponent(std::string component_type_name)
+    void ReCoderEditor::registerEdtorTickComponent(std::string component_type_name)
     {
         VKernel::g_editor_tick_component_types.insert(component_type_name);
     }

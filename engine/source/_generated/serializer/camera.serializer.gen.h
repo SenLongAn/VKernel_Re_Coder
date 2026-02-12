@@ -1,5 +1,5 @@
 #pragma once
-#include "runtime/resource/res_type/components/camera.h"
+#include "runtime/Games/the_celestial_console/component/camera/camera.h"
 
 namespace VKernel{
     template<>

@@ -84,6 +84,8 @@ namespace VKernel
         // swap
         void swapLogicRenderData();
 
+        void setMotorCameraVP(Matrix4x4 desired_mat);
+
     private:
         // index
         uint8_t m_logic_swap_data_index {LogicSwapDataType};

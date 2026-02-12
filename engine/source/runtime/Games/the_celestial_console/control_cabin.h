@@ -19,6 +19,8 @@ namespace Games
 
         void tick(float delta_time) override;
 
+        void setCurrentCharacter() override;
+
         // set
         void setPosition(const VKernel::Vector3& position) { m_position = position; }
         void setRotation(const VKernel::Quaternion& rotation) { m_rotation = rotation; }

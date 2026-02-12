@@ -1,5 +1,5 @@
 #pragma once
-#include "runtime/resource/res_type/components/motor.h"
+#include "runtime/Games/the_celestial_console/component/motor/motor.h"
 
 namespace VKernel{
     template<>

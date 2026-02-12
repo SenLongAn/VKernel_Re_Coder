@@ -8,6 +8,7 @@
 #include "runtime/function/input/input_system.h"
 #include "runtime/function/render/window_system.h"
 
+#include "runtime/Games/the_celestial_console/component/camera/camera_component.h"
 #include "runtime/Games/the_celestial_console/control_cabin.h"
 
 namespace Games
@@ -43,9 +44,10 @@ namespace Games
         if (current_character->getObjectID() != m_parent_object.lock()->getID())
             return;
 
-        // get VKernel::TransformComponent
+        // get VComponent
         VKernel::TransformComponent* transform_component =
             m_parent_object.lock()->tryGetComponent(VKernel::TransformComponent, "TransformComponent");
+        CameraComponent* camera_component = m_parent_object.lock()->tryGetComponent(CameraComponent, "CameraComponent");
 
         // Check if it is in running mode
         unsigned int command = VKernel::g_runtime_global_context.m_input_system->getGameCommand();
@@ -62,8 +64,10 @@ namespace Games
         if (VKernel::g_runtime_global_context.m_window_system->isMouseButtonDown(GLFW_MOUSE_BUTTON_RIGHT))
         {
             VKernel::Quaternion q_yaw;
-            q_yaw.fromAngleAxis(VKernel::g_runtime_global_context.m_input_system->m_cursor_delta_yaw,
-                                VKernel::Vector3::NEGATIVE_UNIT_Y);
+            auto                x = camera_component->calculateCursorDeltaAngles(
+                VKernel::g_runtime_global_context.m_input_system->m_cursor_delta_x,
+                VKernel::g_runtime_global_context.m_input_system->m_cursor_delta_y);
+            q_yaw.fromAngleAxis(x.first, VKernel::Vector3::NEGATIVE_UNIT_Y);
             m_character_rotation = q_yaw * m_character_rotation;
         }
     }

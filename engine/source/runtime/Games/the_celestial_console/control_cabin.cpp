@@ -1,5 +1,6 @@
 #include "runtime/Games/the_celestial_console/control_cabin.h"
 
+#include "control_cabin.h"
 #include "runtime/Games/the_celestial_console/component/motor/motor_component.h"
 #include "runtime/function/framework/component/transform/transform_component.h"
 #include "runtime/function/global/global_context.h"
@@ -10,6 +11,8 @@ namespace Games
     CHARACTER_REGISTER(ControlCabin)
 
     ControlCabin::ControlCabin(std::shared_ptr<VKernel::GObject> character_object) { setObject(character_object); }
+
+    void Games::ControlCabin::setCurrentCharacter() { Character::m_current_character = shared_from_this(); }
 
     void ControlCabin::tick(float delta_time)
     {

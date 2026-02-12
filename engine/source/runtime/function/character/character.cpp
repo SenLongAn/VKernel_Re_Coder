@@ -1,5 +1,6 @@
 #include "runtime/function/character/character.h"
 
+#include "character.h"
 #include "runtime/Games/the_celestial_console/control_cabin.h"
 
 namespace VKernel
@@ -20,9 +21,12 @@ namespace VKernel
         return character;
     }
 
-    void CharacterManager::setCurrentCharacter(std::shared_ptr<Character> character)
+    void CharacterManager::setCurrentCharacter()
     {
-        Character::setCurrentCharacter(character);
+        for (auto& c : m_characters)
+        {
+            c->setCurrentCharacter();
+        }
     }
 
     void CharacterManager::updateCurrentCharacter(float delta_time)
@@ -49,4 +53,5 @@ namespace VKernel
 
         return k_invalid_gobject_id;
     }
+
 } // namespace VKernel

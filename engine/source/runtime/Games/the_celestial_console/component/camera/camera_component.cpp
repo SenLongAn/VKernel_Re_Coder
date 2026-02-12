@@ -70,6 +70,32 @@ namespace Games
         }
     }
 
+    std::pair<VKernel::Radian, VKernel::Radian> CameraComponent::calculateCursorDeltaAngles(double delta_x,
+                                                                                            double delta_y)
+    {
+        // get window_size
+        std::array<int, 2> window_size = VKernel::g_runtime_global_context.m_window_system->getWindowSize();
+
+        if (window_size[0] < 1 || window_size[1] < 1)
+        {
+            return {VKernel::Radian(0), VKernel::Radian(0)};
+        }
+
+        // get camera fov
+        std::shared_ptr<VKernel::RenderCamera> render_camera =
+            VKernel::g_runtime_global_context.m_render_system->getRenderCamera();
+        const VKernel::Vector2& fov = render_camera->getFOV();
+
+        // degrees To Radians
+        VKernel::Radian cursor_delta_x(VKernel::Math::degreesToRadians(delta_x));
+        VKernel::Radian cursor_delta_y(VKernel::Math::degreesToRadians(delta_y));
+
+        // Calculate Radians
+        VKernel::Radian m_cursor_delta_yaw   = (cursor_delta_x / (float)window_size[0]) * fov.x;
+        VKernel::Radian m_cursor_delta_pitch = -(cursor_delta_y / (float)window_size[1]) * fov.y;
+        return {m_cursor_delta_yaw, m_cursor_delta_pitch};
+    }
+
     void CameraComponent::tickFirstPersonCamera(float delta_time)
     {
         unsigned int    command         = VKernel::g_runtime_global_context.m_input_system->getGameCommand();
@@ -91,9 +117,11 @@ namespace Games
 
             // Calculate delta Q
             VKernel::Quaternion q_yaw, q_pitch;
-            q_yaw.fromAngleAxis(VKernel::g_runtime_global_context.m_input_system->m_cursor_delta_yaw,
-                                VKernel::Vector3::NEGATIVE_UNIT_Y);
-            q_pitch.fromAngleAxis(VKernel::g_runtime_global_context.m_input_system->m_cursor_delta_pitch, m_left);
+
+            auto x = calculateCursorDeltaAngles(VKernel::g_runtime_global_context.m_input_system->m_cursor_delta_x,
+                                                VKernel::g_runtime_global_context.m_input_system->m_cursor_delta_y);
+            q_yaw.fromAngleAxis(x.first, VKernel::Vector3::NEGATIVE_UNIT_Y);
+            q_pitch.fromAngleAxis(x.second, m_left);
 
             if (VKernel::g_runtime_global_context.m_window_system->isMouseButtonDown(GLFW_MOUSE_BUTTON_RIGHT))
             {
@@ -123,10 +151,7 @@ namespace Games
             VKernel::Matrix4x4 desired_mat = VKernel::Math::makeLookAtMatrix(m_position, m_position + m_forward, m_up);
             VKernel::RenderSwapContext& swap_context =
                 VKernel::g_runtime_global_context.m_render_system->getSwapContext();
-            VKernel::CameraSwapData camera_swap_data;
-            camera_swap_data.m_camera_type                     = VKernel::RenderCameraType::Motor;
-            camera_swap_data.m_view_matrix                     = desired_mat;
-            swap_context.getLogicSwapData().m_camera_swap_data = camera_swap_data;
+            swap_context.setMotorCameraVP(desired_mat);
         }
     }
 
@@ -137,6 +162,7 @@ namespace Games
                                               ->getObject()
                                               .lock()
                                               ->tryGetComponent(MotorComponent, "MotorComponent");
+
         if (VKernel::g_runtime_global_context.m_window_system->isMouseButtonDown(GLFW_MOUSE_BUTTON_RIGHT) ||
             command < (unsigned int)VKernel::GameCommand::invalid || isFirst)
         {
@@ -149,12 +175,10 @@ namespace Games
 
             // Calculate cursor delta Q
             VKernel::Quaternion q_yaw, q_pitch;
-            q_yaw.fromAngleAxis(VKernel::g_runtime_global_context.m_input_system->m_cursor_delta_yaw,
-                                VKernel::Vector3::NEGATIVE_UNIT_Y);
-            q_pitch.fromAngleAxis(VKernel::g_runtime_global_context.m_input_system->m_cursor_delta_pitch,
-                                  VKernel::Vector3::NEGATIVE_UNIT_X);
-            std::cout << q_yaw.getX() << " : " << q_yaw.getY() << " : " << q_yaw.getZ() << " : " << q_yaw.getW()
-                      << " : " << std::endl;
+            auto x = calculateCursorDeltaAngles(VKernel::g_runtime_global_context.m_input_system->m_cursor_delta_x,
+                                                VKernel::g_runtime_global_context.m_input_system->m_cursor_delta_y);
+            q_yaw.fromAngleAxis(x.first, VKernel::Vector3::NEGATIVE_UNIT_Y);
+            q_pitch.fromAngleAxis(x.second, VKernel::Vector3::NEGATIVE_UNIT_X);
 
             // get
             VKernel::ThirdPersonCameraParameter* param             = &(m_camera_res.m_third_camera);
@@ -211,10 +235,7 @@ namespace Games
             VKernel::Matrix4x4 desired_mat = VKernel::Math::makeLookAtMatrix(m_position, m_position + m_forward, m_up);
             VKernel::RenderSwapContext& swap_context =
                 VKernel::g_runtime_global_context.m_render_system->getSwapContext();
-            VKernel::CameraSwapData camera_swap_data;
-            camera_swap_data.m_view_matrix                     = desired_mat;
-            camera_swap_data.m_camera_type                     = VKernel::RenderCameraType::Motor;
-            swap_context.getLogicSwapData().m_camera_swap_data = camera_swap_data;
+            swap_context.setMotorCameraVP(desired_mat);
         }
     }
 } // namespace Games

@@ -17,8 +17,8 @@ namespace VKernel
         virtual void tick(float delta_time) {}; ///< tick
 
         // set
-        void        setObject(std::shared_ptr<GObject> gobject);
-        static void setCurrentCharacter(std::shared_ptr<Character> character) { m_current_character = character; }
+        void         setObject(std::shared_ptr<GObject> gobject);
+        virtual void setCurrentCharacter() {};
 
         // get
         GObjectID                         getObjectID() const;
@@ -93,8 +93,8 @@ public: \
                                                      std::shared_ptr<GObject> characterObject);
 
         // tick
-        void setCurrentCharacter(std::shared_ptr<Character> character); ///< Only one player can be registered at a time
-        void updateCurrentCharacter(float delta_time);
+        void                       setCurrentCharacter();
+        void                       updateCurrentCharacter(float delta_time);
         std::shared_ptr<Character> getCurrentCharacter() { return Character::getCurrentCharacter(); }
 
         // clear

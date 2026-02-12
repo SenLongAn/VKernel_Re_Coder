@@ -1,7 +1,7 @@
 #pragma once
 
+#include "runtime/Games/the_celestial_console/component/motor/motor.h"
 #include "runtime/function/framework/component/component.h"
-#include "runtime/resource/res_type/components/motor.h"
 
 #include "runtime/core/math/vector3.h"
 

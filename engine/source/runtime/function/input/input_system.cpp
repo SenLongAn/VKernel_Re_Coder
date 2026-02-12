@@ -30,11 +30,7 @@ namespace VKernel
             std::bind(&InputSystem::onCursorPos, this, std::placeholders::_1, std::placeholders::_2));
     }
 
-    void InputSystem::tick()
-    {
-        calculateCursorDeltaAngles();
-        clear();
-    }
+    void InputSystem::tick() { clear(); }
 
     void InputSystem::clear()
     {
@@ -127,26 +123,4 @@ namespace VKernel
         }
     }
 
-    void InputSystem::calculateCursorDeltaAngles()
-    {
-        // get window_size
-        std::array<int, 2> window_size = g_runtime_global_context.m_window_system->getWindowSize();
-
-        if (window_size[0] < 1 || window_size[1] < 1)
-        {
-            return;
-        }
-
-        // get camera fov
-        std::shared_ptr<RenderCamera> render_camera = g_runtime_global_context.m_render_system->getRenderCamera();
-        const Vector2&                fov           = render_camera->getFOV();
-
-        // degrees To Radians
-        Radian cursor_delta_x(Math::degreesToRadians(m_cursor_delta_x));
-        Radian cursor_delta_y(Math::degreesToRadians(m_cursor_delta_y));
-
-        // Calculate Radians
-        m_cursor_delta_yaw   = (cursor_delta_x / (float)window_size[0]) * fov.x;
-        m_cursor_delta_pitch = -(cursor_delta_y / (float)window_size[1]) * fov.y;
-    }
 } // namespace VKernel
