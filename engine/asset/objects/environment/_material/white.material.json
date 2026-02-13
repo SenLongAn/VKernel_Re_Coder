@@ -1,4 +1,4 @@
 {
-  "base_colour_texture_file": "asset/objects/_textures/white.tga",
-  "normal_texture_file": "asset/objects/_textures/n.tga"
+  "base_colour_texture_file": "asset/objects/_textures/albedo.jpg",
+  "normal_texture_file": "asset/objects/_textures/normal.jpg"
 }

@@ -11,7 +11,7 @@
                 "transform": {
                   "position": {
                     "x": 0,
-                    "y": 0.0,
+                    "y": -0.5,
                     "z": 0
                   },
                   "euler_rotation": {
@@ -39,7 +39,7 @@
                 "transform": {
                   "position": {
                     "x": 0.0,
-                    "y": 0.5,
+                    "y": 0.0,
                     "z": 0.0
                   },
                   "euler_rotation": {
@@ -48,8 +48,8 @@
                     "z": 0.0
                   },
                   "scale": {
-                    "x": 1.0,
-                    "y": 1.0,
+                    "x": 10,
+                    "y": 17,
                     "z": 1.0
                   },
                   "is_serialization": true
@@ -96,7 +96,7 @@
               "$context": {
                 "transform": {
                   "position": {
-                    "x": -9.0,
+                    "x": -11.0,
                     "y": 0.0,
                     "z": 5.0
                   },
@@ -126,7 +126,7 @@
                 "transform": {
                   "position": {
                     "x": -2.0,
-                    "y": 0.0,
+                    "y": -0.5,
                     "z": 6.0
                   },
                   "euler_rotation": {
@@ -155,7 +155,7 @@
                 "transform": {
                   "position": {
                     "x": 2.0,
-                    "y": 0.0,
+                    "y": -0.5,
                     "z": 6.0
                   },
                   "euler_rotation": {
@@ -184,7 +184,7 @@
                 "transform": {
                   "position": {
                     "x": 6.0,
-                    "y": 0.0,
+                    "y": -0.5,
                     "z": 6.0
                   },
                   "euler_rotation": {

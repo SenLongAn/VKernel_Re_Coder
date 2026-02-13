@@ -11,6 +11,7 @@
 #include "_generated/reflection/object.reflection.gen.h"
 #include "_generated/reflection/vector2.reflection.gen.h"
 #include "_generated/reflection/matrix4.reflection.gen.h"
+#include "_generated/reflection/auto_motor_component.reflection.gen.h"
 #include "_generated/reflection/component.reflection.gen.h"
 #include "_generated/reflection/render_object.reflection.gen.h"
 #include "_generated/reflection/camera_component.reflection.gen.h"
@@ -38,6 +39,7 @@ namespace Reflection{
         TypeWrappersRegister::Object();
         TypeWrappersRegister::Vector2();
         TypeWrappersRegister::Matrix4();
+        TypeWrappersRegister::AutoMotorComponent();
         TypeWrappersRegister::Component();
         TypeWrappersRegister::RenderObject();
         TypeWrappersRegister::CameraComponent();

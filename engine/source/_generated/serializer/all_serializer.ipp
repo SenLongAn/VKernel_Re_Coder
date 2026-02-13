@@ -9,6 +9,7 @@
 #include "_generated/serializer/object.serializer.gen.h"
 #include "_generated/serializer/vector2.serializer.gen.h"
 #include "_generated/serializer/matrix4.serializer.gen.h"
+#include "_generated/serializer/auto_motor_component.serializer.gen.h"
 #include "_generated/serializer/component.serializer.gen.h"
 #include "_generated/serializer/render_object.serializer.gen.h"
 #include "_generated/serializer/camera_component.serializer.gen.h"
@@ -461,6 +462,23 @@ namespace VKernel{
         if(!json_context["v15"].is_null()){
             Serializer::read(json_context["v15"], instance.v15);
         }
+        return instance;
+    }
+    template<>
+    Json Serializer::write(const Games::AutoMotorComponent& instance){
+        Json::object  ret_context;
+        auto&&  json_context_0 = Serializer::write(*(VKernel::Component*)&instance);
+        assert(json_context_0.is_object());
+        auto&& json_context_map_0 = json_context_0.object_items();
+        ret_context.insert(json_context_map_0.begin() , json_context_map_0.end());
+        
+        return  Json(ret_context);
+    }
+    template<>
+    Games::AutoMotorComponent& Serializer::read(const Json& json_context, Games::AutoMotorComponent& instance){
+        assert(json_context.is_object());
+        Serializer::read(json_context,*(VKernel::Component*)&instance);
+        
         return instance;
     }
     template<>

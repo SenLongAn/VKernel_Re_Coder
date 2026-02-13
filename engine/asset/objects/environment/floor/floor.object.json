@@ -53,6 +53,11 @@
                 }
             },
             "$typeName": "MeshComponent"
+        },
+        {
+            "$context": {
+            },
+            "$typeName": "AutoMotorComponent"
         }
     ]
 }

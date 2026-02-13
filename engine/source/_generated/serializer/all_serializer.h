@@ -10,6 +10,7 @@
 #include "_generated/serializer/object.serializer.gen.h"
 #include "_generated/serializer/vector2.serializer.gen.h"
 #include "_generated/serializer/matrix4.serializer.gen.h"
+#include "_generated/serializer/auto_motor_component.serializer.gen.h"
 #include "_generated/serializer/component.serializer.gen.h"
 #include "_generated/serializer/render_object.serializer.gen.h"
 #include "_generated/serializer/camera_component.serializer.gen.h"

@@ -44,7 +44,7 @@ namespace Games
         if (current_character->getObjectID() != m_parent_object.lock()->getID())
             return;
 
-        // get VComponent
+        // get Component
         VKernel::TransformComponent* transform_component =
             m_parent_object.lock()->tryGetComponent(VKernel::TransformComponent, "TransformComponent");
         CameraComponent* camera_component = m_parent_object.lock()->tryGetComponent(CameraComponent, "CameraComponent");
@@ -184,7 +184,8 @@ namespace Games
         final_position    = current_position + m_desired_displacement;
         m_target_position = final_position;
 
-        if (m_jump_state == JumpState::falling && final_position.y + m_desired_displacement.y >= 0.f) ///< stop falling
+        if (m_jump_state == JumpState::falling &&
+            final_position.y + m_desired_displacement.y >= -0.5f) ///< stop falling
         {
             final_position.y = 0.f;
             m_jump_state     = JumpState::idle;
