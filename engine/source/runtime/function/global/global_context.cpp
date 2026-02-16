@@ -6,6 +6,7 @@
 #include "runtime/function/input/input_system.h"
 #include "runtime/function/render/render_system.h"
 #include "runtime/function/render/window_system.h"
+#include "runtime/function/ui/window_ui.h"
 #include "runtime/platform/file_service/file_service.h"
 #include "runtime/resource/asset_manager/asset_manager.h"
 #include "runtime/resource/config_manager/config_manager.h"
@@ -37,6 +38,8 @@ namespace VKernel
         m_input_system = std::make_shared<InputSystem>();
         m_input_system->initialize();
 
+        m_window_ui_manager = std::make_shared<WindowUIManager>();
+
         m_render_system = std::make_shared<RenderSystem>();
         m_render_system->initialize(m_window_system);
 
@@ -65,5 +68,7 @@ namespace VKernel
         m_file_system.reset();
 
         m_character_Manager.reset();
+
+        m_window_ui_manager.reset();
     }
 } // namespace VKernel

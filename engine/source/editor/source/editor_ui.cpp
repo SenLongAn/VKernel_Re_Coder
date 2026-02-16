@@ -24,6 +24,8 @@
 
 namespace ReCoder
 {
+    WINDOWUI_REGISTER(EditorUI);
+
     std::vector<std::pair<std::string, bool>> g_editor_node_state_array; ///< treeNodeName, Is it expanded
     int                                       g_node_depth = -1;         ///< TreeNode Depth
 
@@ -433,10 +435,6 @@ namespace ReCoder
 
     void EditorUI::initialize(VKernel::WindowUIInitInfo init_info)
     {
-        // create imgui context
-        IMGUI_CHECKVERSION();
-        ImGui::CreateContext();
-
         // set imgui state
         ImGuiIO& io = ImGui::GetIO();
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; ///< Enable docking feature
@@ -447,9 +445,6 @@ namespace ReCoder
 
         // set color style
         setUIColorStyle();
-
-        // initialize imgui vulkan render backend
-        init_info.render_system->initializeUIRenderBackend(this);
     }
 
     void EditorUI::preRender()

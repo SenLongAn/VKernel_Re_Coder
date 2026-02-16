@@ -49,7 +49,7 @@ namespace VKernel
         //
         void swapLogicRenderData(); ///< swap Logic Render Data
 
-        void initializeUIRenderBackend(WindowUI* window_ui); ///< init editor ui Backend: vulkan and glfw
+        void initializeUIRenderBackend(); ///< init editor ui Backend: vulkan and glfw
 
         void updateEngineContentViewport(float offset_x,
                                          float offset_y,

@@ -2,6 +2,7 @@
 
 #include "runtime/function/global/global_context.h"
 #include "runtime/function/render/debugdraw/debug_draw_manager.h"
+#include "runtime/function/render/passes/ui_pass.h"
 
 namespace VKernel
 {
@@ -14,8 +15,6 @@ namespace VKernel
         m_debugdraw_manager->preparePassData(render_resource);
     }
 
-    void RenderPipelineBase::initializeUIRenderBackend(WindowUI* window_ui)
-    {
-        m_ui_pass->initializeUIRenderBackend(window_ui);
-    }
+    void RenderPipelineBase::initializeUIRenderBackend() { m_ui_pass->initializeUIRenderBackend(); }
+
 } // namespace VKernel

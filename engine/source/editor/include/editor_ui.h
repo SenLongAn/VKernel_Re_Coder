@@ -18,6 +18,8 @@ namespace ReCoder
 {
     class EditorUI : public VKernel::WindowUI
     {
+        WINDOWUI_CLASS(EditorUI);
+
     public:
         EditorUI();
 

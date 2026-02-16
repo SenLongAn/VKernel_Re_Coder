@@ -1,8 +1,8 @@
 #include "runtime/function/render/passes/ui_pass.h"
 
+#include "runtime/function/global/global_context.h"
 #include "runtime/function/ui/window_ui.h"
 
-#include "ui_pass.h"
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_vulkan.h>
 
@@ -12,14 +12,16 @@ namespace VKernel
     {
         RenderPass::initialize(nullptr);
 
+        // create imgui context
+        IMGUI_CHECKVERSION();
+        ImGui::CreateContext();
+
         // Cast base class info to derived class info, and get the render pass
         m_framebuffer.render_pass = static_cast<const UIPassInitInfo*>(init_info)->render_pass;
     }
 
-    void UIPass::initializeUIRenderBackend(WindowUI* window_ui)
+    void UIPass::initializeUIRenderBackend()
     {
-        m_window_ui = window_ui;
-
         // Integration of ImGui and GLFW, This allows ImGui to respond to user input.
         ImGui_ImplGlfw_InitForVulkan(m_vulkan_api->getWindow(), true);
 
@@ -44,21 +46,18 @@ namespace VKernel
     void UIPass::draw()
     {
         // If the Editor UI Settings exist
-        if (m_window_ui)
-        {
-            // Order Management
-            ImGui_ImplVulkan_NewFrame(); ///< Start a new Vulkan frame
-            ImGui_ImplGlfw_NewFrame();   ///< Start a new GLFW frame
-            ImGui::NewFrame();           ///< Start a new ImGui frame
+        // Order Management
+        ImGui_ImplVulkan_NewFrame(); ///< Start a new Vulkan frame
+        ImGui_ImplGlfw_NewFrame();   ///< Start a new GLFW frame
+        ImGui::NewFrame();           ///< Start a new ImGui frame
 
-            // render editor ui
-            m_window_ui->preRender(); ///< Render editor UI
+        // render editor ui
+        g_runtime_global_context.m_window_ui_manager->updateUIs();
 
-            ImGui::Render(); ///< Convert UI descriptions into GPU-renderable data
+        ImGui::Render(); ///< Convert UI descriptions into GPU-renderable data
 
-            ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(),
-                                            m_vulkan_api->getCurrentCommandBuffer()); ///< Submit UI data to Vulkan
-        }
+        ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(),
+                                        m_vulkan_api->getCurrentCommandBuffer()); ///< Submit UI data to Vulkan
     }
 
     void UIPass::uploadFonts()

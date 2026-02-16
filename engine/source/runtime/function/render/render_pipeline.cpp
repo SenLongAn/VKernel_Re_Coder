@@ -1,6 +1,5 @@
 #include "runtime/function/render/render_pipeline.h"
 
-#include "render_pipeline.h"
 #include "runtime/function/global/global_context.h"
 #include "runtime/function/render/debugdraw/debug_draw_manager.h"
 #include "runtime/function/render/passes/color_grading_pass.h"
@@ -11,6 +10,7 @@
 #include "runtime/function/render/passes/point_light_pass.h"
 #include "runtime/function/render/passes/tone_mapping_pass.h"
 #include "runtime/function/render/passes/ui_pass.h"
+#include "runtime/function/ui/window_ui.h"
 
 namespace VKernel
 {
@@ -78,6 +78,12 @@ namespace VKernel
         UIPassInitInfo ui_init_info;
         ui_init_info.render_pass = _main_camera_pass->getRenderPass(); ///< get RenderPass from main camera pass
         m_ui_pass->initialize(&ui_init_info);
+        m_ui_pass->initializeUIRenderBackend();
+
+        VKernel::WindowUIInitInfo window_ui_init_info = {VKernel::g_runtime_global_context.m_window_system,
+                                                         VKernel::g_runtime_global_context.m_render_system};
+        g_runtime_global_context.m_window_ui_manager->registerUIs();
+        g_runtime_global_context.m_window_ui_manager->initUIs(window_ui_init_info);
 
         CombineUIPassInitInfo combine_ui_init_info;
         combine_ui_init_info.render_pass = _main_camera_pass->getRenderPass();

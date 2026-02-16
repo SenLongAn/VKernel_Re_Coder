@@ -39,12 +39,6 @@ namespace ReCoder
         g_editor_global_context.m_scene_manager->setEditorCamera(
             VKernel::g_runtime_global_context.m_render_system->getRenderCamera());
         g_editor_global_context.m_scene_manager->uploadAxisResource();
-
-        // editor ui
-        m_editor_ui                            = std::make_shared<EditorUI>();
-        VKernel::WindowUIInitInfo ui_init_info = {VKernel::g_runtime_global_context.m_window_system,
-                                                  VKernel::g_runtime_global_context.m_render_system};
-        m_editor_ui->initialize(ui_init_info);
     }
 
     void ReCoderEditor::run()

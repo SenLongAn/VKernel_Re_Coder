@@ -28,7 +28,7 @@ namespace VKernel
 
         virtual void setCommonInfo(RenderPassCommonInfo common_info);
         virtual void preparePassData(std::shared_ptr<RenderResourceBase> render_resource);
-        virtual void initializeUIRenderBackend(WindowUI* window_ui); ///< init editor ui Backend: vulkan and glfw
+        virtual void initializeUIRenderBackend(); ///< init editor ui Backend: vulkan and glfw
 
     protected:
         std::shared_ptr<VulkanAPI>          m_vulkan_api;

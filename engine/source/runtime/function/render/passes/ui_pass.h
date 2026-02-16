@@ -18,11 +18,8 @@ namespace VKernel
     {
     public:
         void initialize(const RenderPassInitInfo* init_info) override final; ///< init
-        void initializeUIRenderBackend(WindowUI* window_ui) override final;  ///< Integration of ImGui, Vulkan and GLFW
+        void initializeUIRenderBackend() override final;                     ///< Integration of ImGui, Vulkan and GLFW
         void draw() override final;                                          ///< render
-
-    private:
-        WindowUI* m_window_ui; ///< Editor UI Settings
 
     private:
         void uploadFonts(); ///< upload font

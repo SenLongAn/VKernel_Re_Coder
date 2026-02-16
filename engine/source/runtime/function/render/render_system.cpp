@@ -17,7 +17,6 @@
 #include "render_system.h"
 #include <iostream>
 
-
 namespace VKernel
 {
 
@@ -187,10 +186,7 @@ namespace VKernel
 
     void RenderSystem::swapLogicRenderData() { m_swap_context.swapLogicRenderData(); }
 
-    void RenderSystem::initializeUIRenderBackend(WindowUI* window_ui)
-    {
-        m_render_pipeline->initializeUIRenderBackend(window_ui);
-    }
+    void RenderSystem::initializeUIRenderBackend() { m_render_pipeline->initializeUIRenderBackend(); }
 
     void RenderSystem::updateEngineContentViewport(float offset_x, float offset_y, float width, float height)
     {

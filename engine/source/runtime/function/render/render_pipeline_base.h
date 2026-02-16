@@ -36,7 +36,7 @@ namespace VKernel
         virtual void deferredRender(std::shared_ptr<VulkanAPI>          vulkan_api,
                                     std::shared_ptr<RenderResourceBase> render_resource) = 0; ///< deferred
 
-        void initializeUIRenderBackend(WindowUI* window_ui); ///< init editor ui Backend: vulkan and glfw
+        void initializeUIRenderBackend(); ///< init editor ui Backend: vulkan and glfw
 
         // get
         virtual uint32_t                  getGuidOfPickedMesh(const Vector2& picked_uv) = 0; ///< get uv submesh guid

@@ -17,6 +17,7 @@ namespace VKernel
     class WindowSystem;
     class RenderSystem;
     class CharacterManager;
+    class WindowUIManager;
 
     class RuntimeGlobalContext ///< Management system and manager
     {
@@ -39,6 +40,7 @@ namespace VKernel
         std::shared_ptr<AssetManager>     m_asset_manager;
         std::shared_ptr<ConfigManager>    m_config_manager;
         std::shared_ptr<CharacterManager> m_character_Manager;
+        std::shared_ptr<WindowUIManager>  m_window_ui_manager;
 
     public:
         void startSystems(const std::string& config_file_path); ///< Start all systems
