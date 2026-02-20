@@ -8,6 +8,9 @@ namespace Games
     {
         WINDOWUI_CLASS(MainPanel)
     public:
+        bool isPanelOpen = false;
+
+    public:
         void initialize(VKernel::WindowUIInitInfo init_info) override;
         void preRender() override;
     };
