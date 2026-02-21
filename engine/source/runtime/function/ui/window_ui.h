@@ -24,8 +24,14 @@ namespace VKernel
     class WindowUI
     {
     public:
+        WindowUI() = default;
+        WindowUI(bool isGameMode);
         virtual void initialize(WindowUIInitInfo init_info) = 0;
         virtual void preRender()                            = 0;
+        bool         iSGameMode() { return m_only_game_mode; }
+
+    protected:
+        bool m_only_game_mode = false;
     };
 
     class WindowUIFactory
@@ -41,10 +47,11 @@ namespace VKernel
         }
 
         template<typename T> ///< template function
-        void registerUI()
+        void registerUI(bool isGameMode)
         {
-            // m_creators.insert([]() { return std::make_shared<T>(); }); ///< Register function to m_creators
-            m_creators[++index] = []() { return std::make_shared<T>(); }; ///< Register function to m_creators
+            m_creators[++index] = [isGameMode]() {
+                return std::make_shared<T>(isGameMode);
+            }; ///< Register function to m_creators
         }
 
         // Create derived class
@@ -59,22 +66,19 @@ namespace VKernel
         }
 
     private:
-        std::unordered_map<int, CreatorFunc> m_creators; ///< class type name, create instance func
+        std::unordered_map<int, CreatorFunc> m_creators; ///< index, create instance func
         static int                           index;
     };
 
     // create instance function
 #define WINDOWUI_CLASS(ClassName) \
 public: \
-    static bool _s_registered; \
-\
-public: \
-    static std::shared_ptr<WindowUI> create() { return std::make_shared<ClassName>(); }
+    static bool _s_registered;
 
     // Register function to m_creators
-#define WINDOWUI_REGISTER(ClassName) \
+#define WINDOWUI_REGISTER(ClassName, isGameMode) \
     bool ClassName::_s_registered = []() { \
-        VKernel::WindowUIFactory::getInstance().registerUI<ClassName>(); \
+        VKernel::WindowUIFactory::getInstance().registerUI<ClassName>(isGameMode); \
         return true; \
     }();
 

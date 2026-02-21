@@ -21,7 +21,7 @@ namespace ReCoder
         WINDOWUI_CLASS(EditorUI);
 
     public:
-        EditorUI();
+        EditorUI(bool isGameMode);
 
         virtual void initialize(VKernel::WindowUIInitInfo init_info) override final; ///< init
         virtual void preRender() override final;                                     ///< render ui

@@ -11,7 +11,12 @@ namespace Games
         bool isPanelOpen = false;
 
     public:
+        MainPanel(bool isGameMode) { m_only_game_mode = isGameMode; }
         void initialize(VKernel::WindowUIInitInfo init_info) override;
         void preRender() override;
+
+    private:
+        void DrawCrosshair();
+        void DrawCrosshairShape();
     };
 } // namespace Games

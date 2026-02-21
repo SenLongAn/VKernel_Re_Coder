@@ -1,4 +1,5 @@
 #include "runtime/function/ui/window_ui.h"
+#include "runtime/engine.h"
 
 namespace VKernel
 {
@@ -19,6 +20,8 @@ namespace VKernel
     {
         for (auto& ui : m_uis)
         {
+            if (VKernel::g_is_editor_mode && ui->iSGameMode())
+                continue;
             ui->preRender();
         }
     }

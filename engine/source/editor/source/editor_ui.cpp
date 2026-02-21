@@ -24,7 +24,7 @@
 
 namespace ReCoder
 {
-    WINDOWUI_REGISTER(EditorUI);
+    WINDOWUI_REGISTER(EditorUI, false);
 
     std::vector<std::pair<std::string, bool>> g_editor_node_state_array; ///< treeNodeName, Is it expanded
     int                                       g_node_depth = -1;         ///< TreeNode Depth
@@ -34,8 +34,10 @@ namespace ReCoder
                         float              resetValue  = 0.0f,
                         float              columnWidth = 100.0f);
 
-    EditorUI::EditorUI()
+    EditorUI::EditorUI(bool isGameMode)
     {
+        m_only_game_mode = isGameMode;
+
         // TreeNodePush
         const auto& asset_folder            = VKernel::g_runtime_global_context.m_config_manager->getAssetFolder();
         m_editor_ui_creator["TreeNodePush"] = [this](const std::string& name, void* value_ptr) -> void { ///< nodeName
@@ -451,7 +453,7 @@ namespace ReCoder
     {
         static bool is_first = true;
         static int  pre_window_x, pre_window_y, pre_window_width, pre_window_height;
-        if (!VKernel::g_is_full_screen_mode)
+        if (!VKernel::g_is_full_screen_mode && VKernel::g_is_editor_mode)
         {
             if (!is_first)
             {
@@ -462,7 +464,7 @@ namespace ReCoder
             showEditorUI();
             is_first = true;
         }
-        else
+        else if (VKernel::g_is_full_screen_mode)
         {
             int window_x, window_y, window_width, window_height;
             glfwGetWindowPos(g_editor_global_context.m_window_system->getWindow(), &window_x, &window_y);
@@ -493,6 +495,11 @@ namespace ReCoder
             g_editor_global_context.m_input_manager->setEngineWindowSize(render_target_window_size);
 
             showEditorMenu(&m_editor_menu_window_open);
+        }
+        else
+        {
+            showEditorMenu(&m_editor_menu_window_open);
+            showEditorGameWindow(&m_game_engine_window_open);
         }
     }
 
@@ -595,7 +602,6 @@ namespace ReCoder
         // create window
         ImGui::SetNextWindowBgAlpha(1.0f);
         ImGuiWindowFlags window_flags =
-            ImGuiWindowFlags_MenuBar |    // Includes menu bar
             ImGuiWindowFlags_NoTitleBar | // No title bar: at the top of the window, shows window name, includes actions
                                           // (minimize, maximize, close)
             ImGuiWindowFlags_NoCollapse | // Cannot be collapsed
@@ -604,6 +610,12 @@ namespace ReCoder
                                           // No background (transparent)
             ImGuiConfigFlags_NoMouseCursorChange |  // Does not change the mouse cursor
             ImGuiWindowFlags_NoBringToFrontOnFocus; // Does not stay on top when focused
+
+        if (VKernel::g_is_editor_mode && !VKernel::g_is_full_screen_mode)
+        {
+            window_flags |= ImGuiWindowFlags_MenuBar;
+        }
+
         ImGui::Begin("Editor menu", p_open, window_flags);
 
         // create dockSapce
@@ -652,7 +664,7 @@ namespace ReCoder
         ImGui::DockSpace(main_docking_id); ///< render dockSapce
 
         // MenuBar
-        if (!VKernel::g_is_full_screen_mode)
+        if (VKernel::g_is_editor_mode && !VKernel::g_is_full_screen_mode)
         {
             if (ImGui::BeginMenuBar())
             {
@@ -681,7 +693,7 @@ namespace ReCoder
                 if (ImGui::BeginMenu("Window"))
                 {
                     ImGui::MenuItem("World Objects", nullptr, &m_asset_window_open);
-                    ImGui::MenuItem("Game", nullptr, &m_game_engine_window_open);
+                    // ImGui::MenuItem("Game", nullptr, &m_game_engine_window_open);
                     ImGui::MenuItem("File Content", nullptr, &m_file_content_window_open);
                     ImGui::MenuItem("Detail", nullptr, &m_detail_window_open);
                     ImGui::EndMenu();
@@ -817,9 +829,17 @@ namespace ReCoder
             return;
 
         // begin window
-        ImGui::SetNextWindowBgAlpha(1.0f);                        // Make background transparent instead of NoBackground
+        if (VKernel::g_is_editor_mode)
+        {
+            ImGui::SetNextWindowBgAlpha(1.0f);
+        }
+        else
+        {
+            ImGui::SetNextWindowBgAlpha(0.0f);
+        }
         ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar; ///< Window icon: includes menu bar
-        if (!ImGui::Begin("Game Engine", p_open, window_flags))
+
+        if (!ImGui::Begin("Game Engine", nullptr, window_flags))
         {
             ImGui::End();
             return;
@@ -854,21 +874,24 @@ namespace ReCoder
         // MenuBar
         if (ImGui::BeginMenuBar())
         {
-            // axis mode
-            ImGui::Indent(10.f);
-            drawAxisToggleButton("Trans", trans_button_ckecked, (int)EditorAxisMode::TranslateMode);
-            ImGui::Unindent();
+            if (VKernel::g_is_editor_mode && !VKernel::g_is_full_screen_mode)
+            {
+                // axis mode
+                ImGui::Indent(10.f);
+                drawAxisToggleButton("Trans", trans_button_ckecked, (int)EditorAxisMode::TranslateMode);
+                ImGui::Unindent();
 
-            ImGui::SameLine();
+                ImGui::SameLine();
 
-            drawAxisToggleButton("Rotate", rotate_button_ckecked, (int)EditorAxisMode::RotateMode);
+                drawAxisToggleButton("Rotate", rotate_button_ckecked, (int)EditorAxisMode::RotateMode);
 
-            ImGui::SameLine();
+                ImGui::SameLine();
 
-            drawAxisToggleButton("Scale", scale_button_ckecked, (int)EditorAxisMode::ScaleMode);
+                drawAxisToggleButton("Scale", scale_button_ckecked, (int)EditorAxisMode::ScaleMode);
 
-            // editor or game mode
-            ImGui::SameLine();
+                // editor or game mode
+                ImGui::SameLine();
+            }
 
             // Application Interval
             float indent_val = 0.0f;
