@@ -28,106 +28,6 @@ namespace VKernel
         // create buffer
         m_buffer_allocator = new DebugDrawAllocator();
         m_buffer_allocator->initialize();
-
-        // add primitive
-        m_debug_draw_group_for_render.addTriangle(
-            Vector4(1.0f, 0.0f, 0.0f, 1.0f),
-            Transform(Vector3(-4.0, -0.5, 0.0), Quaternion(Vector3(0.0, 0.0, 0.0)), Vector3(0.5, 0.5, 0.5)),
-            PrimitiveType::_Primitive_point,
-            true);
-        m_debug_draw_group_for_render.addQuad(
-            Vector4(1.0f, 0.0f, 0.0f, 1.0f),
-            Transform(Vector3(-2.0, -0.5, 0.0), Quaternion(Vector3(0.0, 0.0, 0.0)), Vector3(0.5, 0.5, 0.5)),
-            PrimitiveType::_Primitive_point,
-            true);
-        m_debug_draw_group_for_render.addBox(
-            Vector4(1.0f, 0.0f, 0.0f, 1.0f),
-            Transform(Vector3(0.0, -0.5, 0.0), Quaternion(Vector3(0.0, 0.0, 0.0)), Vector3(0.5, 0.5, 0.5)),
-            PrimitiveType::_Primitive_point,
-            true);
-        m_debug_draw_group_for_render.addSphere(
-            Vector4(1.0f, 0.0f, 0.0f, 1.0f),
-            Transform(Vector3(2.0, -0.5, 0.0), Quaternion(Vector3(0.0, 0.0, 0.0)), Vector3(0.5, 0.5, 0.5)),
-            PrimitiveType::_Primitive_point,
-            true);
-        m_debug_draw_group_for_render.addCylinder(
-            Vector4(1.0f, 0.0f, 0.0f, 1.0f),
-            Transform(Vector3(4.0, -0.5, 0.0), Quaternion(Vector3(0.0, 0.0, 0.0)), Vector3(0.5, 0.5, 0.5)),
-            PrimitiveType::_Primitive_point,
-            true);
-        m_debug_draw_group_for_render.addCapsule(
-            Vector4(1.0f, 0.0f, 0.0f, 1.0f),
-            Transform(Vector3(6.0, -0.5, 0.0), Quaternion(Vector3(0.0, 0.0, 0.0)), Vector3(0.5, 0.5, 0.5)),
-            PrimitiveType::_Primitive_point,
-            true);
-
-        m_debug_draw_group_for_render.addTriangle(
-            Vector4(1.0f, 0.0f, 0.0f, 1.0f),
-            Transform(Vector3(-4.0, -0.5, 2.0), Quaternion(Vector3(0.0, 0.0, 0.0)), Vector3(0.5, 0.5, 0.5)),
-            PrimitiveType::_Primitive_line,
-            true);
-        m_debug_draw_group_for_render.addQuad(
-            Vector4(1.0f, 0.0f, 0.0f, 1.0f),
-            Transform(Vector3(-2.0, -0.5, 2.0), Quaternion(Vector3(0.0, 0.0, 0.0)), Vector3(0.5, 0.5, 0.5)),
-            PrimitiveType::_Primitive_line,
-            true);
-        m_debug_draw_group_for_render.addBox(
-            Vector4(1.0f, 0.0f, 0.0f, 1.0f),
-            Transform(Vector3(0.0, -0.5, 2.0), Quaternion(Vector3(0.0, 0.0, 0.0)), Vector3(0.5, 0.5, 0.5)),
-            PrimitiveType::_Primitive_line,
-            true);
-        m_debug_draw_group_for_render.addSphere(
-            Vector4(1.0f, 0.0f, 0.0f, 1.0f),
-            Transform(Vector3(2.0, -0.5, 2.0), Quaternion(Vector3(0.0, 0.0, 0.0)), Vector3(0.5, 0.5, 0.5)),
-            PrimitiveType::_Primitive_line,
-            true);
-        m_debug_draw_group_for_render.addCylinder(
-            Vector4(1.0f, 0.0f, 0.0f, 1.0f),
-            Transform(Vector3(4.0, -0.5, 2.0), Quaternion(Vector3(0.0, 0.0, 0.0)), Vector3(0.5, 0.5, 0.5)),
-            PrimitiveType::_Primitive_line,
-            true);
-        m_debug_draw_group_for_render.addCapsule(
-            Vector4(1.0f, 0.0f, 0.0f, 1.0f),
-            Transform(Vector3(6.0, -0.5, 2.0), Quaternion(Vector3(0.0, 0.0, 0.0)), Vector3(0.5, 0.5, 0.5)),
-            PrimitiveType::_Primitive_line,
-            true);
-
-        m_debug_draw_group_for_render.addTriangle(
-            Vector4(1.0f, 1.0f, 1.0f, 1.0f),
-            Transform(Vector3(-4.0, -0.5, 4.0), Quaternion(Vector3(0.0, 0.0, 0.0)), Vector3(0.5, 0.5, 0.5)),
-            PrimitiveType::_Primitive_triangle,
-            true,
-            TextureType::GOLD);
-        m_debug_draw_group_for_render.addQuad(
-            Vector4(1.0f, 1.0f, 1.0f, 1.0f),
-            Transform(Vector3(-2.0, -0.5, 4.0), Quaternion(Vector3(0.0, 0.0, 0.0)), Vector3(0.5, 0.5, 0.5)),
-            PrimitiveType::_Primitive_triangle,
-            true,
-            TextureType::FLOOR);
-        m_debug_draw_group_for_render.addBox(
-            Vector4(1.0f, 1.0f, 1.0f, 1.0f),
-            Transform(Vector3(0.0, -0.5, 4.0), Quaternion(Vector3(0.0, 0.0, 0.0)), Vector3(0.5, 0.5, 0.5)),
-            PrimitiveType::_Primitive_triangle,
-            true,
-            TextureType::WOOD);
-        m_debug_draw_group_for_render.addSphere(
-            Vector4(1.0f, 1.0f, 1.0f, 1.0f),
-            Transform(Vector3(2.0, -0.5, 4.0), Quaternion(Vector3(0.0, 0.0, 0.0)), Vector3(0.5, 0.5, 0.5)),
-            PrimitiveType::_Primitive_triangle,
-            true,
-            TextureType::BLOCK);
-        m_debug_draw_group_for_render.addCylinder(
-            Vector4(1.0f, 1.0f, 1.0f, 1.0f),
-            Transform(Vector3(4.0, -0.5, 4.0), Quaternion(Vector3(0.0, 0.0, 0.0)), Vector3(0.5, 0.5, 0.5)),
-            PrimitiveType::_Primitive_triangle,
-            true,
-            TextureType::BRICKWALL);
-        m_debug_draw_group_for_render.addCapsule(
-            Vector4(1.0f, 1.0f, 1.0f, 1.0f),
-            Transform(Vector3(6.0, -0.5, 4.0), Quaternion(Vector3(0.0, 0.0, 0.0)), Vector3(0.5, 0.5, 0.5)),
-            PrimitiveType::_Primitive_triangle,
-            true,
-            TextureType::CONTAINER);
     }
 
     void DebugDrawManager::tick(float delta_time)
@@ -189,6 +89,9 @@ namespace VKernel
 
         // draw obj
         drawDebugObject(current_swapchain_image_index);
+
+        // clear
+        m_debug_draw_group_for_render.clear();
     }
 
     void DebugDrawManager::drawDebugObject(uint32_t current_swapchain_image_index)

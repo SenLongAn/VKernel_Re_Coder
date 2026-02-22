@@ -1,10 +1,12 @@
 #include "runtime/function/render/render_scene.h"
 
-#include "render_scene.h"
+#include "runtime/function/global/global_context.h"
+#include "runtime/function/render/debugdraw/debug_draw_manager.h"
 #include "runtime/function/render/render_camera.h"
 #include "runtime/function/render/render_helper.h"
 #include "runtime/function/render/render_pass.h"
 #include "runtime/function/render/render_resource.h"
+#include "runtime/function/render/render_system.h"
 
 namespace VKernel
 {
@@ -125,6 +127,28 @@ namespace VKernel
         }
     }
 
+    void addBoundingBox(Matrix4x4 model_matrix, AxisAlignedBox bounding_box)
+    {
+        // Calculate Matrix4x4
+        Vector3   min    = bounding_box.getMinCorner();
+        Vector3   max    = bounding_box.getMaxCorner();
+        Vector3   center = (min + max) * 0.5f;
+        Vector3   size   = max - min;
+        Matrix4x4 mat4   = Matrix4x4(center, size, Quaternion::IDENTITY);
+        mat4             = model_matrix * mat4; ///< M * local
+
+        // to transform
+        Vector3    position;
+        Vector3    scale;
+        Quaternion orientation;
+        mat4.decomposition(position, scale, orientation);
+        Transform transform(position, orientation, scale);
+
+        // add boundingbox
+        g_runtime_global_context.m_render_system->getRenderPipline()->getDebugManager()->getDebugDrawGroup()->addBox(
+            Vector4(1.0f, 0.0f, 0.0f, 1.0f), transform, PrimitiveType::_Primitive_line, true);
+    }
+
     void RenderScene::updateVisibleObjectsMainCamera(std::shared_ptr<RenderResource> render_resource,
                                                      std::shared_ptr<RenderCamera>   camera)
     {
@@ -133,7 +157,7 @@ namespace VKernel
         m_main_camera_visible_mesh_nodes.clear();
 
         // Iterative entity
-        for (const auto& entity : m_render_entities)
+        for (auto& entity : m_render_entities)
         {
             // add null node
             m_main_camera_visible_mesh_nodes.emplace_back();
@@ -146,6 +170,8 @@ namespace VKernel
             temp_node.ref_mesh                = &mesh_asset;
             VulkanPBRMaterial& material_asset = render_resource->getEntityMaterial(entity); ///< material
             temp_node.ref_material            = &material_asset;
+
+            addBoundingBox(entity.m_model_matrix, entity.m_bounding_box);
         }
     }
     void RenderScene::updateVisibleObjectsAxis(std::shared_ptr<RenderResource> render_resource)

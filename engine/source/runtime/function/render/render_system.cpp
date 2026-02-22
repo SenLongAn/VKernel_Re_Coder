@@ -14,7 +14,6 @@
 #include "runtime/resource/asset_manager/asset_manager.h"
 #include "runtime/resource/config_manager/config_manager.h"
 
-#include "render_system.h"
 #include <iostream>
 
 namespace VKernel

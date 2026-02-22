@@ -39,6 +39,8 @@ namespace VKernel
         // draw
         void draw(uint32_t current_swapchain_image_index); ///< Rendering interface
 
+        DebugDrawGroup* getDebugDrawGroup() { return &m_debug_draw_group_for_render; }
+
     private:
         // draw
         void drawDebugObject(uint32_t current_swapchain_image_index); ///< Start rendering
