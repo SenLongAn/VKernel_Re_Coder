@@ -149,6 +149,7 @@ namespace ReCoder
 
                 // get object id
                 size_t gobject_id = g_editor_global_context.m_render_system->getGObjectIDByMeshID(select_mesh_id);
+                g_editor_global_context.m_render_system->setGOId((uint32_t)gobject_id);
 
                 // update object
                 g_editor_global_context.m_scene_manager->onGObjectSelected(gobject_id);

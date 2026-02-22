@@ -1,5 +1,6 @@
 #include "runtime/function/render/render_scene.h"
 
+#include "editor/include/editor_scene_manager.h"
 #include "runtime/function/global/global_context.h"
 #include "runtime/function/render/debugdraw/debug_draw_manager.h"
 #include "runtime/function/render/render_camera.h"
@@ -127,7 +128,7 @@ namespace VKernel
         }
     }
 
-    void addBoundingBox(Matrix4x4 model_matrix, AxisAlignedBox bounding_box)
+    void addBoundingBox(Matrix4x4 model_matrix, AxisAlignedBox bounding_box, uint32_t id)
     {
         // Calculate Matrix4x4
         Vector3   min    = bounding_box.getMinCorner();
@@ -145,8 +146,20 @@ namespace VKernel
         Transform transform(position, orientation, scale);
 
         // add boundingbox
-        g_runtime_global_context.m_render_system->getRenderPipline()->getDebugManager()->getDebugDrawGroup()->addBox(
-            Vector4(1.0f, 0.0f, 0.0f, 1.0f), transform, PrimitiveType::_Primitive_line, true);
+        if ((id - 3) == g_runtime_global_context.m_render_system->getGOId())
+        {
+            g_runtime_global_context.m_render_system->getRenderPipline()
+                ->getDebugManager()
+                ->getDebugDrawGroup()
+                ->addBox(Vector4(0.0f, 1.0f, 0.0f, 1.0f), transform, PrimitiveType::_Primitive_line, true);
+        }
+        else
+        {
+            g_runtime_global_context.m_render_system->getRenderPipline()
+                ->getDebugManager()
+                ->getDebugDrawGroup()
+                ->addBox(Vector4(1.0f, 0.0f, 0.0f, 1.0f), transform, PrimitiveType::_Primitive_line, true);
+        }
     }
 
     void RenderScene::updateVisibleObjectsMainCamera(std::shared_ptr<RenderResource> render_resource,
@@ -171,7 +184,7 @@ namespace VKernel
             VulkanPBRMaterial& material_asset = render_resource->getEntityMaterial(entity); ///< material
             temp_node.ref_material            = &material_asset;
 
-            addBoundingBox(entity.m_model_matrix, entity.m_bounding_box);
+            addBoundingBox(entity.m_model_matrix, entity.m_bounding_box, entity.m_instance_id);
         }
     }
     void RenderScene::updateVisibleObjectsAxis(std::shared_ptr<RenderResource> render_resource)

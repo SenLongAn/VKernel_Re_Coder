@@ -1,7 +1,7 @@
 #pragma once
 
-#include "runtime/function/render/vulkan_interface/vulkan_api.h"
 #include "runtime/core/math/math_headers.h"
+#include "runtime/function/render/vulkan_interface/vulkan_api.h"
 
 #include <array>
 
@@ -26,21 +26,21 @@ namespace VKernel
 
     enum PrimitiveType : uint8_t ///< primitive type
     {
-        _Primitive_point = 0,
-        _Primitive_line = 1,
+        _Primitive_point    = 0,
+        _Primitive_line     = 1,
         _Primitive_triangle = 2,
         k_Primitive_count,
     };
 
     enum TextureType : uint32_t ///< texture type
     {
-        UNDEFINED = 0,
-        GOLD = 1,
-        FLOOR = 2,
-        WOOD = 3,
-        BLOCK = 4,
-        BRICKWALL = 5,
-        CONTAINER = 6,
+        UNDEFINED          = 0,
+        GOLD               = 1,
+        FLOOR              = 2,
+        WOOD               = 3,
+        BLOCK              = 4,
+        BRICKWALL          = 5,
+        CONTAINER          = 6,
         TEXTURE_TYPE_COUNT = 7
     };
 
@@ -53,7 +53,7 @@ namespace VKernel
 
         DebugDrawVertex() ///< Default initialization Vertex data
         {
-            pos = Vector3(-1.0f, -1.0f, -1.0f);
+            pos      = Vector3(-1.0f, -1.0f, -1.0f);
             texcoord = Vector2(-1.0f, -1.0f);
         }
 
@@ -61,8 +61,8 @@ namespace VKernel
         static VkVertexInputBindingDescription getBindingDescriptions()
         {
             VkVertexInputBindingDescription binding_descriptions;
-            binding_descriptions.binding = 0;
-            binding_descriptions.stride = sizeof(DebugDrawVertex);
+            binding_descriptions.binding   = 0;
+            binding_descriptions.stride    = sizeof(DebugDrawVertex);
             binding_descriptions.inputRate = VK_VERTEX_INPUT_RATE_VERTEX; ///< vertex index or instance index
 
             return binding_descriptions;
@@ -70,19 +70,19 @@ namespace VKernel
 
         static std::array<VkVertexInputAttributeDescription, 2> getAttributeDescriptions()
         {
-            std::array<VkVertexInputAttributeDescription, 2> attribute_descriptions{};
+            std::array<VkVertexInputAttributeDescription, 2> attribute_descriptions {};
 
             // position
-            attribute_descriptions[0].binding = 0;
+            attribute_descriptions[0].binding  = 0;
             attribute_descriptions[0].location = 0;
-            attribute_descriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
-            attribute_descriptions[0].offset = offsetof(DebugDrawVertex, pos);
+            attribute_descriptions[0].format   = VK_FORMAT_R32G32B32_SFLOAT;
+            attribute_descriptions[0].offset   = offsetof(DebugDrawVertex, pos);
 
             // texcoord
-            attribute_descriptions[1].binding = 0;
+            attribute_descriptions[1].binding  = 0;
             attribute_descriptions[1].location = 1;
-            attribute_descriptions[1].format = VK_FORMAT_R32G32_SFLOAT;
-            attribute_descriptions[1].offset = offsetof(DebugDrawVertex, texcoord);
+            attribute_descriptions[1].format   = VK_FORMAT_R32G32_SFLOAT;
+            attribute_descriptions[1].offset   = offsetof(DebugDrawVertex, texcoord);
 
             return attribute_descriptions;
         }
@@ -91,7 +91,7 @@ namespace VKernel
     class DebugDrawPrimitive ///< Basic mesh _base class
     {
     public:
-        PrimitiveType m_primitive_type{k_Primitive_count}; ///< primitive type
+        PrimitiveType m_primitive_type {k_Primitive_count}; ///< primitive type
 
         bool m_is_depth_test = false; ///< Is there a depth test
 
@@ -137,4 +137,4 @@ namespace VKernel
     public:
         static const DebugDrawPrimitiveType k_type_enum_value = _debug_draw_primitive_type_capsule;
     };
-}
+} // namespace VKernel

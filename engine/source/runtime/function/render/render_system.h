@@ -41,10 +41,12 @@ namespace VKernel
         GuidAllocator<GameObjectPartId>&    getGOInstanceIdAllocator();
         GuidAllocator<MeshSourceDesc>&      getMeshAssetIdAllocator();
         std::shared_ptr<RenderPipelineBase> getRenderPipline() const;
+        uint32_t                            getGOId() const;
 
         // set
         void setVisibleAxis(std::optional<RenderEntity> axis);
         void setSelectedAxis(size_t selected_axis);
+        void setGOId(uint32_t selected_go_id) { m_selected_go_id = selected_go_id; }
 
         //
         void swapLogicRenderData(); ///< swap Logic Render Data
@@ -62,6 +64,8 @@ namespace VKernel
 
     private:
         RENDER_PIPELINE_TYPE m_render_pipeline_type {RENDER_PIPELINE_TYPE::FORWARD_PIPELINE}; ///< render mode
+
+        uint32_t m_selected_go_id = 0;
 
         // direct management
         std::shared_ptr<VulkanAPI>          m_vulkan_api;

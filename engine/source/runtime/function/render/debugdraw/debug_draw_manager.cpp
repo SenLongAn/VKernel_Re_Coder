@@ -32,7 +32,7 @@ namespace VKernel
 
     void DebugDrawManager::tick(float delta_time)
     {
-        // std::lock_guard<std::mutex> guard(m_mutex);
+        std::lock_guard<std::mutex> guard(m_mutex);
         m_buffer_allocator->tick();
     }
 

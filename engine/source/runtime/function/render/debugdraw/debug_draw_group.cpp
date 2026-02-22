@@ -20,11 +20,11 @@ namespace VKernel
         m_capsules.clear();
     }
 
-    void DebugDrawGroup::addTriangle(const Vector4 &color,
-                                     const Transform &model,
-                                     const PrimitiveType &primitive_type,
-                                     const bool &is_depth_test,
-                                     const TextureType &texture_type)
+    void DebugDrawGroup::addTriangle(const Vector4&       color,
+                                     const Transform&     model,
+                                     const PrimitiveType& primitive_type,
+                                     const bool&          is_depth_test,
+                                     const TextureType&   texture_type)
     {
         std::lock_guard<std::mutex> guard(m_mutex);
 
@@ -43,11 +43,11 @@ namespace VKernel
         m_triangles.push_back(triangle);
     }
 
-    void DebugDrawGroup::addQuad(const Vector4 &color,
-                                 const Transform &model,
-                                 const PrimitiveType &primitive_type,
-                                 const bool &is_depth_test,
-                                 const TextureType &texture_type)
+    void DebugDrawGroup::addQuad(const Vector4&       color,
+                                 const Transform&     model,
+                                 const PrimitiveType& primitive_type,
+                                 const bool&          is_depth_test,
+                                 const TextureType&   texture_type)
 
     {
         std::lock_guard<std::mutex> guard(m_mutex);
@@ -67,11 +67,11 @@ namespace VKernel
         m_quads.push_back(quad);
     }
 
-    void DebugDrawGroup::addBox(const Vector4 &color,
-                                const Transform &model,
-                                const PrimitiveType &primitive_type,
-                                const bool &is_depth_test,
-                                const TextureType &texture_type)
+    void DebugDrawGroup::addBox(const Vector4&       color,
+                                const Transform&     model,
+                                const PrimitiveType& primitive_type,
+                                const bool&          is_depth_test,
+                                const TextureType&   texture_type)
     {
         std::lock_guard<std::mutex> guard(m_mutex);
 
@@ -90,11 +90,11 @@ namespace VKernel
         m_boxes.push_back(box);
     }
 
-    void DebugDrawGroup::addSphere(const Vector4 &color,
-                                   const Transform &model,
-                                   const PrimitiveType &primitive_type,
-                                   const bool &is_depth_test,
-                                   const TextureType &texture_type)
+    void DebugDrawGroup::addSphere(const Vector4&       color,
+                                   const Transform&     model,
+                                   const PrimitiveType& primitive_type,
+                                   const bool&          is_depth_test,
+                                   const TextureType&   texture_type)
     {
         std::lock_guard<std::mutex> guard(m_mutex);
 
@@ -113,11 +113,11 @@ namespace VKernel
         m_spheres.push_back(sphere);
     }
 
-    void DebugDrawGroup::addCylinder(const Vector4 &color,
-                                     const Transform &model,
-                                     const PrimitiveType &primitive_type,
-                                     const bool &is_depth_test,
-                                     const TextureType &texture_type)
+    void DebugDrawGroup::addCylinder(const Vector4&       color,
+                                     const Transform&     model,
+                                     const PrimitiveType& primitive_type,
+                                     const bool&          is_depth_test,
+                                     const TextureType&   texture_type)
     {
         std::lock_guard<std::mutex> guard(m_mutex);
 
@@ -136,11 +136,11 @@ namespace VKernel
         m_cylinders.push_back(cylinder);
     }
 
-    void DebugDrawGroup::addCapsule(const Vector4 &color,
-                                    const Transform &model,
-                                    const PrimitiveType &primitive_type,
-                                    const bool &is_depth_test,
-                                    const TextureType &texture_type)
+    void DebugDrawGroup::addCapsule(const Vector4&       color,
+                                    const Transform&     model,
+                                    const PrimitiveType& primitive_type,
+                                    const bool&          is_depth_test,
+                                    const TextureType&   texture_type)
     {
         std::lock_guard<std::mutex> guard(m_mutex);
 
@@ -220,13 +220,12 @@ namespace VKernel
         return capsule_count;
     }
 
-    void DebugDrawGroup::writeVertexData(std::vector<DebugDrawVertex> &vertexs)
+    void DebugDrawGroup::writeVertexData(std::vector<DebugDrawVertex>& vertexs)
     {
         // triangle, quad, box, sphere
-        vertexs.resize(
-            3 + 4 + 8 + 4225 + 44 + 506 +    // point
-            6 + 8 + 24 + 1720 + 200 + 1640 + // line
-            3 + 4 + 24 + 4225 + 42 + 506     // triangle
+        vertexs.resize(3 + 4 + 8 + 4225 + 44 + 506 +    // point
+                       6 + 8 + 24 + 1720 + 200 + 1640 + // line
+                       3 + 4 + 24 + 4225 + 42 + 506     // triangle
         );
 
         int index = 0;
@@ -263,9 +262,9 @@ namespace VKernel
             {
                 float xSegment = (float)x / (float)X_SEGMENTS; ///< 0 -- 1
                 float ySegment = (float)y / (float)Y_SEGMENTS;
-                float xPos = Math::cos(xSegment * 2.0f * Math_PI) * Math::sin(ySegment * Math_PI); ///< radians
-                float yPos = Math::cos(ySegment * Math_PI);
-                float zPos = Math::sin(xSegment * 2.0f * Math_PI) * Math::sin(ySegment * Math_PI);
+                float xPos     = Math::cos(xSegment * 2.0f * Math_PI) * Math::sin(ySegment * Math_PI); ///< radians
+                float yPos     = Math::cos(ySegment * Math_PI);
+                float zPos     = Math::sin(xSegment * 2.0f * Math_PI) * Math::sin(ySegment * Math_PI);
 
                 vertexs[index++].pos = Vector3(xPos, yPos, zPos);
             }
@@ -273,16 +272,12 @@ namespace VKernel
 
         // cylinder_point
         int32_t param = 10;
-        float _2pi = 2.0f * Math_PI;
+        float   _2pi  = 2.0f * Math_PI;
         for (int32_t i = 0; i <= 2 * param; i++)
         {
-            Vector3 top_point(Math::cos(_2pi / (2.0f * param) * i),
-                              Math::sin(_2pi / (2.0f * param) * i),
-                              1.0f);
+            Vector3 top_point(Math::cos(_2pi / (2.0f * param) * i), Math::sin(_2pi / (2.0f * param) * i), 1.0f);
 
-            Vector3 bottom_point(Math::cos(_2pi / (2.0f * param) * i),
-                                 Math::sin(_2pi / (2.0f * param) * i),
-                                 -1.0f);
+            Vector3 bottom_point(Math::cos(_2pi / (2.0f * param) * i), Math::sin(_2pi / (2.0f * param) * i), -1.0f);
 
             vertexs[index++].pos = top_point;
             vertexs[index++].pos = bottom_point;
@@ -299,23 +294,17 @@ namespace VKernel
 
             for (int32_t j = 0; j <= 2 * param; j++)
             {
-                Vector3 p(Math::cos(_2pi / (2.0f * param) * j) * r,
-                          Math::sin(_2pi / (2.0f * param) * j) * r,
-                          h + 1.0f);
+                Vector3 p(Math::cos(_2pi / (2.0f * param) * j) * r, Math::sin(_2pi / (2.0f * param) * j) * r, h + 1.0f);
                 vertexs[index++].pos = p;
             }
         }
 
         for (int32_t j = 0; j <= 2 * param; j++)
         {
-            Vector3 p(Math::cos(_2pi / (2.0f * param) * j),
-                      Math::sin(_2pi / (2.0f * param) * j),
-                      1.0f);
+            Vector3 p(Math::cos(_2pi / (2.0f * param) * j), Math::sin(_2pi / (2.0f * param) * j), 1.0f);
             vertexs[index++].pos = p;
 
-            Vector3 p1(Math::cos(_2pi / (2.0f * param) * j),
-                       Math::sin(_2pi / (2.0f * param) * j),
-                       -1.0f);
+            Vector3 p1(Math::cos(_2pi / (2.0f * param) * j), Math::sin(_2pi / (2.0f * param) * j), -1.0f);
             vertexs[index++].pos = p1;
         }
 
@@ -326,9 +315,7 @@ namespace VKernel
 
             for (int32_t j = 0; j <= 2 * param; j++)
             {
-                Vector3 p(Math::cos(_2pi / (2.0f * param) * j) * r,
-                          Math::sin(_2pi / (2.0f * param) * j) * r,
-                          h - 1.0f);
+                Vector3 p(Math::cos(_2pi / (2.0f * param) * j) * r, Math::sin(_2pi / (2.0f * param) * j) * r, h - 1.0f);
                 vertexs[index++].pos = p;
             }
         }
@@ -385,9 +372,9 @@ namespace VKernel
         // sphere_line
         for (int32_t i = -param - 1; i < param + 1; i++)
         {
-            float h = Math::sin(_2pi / 4.0f * i / (param + 1.0f));
+            float h  = Math::sin(_2pi / 4.0f * i / (param + 1.0f));
             float h1 = Math::sin(_2pi / 4.0f * (i + 1) / (param + 1.0f));
-            float r = Math::sqrt(1.0f - h * h);
+            float r  = Math::sqrt(1.0f - h * h);
             float r1 = Math::sqrt(1.0f - h1 * h1);
             for (int32_t j = 0; j < 2 * param; j++)
             {
@@ -401,7 +388,9 @@ namespace VKernel
                 for (int32_t j = 0; j < 2 * param; j++)
                 {
                     Vector3 p(Math::cos(_2pi / (2.0f * param) * j) * r, Math::sin(_2pi / (2.0f * param) * j) * r, h);
-                    Vector3 p1(Math::cos(_2pi / (2.0f * param) * (j + 1)) * r, Math::sin(_2pi / (2.0f * param) * (j + 1)) * r, h);
+                    Vector3 p1(Math::cos(_2pi / (2.0f * param) * (j + 1)) * r,
+                               Math::sin(_2pi / (2.0f * param) * (j + 1)) * r,
+                               h);
                     vertexs[index++].pos = p;
                     vertexs[index++].pos = p1;
                 }
@@ -435,15 +424,18 @@ namespace VKernel
         // capsule_line
         for (int32_t i = 0; i < param; i++)
         {
-            float h = Math::sin(_2pi / 4.0 / param * i);
+            float h  = Math::sin(_2pi / 4.0 / param * i);
             float h1 = Math::sin(_2pi / 4.0 / param * (i + 1));
-            float r = Math::sqrt(1 - h * h);
+            float r  = Math::sqrt(1 - h * h);
             float r1 = Math::sqrt(1 - h1 * h1);
             for (int32_t j = 0; j < 2 * param; j++)
             {
                 Vector3 p(Math::cos(_2pi / (2.0f * param) * j) * r, Math::sin(_2pi / (2.0f * param) * j) * r, h + 1.0f);
-                Vector3 p_(Math::cos(_2pi / (2.0f * param) * (j + 1)) * r, Math::sin(_2pi / (2.0f * param) * (j + 1)) * r, h + 1.0f);
-                Vector3 p1(Math::cos(_2pi / (2.0f * param) * j) * r1, Math::sin(_2pi / (2.0f * param) * j) * r1, h1 + 1.0f);
+                Vector3 p_(Math::cos(_2pi / (2.0f * param) * (j + 1)) * r,
+                           Math::sin(_2pi / (2.0f * param) * (j + 1)) * r,
+                           h + 1.0f);
+                Vector3 p1(
+                    Math::cos(_2pi / (2.0f * param) * j) * r1, Math::sin(_2pi / (2.0f * param) * j) * r1, h1 + 1.0f);
                 vertexs[index++].pos = p;
                 vertexs[index++].pos = p1;
 
@@ -460,15 +452,18 @@ namespace VKernel
         }
         for (int32_t i = 0; i > -param; i--)
         {
-            float h = Math::sin(_2pi / 4.0f / param * i);
+            float h  = Math::sin(_2pi / 4.0f / param * i);
             float h1 = Math::sin(_2pi / 4.0f / param * (i - 1));
-            float r = Math::sqrt(1 - h * h);
+            float r  = Math::sqrt(1 - h * h);
             float r1 = Math::sqrt(1 - h1 * h1);
             for (int32_t j = 0; j < (2 * param); j++)
             {
                 Vector3 p(Math::cos(_2pi / (2.0f * param) * j) * r, Math::sin(_2pi / (2.0f * param) * j) * r, h - 1.0f);
-                Vector3 p_(Math::cos(_2pi / (2.0f * param) * (j + 1)) * r, Math::sin(_2pi / (2.0f * param) * (j + 1)) * r, h - 1.0f);
-                Vector3 p1(Math::cos(_2pi / (2.0f * param) * j) * r1, Math::sin(_2pi / (2.0f * param) * j) * r1, h1 - 1.0f);
+                Vector3 p_(Math::cos(_2pi / (2.0f * param) * (j + 1)) * r,
+                           Math::sin(_2pi / (2.0f * param) * (j + 1)) * r,
+                           h - 1.0f);
+                Vector3 p1(
+                    Math::cos(_2pi / (2.0f * param) * j) * r1, Math::sin(_2pi / (2.0f * param) * j) * r1, h1 - 1.0f);
                 vertexs[index++].pos = p;
                 vertexs[index++].pos = p1;
 
@@ -480,72 +475,72 @@ namespace VKernel
         // // ==================== triangle ====================
         // triangle_triangle
         vertexs[index].texcoord = Vector2(0.5, 1.0);
-        vertexs[index++].pos = Vector3(0.0, -0.5, 0.0);
+        vertexs[index++].pos    = Vector3(0.0, -0.5, 0.0);
         vertexs[index].texcoord = Vector2(0.0, 0.0);
-        vertexs[index++].pos = Vector3(0.5, 0.5, 0.0);
+        vertexs[index++].pos    = Vector3(0.5, 0.5, 0.0);
         vertexs[index].texcoord = Vector2(1.0, 0.0);
-        vertexs[index++].pos = Vector3(-0.5, 0.5, 0.0);
+        vertexs[index++].pos    = Vector3(-0.5, 0.5, 0.0);
 
         // quad_triangle
         vertexs[index].texcoord = Vector2(0.0, 0.0);
-        vertexs[index++].pos = Vector3(-0.5, -0.5, 0.0);
+        vertexs[index++].pos    = Vector3(-0.5, -0.5, 0.0);
         vertexs[index].texcoord = Vector2(1.0, 0.0);
-        vertexs[index++].pos = Vector3(0.5, -0.5, 0.0);
+        vertexs[index++].pos    = Vector3(0.5, -0.5, 0.0);
         vertexs[index].texcoord = Vector2(1.0, 1.0);
-        vertexs[index++].pos = Vector3(0.5, 0.5, 0.0);
+        vertexs[index++].pos    = Vector3(0.5, 0.5, 0.0);
         vertexs[index].texcoord = Vector2(0.0, 1.0);
-        vertexs[index++].pos = Vector3(-0.5, 0.5, 0.0);
+        vertexs[index++].pos    = Vector3(-0.5, 0.5, 0.0);
 
         // box_triangle
-        Vector3 center_point = Vector3(0.0, 0.0, 0.0);
-        float half_size = 0.5f;
-        vertexs[index].pos = Vector3(-half_size, -half_size, half_size) + center_point;
+        Vector3 center_point      = Vector3(0.0, 0.0, 0.0);
+        float   half_size         = 0.5f;
+        vertexs[index].pos        = Vector3(-half_size, -half_size, half_size) + center_point;
         vertexs[index++].texcoord = Vector2(0.0f, 0.0f);
-        vertexs[index].pos = Vector3(half_size, -half_size, half_size) + center_point;
+        vertexs[index].pos        = Vector3(half_size, -half_size, half_size) + center_point;
         vertexs[index++].texcoord = Vector2(1.0f, 0.0f);
-        vertexs[index].pos = Vector3(half_size, half_size, half_size) + center_point;
+        vertexs[index].pos        = Vector3(half_size, half_size, half_size) + center_point;
         vertexs[index++].texcoord = Vector2(1.0f, 1.0f);
-        vertexs[index].pos = Vector3(-half_size, half_size, half_size) + center_point;
+        vertexs[index].pos        = Vector3(-half_size, half_size, half_size) + center_point;
         vertexs[index++].texcoord = Vector2(0.0f, 1.0f);
-        vertexs[index].pos = Vector3(half_size, -half_size, -half_size) + center_point;
+        vertexs[index].pos        = Vector3(half_size, -half_size, -half_size) + center_point;
         vertexs[index++].texcoord = Vector2(0.0f, 0.0f);
-        vertexs[index].pos = Vector3(-half_size, -half_size, -half_size) + center_point;
+        vertexs[index].pos        = Vector3(-half_size, -half_size, -half_size) + center_point;
         vertexs[index++].texcoord = Vector2(1.0f, 0.0f);
-        vertexs[index].pos = Vector3(-half_size, half_size, -half_size) + center_point;
+        vertexs[index].pos        = Vector3(-half_size, half_size, -half_size) + center_point;
         vertexs[index++].texcoord = Vector2(1.0f, 1.0f);
-        vertexs[index].pos = Vector3(half_size, half_size, -half_size) + center_point;
+        vertexs[index].pos        = Vector3(half_size, half_size, -half_size) + center_point;
         vertexs[index++].texcoord = Vector2(0.0f, 1.0f);
-        vertexs[index].pos = Vector3(half_size, -half_size, half_size) + center_point;
+        vertexs[index].pos        = Vector3(half_size, -half_size, half_size) + center_point;
         vertexs[index++].texcoord = Vector2(0.0f, 0.0f);
-        vertexs[index].pos = Vector3(half_size, -half_size, -half_size) + center_point;
+        vertexs[index].pos        = Vector3(half_size, -half_size, -half_size) + center_point;
         vertexs[index++].texcoord = Vector2(1.0f, 0.0f);
-        vertexs[index].pos = Vector3(half_size, half_size, -half_size) + center_point;
+        vertexs[index].pos        = Vector3(half_size, half_size, -half_size) + center_point;
         vertexs[index++].texcoord = Vector2(1.0f, 1.0f);
-        vertexs[index].pos = Vector3(half_size, half_size, half_size) + center_point;
+        vertexs[index].pos        = Vector3(half_size, half_size, half_size) + center_point;
         vertexs[index++].texcoord = Vector2(0.0f, 1.0f);
-        vertexs[index].pos = Vector3(-half_size, -half_size, -half_size) + center_point;
+        vertexs[index].pos        = Vector3(-half_size, -half_size, -half_size) + center_point;
         vertexs[index++].texcoord = Vector2(0.0f, 0.0f);
-        vertexs[index].pos = Vector3(-half_size, -half_size, half_size) + center_point;
+        vertexs[index].pos        = Vector3(-half_size, -half_size, half_size) + center_point;
         vertexs[index++].texcoord = Vector2(1.0f, 0.0f);
-        vertexs[index].pos = Vector3(-half_size, half_size, half_size) + center_point;
+        vertexs[index].pos        = Vector3(-half_size, half_size, half_size) + center_point;
         vertexs[index++].texcoord = Vector2(1.0f, 1.0f);
-        vertexs[index].pos = Vector3(-half_size, half_size, -half_size) + center_point;
+        vertexs[index].pos        = Vector3(-half_size, half_size, -half_size) + center_point;
         vertexs[index++].texcoord = Vector2(0.0f, 1.0f);
-        vertexs[index].pos = Vector3(-half_size, half_size, half_size) + center_point;
+        vertexs[index].pos        = Vector3(-half_size, half_size, half_size) + center_point;
         vertexs[index++].texcoord = Vector2(0.0f, 0.0f);
-        vertexs[index].pos = Vector3(half_size, half_size, half_size) + center_point;
+        vertexs[index].pos        = Vector3(half_size, half_size, half_size) + center_point;
         vertexs[index++].texcoord = Vector2(1.0f, 0.0f);
-        vertexs[index].pos = Vector3(half_size, half_size, -half_size) + center_point;
+        vertexs[index].pos        = Vector3(half_size, half_size, -half_size) + center_point;
         vertexs[index++].texcoord = Vector2(1.0f, 1.0f);
-        vertexs[index].pos = Vector3(-half_size, half_size, -half_size) + center_point;
+        vertexs[index].pos        = Vector3(-half_size, half_size, -half_size) + center_point;
         vertexs[index++].texcoord = Vector2(0.0f, 1.0f);
-        vertexs[index].pos = Vector3(-half_size, -half_size, -half_size) + center_point;
+        vertexs[index].pos        = Vector3(-half_size, -half_size, -half_size) + center_point;
         vertexs[index++].texcoord = Vector2(0.0f, 0.0f);
-        vertexs[index].pos = Vector3(half_size, -half_size, -half_size) + center_point;
+        vertexs[index].pos        = Vector3(half_size, -half_size, -half_size) + center_point;
         vertexs[index++].texcoord = Vector2(1.0f, 0.0f);
-        vertexs[index].pos = Vector3(half_size, -half_size, half_size) + center_point;
+        vertexs[index].pos        = Vector3(half_size, -half_size, half_size) + center_point;
         vertexs[index++].texcoord = Vector2(1.0f, 1.0f);
-        vertexs[index].pos = Vector3(-half_size, -half_size, half_size) + center_point;
+        vertexs[index].pos        = Vector3(-half_size, -half_size, half_size) + center_point;
         vertexs[index++].texcoord = Vector2(0.0f, 1.0f);
 
         // sphere_triangle
@@ -555,48 +550,48 @@ namespace VKernel
             {
                 float xSegment = (float)x / (float)X_SEGMENTS; ///< 0 -- 1
                 float ySegment = (float)y / (float)Y_SEGMENTS;
-                float xPos = Math::cos(xSegment * 2.0f * Math_PI) * Math::sin(ySegment * Math_PI); ///< radians
-                float yPos = Math::cos(ySegment * Math_PI);
-                float zPos = Math::sin(xSegment * 2.0f * Math_PI) * Math::sin(ySegment * Math_PI);
+                float xPos     = Math::cos(xSegment * 2.0f * Math_PI) * Math::sin(ySegment * Math_PI); ///< radians
+                float yPos     = Math::cos(ySegment * Math_PI);
+                float zPos     = Math::sin(xSegment * 2.0f * Math_PI) * Math::sin(ySegment * Math_PI);
 
-                vertexs[index].pos = Vector3(xPos, yPos, zPos);
+                vertexs[index].pos      = Vector3(xPos, yPos, zPos);
                 vertexs[index].texcoord = Vector2(xSegment, 1.0f - ySegment);
                 index++;
             }
         }
 
         // cylinder_triangle
-        int32_t segments = 20;
-        float radius = 1.0f;
-        float halfHeight = 1.0f;
+        int32_t segments   = 20;
+        float   radius     = 1.0f;
+        float   halfHeight = 1.0f;
 
         for (int32_t i = 0; i < segments; i++)
         {
-            float angle = _2pi * i / segments;
-            vertexs[index].pos = Vector3(Math::cos(angle) * radius, -halfHeight, Math::sin(angle) * radius);
+            float angle               = _2pi * i / segments;
+            vertexs[index].pos        = Vector3(Math::cos(angle) * radius, -halfHeight, Math::sin(angle) * radius);
             vertexs[index++].texcoord = Vector2((float)i / segments, 1.0f);
         }
 
         for (int32_t i = 0; i < segments; i++)
         {
-            float angle = _2pi * i / segments;
-            vertexs[index].pos = Vector3(Math::cos(angle) * radius, halfHeight, Math::sin(angle) * radius);
+            float angle               = _2pi * i / segments;
+            vertexs[index].pos        = Vector3(Math::cos(angle) * radius, halfHeight, Math::sin(angle) * radius);
             vertexs[index++].texcoord = Vector2((float)i / segments, 0.0f);
         }
 
-        vertexs[index].pos = Vector3(0.0f, -halfHeight, 0.0f);
+        vertexs[index].pos        = Vector3(0.0f, -halfHeight, 0.0f);
         vertexs[index++].texcoord = Vector2(0.5f, 0.5f);
-        bottom_center_idx = segments * 2;
+        bottom_center_idx         = segments * 2;
 
-        vertexs[index].pos = Vector3(0.0f, halfHeight, 0.0f);
+        vertexs[index].pos        = Vector3(0.0f, halfHeight, 0.0f);
         vertexs[index++].texcoord = Vector2(0.5f, 0.5f);
-        top_center_idx = segments * 2 + 1;
+        top_center_idx            = segments * 2 + 1;
 
         // capluse_triangle
-        float height = 2.0f;
+        float height      = 2.0f;
         float totalHeight = height + 2.0f * radius;
 
-        vertexs[index].pos = Vector3(0.0f, 0.0f, totalHeight / 2);
+        vertexs[index].pos        = Vector3(0.0f, 0.0f, totalHeight / 2);
         vertexs[index++].texcoord = Vector2(0.5f, 0.0f);
 
         for (int32_t i = 0; i <= param; i++)
@@ -607,32 +602,28 @@ namespace VKernel
 
             for (int32_t j = 0; j <= 2 * param; j++)
             {
-                float u = (float)j / (2 * param);
+                float   u = (float)j / (2 * param);
                 Vector3 p(Math::cos(_2pi / (2.0f * param) * j) * r,
                           Math::sin(_2pi / (2.0f * param) * j) * r,
                           h * radius + height / 2);
-                vertexs[index].pos = p;
+                vertexs[index].pos        = p;
                 vertexs[index++].texcoord = Vector2(u, v);
             }
         }
 
         for (int32_t j = 0; j <= 2 * param; j++)
         {
-            float u = (float)j / (2 * param);
-            Vector3 p(Math::cos(_2pi / (2.0f * param) * j),
-                      Math::sin(_2pi / (2.0f * param) * j),
-                      height / 2);
-            vertexs[index].pos = p;
+            float   u = (float)j / (2 * param);
+            Vector3 p(Math::cos(_2pi / (2.0f * param) * j), Math::sin(_2pi / (2.0f * param) * j), height / 2);
+            vertexs[index].pos        = p;
             vertexs[index++].texcoord = Vector2(u, 0.25f);
         }
 
         for (int32_t j = 0; j <= 2 * param; j++)
         {
-            float u = (float)j / (2 * param);
-            Vector3 p(Math::cos(_2pi / (2.0f * param) * j),
-                      Math::sin(_2pi / (2.0f * param) * j),
-                      -height / 2);
-            vertexs[index].pos = p;
+            float   u = (float)j / (2 * param);
+            Vector3 p(Math::cos(_2pi / (2.0f * param) * j), Math::sin(_2pi / (2.0f * param) * j), -height / 2);
+            vertexs[index].pos        = p;
             vertexs[index++].texcoord = Vector2(u, 0.75f);
         }
 
@@ -644,20 +635,20 @@ namespace VKernel
 
             for (int32_t j = 0; j <= 2 * param; j++)
             {
-                float u = (float)j / (2 * param);
+                float   u = (float)j / (2 * param);
                 Vector3 p(Math::cos(_2pi / (2.0f * param) * j) * r,
                           Math::sin(_2pi / (2.0f * param) * j) * r,
                           h * radius - height / 2);
-                vertexs[index].pos = p;
+                vertexs[index].pos        = p;
                 vertexs[index++].texcoord = Vector2(u, v);
             }
         }
 
-        vertexs[index].pos = Vector3(0.0f, 0.0f, -totalHeight / 2);
+        vertexs[index].pos        = Vector3(0.0f, 0.0f, -totalHeight / 2);
         vertexs[index++].texcoord = Vector2(0.5f, 1.0f);
     }
 
-    void DebugDrawGroup::writeIndiceData(std::vector<uint16_t> &indices)
+    void DebugDrawGroup::writeIndiceData(std::vector<uint16_t>& indices)
     {
         // This is only used for triangle primitives, not for point and line primitives.
         indices.resize(3 + 6 + 36 + 24576 + 240 + 2760);
@@ -678,19 +669,14 @@ namespace VKernel
         indices[index++] = 0;
 
         // box
-        uint16_t box_indices[36] = {
-            0, 1, 2, 2, 3, 0,
-            4, 5, 6, 6, 7, 4,
-            8, 9, 10, 10, 11, 8,
-            12, 13, 14, 14, 15, 12,
-            16, 17, 18, 18, 19, 16,
-            20, 21, 22, 22, 23, 20};
+        uint16_t box_indices[36] = {0,  1,  2,  2,  3,  0,  4,  5,  6,  6,  7,  4,  8,  9,  10, 10, 11, 8,
+                                    12, 13, 14, 14, 15, 12, 16, 17, 18, 18, 19, 16, 20, 21, 22, 22, 23, 20};
         for (int i = 0; i < 36; i++)
             indices[index++] = box_indices[i];
 
         // sphere
-        const unsigned int X_SEGMENTS = 64;
-        const unsigned int Y_SEGMENTS = 64;
+        const unsigned int   X_SEGMENTS = 64;
+        const unsigned int   Y_SEGMENTS = 64;
         std::vector<Vector3> positions;
         std::vector<Vector2> texcoords;
         for (int i = 0; i < Y_SEGMENTS; i++)
@@ -724,7 +710,7 @@ namespace VKernel
 
         for (int32_t i = 0; i < 20; i++)
         {
-            int32_t next = (i + 1) % 20;
+            int32_t next     = (i + 1) % 20;
             indices[index++] = bottom_center_idx;
             indices[index++] = i;
             indices[index++] = next;
@@ -732,7 +718,7 @@ namespace VKernel
 
         for (int32_t i = 0; i < 20; i++)
         {
-            int32_t next = (i + 1) % 20;
+            int32_t next     = (i + 1) % 20;
             indices[index++] = top_center_idx;
             indices[index++] = 20 + next;
             indices[index++] = 20 + i;
@@ -741,19 +727,19 @@ namespace VKernel
         // capluse
         int32_t param = 10;
 
-        int32_t vert_per_layer = 2 * param + 1;
-        int32_t top_sphere_layers = param + 1;
+        int32_t vert_per_layer       = 2 * param + 1;
+        int32_t top_sphere_layers    = param + 1;
         int32_t bottom_sphere_layers = param + 1;
-        int32_t top_pole = 0;
-        int32_t bottom_pole = 505;
+        int32_t top_pole             = 0;
+        int32_t bottom_pole          = 505;
 
         for (int32_t i = 0; i < param; i++)
         {
             for (int32_t j = 0; j < 2 * param; j++)
             {
-                int32_t current = i * vert_per_layer + 1 + j;
-                int32_t next = i * vert_per_layer + 1 + j + 1;
-                int32_t below = (i + 1) * vert_per_layer + 1 + j;
+                int32_t current    = i * vert_per_layer + 1 + j;
+                int32_t next       = i * vert_per_layer + 1 + j + 1;
+                int32_t below      = (i + 1) * vert_per_layer + 1 + j;
                 int32_t below_next = (i + 1) * vert_per_layer + 1 + j + 1;
 
                 indices[index++] = current;
@@ -766,15 +752,15 @@ namespace VKernel
             }
         }
 
-        int32_t cylinder_top_start = top_sphere_layers * vert_per_layer + 1;
+        int32_t cylinder_top_start    = top_sphere_layers * vert_per_layer + 1;
         int32_t cylinder_bottom_start = cylinder_top_start + vert_per_layer;
 
         for (int32_t j = 0; j < 2 * param; j++)
         {
-            int32_t top_current = cylinder_top_start + j;
-            int32_t top_next = cylinder_top_start + j + 1;
+            int32_t top_current    = cylinder_top_start + j;
+            int32_t top_next       = cylinder_top_start + j + 1;
             int32_t bottom_current = cylinder_bottom_start + j;
-            int32_t bottom_next = cylinder_bottom_start + j + 1;
+            int32_t bottom_next    = cylinder_bottom_start + j + 1;
 
             indices[index++] = top_current;
             indices[index++] = bottom_current;
@@ -786,15 +772,15 @@ namespace VKernel
         }
 
         int32_t bottom_sphere_start = cylinder_bottom_start + vert_per_layer;
-        int32_t bottom_sphere_base = bottom_sphere_start;
+        int32_t bottom_sphere_base  = bottom_sphere_start;
 
         for (int32_t i = 0; i < param; i++)
         {
             for (int32_t j = 0; j < 2 * param; j++)
             {
-                int32_t current = bottom_sphere_base + i * vert_per_layer + j;
-                int32_t next = bottom_sphere_base + i * vert_per_layer + j + 1;
-                int32_t below = bottom_sphere_base + (i + 1) * vert_per_layer + j;
+                int32_t current    = bottom_sphere_base + i * vert_per_layer + j;
+                int32_t next       = bottom_sphere_base + i * vert_per_layer + j + 1;
+                int32_t below      = bottom_sphere_base + (i + 1) * vert_per_layer + j;
                 int32_t below_next = bottom_sphere_base + (i + 1) * vert_per_layer + j + 1;
 
                 indices[index++] = current;
@@ -809,8 +795,8 @@ namespace VKernel
 
         for (int32_t j = 0; j < 2 * param; j++)
         {
-            int32_t current = 1 + j;
-            int32_t next = 1 + j + 1;
+            int32_t current  = 1 + j;
+            int32_t next     = 1 + j + 1;
             indices[index++] = top_pole;
             indices[index++] = next;
             indices[index++] = current;
@@ -819,20 +805,21 @@ namespace VKernel
         int32_t bottom_last_layer = bottom_sphere_base + param * vert_per_layer;
         for (int32_t j = 0; j < 2 * param; j++)
         {
-            int32_t current = bottom_last_layer + j;
-            int32_t next = bottom_last_layer + j + 1;
+            int32_t current  = bottom_last_layer + j;
+            int32_t next     = bottom_last_layer + j + 1;
             indices[index++] = bottom_pole;
             indices[index++] = current;
             indices[index++] = next;
         }
     }
 
-    std::vector<size_t> DebugDrawGroup::writeUniformDynamicDataToCache(std::vector<std::tuple<Matrix4x4, Vector4, uint32_t>> &datas,
-                                                                       const PrimitiveType &primity_type,
-                                                                       const bool &is_depth_test)
+    std::vector<size_t>
+    DebugDrawGroup::writeUniformDynamicDataToCache(std::vector<std::tuple<Matrix4x4, Vector4, uint32_t>>& datas,
+                                                   const PrimitiveType&                                   primity_type,
+                                                   const bool&                                            is_depth_test)
     {
         std::vector<size_t> mesh_count;
-        size_t last_size = 0;
+        size_t              last_size = 0;
 
         // triangle
         size_t triangle_count = getTriangleCount();
@@ -840,7 +827,8 @@ namespace VKernel
         {
             if (triangle.m_primitive_type == primity_type && triangle.m_is_depth_test == is_depth_test)
             {
-                datas.push_back(std::make_tuple(triangle.m_model.getMatrix(), triangle.m_color, triangle.m_texture_type));
+                datas.push_back(
+                    std::make_tuple(triangle.m_model.getMatrix(), triangle.m_color, triangle.m_texture_type));
             }
         }
         mesh_count.push_back(datas.size() - last_size);
@@ -888,7 +876,8 @@ namespace VKernel
         {
             if (cylinder.m_primitive_type == primity_type && cylinder.m_is_depth_test == is_depth_test)
             {
-                datas.push_back(std::make_tuple(cylinder.m_model.getMatrix(), cylinder.m_color, cylinder.m_texture_type));
+                datas.push_back(
+                    std::make_tuple(cylinder.m_model.getMatrix(), cylinder.m_color, cylinder.m_texture_type));
             }
         }
         mesh_count.push_back(datas.size() - last_size);
@@ -908,4 +897,4 @@ namespace VKernel
 
         return mesh_count;
     }
-}
+} // namespace VKernel

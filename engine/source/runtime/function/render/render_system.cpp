@@ -164,6 +164,8 @@ namespace VKernel
 
     std::shared_ptr<RenderPipelineBase> RenderSystem::getRenderPipline() const { return m_render_pipeline; }
 
+    uint32_t RenderSystem::getGOId() const { return m_selected_go_id; }
+
     void RenderSystem::setVisibleAxis(std::optional<RenderEntity> axis)
     {
         m_render_scene->m_render_axis = axis;
