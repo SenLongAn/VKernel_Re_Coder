@@ -1,5 +1,6 @@
 #include "runtime/Games/the_celestial_console/Panels/main_panel.h"
 
+#include "runtime/core/log/log_system.h"
 #include "runtime/function/global/global_context.h"
 #include "runtime/function/render/render_system.h"
 
@@ -37,43 +38,72 @@ namespace Games
         bool isOpen = true;
         ImGui::Begin("new window", &isOpen, window_flags);
 
-        ImVec2 buttonSize(150, 30);
-        ImVec2 buttonPos(viewport.width / 2.0f - buttonSize.x / 2.0f, viewport.height / 100.0f);
+        // text:
+        ImGui::SetCursorPosX(viewport.width / 10.0f * 3);
+        ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Direction:");
+        ImGui::SameLine();
+        ImGui::SetCursorPosX(viewport.width / 10.0f * 4);
+        ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Temperature:");
+        ImGui::SameLine();
+        ImGui::SetCursorPosX(viewport.width / 10.0f * 5);
+        ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Sunlight:");
+        ImGui::SameLine();
+        ImGui::SetCursorPosX(viewport.width / 10.0f * 6);
+        ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "FrameRate:");
+        ImGui::SameLine();
+
+        // button
+        ImVec2 buttonSize(40, 30);
+        ImVec2 buttonPos(viewport.width / 10.0F * 7, viewport.height / 100.0f);
         ImGui::SetCursorPos(buttonPos);
         if (!isPanelOpen)
         {
-            if (ImGui::Button("OpenPanel", buttonSize))
+            if (ImGui::Button("<>", buttonSize))
             {
                 isPanelOpen = !isPanelOpen;
             }
         }
         else
         {
-            if (ImGui::Button("ClosePanel", buttonSize))
+            if (ImGui::Button("><", buttonSize))
             {
                 isPanelOpen = !isPanelOpen;
             }
         }
 
-        ImGui::End();
-
-        DrawCrosshair();
-    }
-
-    void Games::MainPanel::DrawCrosshair()
-    {
-        VkViewport viewport =
-            VKernel::g_runtime_global_context.m_render_system->getVulkanAPI()->getSwapchainInfo().viewport;
-
-        ImGui::SetNextWindowPos(ImVec2(viewport.x, viewport.y), ImGuiCond_Always);
-        ImGui::SetNextWindowSize(ImVec2(viewport.width, viewport.height), ImGuiCond_Always);
-
-        ImGuiWindowFlags flags = ImGuiWindowFlags_None | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar |
-                                 ImGuiWindowFlags_NoResize;
-
-        ImGui::Begin("Crosshair", nullptr, flags);
-
+        // Crosshair
         DrawCrosshairShape();
+
+        // log
+        ImGui::SetCursorPos(ImVec2(viewport.width / 10.0f * 3.5, viewport.height - viewport.height / 10.0f * 1.4));
+
+        ImGui::BeginChild("LogRegion", ImVec2(0, 150), false);
+
+        std::vector<VKernel::LogMessage> messages = VKernel::g_runtime_global_context.m_logger_system->GetMessage();
+        for (const auto& log : messages)
+        {
+            switch (log.level)
+            {
+                case VKernel::LogLevel::debug:
+                    ImGui::TextColored(ImVec4(0.1f, 0.0f, 1.0f, 1.0f), "%s", log.log.c_str());
+                    break;
+                case VKernel::LogLevel::info:
+                    ImGui::TextColored(ImVec4(0.1f, 1.0f, 0.0f, 1.0f), "%s", log.log.c_str());
+                    break;
+                case VKernel::LogLevel::warn:
+                    ImGui::TextColored(ImVec4(0.1f, 0.1f, 0.1f, 1.0f), "%s", log.log.c_str());
+                    break;
+                case VKernel::LogLevel::error:
+                    ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "%s", log.log.c_str());
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        ImGui::SetScrollHereY(0.0f);
+
+        ImGui::EndChild();
 
         ImGui::End();
     }

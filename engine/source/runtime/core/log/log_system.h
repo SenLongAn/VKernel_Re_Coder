@@ -8,19 +8,24 @@
 namespace VKernel
 {
 
+    // Log Level
+    enum class LogLevel : uint8_t
+    {
+        debug,
+        info,
+        warn,
+        error,
+        fatal
+    };
+    struct LogMessage
+    {
+        LogLevel    level;
+        std::string log;
+    };
+
     class LogSystem final
     {
     public:
-        // Log Level
-        enum class LogLevel : uint8_t
-        {
-            debug,
-            info,
-            warn,
-            error,
-            fatal
-        };
-
     public:
         // Construct
         LogSystem();
@@ -52,6 +57,14 @@ namespace VKernel
                 default:
                     break;
             }
+
+            if (m_messages.size() >= 20)
+            {
+                m_messages.erase(m_messages.begin());
+            }
+
+            std::string formattedMessage = fmt::format(std::forward<TARGS>(args)...);
+            m_messages.push_back({level, std::move(formattedMessage)});
         }
 
         // fatal Callback func
@@ -62,9 +75,12 @@ namespace VKernel
             throw std::runtime_error(format_str); // throw Exception
         }
 
+        std::vector<LogMessage> GetMessage() { return m_messages; }
+
     private:
         // log handle
         std::shared_ptr<spdlog::logger> m_logger;
+        std::vector<LogMessage>         m_messages;
     };
 
 } // namespace VKernel

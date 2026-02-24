@@ -2,6 +2,9 @@
 
 #include "runtime/function/ui/window_ui.h"
 
+#include <string>
+#include <vector>
+
 namespace Games
 {
     class MainPanel : public VKernel::WindowUI
@@ -16,7 +19,6 @@ namespace Games
         void preRender() override;
 
     private:
-        void DrawCrosshair();
         void DrawCrosshairShape();
     };
 } // namespace Games
