@@ -45,7 +45,9 @@ namespace VKernel
         // draw
         void drawDebugObject(uint32_t current_swapchain_image_index); ///< Start rendering
         void prepareDrawBuffer();                                     ///< Establish a buffer zone for the data
+        void prepareDrawBufferLines();
         void drawSolidObject(uint32_t current_swapchain_image_index); ///< draw solid object, Use indexing method
+        void drawLinesObject(uint32_t current_swapchain_image_index);
 
     private:
         std::mutex m_mutex;

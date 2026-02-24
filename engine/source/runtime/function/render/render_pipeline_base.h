@@ -39,8 +39,8 @@ namespace VKernel
         void initializeUIRenderBackend(); ///< init editor ui Backend: vulkan and glfw
 
         // get
-        virtual uint32_t                  getGuidOfPickedMesh(const Vector2& picked_uv) = 0; ///< get uv submesh guid
-        std::shared_ptr<DebugDrawManager> getDebugManager() { return m_debugdraw_manager; }
+        virtual std::pair<uint32_t, Vector4> getGuidOfPickedMesh(const Vector2& picked_uv) = 0; ///< get uv submesh guid
+        std::shared_ptr<DebugDrawManager>    getDebugManager() { return m_debugdraw_manager; }
 
     protected:
         std::shared_ptr<VulkanAPI> m_vulkan_api; ///< Vulkan interface

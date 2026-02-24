@@ -102,6 +102,14 @@ namespace VKernel
         TextureType m_texture_type; ///< texture type
     };
 
+    class DebugDrawLine : public DebugDrawPrimitive
+    {
+    public:
+        Vector3                             vertex0;
+        Vector3                             vertex1;
+        static const DebugDrawPrimitiveType k_type_enum_value = _debug_draw_primitive_type_line;
+    };
+
     class DebugDrawTriangle : public DebugDrawPrimitive ///< Triangle Primitive derived class
     {
     public:

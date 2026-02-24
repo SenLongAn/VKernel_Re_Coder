@@ -26,7 +26,8 @@ namespace ReCoder
         return -(normal.dotProduct(origin) + d) / deno;
     }
 
-    size_t EditorSceneManager::getGuidOfPickedMesh(const VKernel::Vector2& picked_uv) const
+    std::pair<uint32_t, VKernel::Vector4>
+    EditorSceneManager::getGuidOfPickedMesh(const VKernel::Vector2& picked_uv) const
     {
         return g_editor_global_context.m_render_system->getGuidOfPickedMesh(picked_uv);
     }

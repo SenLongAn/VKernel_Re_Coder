@@ -1,6 +1,7 @@
 #include "runtime/function/render/passes/pick_pass.h"
 
 #include "runtime/function/render/render_mesh.h"
+#include "runtime/function/render/render_system.h"
 #include "runtime/function/render/vulkan_interface/vulkan_api.h"
 #include "runtime/function/render/vulkan_interface/vulkan_util.h"
 
@@ -10,6 +11,7 @@
 #include <mesh_inefficient_pick_frag.h>
 #include <mesh_inefficient_pick_vert.h>
 
+#include <iostream>
 #include <map>
 #include <stdexcept>
 
@@ -44,7 +46,7 @@ namespace VKernel
     void PickPass::setupAttachments()
     {
         // create render target
-        m_framebuffer.attachments.resize(1);
+        m_framebuffer.attachments.resize(2);
         m_framebuffer.attachments[0].format = VK_FORMAT_R32_UINT;
 
         m_vulkan_api->createImage(m_vulkan_api->getSwapchainInfo().extent.width,
@@ -65,6 +67,26 @@ namespace VKernel
                                       1,
                                       1,
                                       m_framebuffer.attachments[0].view);
+        m_framebuffer.attachments[1].format = VK_FORMAT_R32G32B32A32_SFLOAT;
+
+        m_vulkan_api->createImage(m_vulkan_api->getSwapchainInfo().extent.width,
+                                  m_vulkan_api->getSwapchainInfo().extent.height,
+                                  m_framebuffer.attachments[1].format,
+                                  VK_IMAGE_TILING_OPTIMAL,
+                                  VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
+                                  VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                                  m_framebuffer.attachments[1].image,
+                                  m_framebuffer.attachments[1].mem,
+                                  0,
+                                  1,
+                                  1);
+        m_vulkan_api->createImageView(m_framebuffer.attachments[1].image,
+                                      m_framebuffer.attachments[1].format,
+                                      VK_IMAGE_ASPECT_COLOR_BIT,
+                                      VK_IMAGE_VIEW_TYPE_2D,
+                                      1,
+                                      1,
+                                      m_framebuffer.attachments[1].view);
     }
     void PickPass::setupRenderPass()
     {
@@ -78,6 +100,16 @@ namespace VKernel
         color_attachment_description.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
         color_attachment_description.initialLayout  = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
         color_attachment_description.finalLayout    = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+
+        VkAttachmentDescription color_attachment_position_description {};
+        color_attachment_position_description.format         = m_framebuffer.attachments[1].format;
+        color_attachment_position_description.samples        = VK_SAMPLE_COUNT_1_BIT;
+        color_attachment_position_description.loadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        color_attachment_position_description.storeOp        = VK_ATTACHMENT_STORE_OP_STORE;
+        color_attachment_position_description.stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        color_attachment_position_description.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        color_attachment_position_description.initialLayout  = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        color_attachment_position_description.finalLayout    = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
 
         VkAttachmentDescription depth_attachment_description {};
         depth_attachment_description.format         = m_vulkan_api->getDepthImageInfo().depth_image_format;
@@ -93,18 +125,24 @@ namespace VKernel
         color_attachment_reference.attachment = 0;
         color_attachment_reference.layout     = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
+        VkAttachmentReference color_attachment_position_reference {};
+        color_attachment_position_reference.attachment = 1;
+        color_attachment_position_reference.layout     = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
         VkAttachmentReference depth_attachment_reference {};
-        depth_attachment_reference.attachment = 1;
+        depth_attachment_reference.attachment = 2;
         depth_attachment_reference.layout     = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
-        VkSubpassDescription subpass {};
+        VkAttachmentReference colorReferences[2] = {color_attachment_reference, color_attachment_position_reference};
+        VkSubpassDescription  subpass {};
         subpass.pipelineBindPoint       = VK_PIPELINE_BIND_POINT_GRAPHICS;
-        subpass.colorAttachmentCount    = 1;
-        subpass.pColorAttachments       = &color_attachment_reference;
+        subpass.colorAttachmentCount    = 2;
+        subpass.pColorAttachments       = colorReferences;
         subpass.pDepthStencilAttachment = &depth_attachment_reference;
 
-        VkAttachmentDescription attachments[2] = {color_attachment_description, depth_attachment_description};
-        VkRenderPassCreateInfo  renderpass_create_info {};
+        VkAttachmentDescription attachments[3] = {
+            color_attachment_description, color_attachment_position_description, depth_attachment_description};
+        VkRenderPassCreateInfo renderpass_create_info {};
         renderpass_create_info.sType           = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
         renderpass_create_info.attachmentCount = sizeof(attachments) / sizeof(attachments[0]);
         renderpass_create_info.pAttachments    = attachments;
@@ -122,7 +160,8 @@ namespace VKernel
     }
     void PickPass::setupFramebuffer()
     {
-        VkImageView attachments[2] = {m_framebuffer.attachments[0].view,
+        VkImageView attachments[3] = {m_framebuffer.attachments[0].view,
+                                      m_framebuffer.attachments[1].view,
                                       m_vulkan_api->getDepthImageInfo().depth_image_view};
 
         VkFramebufferCreateInfo framebuffer_create_info {};
@@ -265,22 +304,36 @@ namespace VKernel
         multisample_state_create_info.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
 
         // ColorBlend State
-        VkPipelineColorBlendAttachmentState color_blend_attachment_state {};
-        color_blend_attachment_state.colorWriteMask      = VK_COLOR_COMPONENT_R_BIT;
-        color_blend_attachment_state.blendEnable         = VK_FALSE;
-        color_blend_attachment_state.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
-        color_blend_attachment_state.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
-        color_blend_attachment_state.colorBlendOp        = VK_BLEND_OP_ADD;
-        color_blend_attachment_state.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-        color_blend_attachment_state.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
-        color_blend_attachment_state.alphaBlendOp        = VK_BLEND_OP_ADD;
+        VkPipelineColorBlendAttachmentState color_blend_attachment_state0 {};
+        color_blend_attachment_state0.colorWriteMask      = VK_COLOR_COMPONENT_R_BIT;
+        color_blend_attachment_state0.blendEnable         = VK_FALSE;
+        color_blend_attachment_state0.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
+        color_blend_attachment_state0.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
+        color_blend_attachment_state0.colorBlendOp        = VK_BLEND_OP_ADD;
+        color_blend_attachment_state0.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+        color_blend_attachment_state0.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+        color_blend_attachment_state0.alphaBlendOp        = VK_BLEND_OP_ADD;
+
+        VkPipelineColorBlendAttachmentState color_blend_attachment_state1 {};
+        color_blend_attachment_state1.colorWriteMask =
+            VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+        color_blend_attachment_state1.blendEnable         = VK_FALSE;
+        color_blend_attachment_state1.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
+        color_blend_attachment_state1.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
+        color_blend_attachment_state1.colorBlendOp        = VK_BLEND_OP_ADD;
+        color_blend_attachment_state1.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+        color_blend_attachment_state1.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+        color_blend_attachment_state1.alphaBlendOp        = VK_BLEND_OP_ADD;
+
+        VkPipelineColorBlendAttachmentState colorBlendAttachments[2] = {color_blend_attachment_state0,
+                                                                        color_blend_attachment_state1};
 
         VkPipelineColorBlendStateCreateInfo color_blend_state_create_info {};
         color_blend_state_create_info.sType             = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
         color_blend_state_create_info.logicOpEnable     = VK_FALSE;
         color_blend_state_create_info.logicOp           = VK_LOGIC_OP_COPY;
-        color_blend_state_create_info.attachmentCount   = 1;
-        color_blend_state_create_info.pAttachments      = &color_blend_attachment_state;
+        color_blend_state_create_info.attachmentCount   = 2;
+        color_blend_state_create_info.pAttachments      = colorBlendAttachments;
         color_blend_state_create_info.blendConstants[0] = 0.0f;
         color_blend_state_create_info.blendConstants[1] = 0.0f;
         color_blend_state_create_info.blendConstants[2] = 0.0f;
@@ -409,7 +462,7 @@ namespace VKernel
         setupAttachments();
         setupFramebuffer();
     }
-    uint32_t PickPass::pick(const Vector2& picked_uv)
+    std::pair<uint32_t, Vector4> PickPass::pick(const Vector2& picked_uv)
     {
         // stage0: Render ID image
         //-----------------------------------------------------------------------
@@ -472,17 +525,20 @@ namespace VKernel
             vkBeginCommandBuffer(m_vulkan_api->getCurrentCommandBuffer(), &command_buffer_begin_info);
 
         // Image Layout Transformation
-        VkImageMemoryBarrier transfer_to_render_barrier {};
-        transfer_to_render_barrier.sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-        transfer_to_render_barrier.pNext               = nullptr;
-        transfer_to_render_barrier.srcAccessMask       = 0;
-        transfer_to_render_barrier.dstAccessMask       = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-        transfer_to_render_barrier.oldLayout           = VK_IMAGE_LAYOUT_UNDEFINED;
-        transfer_to_render_barrier.newLayout           = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-        transfer_to_render_barrier.srcQueueFamilyIndex = m_vulkan_api->getQueueFamilyIndices().graphics_family.value();
-        transfer_to_render_barrier.dstQueueFamilyIndex = m_vulkan_api->getQueueFamilyIndices().graphics_family.value();
-        transfer_to_render_barrier.image               = m_framebuffer.attachments[0].image;
-        transfer_to_render_barrier.subresourceRange    = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
+        VkImageMemoryBarrier transfer_to_render_barrier0 {};
+        transfer_to_render_barrier0.sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+        transfer_to_render_barrier0.pNext               = nullptr;
+        transfer_to_render_barrier0.srcAccessMask       = 0;
+        transfer_to_render_barrier0.dstAccessMask       = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        transfer_to_render_barrier0.oldLayout           = VK_IMAGE_LAYOUT_UNDEFINED;
+        transfer_to_render_barrier0.newLayout           = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        transfer_to_render_barrier0.srcQueueFamilyIndex = m_vulkan_api->getQueueFamilyIndices().graphics_family.value();
+        transfer_to_render_barrier0.dstQueueFamilyIndex = m_vulkan_api->getQueueFamilyIndices().graphics_family.value();
+        transfer_to_render_barrier0.image               = m_framebuffer.attachments[0].image;
+        transfer_to_render_barrier0.subresourceRange    = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
+        VkImageMemoryBarrier transfer_to_render_barrier1 = transfer_to_render_barrier0;
+        transfer_to_render_barrier1.image                = m_framebuffer.attachments[1].image;
+        VkImageMemoryBarrier barriers[2]                 = {transfer_to_render_barrier0, transfer_to_render_barrier1};
         vkCmdPipelineBarrier(m_vulkan_api->getCurrentCommandBuffer(),
                              VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
                              VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
@@ -491,8 +547,8 @@ namespace VKernel
                              nullptr,
                              0,
                              nullptr,
-                             1,
-                             &transfer_to_render_barrier);
+                             2,
+                             barriers);
 
         // Begin RenderPass
         VkRenderPassBeginInfo renderpass_begin_info {};
@@ -503,8 +559,8 @@ namespace VKernel
         renderpass_begin_info.renderArea.extent = m_vulkan_api->getSwapchainInfo().extent;
 
         VkClearColorValue color_value         = {0, 0, 0, 0};
-        VkClearValue      clearValues[2]      = {color_value, {1.0f, 0}};
-        renderpass_begin_info.clearValueCount = 2;
+        VkClearValue      clearValues[3]      = {color_value, {0.0f, 0.0f, 0.0f, 0.0f}, {1.0f, 0}};
+        renderpass_begin_info.clearValueCount = 3;
         renderpass_begin_info.pClearValues    = clearValues;
 
         vkCmdBeginRenderPass(
@@ -676,26 +732,38 @@ namespace VKernel
         // create staging buffer
         uint32_t buffer_size =
             m_vulkan_api->getSwapchainInfo().extent.width * m_vulkan_api->getSwapchainInfo().extent.height * 4;
-        VkBuffer       inefficient_staging_buffer;
-        VkDeviceMemory inefficient_staging_buffer_memory;
+        VkBuffer       inefficient_staging_buffer0;
+        VkDeviceMemory inefficient_staging_buffer_memory0;
         m_vulkan_api->createBuffer(buffer_size,
                                    VK_BUFFER_USAGE_TRANSFER_DST_BIT,
                                    VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                                   inefficient_staging_buffer,
-                                   inefficient_staging_buffer_memory);
+                                   inefficient_staging_buffer0,
+                                   inefficient_staging_buffer_memory0);
+        uint32_t buffer_size1 =
+            m_vulkan_api->getSwapchainInfo().extent.width * m_vulkan_api->getSwapchainInfo().extent.height * 16;
+        VkBuffer       inefficient_staging_buffer1;
+        VkDeviceMemory inefficient_staging_buffer_memory1;
+        m_vulkan_api->createBuffer(buffer_size1,
+                                   VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+                                   VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                                   inefficient_staging_buffer1,
+                                   inefficient_staging_buffer_memory1);
 
         // Image Layout Transformation
-        VkImageMemoryBarrier copy_to_buffer_barrier {};
-        copy_to_buffer_barrier.sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-        copy_to_buffer_barrier.pNext               = nullptr;
-        copy_to_buffer_barrier.srcAccessMask       = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-        copy_to_buffer_barrier.dstAccessMask       = VK_ACCESS_TRANSFER_READ_BIT;
-        copy_to_buffer_barrier.oldLayout           = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-        copy_to_buffer_barrier.newLayout           = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-        copy_to_buffer_barrier.srcQueueFamilyIndex = m_vulkan_api->getQueueFamilyIndices().graphics_family.value();
-        copy_to_buffer_barrier.dstQueueFamilyIndex = m_vulkan_api->getQueueFamilyIndices().graphics_family.value();
-        copy_to_buffer_barrier.image               = m_framebuffer.attachments[0].image;
-        copy_to_buffer_barrier.subresourceRange    = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
+        VkImageMemoryBarrier copy_to_buffer_barrier0 {};
+        copy_to_buffer_barrier0.sType                = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+        copy_to_buffer_barrier0.pNext                = nullptr;
+        copy_to_buffer_barrier0.srcAccessMask        = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        copy_to_buffer_barrier0.dstAccessMask        = VK_ACCESS_TRANSFER_READ_BIT;
+        copy_to_buffer_barrier0.oldLayout            = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+        copy_to_buffer_barrier0.newLayout            = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+        copy_to_buffer_barrier0.srcQueueFamilyIndex  = m_vulkan_api->getQueueFamilyIndices().graphics_family.value();
+        copy_to_buffer_barrier0.dstQueueFamilyIndex  = m_vulkan_api->getQueueFamilyIndices().graphics_family.value();
+        copy_to_buffer_barrier0.image                = m_framebuffer.attachments[0].image;
+        copy_to_buffer_barrier0.subresourceRange     = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
+        VkImageMemoryBarrier copy_to_buffer_barrier1 = copy_to_buffer_barrier0;
+        copy_to_buffer_barrier1.image                = m_framebuffer.attachments[1].image;
+        VkImageMemoryBarrier barrier[2]              = {copy_to_buffer_barrier0, copy_to_buffer_barrier1};
         vkCmdPipelineBarrier(command_buffer,
                              VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
                              VK_PIPELINE_STAGE_TRANSFER_BIT,
@@ -704,27 +772,44 @@ namespace VKernel
                              nullptr,
                              0,
                              nullptr,
-                             1,
-                             &copy_to_buffer_barrier);
+                             2,
+                             barrier);
 
         // image copy buffer
-        VkBufferImageCopy region {};
-        region.bufferOffset                    = 0;
-        region.bufferRowLength                 = 0;
-        region.bufferImageHeight               = 0;
-        region.imageSubresource.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
-        region.imageSubresource.mipLevel       = 0;
-        region.imageSubresource.baseArrayLayer = 0;
-        region.imageSubresource.layerCount     = 1;
-        region.imageOffset                     = {0, 0, 0};
-        region.imageExtent                     = {
+        VkBufferImageCopy region0 {};
+        region0.bufferOffset                    = 0;
+        region0.bufferRowLength                 = 0;
+        region0.bufferImageHeight               = 0;
+        region0.imageSubresource.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+        region0.imageSubresource.mipLevel       = 0;
+        region0.imageSubresource.baseArrayLayer = 0;
+        region0.imageSubresource.layerCount     = 1;
+        region0.imageOffset                     = {0, 0, 0};
+        region0.imageExtent                     = {
             m_vulkan_api->getSwapchainInfo().extent.width, m_vulkan_api->getSwapchainInfo().extent.height, 1};
         vkCmdCopyImageToBuffer(command_buffer,
                                m_framebuffer.attachments[0].image,
                                VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                               inefficient_staging_buffer,
+                               inefficient_staging_buffer0,
                                1,
-                               &region);
+                               &region0);
+        VkBufferImageCopy region1 {};
+        region1.bufferOffset                    = 0;
+        region1.bufferRowLength                 = 0;
+        region1.bufferImageHeight               = 0;
+        region1.imageSubresource.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+        region1.imageSubresource.mipLevel       = 0;
+        region1.imageSubresource.baseArrayLayer = 0;
+        region1.imageSubresource.layerCount     = 1;
+        region1.imageOffset                     = {0, 0, 0};
+        region1.imageExtent                     = {
+            m_vulkan_api->getSwapchainInfo().extent.width, m_vulkan_api->getSwapchainInfo().extent.height, 1};
+        vkCmdCopyImageToBuffer(command_buffer,
+                               m_framebuffer.attachments[1].image,
+                               VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                               inefficient_staging_buffer1,
+                               1,
+                               &region1);
 
         // end command buffer
         m_vulkan_api->endSingleTimeCommands(command_buffer);
@@ -732,14 +817,23 @@ namespace VKernel
         // read guid data
         uint32_t* data = nullptr;
         vkMapMemory(
-            m_vulkan_api->getLogicDevice(), inefficient_staging_buffer_memory, 0, buffer_size, 0, (void**)&data);
+            m_vulkan_api->getLogicDevice(), inefficient_staging_buffer_memory0, 0, buffer_size, 0, (void**)&data);
         uint32_t node_id = data[picked_pixel_index];
-        vkUnmapMemory(m_vulkan_api->getLogicDevice(), inefficient_staging_buffer_memory);
+        vkUnmapMemory(m_vulkan_api->getLogicDevice(), inefficient_staging_buffer_memory0);
+
+        Vector4* data1 = nullptr;
+        vkMapMemory(
+            m_vulkan_api->getLogicDevice(), inefficient_staging_buffer_memory1, 0, buffer_size1, 0, (void**)&data1);
+        Vector4 vec4 = data1[picked_pixel_index];
+        vkUnmapMemory(m_vulkan_api->getLogicDevice(), inefficient_staging_buffer_memory1);
+        g_runtime_global_context.m_render_system->setPos(vec4);
 
         // destory staging
-        vkDestroyBuffer(m_vulkan_api->getLogicDevice(), inefficient_staging_buffer, nullptr);
-        vkFreeMemory(m_vulkan_api->getLogicDevice(), inefficient_staging_buffer_memory, nullptr);
+        vkDestroyBuffer(m_vulkan_api->getLogicDevice(), inefficient_staging_buffer0, nullptr);
+        vkFreeMemory(m_vulkan_api->getLogicDevice(), inefficient_staging_buffer_memory0, nullptr);
+        vkDestroyBuffer(m_vulkan_api->getLogicDevice(), inefficient_staging_buffer1, nullptr);
+        vkFreeMemory(m_vulkan_api->getLogicDevice(), inefficient_staging_buffer_memory1, nullptr);
 
-        return node_id;
+        return {node_id, vec4};
     }
 } // namespace VKernel

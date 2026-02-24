@@ -50,8 +50,8 @@ namespace ReCoder
 
     void EditorInputManager::onCursorPos(double xpos, double ypos)
     {
-        if (!VKernel::g_is_editor_mode)
-            return;
+        // if (!VKernel::g_is_editor_mode)
+        //     return;
 
         if (g_editor_global_context.m_window_system->isMouseButtonDown(GLFW_MOUSE_BUTTON_RIGHT)) ///< mouse right
         {
@@ -124,8 +124,8 @@ namespace ReCoder
 
     void EditorInputManager::onMouseButtonClicked(int key, int action)
     {
-        if (!VKernel::g_is_editor_mode)
-            return;
+        // if (!VKernel::g_is_editor_mode)
+        //     return;
 
         if (m_cursor_on_axis != 3)
             return;
@@ -145,10 +145,11 @@ namespace ReCoder
                                            (m_mouse_y - m_engine_window_pos.y) / m_engine_window_size.y);
 
                 // get uv summesh guid
-                size_t select_mesh_id = g_editor_global_context.m_scene_manager->getGuidOfPickedMesh(picked_uv);
+                std::pair<uint32_t, VKernel::Vector4> pick_result =
+                    g_editor_global_context.m_scene_manager->getGuidOfPickedMesh(picked_uv);
 
                 // get object id
-                size_t gobject_id = g_editor_global_context.m_render_system->getGObjectIDByMeshID(select_mesh_id);
+                size_t gobject_id = g_editor_global_context.m_render_system->getGObjectIDByMeshID(pick_result.first);
                 g_editor_global_context.m_render_system->setGOId((uint32_t)gobject_id);
 
                 // update object

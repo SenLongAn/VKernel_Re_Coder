@@ -44,7 +44,7 @@ namespace ReCoder
 
         // get
         std::shared_ptr<VKernel::RenderCamera> getEditorCamera() { return m_camera; };
-        size_t                                 getGuidOfPickedMesh(const VKernel::Vector2& picked_uv) const;
+        std::pair<uint32_t, VKernel::Vector4>  getGuidOfPickedMesh(const VKernel::Vector2& picked_uv) const;
         VKernel::GObjectID                     getSelectedObjectID() { return m_selected_gobject_id; };
         std::weak_ptr<VKernel::GObject>        getSelectedGObject() const;
         EditorAxisMode                         getEditorAxisMode() { return m_axis_mode; }

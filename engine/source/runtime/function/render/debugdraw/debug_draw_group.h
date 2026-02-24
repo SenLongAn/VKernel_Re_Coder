@@ -20,6 +20,12 @@ namespace VKernel
         void clearData();    ///< clear
 
         // add
+        void addLine(const Vector4&   color,
+                     const Vector3&   v0,
+                     const Vector3&   v1,
+                     const Transform& model,
+                     const bool&      is_depth_test = true);
+
         void addTriangle(const Vector4&       color,
                          const Transform&     model,
                          const PrimitiveType& primitive_type = PrimitiveType::_Primitive_triangle,
@@ -57,6 +63,7 @@ namespace VKernel
                         const TextureType&   texture_type   = TextureType::UNDEFINED);
 
         // get
+        size_t getLinesCount() const;
         size_t getTriangleCount() const;
         size_t getQuadCount() const;
         size_t getBoxCount() const;
@@ -67,6 +74,8 @@ namespace VKernel
         // The input parameter that writes the vertex data
         void writeVertexData(std::vector<DebugDrawVertex>& vertexs);
 
+        void writeLineVertexData(std::vector<DebugDrawVertex>& vertexs);
+
         // The input parameter that writes the indice data
         void writeIndiceData(std::vector<uint16_t>& indices);
 
@@ -74,11 +83,13 @@ namespace VKernel
         std::vector<size_t> writeUniformDynamicDataToCache(std::vector<std::tuple<Matrix4x4, Vector4, uint32_t>>& datas,
                                                            const PrimitiveType& primity_type,
                                                            const bool&          is_depth_test);
+        void writeUniformDynamicDataToCacheLines(std::vector<std::tuple<Matrix4x4, Vector4, uint32_t>>& datas);
 
     private:
         std::mutex m_mutex; ///< shared data
 
         // primitive group
+        std::list<DebugDrawLine>     m_lines;
         std::list<DebugDrawTriangle> m_triangles;
         std::list<DebugDrawQuad>     m_quads;
         std::list<DebugDrawBox>      m_boxes;

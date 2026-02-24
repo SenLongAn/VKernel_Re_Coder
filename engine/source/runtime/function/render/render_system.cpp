@@ -14,6 +14,7 @@
 #include "runtime/resource/asset_manager/asset_manager.h"
 #include "runtime/resource/config_manager/config_manager.h"
 
+#include "render_system.h"
 #include <iostream>
 
 namespace VKernel
@@ -142,7 +143,7 @@ namespace VKernel
 
     std::shared_ptr<RenderResourceBase> RenderSystem::getRenderResource() const { return m_render_resource; }
 
-    uint32_t RenderSystem::getGuidOfPickedMesh(const Vector2& picked_uv)
+    std::pair<uint32_t, Vector4> RenderSystem::getGuidOfPickedMesh(const Vector2& picked_uv)
     {
         return m_render_pipeline->getGuidOfPickedMesh(picked_uv);
     }
@@ -165,6 +166,8 @@ namespace VKernel
     std::shared_ptr<RenderPipelineBase> RenderSystem::getRenderPipline() const { return m_render_pipeline; }
 
     uint32_t RenderSystem::getGOId() const { return m_selected_go_id; }
+
+    Vector4 RenderSystem::getPos() const { return m_selected_pos; }
 
     void RenderSystem::setVisibleAxis(std::optional<RenderEntity> axis)
     {

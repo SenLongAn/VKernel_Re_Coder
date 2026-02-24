@@ -24,7 +24,7 @@ namespace VKernel
         void passUpdateAfterRecreateSwapchain(); ///< destory and recreate framebuffer
 
         // get
-        virtual uint32_t getGuidOfPickedMesh(const Vector2& picked_uv) override final;
+        virtual std::pair<uint32_t, Vector4> getGuidOfPickedMesh(const Vector2& picked_uv) override final;
 
         // set
         void setAxisVisibleState(bool state); ///< set axis visible

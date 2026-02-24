@@ -20,20 +20,29 @@ namespace VKernel
         void tick();             ///< tick
         void destory();          ///< clear
         void clear();            ///< clear
+        void clearLines();       ///< clear
         void clearBuffer();      ///< clear buffer
+        void clearBufferLines(); ///< clear buffer
 
         // Fill the data into the cache
-        void   cacheVertexs(const std::vector<DebugDrawVertex>& vertexs); ///< vertex data
-        void   cacheIndices(const std::vector<uint16_t>& indices);        ///< indice data
-        void   cacheUniformObject(Matrix4x4 proj_view_matrix);            ///< ubo
+        void   cacheVertexs(const std::vector<DebugDrawVertex>& vertexs);      ///< vertex data
+        void   cacheVertexsLines(const std::vector<DebugDrawVertex>& vertexs); ///< vertex data
+        void   cacheIndices(const std::vector<uint16_t>& indices);             ///< indice data
+        void   cacheUniformObject(Matrix4x4 proj_view_matrix);                 ///< ubo
         size_t cacheUniformDynamicObject(const std::vector<std::tuple<Matrix4x4, Vector4, uint32_t>>& datas); ///< udbo
+        size_t
+        cacheUniformDynamicObjectLines(const std::vector<std::tuple<Matrix4x4, Vector4, uint32_t>>& datas); ///< udbo
 
         void allocator(); ///< Fill the memory and buffer with data
+
+        void allocatorLines(); ///< Fill the memory and buffer with data
 
         // get
         VkBuffer        getIndiceBuffer() const;
         VkDescriptorSet getDescriptorSet() const;
+        VkDescriptorSet getDescriptorSetLines() const;
         VkBuffer        getVertexBuffer() const;
+        VkBuffer        getVertexBufferLines() const;
         const size_t    getSizeOfUniformBufferObject() const;
         size_t          getVertexCacheOffset() const;
 
@@ -50,6 +59,9 @@ namespace VKernel
         // vertex
         Resource                     m_vertex_resource;
         std::vector<DebugDrawVertex> m_vertex_cache;
+
+        Resource                     m_vertex_resource_lines;
+        std::vector<DebugDrawVertex> m_vertex_cache_lines;
 
         // indice
         Resource              m_indice_resource;
@@ -72,12 +84,15 @@ namespace VKernel
         };
         Resource                                m_uniform_dynamic_resource;
         std::vector<UniformBufferDynamicObject> m_uniform_buffer_dynamic_object_cache;
+        Resource                                m_uniform_dynamic_resource_lines;
+        std::vector<UniformBufferDynamicObject> m_uniform_buffer_dynamic_object_cache_lines;
 
         // descriptor: layout and set
         struct Descriptor
         {
             VkDescriptorSetLayout        layout;
             std::vector<VkDescriptorSet> descriptor_set;
+            std::vector<VkDescriptorSet> descriptor_set_lines;
         };
 
         Descriptor m_descriptor;
@@ -99,6 +114,7 @@ namespace VKernel
         void setupDescriptorSet();
         void prepareDescriptorSet();
         void updateDescriptorSet();
+        void updateDescriptorSetLines();
 
         void flushPendingDelete(); ///< deferred delete
     };

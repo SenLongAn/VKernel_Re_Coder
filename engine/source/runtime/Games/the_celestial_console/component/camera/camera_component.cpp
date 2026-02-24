@@ -3,18 +3,21 @@
 #include "runtime/core/base/macro.h"
 
 #include "runtime/Games/the_celestial_console/component/motor/motor_component.h"
+#include "runtime/Games/the_celestial_console/control_cabin.h"
+
+#include "runtime/core/math/vector3.h"
+#include "runtime/core/math/vector4.h"
 #include "runtime/function/character/character.h"
 #include "runtime/function/framework/component/transform/transform_component.h"
 #include "runtime/function/framework/level/level.h"
 #include "runtime/function/framework/world/world_manager.h"
 #include "runtime/function/global/global_context.h"
 #include "runtime/function/input/input_system.h"
+#include "runtime/function/render/debugdraw/debug_draw_manager.h"
 #include "runtime/function/render/render_camera.h"
 #include "runtime/function/render/render_swap_context.h"
 #include "runtime/function/render/render_system.h"
 #include "runtime/function/render/window_system.h"
-
-#include "runtime/Games/the_celestial_console/control_cabin.h"
 
 #include <iostream>
 
@@ -68,6 +71,19 @@ namespace Games
             default:
                 break;
         }
+
+        // ray
+        VKernel::Vector3 world_pos(VKernel::g_runtime_global_context.m_render_system->getPos().x,
+                                   VKernel::g_runtime_global_context.m_render_system->getPos().y,
+                                   VKernel::g_runtime_global_context.m_render_system->getPos().z);
+        VKernel::g_runtime_global_context.m_render_system->getRenderPipline()
+            ->getDebugManager()
+            ->getDebugDrawGroup()
+            ->addLine(VKernel::Vector4(0.0f, 1.0f, 0.0f, 1.0f),
+                      std::static_pointer_cast<Games::ControlCabin>(current_character)->getPosition(),
+                      world_pos,
+                      VKernel::Transform(
+                          VKernel::Vector3::ZERO, VKernel::Quaternion::IDENTITY, VKernel::Vector3::UNIT_SCALE));
     }
 
     std::pair<VKernel::Radian, VKernel::Radian> CameraComponent::calculateCursorDeltaAngles(double delta_x,

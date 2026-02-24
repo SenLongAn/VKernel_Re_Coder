@@ -98,6 +98,9 @@ namespace VKernel
     {
         prepareDrawBuffer();                            ///< prepare buffer
         drawSolidObject(current_swapchain_image_index); ///< render
+        prepareDrawBufferLines();
+
+        drawLinesObject(current_swapchain_image_index);
     }
 
     void DebugDrawManager::prepareDrawBuffer()
@@ -149,6 +152,26 @@ namespace VKernel
 
         // Create a buffer and bind it to the description
         m_buffer_allocator->allocator();
+    }
+
+    void DebugDrawManager::prepareDrawBufferLines()
+    {
+        // clear buffer
+        m_buffer_allocator->clearLines();
+
+        // write data to the cache
+        // vbo
+        std::vector<DebugDrawVertex> vertexs;
+        m_debug_draw_group_for_render.writeLineVertexData(vertexs);
+        m_buffer_allocator->cacheVertexsLines(vertexs);
+
+        // udbo
+        std::vector<std::tuple<Matrix4x4, Vector4, uint32_t>> dynamicObject = {};
+        m_debug_draw_group_for_render.writeUniformDynamicDataToCacheLines(dynamicObject);
+        m_buffer_allocator->cacheUniformDynamicObjectLines(dynamicObject);
+
+        // Create a buffer and bind it to the description
+        m_buffer_allocator->allocatorLines();
     }
 
     void DebugDrawManager::drawSolidObject(uint32_t current_swapchain_image_index)
@@ -253,6 +276,49 @@ namespace VKernel
                     }
                 }
             }
+        }
+    }
+
+    void DebugDrawManager::drawLinesObject(uint32_t current_swapchain_image_index)
+    {
+        // bind vertex buffer
+        VkBuffer vertex_has_indice_buffers[] = {m_buffer_allocator->getVertexBufferLines()};
+        if (vertex_has_indice_buffers[0] == nullptr)
+        {
+            return;
+        }
+        VkDeviceSize offsets[] = {0};
+        vkCmdBindVertexBuffers(m_vulkan_api->getCurrentCommandBuffer(), 0, 1, vertex_has_indice_buffers, offsets);
+        uint32_t vertexOffset = 0;
+
+        // dynamicOffset
+        size_t uniform_dynamic_size = m_buffer_allocator->getSizeOfUniformBufferObject();
+        dynamicOffset               = 0;
+
+        // Bind Pipeline
+        DebugDrawPipeline* vc_pipelines = m_debug_draw_pipeline[DebugDrawPipelineType::_debug_draw_pipeline_type_line];
+        vkCmdBindPipeline(m_vulkan_api->getCurrentCommandBuffer(),
+                          VK_PIPELINE_BIND_POINT_GRAPHICS,
+                          vc_pipelines->getPipeline().pipeline);
+
+        for (size_t i = 0; i < m_debug_draw_group_for_render.getLinesCount(); i++) ///< Iterative line
+        {
+            // bind DescriptorSet
+            VkDescriptorSet descriptorSet = m_buffer_allocator->getDescriptorSetLines();
+            vkCmdBindDescriptorSets(m_vulkan_api->getCurrentCommandBuffer(),
+                                    VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                    vc_pipelines->getPipeline().layout,
+                                    0,
+                                    1,
+                                    &descriptorSet,
+                                    1,
+                                    &dynamicOffset);
+            dynamicOffset += uniform_dynamic_size;
+
+            // drawcall
+
+            vkCmdDraw(m_vulkan_api->getCurrentCommandBuffer(), 2, 1, vertexOffset, 0);
+            vertexOffset += 2;
         }
     }
 } // namespace VKernel

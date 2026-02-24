@@ -19,12 +19,15 @@ layout(set = 0, binding = 1) readonly buffer _unused_name_perdrawcall
 layout(location = 0) in vec3 in_position;
 
 layout(location = 0) flat out highp uint out_nodeid;
+layout(location = 1) out highp vec4 out_pos;
 
 void main()
 {
     // MVP
     highp mat4 model_matrix = model_matrices[gl_InstanceIndex];
-    gl_Position             = proj_view_matrix * model_matrix * vec4(in_position, 1.0);
+    highp vec4 pos          = model_matrix * vec4(in_position, 1.0);
+    gl_Position             = proj_view_matrix * pos;
 
     out_nodeid = node_ids[gl_InstanceIndex];
+    out_pos    = pos;
 }

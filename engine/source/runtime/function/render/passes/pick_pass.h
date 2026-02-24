@@ -17,8 +17,8 @@ namespace VKernel
         void postInitialize() override final;                                                     ///< delay init
         void preparePassData(std::shared_ptr<RenderResourceBase> render_resource) override final; ///< load data
 
-        void     draw() override final;          /// draw
-        uint32_t pick(const Vector2& picked_uv); ///< draw
+        void                         draw() override final;          /// draw
+        std::pair<uint32_t, Vector4> pick(const Vector2& picked_uv); ///< draw
 
         void recreateFramebuffer(); ///< reset framebuffer
 

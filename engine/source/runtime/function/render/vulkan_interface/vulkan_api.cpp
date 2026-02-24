@@ -1001,6 +1001,7 @@ namespace VKernel
         physical_device_features.samplerAnisotropy        = VK_TRUE;
         physical_device_features.geometryShader           = VK_TRUE;
         physical_device_features.imageCubeArray           = VK_TRUE;
+        physical_device_features.independentBlend         = VK_TRUE;
         VkDeviceCreateInfo device_create_info {};
         device_create_info.sType                   = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
         device_create_info.pQueueCreateInfos       = queue_create_infos.data();
@@ -1098,7 +1099,7 @@ namespace VKernel
         pool_sizes[4].type            = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT; ///< Frame buffer attachment reading
         pool_sizes[4].descriptorCount = 4 + 1 + 1 + 2;
         pool_sizes[5].type            = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC; ///< ubo, Can be dynamically shifted
-        pool_sizes[5].descriptorCount = 3;
+        pool_sizes[5].descriptorCount = 4;
         pool_sizes[6].type            = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE; ///< Readable and writable images
         pool_sizes[6].descriptorCount = 1;
 

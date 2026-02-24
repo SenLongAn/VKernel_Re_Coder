@@ -36,17 +36,19 @@ namespace VKernel
         RenderSwapContext&                  getSwapContext();
         std::shared_ptr<RenderCamera>       getRenderCamera() const;
         std::shared_ptr<RenderResourceBase> getRenderResource() const;
-        uint32_t                            getGuidOfPickedMesh(const Vector2& picked_uv);
+        std::pair<uint32_t, Vector4>        getGuidOfPickedMesh(const Vector2& picked_uv);
         GObjectID                           getGObjectIDByMeshID(uint32_t mesh_id) const;
         GuidAllocator<GameObjectPartId>&    getGOInstanceIdAllocator();
         GuidAllocator<MeshSourceDesc>&      getMeshAssetIdAllocator();
         std::shared_ptr<RenderPipelineBase> getRenderPipline() const;
         uint32_t                            getGOId() const;
+        Vector4                             getPos() const;
 
         // set
         void setVisibleAxis(std::optional<RenderEntity> axis);
         void setSelectedAxis(size_t selected_axis);
         void setGOId(uint32_t selected_go_id) { m_selected_go_id = selected_go_id; }
+        void setPos(Vector4 selected_pos) { m_selected_pos = selected_pos; }
 
         //
         void swapLogicRenderData(); ///< swap Logic Render Data
@@ -66,6 +68,7 @@ namespace VKernel
         RENDER_PIPELINE_TYPE m_render_pipeline_type {RENDER_PIPELINE_TYPE::FORWARD_PIPELINE}; ///< render mode
 
         uint32_t m_selected_go_id = 0;
+        Vector4  m_selected_pos   = Vector4::ZERO;
 
         // direct management
         std::shared_ptr<VulkanAPI>          m_vulkan_api;

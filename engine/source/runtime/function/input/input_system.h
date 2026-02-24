@@ -1,6 +1,8 @@
 #pragma once
 
 #include "runtime/core/math/math_angle.h"
+#include "runtime/core/math/vector2.h"
+#include "runtime/core/math/vector3.h"
 
 /**
  * Manage user input data

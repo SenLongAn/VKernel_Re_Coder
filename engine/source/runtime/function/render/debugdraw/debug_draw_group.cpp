@@ -12,12 +12,35 @@ namespace VKernel
 
     void DebugDrawGroup::clearData()
     {
+        m_lines.clear();
         m_triangles.clear();
         m_quads.clear();
         m_boxes.clear();
         m_spheres.clear();
         m_cylinders.clear();
         m_capsules.clear();
+    }
+
+    void DebugDrawGroup::addLine(const Vector4&   color,
+                                 const Vector3&   v0,
+                                 const Vector3&   v1,
+                                 const Transform& model,
+                                 const bool&      is_depth_test)
+    {
+        std::lock_guard<std::mutex> guard(m_mutex);
+
+        DebugDrawLine line;
+
+        line.vertex0 = v0;
+        line.vertex1 = v1;
+
+        line.m_color = color,
+
+        line.m_model = model;
+
+        line.m_is_depth_test = is_depth_test;
+
+        m_lines.push_back(line);
     }
 
     void DebugDrawGroup::addTriangle(const Vector4&       color,
@@ -157,6 +180,16 @@ namespace VKernel
         capsule.m_texture_type = texture_type;
 
         m_capsules.push_back(capsule);
+    }
+
+    size_t DebugDrawGroup::getLinesCount() const
+    {
+        size_t line_count = 0;
+        for (const DebugDrawLine line : m_lines)
+        {
+            line_count++;
+        }
+        return line_count;
     }
 
     size_t DebugDrawGroup::getTriangleCount() const
@@ -648,6 +681,19 @@ namespace VKernel
         vertexs[index++].texcoord = Vector2(0.5f, 1.0f);
     }
 
+    void DebugDrawGroup::writeLineVertexData(std::vector<DebugDrawVertex>& vertexs)
+    {
+        vertexs.resize(m_lines.size() * 2);
+        int index = 0;
+        for (auto line : m_lines)
+        {
+            vertexs[index].pos        = line.vertex0;
+            vertexs[index++].texcoord = Vector2(-1.0f, -1.0f);
+            vertexs[index].pos        = line.vertex1;
+            vertexs[index++].texcoord = Vector2(-1.0f, -1.0f);
+        }
+    }
+
     void DebugDrawGroup::writeIndiceData(std::vector<uint16_t>& indices)
     {
         // This is only used for triangle primitives, not for point and line primitives.
@@ -896,5 +942,14 @@ namespace VKernel
         last_size = datas.size();
 
         return mesh_count;
+    }
+
+    void
+    DebugDrawGroup::writeUniformDynamicDataToCacheLines(std::vector<std::tuple<Matrix4x4, Vector4, uint32_t>>& datas)
+    {
+        for (DebugDrawLine line : m_lines)
+        {
+            datas.push_back(std::make_tuple(line.m_model.getMatrix(), line.m_color, line.m_texture_type));
+        }
     }
 } // namespace VKernel

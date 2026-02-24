@@ -228,7 +228,7 @@ namespace VKernel
         // m_debugdraw_manager->updateAfterRecreateSwapchain();
     }
 
-    uint32_t RenderPipeline::getGuidOfPickedMesh(const Vector2& picked_uv)
+    std::pair<uint32_t, Vector4> RenderPipeline::getGuidOfPickedMesh(const Vector2& picked_uv)
     {
         PickPass& pick_pass = *(static_cast<PickPass*>(m_pick_pass.get()));
         return pick_pass.pick(picked_uv);
