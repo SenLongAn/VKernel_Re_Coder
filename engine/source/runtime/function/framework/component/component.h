@@ -23,6 +23,6 @@ namespace VKernel
         virtual void tick(float delta_time) {}; ///< tick
 
     protected:
-        std::weak_ptr<GObject> m_parent_object; ///< Component所属对象
+        std::weak_ptr<GObject> m_parent_object;
     };
 } // namespace VKernel

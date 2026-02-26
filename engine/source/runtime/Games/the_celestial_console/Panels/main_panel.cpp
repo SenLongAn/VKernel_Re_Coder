@@ -30,31 +30,31 @@ namespace Games
         VkViewport viewport =
             VKernel::g_runtime_global_context.m_render_system->getVulkanAPI()->getSwapchainInfo().viewport;
 
-        ImGui::SetNextWindowPos(ImVec2(viewport.x, viewport.y), ImGuiCond_Always);
-        ImGui::SetNextWindowSize(ImVec2(viewport.width, viewport.height), ImGuiCond_Always);
+        ImGui::SetNextWindowPos(ImVec2(viewport.x + viewport.width / 10.0f * 2, viewport.y), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(viewport.width / 10.0f * 6, viewport.height), ImGuiCond_Always);
 
         ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoDocking |
                                         ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize;
         bool isOpen = true;
-        ImGui::Begin("new window", &isOpen, window_flags);
+        ImGui::Begin("MainPanel", &isOpen, window_flags);
 
         // text:
-        ImGui::SetCursorPosX(viewport.width / 10.0f * 3);
+        ImGui::SetCursorPosX(viewport.width / 10.0f * 1);
         ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Direction:");
         ImGui::SameLine();
-        ImGui::SetCursorPosX(viewport.width / 10.0f * 4);
+        ImGui::SetCursorPosX(viewport.width / 10.0f * 2);
         ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Temperature:");
         ImGui::SameLine();
-        ImGui::SetCursorPosX(viewport.width / 10.0f * 5);
+        ImGui::SetCursorPosX(viewport.width / 10.0f * 3);
         ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Sunlight:");
         ImGui::SameLine();
-        ImGui::SetCursorPosX(viewport.width / 10.0f * 6);
+        ImGui::SetCursorPosX(viewport.width / 10.0f * 4);
         ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "FrameRate:");
         ImGui::SameLine();
 
         // button
         ImVec2 buttonSize(40, 30);
-        ImVec2 buttonPos(viewport.width / 10.0F * 7, viewport.height / 100.0f);
+        ImVec2 buttonPos(viewport.width / 10.0F * 5, viewport.height / 100.0f);
         ImGui::SetCursorPos(buttonPos);
         if (!isPanelOpen)
         {
@@ -75,7 +75,7 @@ namespace Games
         DrawCrosshairShape();
 
         // log
-        ImGui::SetCursorPos(ImVec2(viewport.width / 10.0f * 3.5, viewport.height - viewport.height / 10.0f * 1.4));
+        ImGui::SetCursorPos(ImVec2(viewport.width / 10.0f * 1.5, viewport.height - viewport.height / 10.0f * 1.4));
 
         ImGui::BeginChild("LogRegion", ImVec2(0, 150), false);
 

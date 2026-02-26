@@ -3,6 +3,7 @@
 
 namespace VKernel
 {
+    bool WindowUI::isPanelOpen = false;
 
     int WindowUIFactory::index = 0;
 

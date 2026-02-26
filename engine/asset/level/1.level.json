@@ -48,8 +48,8 @@
                     "z": 0.0
                   },
                   "scale": {
-                    "x": 10,
-                    "y": 17,
+                    "x": 1,
+                    "y": 1.7,
                     "z": 1.0
                   },
                   "is_serialization": true

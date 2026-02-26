@@ -80,6 +80,7 @@ namespace ReCoder
         std::shared_ptr<VKernel::GObject> selected_gobject = getSelectedGObject().lock();
         if (selected_gobject)
         {
+            VKernel::g_runtime_global_context.m_render_system->setGo(selected_gobject);
             // get TransformComponent matrix
             VKernel::TransformComponent* transform_component =
                 selected_gobject->tryGetComponent(VKernel::TransformComponent, "TransformComponent");

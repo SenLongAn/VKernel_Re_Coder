@@ -24,6 +24,9 @@ namespace VKernel
     class WindowUI
     {
     public:
+        static bool isPanelOpen;
+
+    public:
         WindowUI() = default;
         WindowUI(bool isGameMode);
         virtual void initialize(WindowUIInitInfo init_info) = 0;

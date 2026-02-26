@@ -169,6 +169,8 @@ namespace VKernel
 
     Vector4 RenderSystem::getPos() const { return m_selected_pos; }
 
+    std::shared_ptr<GObject> RenderSystem::getGO() const { return m_selected_GO; }
+
     void RenderSystem::setVisibleAxis(std::optional<RenderEntity> axis)
     {
         m_render_scene->m_render_axis = axis;

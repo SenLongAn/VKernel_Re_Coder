@@ -10,8 +10,6 @@ namespace Games
     class MainPanel : public VKernel::WindowUI
     {
         WINDOWUI_CLASS(MainPanel)
-    public:
-        bool isPanelOpen = false;
 
     public:
         MainPanel(bool isGameMode) { m_only_game_mode = isGameMode; }

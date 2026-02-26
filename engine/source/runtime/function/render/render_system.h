@@ -1,5 +1,6 @@
 #pragma once
 
+#include "runtime/function/framework/object/object.h"
 #include "runtime/function/render/render_entity.h"
 #include "runtime/function/render/render_guid_allocator.h"
 #include "runtime/function/render/render_pipeline_base.h"
@@ -43,12 +44,14 @@ namespace VKernel
         std::shared_ptr<RenderPipelineBase> getRenderPipline() const;
         uint32_t                            getGOId() const;
         Vector4                             getPos() const;
+        std::shared_ptr<GObject>            getGO() const;
 
         // set
         void setVisibleAxis(std::optional<RenderEntity> axis);
         void setSelectedAxis(size_t selected_axis);
         void setGOId(uint32_t selected_go_id) { m_selected_go_id = selected_go_id; }
         void setPos(Vector4 selected_pos) { m_selected_pos = selected_pos; }
+        void setGo(std::shared_ptr<GObject> selected_go) { m_selected_GO = selected_go; }
 
         //
         void swapLogicRenderData(); ///< swap Logic Render Data
@@ -67,8 +70,9 @@ namespace VKernel
     private:
         RENDER_PIPELINE_TYPE m_render_pipeline_type {RENDER_PIPELINE_TYPE::FORWARD_PIPELINE}; ///< render mode
 
-        uint32_t m_selected_go_id = 0;
-        Vector4  m_selected_pos   = Vector4::ZERO;
+        uint32_t                 m_selected_go_id = 0;
+        Vector4                  m_selected_pos   = Vector4::ZERO;
+        std::shared_ptr<GObject> m_selected_GO;
 
         // direct management
         std::shared_ptr<VulkanAPI>          m_vulkan_api;
