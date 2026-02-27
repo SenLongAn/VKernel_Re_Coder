@@ -30,6 +30,7 @@
                         {
                             "material": "asset/objects/environment/_material/gold.material.json",
                             "obj_file_ref": "asset/objects/environment/wall/components/mesh/wall.obj",
+                            "color": {"x": 1.0, "y": 1.0, "z": 1.0},
                             "transform": {
                                 "position": {
                                     "x": 0,

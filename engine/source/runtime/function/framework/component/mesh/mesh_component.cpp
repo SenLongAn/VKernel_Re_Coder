@@ -48,6 +48,7 @@ namespace VKernel
             // write transform
             auto object_space_transform                       = sub_mesh.m_transform.getMatrix();
             meshComponent.m_transform_desc.m_transform_matrix = object_space_transform;
+            meshComponent.m_color                             = sub_mesh.m_color;
 
             // add count
             ++raw_mesh_count;
@@ -71,6 +72,7 @@ namespace VKernel
             mesh_part.m_transform_desc.m_transform_matrix =
                 transform_component->getMatrix() *
                 object_transform_matrix; ///< Parent Object Transform * Submesh Relative Transform
+            mesh_part.m_color = m_mesh_res.m_sub_meshes[0].m_color;
 
             dirty_mesh_parts.push_back(mesh_part); ///< add
 

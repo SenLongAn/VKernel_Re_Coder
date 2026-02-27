@@ -24,6 +24,11 @@ namespace TypeFieldReflectionOparator{
             return count;
         }
         // fields
+        static const char* getFieldName_m_color(){ return "m_color";}
+        static const char* getFieldTypeName_m_color(){ return "Vector3";}
+        static void set_m_color(void* instance, void* field_value){ static_cast<VKernel::SubMeshRes*>(instance)->m_color = *static_cast<Vector3*>(field_value);}
+        static void* get_m_color(void* instance){ return static_cast<void*>(&(static_cast<VKernel::SubMeshRes*>(instance)->m_color));}
+        static bool isArray_m_color(){ return false; }
         static const char* getFieldName_m_obj_file_ref(){ return "m_obj_file_ref";}
         static const char* getFieldTypeName_m_obj_file_ref(){ return "std::string";}
         static void set_m_obj_file_ref(void* instance, void* field_value){ static_cast<VKernel::SubMeshRes*>(instance)->m_obj_file_ref = *static_cast<std::string*>(field_value);}
@@ -47,6 +52,14 @@ namespace TypeFieldReflectionOparator{
 
 
     void TypeWrapperRegister_SubMeshRes(){
+        FieldFunctionTuple* field_function_tuple_m_color=new FieldFunctionTuple(
+            &TypeFieldReflectionOparator::TypeSubMeshResOperator::set_m_color,
+            &TypeFieldReflectionOparator::TypeSubMeshResOperator::get_m_color,
+            &TypeFieldReflectionOparator::TypeSubMeshResOperator::getClassName,
+            &TypeFieldReflectionOparator::TypeSubMeshResOperator::getFieldName_m_color,
+            &TypeFieldReflectionOparator::TypeSubMeshResOperator::getFieldTypeName_m_color,
+            &TypeFieldReflectionOparator::TypeSubMeshResOperator::isArray_m_color);
+        REGISTER_FIELD_TO_MAP("SubMeshRes", field_function_tuple_m_color);
         FieldFunctionTuple* field_function_tuple_m_obj_file_ref=new FieldFunctionTuple(
             &TypeFieldReflectionOparator::TypeSubMeshResOperator::set_m_obj_file_ref,
             &TypeFieldReflectionOparator::TypeSubMeshResOperator::get_m_obj_file_ref,

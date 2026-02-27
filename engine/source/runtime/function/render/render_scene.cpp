@@ -183,6 +183,7 @@ namespace VKernel
             temp_node.ref_mesh                = &mesh_asset;
             VulkanPBRMaterial& material_asset = render_resource->getEntityMaterial(entity); ///< material
             temp_node.ref_material            = &material_asset;
+            temp_node.color                   = entity.m_color;
 
             addBoundingBox(entity.m_model_matrix, entity.m_bounding_box, entity.m_instance_id);
         }

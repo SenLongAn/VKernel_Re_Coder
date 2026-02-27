@@ -2231,6 +2231,7 @@ namespace VKernel
         struct MeshNode
         {
             const Matrix4x4* model_matrix {nullptr};
+            Vector3          color = Vector3::ZERO;
         };
 
         std::map<VulkanPBRMaterial*, std::map<VulkanMesh*, std::vector<MeshNode>>> main_camera_mesh_drawcall_batch;
@@ -2242,6 +2243,7 @@ namespace VKernel
 
             MeshNode temp;
             temp.model_matrix = node.model_matrix;
+            temp.color        = node.color;
 
             mesh_nodes.push_back(temp);
         }
@@ -2366,6 +2368,9 @@ namespace VKernel
                             perdrawcall_storage_buffer_object.mesh_instances[i].model_matrix =
                                 *mesh_nodes[drawcall_max_instance_count * drawcall_index + i]
                                      .model_matrix; ///< write data to buffer
+                            perdrawcall_storage_buffer_object.mesh_instances[i].color =
+                                mesh_nodes[drawcall_max_instance_count * drawcall_index + i]
+                                    .color; ///< write data to buffer
                         }
 
                         // Bind DescriptorSet

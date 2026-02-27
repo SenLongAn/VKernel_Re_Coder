@@ -25,6 +25,7 @@ namespace VKernel
     {
     public:
         static bool isPanelOpen;
+        static bool selected_object;
 
     public:
         WindowUI() = default;

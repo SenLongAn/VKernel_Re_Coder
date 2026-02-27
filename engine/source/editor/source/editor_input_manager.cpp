@@ -12,6 +12,7 @@
 #include "runtime/function/render/render_camera.h"
 #include "runtime/function/render/render_system.h"
 #include "runtime/function/render/window_system.h"
+#include "runtime/function/ui/window_ui.h"
 
 #include "runtime/core/math/math_headers.h"
 
@@ -138,7 +139,7 @@ namespace ReCoder
 
         if (isCursorInRect(m_engine_window_pos, m_engine_window_size)) ///< Is it in the game window?
         {
-            if (key == GLFW_MOUSE_BUTTON_LEFT) ///< click left button
+            if (key == GLFW_MOUSE_BUTTON_LEFT && VKernel::WindowUI::selected_object) ///< click left button
             {
                 // uv: 0--1
                 VKernel::Vector2 picked_uv((m_mouse_x - m_engine_window_pos.x) / m_engine_window_size.x,

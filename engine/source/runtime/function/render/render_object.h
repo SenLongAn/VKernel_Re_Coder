@@ -45,6 +45,7 @@ namespace VKernel
         GameObjectMaterialDesc m_material_desc;
 
         GameObjectTransformDesc m_transform_desc; ///< Relative transformation
+        Vector3                 m_color = Vector3::UNIT_SCALE;
     };
 
     constexpr size_t k_invalid_part_id = std::numeric_limits<size_t>::max(); ///< invalid value

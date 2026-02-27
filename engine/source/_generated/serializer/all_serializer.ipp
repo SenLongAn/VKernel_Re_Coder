@@ -556,6 +556,7 @@ namespace VKernel{
         ret_context.insert_or_assign("mesh_desc", Serializer::write(instance.m_mesh_desc));
         ret_context.insert_or_assign("material_desc", Serializer::write(instance.m_material_desc));
         ret_context.insert_or_assign("transform_desc", Serializer::write(instance.m_transform_desc));
+        ret_context.insert_or_assign("color", Serializer::write(instance.m_color));
         return  Json(ret_context);
     }
     template<>
@@ -570,6 +571,9 @@ namespace VKernel{
         }
         if(!json_context["transform_desc"].is_null()){
             Serializer::read(json_context["transform_desc"], instance.m_transform_desc);
+        }
+        if(!json_context["color"].is_null()){
+            Serializer::read(json_context["color"], instance.m_color);
         }
         return instance;
     }
@@ -703,6 +707,7 @@ namespace VKernel{
     Json Serializer::write(const VKernel::SubMeshRes& instance){
         Json::object  ret_context;
         
+        ret_context.insert_or_assign("color", Serializer::write(instance.m_color));
         ret_context.insert_or_assign("obj_file_ref", Serializer::write(instance.m_obj_file_ref));
         ret_context.insert_or_assign("transform", Serializer::write(instance.m_transform));
         ret_context.insert_or_assign("material", Serializer::write(instance.m_material));
@@ -712,6 +717,9 @@ namespace VKernel{
     VKernel::SubMeshRes& Serializer::read(const Json& json_context, VKernel::SubMeshRes& instance){
         assert(json_context.is_object());
         
+        if(!json_context["color"].is_null()){
+            Serializer::read(json_context["color"], instance.m_color);
+        }
         if(!json_context["obj_file_ref"].is_null()){
             Serializer::read(json_context["obj_file_ref"], instance.m_obj_file_ref);
         }

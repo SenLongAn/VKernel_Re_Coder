@@ -78,6 +78,8 @@ namespace VKernel
     struct VulkanMeshInstance ///< Instantiate the properties of each object
     {
         Matrix4x4 model_matrix; ///< M
+        Vector3   color;
+        float     _padding_color;
     };
 
     struct MeshDirectionalLightShadowPerdrawcallStorageBufferObject
@@ -169,6 +171,7 @@ namespace VKernel
         const Matrix4x4*   model_matrix {nullptr};
         VulkanMesh*        ref_mesh {nullptr};
         VulkanPBRMaterial* ref_material {nullptr};
+        Vector3            color = Vector3::ZERO;
     };
 
     struct RenderAxisNode ///< axis data

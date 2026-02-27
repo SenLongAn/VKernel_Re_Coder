@@ -11,6 +11,7 @@ namespace VKernel
         REFLECTION_BODY(SubMeshRes);
 
     public:
+        Vector3            m_color = Vector3::UNIT_SCALE;
         std::string        m_obj_file_ref; // OBJ file path
         VKernel::Transform m_transform;    // Relative transformation
         std::string        m_material;     // Material JSON file path

@@ -265,6 +265,7 @@ namespace VKernel
 
                     render_entity.m_model_matrix =
                         game_object_part.m_transform_desc.m_transform_matrix; ///< set entity model matrix
+                    render_entity.m_color = game_object_part.m_color;
 
                     // load vertex data
                     MeshSourceDesc mesh_source = {game_object_part.m_mesh_desc.m_mesh_file};

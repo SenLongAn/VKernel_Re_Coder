@@ -203,6 +203,11 @@ namespace TypeFieldReflectionOparator{
         static void set_m_transform_desc(void* instance, void* field_value){ static_cast<VKernel::GameObjectPartDesc*>(instance)->m_transform_desc = *static_cast<GameObjectTransformDesc*>(field_value);}
         static void* get_m_transform_desc(void* instance){ return static_cast<void*>(&(static_cast<VKernel::GameObjectPartDesc*>(instance)->m_transform_desc));}
         static bool isArray_m_transform_desc(){ return false; }
+        static const char* getFieldName_m_color(){ return "m_color";}
+        static const char* getFieldTypeName_m_color(){ return "Vector3";}
+        static void set_m_color(void* instance, void* field_value){ static_cast<VKernel::GameObjectPartDesc*>(instance)->m_color = *static_cast<Vector3*>(field_value);}
+        static void* get_m_color(void* instance){ return static_cast<void*>(&(static_cast<VKernel::GameObjectPartDesc*>(instance)->m_color));}
+        static bool isArray_m_color(){ return false; }
 
         // methods
         
@@ -235,6 +240,14 @@ namespace TypeFieldReflectionOparator{
             &TypeFieldReflectionOparator::TypeGameObjectPartDescOperator::getFieldTypeName_m_transform_desc,
             &TypeFieldReflectionOparator::TypeGameObjectPartDescOperator::isArray_m_transform_desc);
         REGISTER_FIELD_TO_MAP("GameObjectPartDesc", field_function_tuple_m_transform_desc);
+        FieldFunctionTuple* field_function_tuple_m_color=new FieldFunctionTuple(
+            &TypeFieldReflectionOparator::TypeGameObjectPartDescOperator::set_m_color,
+            &TypeFieldReflectionOparator::TypeGameObjectPartDescOperator::get_m_color,
+            &TypeFieldReflectionOparator::TypeGameObjectPartDescOperator::getClassName,
+            &TypeFieldReflectionOparator::TypeGameObjectPartDescOperator::getFieldName_m_color,
+            &TypeFieldReflectionOparator::TypeGameObjectPartDescOperator::getFieldTypeName_m_color,
+            &TypeFieldReflectionOparator::TypeGameObjectPartDescOperator::isArray_m_color);
+        REGISTER_FIELD_TO_MAP("GameObjectPartDesc", field_function_tuple_m_color);
 
         
         

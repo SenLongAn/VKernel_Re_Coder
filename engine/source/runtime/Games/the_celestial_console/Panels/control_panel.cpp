@@ -7,6 +7,7 @@
 #include "runtime/function/global/global_context.h"
 #include "runtime/function/render/render_system.h"
 #include "runtime/resource/config_manager/config_manager.h"
+#include "runtime/resource/res_type/components/mesh.h"
 
 #include "control_panel.h"
 #include <imgui.h>
@@ -36,7 +37,9 @@ namespace Games
             {
                 if (g_editor_node_state_array[g_node_depth - 1].second) ///< Parent node expanded
                 {
-                    node_state = ImGui::TreeNodeEx(name.c_str(), ImGuiTreeNodeFlags_SpanFullWidth); ///< Create Node
+                    node_state = ImGui::TreeNodeEx(name.c_str(),
+                                                   ImGuiTreeNodeFlags_SpanFullWidth |
+                                                       ImGuiTreeNodeFlags_DefaultOpen); ///< Create Node
                 }
                 else
                 {
@@ -46,7 +49,8 @@ namespace Games
             }
             else ///< If it is a root node
             {
-                node_state = ImGui::TreeNodeEx(name.c_str(), ImGuiTreeNodeFlags_SpanFullWidth);
+                node_state =
+                    ImGui::TreeNodeEx(name.c_str(), ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_DefaultOpen);
             }
             g_editor_node_state_array.emplace_back(std::pair(name.c_str(), node_state));
         };
@@ -137,20 +141,30 @@ namespace Games
         ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 1.0f), "Control Panel");
 
         // get selected object
-        std::shared_ptr<VKernel::GObject> selected_object = VKernel::g_runtime_global_context.m_render_system->getGO();
+        std::shared_ptr<VKernel::GObject> selected_go = VKernel::g_runtime_global_context.m_render_system->getGO();
         std::shared_ptr<VKernel::Level>   current_level =
             VKernel::g_runtime_global_context.m_world_manager->getCurrentActiveLevel().lock();
         std::shared_ptr<VKernel::Character> current_character = current_level->getCurrentActiveCharacter().lock();
 
-        if (selected_object == nullptr ||
-            (current_character != nullptr && current_character->getObject().lock() == selected_object))
+        if (selected_go == nullptr ||
+            (current_character != nullptr && current_character->getObject().lock() == selected_go))
         {
             ImGui::End();
             ImGui::PopStyleColor();
             return;
         }
-        auto&& selected_object_components = selected_object->getComponents(); ///< get Components
-        for (auto component_ptr : selected_object_components)                 ///< iterate
+
+        if (ImGui::IsWindowHovered() || ImGui::IsAnyItemHovered())
+        {
+            selected_object = false;
+        }
+        else
+        {
+            selected_object = true;
+        }
+
+        auto&& selected_object_components = selected_go->getComponents(); ///< get Components
+        for (auto component_ptr : selected_object_components)             ///< iterate
         {
             std::string str = component_ptr.getTypeName();
             if (str == "TransformComponent")
@@ -163,6 +177,33 @@ namespace Games
                     component_ptr.operator->());
 
                 createLeafNodeUI(object_instance);
+
+                m_functions["TreeNodePop"](("<" + component_ptr.getTypeName() + ">").c_str(), nullptr); ///< pop
+            }
+            if (str == "MeshComponent")
+            {
+                m_functions["TreeNodePush"](("<" + component_ptr.getTypeName() + ">").c_str(),
+                                            nullptr); ///< push treenode
+
+                auto object_instance = VKernel::Reflection::ReflectionInstance(
+                    VKernel::Reflection::TypeMeta::newMetaFromName(component_ptr.getTypeName().c_str()),
+                    component_ptr.operator->());
+                VKernel::Reflection::FieldAccessor* fields;
+                int                                 fields_count = object_instance.m_meta.getFieldsList(fields);
+                for (size_t index = 0; index < fields_count; index++)
+                {
+                    auto field = fields[index];
+
+                    VKernel::MeshComponentRes* mesh_com_ptr =
+                        static_cast<VKernel::MeshComponentRes*>(field.get(object_instance.m_instance));
+                    VKernel::Vector3& vec3 = mesh_com_ptr->m_sub_meshes[0].m_color;
+
+                    float myColor[3] = {vec3.x, vec3.y, vec3.z};
+                    ImGui::ColorPicker3("My Color", myColor);
+                    vec3.x = myColor[0];
+                    vec3.y = myColor[1];
+                    vec3.z = myColor[2];
+                }
 
                 m_functions["TreeNodePop"](("<" + component_ptr.getTypeName() + ">").c_str(), nullptr); ///< pop
             }
