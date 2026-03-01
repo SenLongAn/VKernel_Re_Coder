@@ -208,6 +208,16 @@ namespace TypeFieldReflectionOparator{
         static void set_m_color(void* instance, void* field_value){ static_cast<VKernel::GameObjectPartDesc*>(instance)->m_color = *static_cast<Vector3*>(field_value);}
         static void* get_m_color(void* instance){ return static_cast<void*>(&(static_cast<VKernel::GameObjectPartDesc*>(instance)->m_color));}
         static bool isArray_m_color(){ return false; }
+        static const char* getFieldName_m_apply_lighting(){ return "m_apply_lighting";}
+        static const char* getFieldTypeName_m_apply_lighting(){ return "Vector3";}
+        static void set_m_apply_lighting(void* instance, void* field_value){ static_cast<VKernel::GameObjectPartDesc*>(instance)->m_apply_lighting = *static_cast<Vector3*>(field_value);}
+        static void* get_m_apply_lighting(void* instance){ return static_cast<void*>(&(static_cast<VKernel::GameObjectPartDesc*>(instance)->m_apply_lighting));}
+        static bool isArray_m_apply_lighting(){ return false; }
+        static const char* getFieldName_m_apply_texture(){ return "m_apply_texture";}
+        static const char* getFieldTypeName_m_apply_texture(){ return "int";}
+        static void set_m_apply_texture(void* instance, void* field_value){ static_cast<VKernel::GameObjectPartDesc*>(instance)->m_apply_texture = *static_cast<int*>(field_value);}
+        static void* get_m_apply_texture(void* instance){ return static_cast<void*>(&(static_cast<VKernel::GameObjectPartDesc*>(instance)->m_apply_texture));}
+        static bool isArray_m_apply_texture(){ return false; }
 
         // methods
         
@@ -248,6 +258,22 @@ namespace TypeFieldReflectionOparator{
             &TypeFieldReflectionOparator::TypeGameObjectPartDescOperator::getFieldTypeName_m_color,
             &TypeFieldReflectionOparator::TypeGameObjectPartDescOperator::isArray_m_color);
         REGISTER_FIELD_TO_MAP("GameObjectPartDesc", field_function_tuple_m_color);
+        FieldFunctionTuple* field_function_tuple_m_apply_lighting=new FieldFunctionTuple(
+            &TypeFieldReflectionOparator::TypeGameObjectPartDescOperator::set_m_apply_lighting,
+            &TypeFieldReflectionOparator::TypeGameObjectPartDescOperator::get_m_apply_lighting,
+            &TypeFieldReflectionOparator::TypeGameObjectPartDescOperator::getClassName,
+            &TypeFieldReflectionOparator::TypeGameObjectPartDescOperator::getFieldName_m_apply_lighting,
+            &TypeFieldReflectionOparator::TypeGameObjectPartDescOperator::getFieldTypeName_m_apply_lighting,
+            &TypeFieldReflectionOparator::TypeGameObjectPartDescOperator::isArray_m_apply_lighting);
+        REGISTER_FIELD_TO_MAP("GameObjectPartDesc", field_function_tuple_m_apply_lighting);
+        FieldFunctionTuple* field_function_tuple_m_apply_texture=new FieldFunctionTuple(
+            &TypeFieldReflectionOparator::TypeGameObjectPartDescOperator::set_m_apply_texture,
+            &TypeFieldReflectionOparator::TypeGameObjectPartDescOperator::get_m_apply_texture,
+            &TypeFieldReflectionOparator::TypeGameObjectPartDescOperator::getClassName,
+            &TypeFieldReflectionOparator::TypeGameObjectPartDescOperator::getFieldName_m_apply_texture,
+            &TypeFieldReflectionOparator::TypeGameObjectPartDescOperator::getFieldTypeName_m_apply_texture,
+            &TypeFieldReflectionOparator::TypeGameObjectPartDescOperator::isArray_m_apply_texture);
+        REGISTER_FIELD_TO_MAP("GameObjectPartDesc", field_function_tuple_m_apply_texture);
 
         
         

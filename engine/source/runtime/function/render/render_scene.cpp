@@ -184,6 +184,8 @@ namespace VKernel
             VulkanPBRMaterial& material_asset = render_resource->getEntityMaterial(entity); ///< material
             temp_node.ref_material            = &material_asset;
             temp_node.color                   = entity.m_color;
+            temp_node.apply_lighting          = entity.m_apply_lighting;
+            temp_node.apply_texture           = entity.m_apply_texture;
 
             addBoundingBox(entity.m_model_matrix, entity.m_bounding_box, entity.m_instance_id);
         }

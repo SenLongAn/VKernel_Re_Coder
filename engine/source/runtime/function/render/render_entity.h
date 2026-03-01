@@ -21,6 +21,8 @@ namespace VKernel
         // mesh
         Matrix4x4 m_model_matrix {Matrix4x4::IDENTITY};
         Vector3   m_color {Vector3::ZERO};
+        Vector3   m_apply_lighting {Vector3::ZERO};
+        int       m_apply_texture = 0;
 
         // bounding box(local)
         AxisAlignedBox m_bounding_box;

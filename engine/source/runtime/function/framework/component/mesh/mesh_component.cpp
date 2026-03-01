@@ -48,7 +48,23 @@ namespace VKernel
             // write transform
             auto object_space_transform                       = sub_mesh.m_transform.getMatrix();
             meshComponent.m_transform_desc.m_transform_matrix = object_space_transform;
-            meshComponent.m_color                             = sub_mesh.m_color;
+            meshComponent.m_color                             = m_mesh_res.m_color;
+            if (m_mesh_res.m_apply_lighting)
+            {
+                meshComponent.m_apply_lighting = Vector3::UNIT_SCALE;
+            }
+            else
+            {
+                meshComponent.m_apply_lighting = Vector3::ZERO;
+            }
+            if (m_mesh_res.m_apply_texture)
+            {
+                meshComponent.m_apply_texture = 1;
+            }
+            else
+            {
+                meshComponent.m_apply_texture = 0;
+            }
 
             // add count
             ++raw_mesh_count;
@@ -72,7 +88,23 @@ namespace VKernel
             mesh_part.m_transform_desc.m_transform_matrix =
                 transform_component->getMatrix() *
                 object_transform_matrix; ///< Parent Object Transform * Submesh Relative Transform
-            mesh_part.m_color = m_mesh_res.m_sub_meshes[0].m_color;
+            mesh_part.m_color = m_mesh_res.m_color;
+            if (m_mesh_res.m_apply_lighting)
+            {
+                mesh_part.m_apply_lighting = Vector3::UNIT_SCALE;
+            }
+            else
+            {
+                mesh_part.m_apply_lighting = Vector3::ZERO;
+            }
+            if (m_mesh_res.m_apply_texture)
+            {
+                mesh_part.m_apply_texture = 1;
+            }
+            else
+            {
+                mesh_part.m_apply_texture = 0;
+            }
 
             dirty_mesh_parts.push_back(mesh_part); ///< add
 

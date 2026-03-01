@@ -80,6 +80,12 @@ namespace VKernel
         Matrix4x4 model_matrix; ///< M
         Vector3   color;
         float     _padding_color;
+        Vector3   apply_lighting;
+        float     _padding_apply_lighting;
+        int       apply_texture;
+        float     _padding_texture_1;
+        float     _padding_texture_2;
+        float     _padding_texture_3;
     };
 
     struct MeshDirectionalLightShadowPerdrawcallStorageBufferObject
@@ -171,7 +177,9 @@ namespace VKernel
         const Matrix4x4*   model_matrix {nullptr};
         VulkanMesh*        ref_mesh {nullptr};
         VulkanPBRMaterial* ref_material {nullptr};
-        Vector3            color = Vector3::ZERO;
+        Vector3            color          = Vector3::ZERO;
+        Vector3            apply_lighting = Vector3::ZERO;
+        int                apply_texture  = 0;
     };
 
     struct RenderAxisNode ///< axis data

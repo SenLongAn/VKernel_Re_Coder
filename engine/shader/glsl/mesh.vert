@@ -55,6 +55,8 @@ layout(location = 1) out vec3 out_normal;
 layout(location = 2) out vec3 out_tangent;
 layout(location = 3) out vec2 out_texcoord;
 layout(location = 4) out vec3 out_color;
+layout(location = 5) out vec3 out_apply_lighting;
+layout(location = 6) out int out_apply_texture;
 
 void main()
 {
@@ -68,4 +70,6 @@ void main()
     out_tangent           = normalize(tangent_matrix * in_tangent);
     out_texcoord          = in_texcoord;
     out_color             = mesh_instances[gl_InstanceIndex].color;
+    out_apply_lighting    = mesh_instances[gl_InstanceIndex].apply_lighting;
+    out_apply_texture     = mesh_instances[gl_InstanceIndex].apply_texture;
 }

@@ -54,6 +54,8 @@ layout(location = 1) in highp vec3 in_normal;
 layout(location = 2) in highp vec3 in_tangent;
 layout(location = 3) in highp vec2 in_texcoord;
 layout(location = 4) in highp vec3 in_color;
+layout(location = 5) in highp vec3 in_apply_lighting;
+layout(location = 6) in flat highp int in_apply_texture;
 
 // read in fragnormal (from vertex shader)
 layout(location = 0) out highp vec4 out_scene_color;
@@ -75,11 +77,20 @@ highp vec3 calculateNormal()
 
 void main()
 {
-    highp vec3  N           = calculateNormal();
-    highp vec3  V           = normalize(camera_position - in_world_position);
-    highp vec3  objectColor = texture(base_color_texture_sampler, in_texcoord).xyz;
-    highp float metallic    = 0.5;
-    highp float roughness   = 0.51;
+    highp vec3 N = calculateNormal();
+    highp vec3 V = normalize(camera_position - in_world_position);
+
+    highp vec3 objectColor;
+    if (in_apply_texture == 1)
+    {
+        objectColor = texture(base_color_texture_sampler, in_texcoord).xyz;
+    }
+    else
+    {
+        objectColor = vec3(0.5, 0.5, 0.5);
+    }
+    highp float metallic  = 0.5;
+    highp float roughness = 0.5;
 
     highp vec3 result_color = vec3(0.0, 0.0, 0.0);
 

@@ -196,13 +196,18 @@ namespace Games
 
                     VKernel::MeshComponentRes* mesh_com_ptr =
                         static_cast<VKernel::MeshComponentRes*>(field.get(object_instance.m_instance));
-                    VKernel::Vector3& vec3 = mesh_com_ptr->m_sub_meshes[0].m_color;
+                    VKernel::Vector3& color = mesh_com_ptr->m_color;
 
-                    float myColor[3] = {vec3.x, vec3.y, vec3.z};
-                    ImGui::ColorPicker3("My Color", myColor);
-                    vec3.x = myColor[0];
-                    vec3.y = myColor[1];
-                    vec3.z = myColor[2];
+                    float myColor[3] = {color.x, color.y, color.z};
+                    ImGui::ColorPicker3("Color", myColor);
+                    color.x = myColor[0];
+                    color.y = myColor[1];
+                    color.z = myColor[2];
+
+                    bool& apply_lighting = mesh_com_ptr->m_apply_lighting;
+                    ImGui::Checkbox("Apply Lighting", &apply_lighting);
+                    bool& apply_texture = mesh_com_ptr->m_apply_texture;
+                    ImGui::Checkbox("Apply Texture", &apply_texture);
                 }
 
                 m_functions["TreeNodePop"](("<" + component_ptr.getTypeName() + ">").c_str(), nullptr); ///< pop

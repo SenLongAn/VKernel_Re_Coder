@@ -2231,7 +2231,9 @@ namespace VKernel
         struct MeshNode
         {
             const Matrix4x4* model_matrix {nullptr};
-            Vector3          color = Vector3::ZERO;
+            Vector3          color          = Vector3::ZERO;
+            Vector3          apply_lighting = Vector3::ZERO;
+            int              apply_texture  = 0;
         };
 
         std::map<VulkanPBRMaterial*, std::map<VulkanMesh*, std::vector<MeshNode>>> main_camera_mesh_drawcall_batch;
@@ -2242,8 +2244,10 @@ namespace VKernel
             auto& mesh_nodes     = mesh_instanced[node.ref_mesh];
 
             MeshNode temp;
-            temp.model_matrix = node.model_matrix;
-            temp.color        = node.color;
+            temp.model_matrix   = node.model_matrix;
+            temp.color          = node.color;
+            temp.apply_lighting = node.apply_lighting;
+            temp.apply_texture  = node.apply_texture;
 
             mesh_nodes.push_back(temp);
         }
@@ -2371,6 +2375,12 @@ namespace VKernel
                             perdrawcall_storage_buffer_object.mesh_instances[i].color =
                                 mesh_nodes[drawcall_max_instance_count * drawcall_index + i]
                                     .color; ///< write data to buffer
+                            perdrawcall_storage_buffer_object.mesh_instances[i].apply_lighting =
+                                mesh_nodes[drawcall_max_instance_count * drawcall_index + i]
+                                    .apply_lighting; ///< write data to buffer
+                            perdrawcall_storage_buffer_object.mesh_instances[i].apply_texture =
+                                mesh_nodes[drawcall_max_instance_count * drawcall_index + i]
+                                    .apply_texture; ///< write data to buffer
                         }
 
                         // Bind DescriptorSet

@@ -24,11 +24,6 @@ namespace TypeFieldReflectionOparator{
             return count;
         }
         // fields
-        static const char* getFieldName_m_color(){ return "m_color";}
-        static const char* getFieldTypeName_m_color(){ return "Vector3";}
-        static void set_m_color(void* instance, void* field_value){ static_cast<VKernel::SubMeshRes*>(instance)->m_color = *static_cast<Vector3*>(field_value);}
-        static void* get_m_color(void* instance){ return static_cast<void*>(&(static_cast<VKernel::SubMeshRes*>(instance)->m_color));}
-        static bool isArray_m_color(){ return false; }
         static const char* getFieldName_m_obj_file_ref(){ return "m_obj_file_ref";}
         static const char* getFieldTypeName_m_obj_file_ref(){ return "std::string";}
         static void set_m_obj_file_ref(void* instance, void* field_value){ static_cast<VKernel::SubMeshRes*>(instance)->m_obj_file_ref = *static_cast<std::string*>(field_value);}
@@ -52,14 +47,6 @@ namespace TypeFieldReflectionOparator{
 
 
     void TypeWrapperRegister_SubMeshRes(){
-        FieldFunctionTuple* field_function_tuple_m_color=new FieldFunctionTuple(
-            &TypeFieldReflectionOparator::TypeSubMeshResOperator::set_m_color,
-            &TypeFieldReflectionOparator::TypeSubMeshResOperator::get_m_color,
-            &TypeFieldReflectionOparator::TypeSubMeshResOperator::getClassName,
-            &TypeFieldReflectionOparator::TypeSubMeshResOperator::getFieldName_m_color,
-            &TypeFieldReflectionOparator::TypeSubMeshResOperator::getFieldTypeName_m_color,
-            &TypeFieldReflectionOparator::TypeSubMeshResOperator::isArray_m_color);
-        REGISTER_FIELD_TO_MAP("SubMeshRes", field_function_tuple_m_color);
         FieldFunctionTuple* field_function_tuple_m_obj_file_ref=new FieldFunctionTuple(
             &TypeFieldReflectionOparator::TypeSubMeshResOperator::set_m_obj_file_ref,
             &TypeFieldReflectionOparator::TypeSubMeshResOperator::get_m_obj_file_ref,
@@ -112,6 +99,21 @@ namespace TypeFieldReflectionOparator{
             return count;
         }
         // fields
+        static const char* getFieldName_m_color(){ return "m_color";}
+        static const char* getFieldTypeName_m_color(){ return "Vector3";}
+        static void set_m_color(void* instance, void* field_value){ static_cast<VKernel::MeshComponentRes*>(instance)->m_color = *static_cast<Vector3*>(field_value);}
+        static void* get_m_color(void* instance){ return static_cast<void*>(&(static_cast<VKernel::MeshComponentRes*>(instance)->m_color));}
+        static bool isArray_m_color(){ return false; }
+        static const char* getFieldName_m_apply_lighting(){ return "m_apply_lighting";}
+        static const char* getFieldTypeName_m_apply_lighting(){ return "bool";}
+        static void set_m_apply_lighting(void* instance, void* field_value){ static_cast<VKernel::MeshComponentRes*>(instance)->m_apply_lighting = *static_cast<bool*>(field_value);}
+        static void* get_m_apply_lighting(void* instance){ return static_cast<void*>(&(static_cast<VKernel::MeshComponentRes*>(instance)->m_apply_lighting));}
+        static bool isArray_m_apply_lighting(){ return false; }
+        static const char* getFieldName_m_apply_texture(){ return "m_apply_texture";}
+        static const char* getFieldTypeName_m_apply_texture(){ return "bool";}
+        static void set_m_apply_texture(void* instance, void* field_value){ static_cast<VKernel::MeshComponentRes*>(instance)->m_apply_texture = *static_cast<bool*>(field_value);}
+        static void* get_m_apply_texture(void* instance){ return static_cast<void*>(&(static_cast<VKernel::MeshComponentRes*>(instance)->m_apply_texture));}
+        static bool isArray_m_apply_texture(){ return false; }
         static const char* getFieldName_m_sub_meshes(){ return "m_sub_meshes";}
         static const char* getFieldTypeName_m_sub_meshes(){ return "std::vector<SubMeshRes>";}
         static void set_m_sub_meshes(void* instance, void* field_value){ static_cast<VKernel::MeshComponentRes*>(instance)->m_sub_meshes = *static_cast<std::vector<SubMeshRes>*>(field_value);}
@@ -146,6 +148,30 @@ namespace ArrayReflectionOperator{
 }//namespace ArrayReflectionOperator
 
     void TypeWrapperRegister_MeshComponentRes(){
+        FieldFunctionTuple* field_function_tuple_m_color=new FieldFunctionTuple(
+            &TypeFieldReflectionOparator::TypeMeshComponentResOperator::set_m_color,
+            &TypeFieldReflectionOparator::TypeMeshComponentResOperator::get_m_color,
+            &TypeFieldReflectionOparator::TypeMeshComponentResOperator::getClassName,
+            &TypeFieldReflectionOparator::TypeMeshComponentResOperator::getFieldName_m_color,
+            &TypeFieldReflectionOparator::TypeMeshComponentResOperator::getFieldTypeName_m_color,
+            &TypeFieldReflectionOparator::TypeMeshComponentResOperator::isArray_m_color);
+        REGISTER_FIELD_TO_MAP("MeshComponentRes", field_function_tuple_m_color);
+        FieldFunctionTuple* field_function_tuple_m_apply_lighting=new FieldFunctionTuple(
+            &TypeFieldReflectionOparator::TypeMeshComponentResOperator::set_m_apply_lighting,
+            &TypeFieldReflectionOparator::TypeMeshComponentResOperator::get_m_apply_lighting,
+            &TypeFieldReflectionOparator::TypeMeshComponentResOperator::getClassName,
+            &TypeFieldReflectionOparator::TypeMeshComponentResOperator::getFieldName_m_apply_lighting,
+            &TypeFieldReflectionOparator::TypeMeshComponentResOperator::getFieldTypeName_m_apply_lighting,
+            &TypeFieldReflectionOparator::TypeMeshComponentResOperator::isArray_m_apply_lighting);
+        REGISTER_FIELD_TO_MAP("MeshComponentRes", field_function_tuple_m_apply_lighting);
+        FieldFunctionTuple* field_function_tuple_m_apply_texture=new FieldFunctionTuple(
+            &TypeFieldReflectionOparator::TypeMeshComponentResOperator::set_m_apply_texture,
+            &TypeFieldReflectionOparator::TypeMeshComponentResOperator::get_m_apply_texture,
+            &TypeFieldReflectionOparator::TypeMeshComponentResOperator::getClassName,
+            &TypeFieldReflectionOparator::TypeMeshComponentResOperator::getFieldName_m_apply_texture,
+            &TypeFieldReflectionOparator::TypeMeshComponentResOperator::getFieldTypeName_m_apply_texture,
+            &TypeFieldReflectionOparator::TypeMeshComponentResOperator::isArray_m_apply_texture);
+        REGISTER_FIELD_TO_MAP("MeshComponentRes", field_function_tuple_m_apply_texture);
         FieldFunctionTuple* field_function_tuple_m_sub_meshes=new FieldFunctionTuple(
             &TypeFieldReflectionOparator::TypeMeshComponentResOperator::set_m_sub_meshes,
             &TypeFieldReflectionOparator::TypeMeshComponentResOperator::get_m_sub_meshes,

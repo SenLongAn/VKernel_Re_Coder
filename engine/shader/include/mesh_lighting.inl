@@ -99,5 +99,5 @@ for (highp int light_index = 0; light_index < int(point_light_num) && light_inde
     }
 }
 
-result_color = La + Lo + Libl;
+result_color = La + Lo * in_apply_lighting + Libl * in_apply_lighting;
 result_color = filmic(result_color);
