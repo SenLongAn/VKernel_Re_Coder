@@ -19,19 +19,19 @@ namespace VKernel
     {
         // init point
         m_point_light_shadow_pass = std::make_shared<PointLightShadowPass>();
-        m_directional_light_pass  = std::make_shared<DirectionalLightShadowPass>();
-        m_main_camera_pass        = std::make_shared<MainCameraPass>();
-        m_color_grading_pass      = std::make_shared<ColorGradingPass>();
-        m_tone_mapping_pass       = std::make_shared<ToneMappingPass>();
-        m_ui_pass                 = std::make_shared<UIPass>();
-        m_combine_ui_pass         = std::make_shared<CombineUIPass>();
-        m_fxaa_pass               = std::make_shared<FXAAPass>();
-        m_pick_pass               = std::make_shared<PickPass>();
-        m_debugdraw_manager       = std::make_shared<DebugDrawManager>();
+        m_directional_light_pass = std::make_shared<DirectionalLightShadowPass>();
+        m_main_camera_pass = std::make_shared<MainCameraPass>();
+        m_color_grading_pass = std::make_shared<ColorGradingPass>();
+        m_tone_mapping_pass = std::make_shared<ToneMappingPass>();
+        m_ui_pass = std::make_shared<UIPass>();
+        m_combine_ui_pass = std::make_shared<CombineUIPass>();
+        m_fxaa_pass = std::make_shared<FXAAPass>();
+        m_pick_pass = std::make_shared<PickPass>();
+        m_debugdraw_manager = std::make_shared<DebugDrawManager>();
 
         // init info
         RenderPassCommonInfo pass_common_info;
-        pass_common_info.vulkan_api      = m_vulkan_api;
+        pass_common_info.vulkan_api = m_vulkan_api;
         pass_common_info.render_resource = init_info.render_resource;
 
         m_point_light_shadow_pass->setCommonInfo(pass_common_info);
@@ -78,12 +78,11 @@ namespace VKernel
         UIPassInitInfo ui_init_info;
         ui_init_info.render_pass = _main_camera_pass->getRenderPass(); ///< get RenderPass from main camera pass
         m_ui_pass->initialize(&ui_init_info);
-        m_ui_pass->initializeUIRenderBackend();
-
         VKernel::WindowUIInitInfo window_ui_init_info = {VKernel::g_runtime_global_context.m_window_system,
                                                          VKernel::g_runtime_global_context.m_render_system};
         g_runtime_global_context.m_window_ui_manager->registerUIs();
         g_runtime_global_context.m_window_ui_manager->initUIs(window_ui_init_info);
+        m_ui_pass->initializeUIRenderBackend();
 
         CombineUIPassInitInfo combine_ui_init_info;
         combine_ui_init_info.render_pass = _main_camera_pass->getRenderPass();
@@ -107,11 +106,11 @@ namespace VKernel
         m_debugdraw_manager->initialize(&debug_init_info);
     }
 
-    void RenderPipeline::forwardRender(std::shared_ptr<VulkanAPI>          vulkan_api,
+    void RenderPipeline::forwardRender(std::shared_ptr<VulkanAPI> vulkan_api,
                                        std::shared_ptr<RenderResourceBase> render_resource)
     {
         // reset ring buffer offset
-        RenderResource* vulkan_resource = static_cast<RenderResource*>(render_resource.get());
+        RenderResource *vulkan_resource = static_cast<RenderResource *>(render_resource.get());
 
         vulkan_resource->resetRingBufferOffset(vulkan_api->getCurrentFrameIndex());
 
@@ -134,17 +133,17 @@ namespace VKernel
         }
 
         // begin render
-        static_cast<DirectionalLightShadowPass*>(m_directional_light_pass.get())
+        static_cast<DirectionalLightShadowPass *>(m_directional_light_pass.get())
             ->draw(); ///< directional light pass shadow
-        static_cast<PointLightShadowPass*>(m_point_light_shadow_pass.get())->draw();
+        static_cast<PointLightShadowPass *>(m_point_light_shadow_pass.get())->draw();
 
-        ColorGradingPass& color_grading_pass = *(static_cast<ColorGradingPass*>(m_color_grading_pass.get()));
-        ToneMappingPass&  tone_mapping_pass  = *(static_cast<ToneMappingPass*>(m_tone_mapping_pass.get()));
-        FXAAPass&         fxaa_pass          = *(static_cast<FXAAPass*>(m_fxaa_pass.get()));
-        UIPass&           ui_pass            = *(static_cast<UIPass*>(m_ui_pass.get()));
-        CombineUIPass&    combine_ui_pass    = *(static_cast<CombineUIPass*>(m_combine_ui_pass.get()));
+        ColorGradingPass &color_grading_pass = *(static_cast<ColorGradingPass *>(m_color_grading_pass.get()));
+        ToneMappingPass &tone_mapping_pass = *(static_cast<ToneMappingPass *>(m_tone_mapping_pass.get()));
+        FXAAPass &fxaa_pass = *(static_cast<FXAAPass *>(m_fxaa_pass.get()));
+        UIPass &ui_pass = *(static_cast<UIPass *>(m_ui_pass.get()));
+        CombineUIPass &combine_ui_pass = *(static_cast<CombineUIPass *>(m_combine_ui_pass.get()));
 
-        static_cast<MainCameraPass*>(m_main_camera_pass.get())
+        static_cast<MainCameraPass *>(m_main_camera_pass.get())
             ->drawForward(color_grading_pass,
                           tone_mapping_pass,
                           fxaa_pass,
@@ -156,11 +155,11 @@ namespace VKernel
         vulkan_api->submitRendering(std::bind(&RenderPipeline::passUpdateAfterRecreateSwapchain, this));
     }
 
-    void RenderPipeline::deferredRender(std::shared_ptr<VulkanAPI>          vulkan_api,
+    void RenderPipeline::deferredRender(std::shared_ptr<VulkanAPI> vulkan_api,
                                         std::shared_ptr<RenderResourceBase> render_resource)
     {
         // reset ring buffer offset
-        RenderResource* vulkan_resource = static_cast<RenderResource*>(render_resource.get());
+        RenderResource *vulkan_resource = static_cast<RenderResource *>(render_resource.get());
         vulkan_resource->resetRingBufferOffset(vulkan_api->getCurrentFrameIndex());
 
         // wait fence
@@ -182,17 +181,17 @@ namespace VKernel
         }
 
         // begin render
-        static_cast<DirectionalLightShadowPass*>(m_directional_light_pass.get())
+        static_cast<DirectionalLightShadowPass *>(m_directional_light_pass.get())
             ->draw(); ///< directional light pass shadow
-        static_cast<PointLightShadowPass*>(m_point_light_shadow_pass.get())->draw();
+        static_cast<PointLightShadowPass *>(m_point_light_shadow_pass.get())->draw();
 
-        ColorGradingPass& color_grading_pass = *(static_cast<ColorGradingPass*>(m_color_grading_pass.get()));
-        ToneMappingPass&  tone_mapping_pass  = *(static_cast<ToneMappingPass*>(m_tone_mapping_pass.get()));
-        FXAAPass&         fxaa_pass          = *(static_cast<FXAAPass*>(m_fxaa_pass.get()));
-        UIPass&           ui_pass            = *(static_cast<UIPass*>(m_ui_pass.get()));
-        CombineUIPass&    combine_ui_pass    = *(static_cast<CombineUIPass*>(m_combine_ui_pass.get()));
+        ColorGradingPass &color_grading_pass = *(static_cast<ColorGradingPass *>(m_color_grading_pass.get()));
+        ToneMappingPass &tone_mapping_pass = *(static_cast<ToneMappingPass *>(m_tone_mapping_pass.get()));
+        FXAAPass &fxaa_pass = *(static_cast<FXAAPass *>(m_fxaa_pass.get()));
+        UIPass &ui_pass = *(static_cast<UIPass *>(m_ui_pass.get()));
+        CombineUIPass &combine_ui_pass = *(static_cast<CombineUIPass *>(m_combine_ui_pass.get()));
 
-        static_cast<MainCameraPass*>(m_main_camera_pass.get())
+        static_cast<MainCameraPass *>(m_main_camera_pass.get())
             ->draw(color_grading_pass,
                    tone_mapping_pass,
                    fxaa_pass,
@@ -206,12 +205,12 @@ namespace VKernel
 
     void RenderPipeline::passUpdateAfterRecreateSwapchain()
     {
-        MainCameraPass&   main_camera_pass   = *(static_cast<MainCameraPass*>(m_main_camera_pass.get()));
-        ColorGradingPass& color_grading_pass = *(static_cast<ColorGradingPass*>(m_color_grading_pass.get()));
-        ToneMappingPass&  tone_mapping_pass  = *(static_cast<ToneMappingPass*>(m_tone_mapping_pass.get()));
-        FXAAPass&         fxaa_pass          = *(static_cast<FXAAPass*>(m_fxaa_pass.get()));
-        CombineUIPass&    combine_ui_pass    = *(static_cast<CombineUIPass*>(m_combine_ui_pass.get()));
-        PickPass&         pick_pass          = *(static_cast<PickPass*>(m_pick_pass.get()));
+        MainCameraPass &main_camera_pass = *(static_cast<MainCameraPass *>(m_main_camera_pass.get()));
+        ColorGradingPass &color_grading_pass = *(static_cast<ColorGradingPass *>(m_color_grading_pass.get()));
+        ToneMappingPass &tone_mapping_pass = *(static_cast<ToneMappingPass *>(m_tone_mapping_pass.get()));
+        FXAAPass &fxaa_pass = *(static_cast<FXAAPass *>(m_fxaa_pass.get()));
+        CombineUIPass &combine_ui_pass = *(static_cast<CombineUIPass *>(m_combine_ui_pass.get()));
+        PickPass &pick_pass = *(static_cast<PickPass *>(m_pick_pass.get()));
 
         main_camera_pass.updateAfterFramebufferRecreate();
         tone_mapping_pass.updateAfterFramebufferRecreate(
@@ -228,21 +227,21 @@ namespace VKernel
         // m_debugdraw_manager->updateAfterRecreateSwapchain();
     }
 
-    std::pair<uint32_t, Vector4> RenderPipeline::getGuidOfPickedMesh(const Vector2& picked_uv)
+    std::pair<uint32_t, Vector4> RenderPipeline::getGuidOfPickedMesh(const Vector2 &picked_uv)
     {
-        PickPass& pick_pass = *(static_cast<PickPass*>(m_pick_pass.get()));
+        PickPass &pick_pass = *(static_cast<PickPass *>(m_pick_pass.get()));
         return pick_pass.pick(picked_uv);
     }
 
     void RenderPipeline::setAxisVisibleState(bool state)
     {
-        MainCameraPass& main_camera_pass = *(static_cast<MainCameraPass*>(m_main_camera_pass.get()));
-        main_camera_pass.m_is_show_axis  = state; ///< set main camera memeber
+        MainCameraPass &main_camera_pass = *(static_cast<MainCameraPass *>(m_main_camera_pass.get()));
+        main_camera_pass.m_is_show_axis = state; ///< set main camera memeber
     }
 
     void RenderPipeline::setSelectedAxis(size_t selected_axis)
     {
-        MainCameraPass& main_camera_pass = *(static_cast<MainCameraPass*>(m_main_camera_pass.get()));
+        MainCameraPass &main_camera_pass = *(static_cast<MainCameraPass *>(m_main_camera_pass.get()));
         main_camera_pass.m_selected_axis = selected_axis;
     }
 } // namespace VKernel

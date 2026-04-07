@@ -7,20 +7,14 @@
 
 namespace Games
 {
-    class MainPanel : public VKernel::WindowUI
+    class StarRegionPanel : public VKernel::WindowUI
     {
-        WINDOWUI_CLASS(MainPanel)
-
+        WINDOWUI_CLASS(StarRegionPanel)
     public:
-        static bool isPanelOpen;
-        static bool isPanelOne;
-
-    public:
-        MainPanel(bool isGameMode) { m_only_game_mode = isGameMode; }
+        StarRegionPanel(bool isGameMode) { m_only_game_mode = isGameMode; }
         void initialize(VKernel::WindowUIInitInfo init_info) override;
         void preRender() override;
 
     private:
-        void DrawCrosshairShape();
     };
 } // namespace Games

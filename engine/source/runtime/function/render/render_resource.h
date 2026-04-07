@@ -86,45 +86,50 @@ namespace VKernel
         VkDescriptorSetLayout m_material_descriptor_set_layout; ///< descriptor layout
 
     public:
+        // clear
         void clear() override final;
 
+        // other resource
         virtual void updatePerFrameBuffer(
             std::shared_ptr<RenderScene>  render_scene,
             std::shared_ptr<RenderCamera> camera) override final; ///< update MeshPerframeStorageBufferObject data
 
-        // create buffer
+        // global
         virtual void
         uploadGlobalRenderResource(std::shared_ptr<VulkanAPI> vulkan_api,
                                    LevelResourceDesc          level_resource_desc) override final; ///<  Storage buffer
 
+        void resetRingBufferOffset(uint8_t current_frame_index);
+
+        // mesh
         virtual void
         uploadGameObjectRenderResource(std::shared_ptr<VulkanAPI> vulkan_api,
                                        RenderEntity               render_entity,
                                        RenderMeshData mesh_data) override final; ///< vertex and indice buffer
 
+        VulkanMesh& getEntityMesh(RenderEntity entity);
+
+        // material
         virtual void
         uploadGameObjectRenderResource(std::shared_ptr<VulkanAPI> vulkan_api,
                                        RenderEntity               render_entity,
                                        RenderMaterialData material_data) override final; ///< image view and descriptor
 
-        // reset Ring Buffer Offset
-        void resetRingBufferOffset(uint8_t current_frame_index);
-
-        // get
-        VulkanMesh&        getEntityMesh(RenderEntity entity);
         VulkanPBRMaterial& getEntityMaterial(RenderEntity entity);
 
     private:
-        // create buffer and image
+        // global
         void createAndMapStorageBuffer(std::shared_ptr<VulkanAPI> vulkan_api); ///< Storage buffer
 
+        void createIBLSamplers(std::shared_ptr<VulkanAPI> vulkan_api);
+        void createIBLTextures(std::shared_ptr<VulkanAPI>                  vulkan_api,
+                               std::array<std::shared_ptr<TextureData>, 6> irradiance_maps,
+                               std::array<std::shared_ptr<TextureData>, 6> specular_maps);
+
+        // mesh
         VulkanMesh& getOrCreateVulkanMesh(std::shared_ptr<VulkanAPI> vulkan_api,
                                           RenderEntity               entity,
                                           RenderMeshData             mesh_data); ///< vertex and indice
-
-        VulkanPBRMaterial& getOrCreateVulkanMaterial(std::shared_ptr<VulkanAPI> vulkan_api,
-                                                     RenderEntity               entity,
-                                                     RenderMaterialData material_data); ///< image view and descriptor
 
         void updateMeshData(std::shared_ptr<VulkanAPI>             vulkan_api,
                             uint32_t                               index_buffer_size,
@@ -145,13 +150,11 @@ namespace VKernel
                                void*                      index_buffer_data,
                                VulkanMesh&                now_mesh); ///< indice buffer
 
-        void updateTextureImageData(std::shared_ptr<VulkanAPI> vulkan_api,
-                                    const TextureDataToUpdate& texture_data); ///< image view
-
-        // create sampler
-        void createIBLSamplers(std::shared_ptr<VulkanAPI> vulkan_api);
-        void createIBLTextures(std::shared_ptr<VulkanAPI>                  vulkan_api,
-                               std::array<std::shared_ptr<TextureData>, 6> irradiance_maps,
-                               std::array<std::shared_ptr<TextureData>, 6> specular_maps);
+        // material
+        VulkanPBRMaterial& getOrCreateVulkanMaterial(std::shared_ptr<VulkanAPI> vulkan_api,
+                                                     RenderEntity               entity,
+                                                     RenderMaterialData material_data); ///< image view and descriptor
+        void               updateTextureImageData(std::shared_ptr<VulkanAPI> vulkan_api,
+                                                  const TextureDataToUpdate& texture_data); ///< image view
     };
 } // namespace VKernel

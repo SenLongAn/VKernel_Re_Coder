@@ -6,6 +6,9 @@
 #include <unordered_set>
 #include <vector>
 
+#include <imgui.h>
+#include <imgui_internal.h>
+
 /**
  * Editor UI Settings, Abstract class
  */
@@ -24,8 +27,7 @@ namespace VKernel
     class WindowUI
     {
     public:
-        static bool isPanelOpen;
-        static bool selected_object;
+        static bool selected_object; ///< Can the panel be penetrated to select objects?
 
     public:
         WindowUI() = default;

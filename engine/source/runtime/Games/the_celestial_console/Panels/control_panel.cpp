@@ -8,29 +8,26 @@
 #include "runtime/function/render/render_system.h"
 #include "runtime/resource/config_manager/config_manager.h"
 #include "runtime/resource/res_type/components/mesh.h"
-
-#include "control_panel.h"
-#include <imgui.h>
-#include <imgui_internal.h>
+#include "runtime/Games/the_celestial_console/Panels/main_panel.h"
 
 namespace Games
 {
     WINDOWUI_REGISTER(ControPanel, true);
 
     std::vector<std::pair<std::string, bool>> g_editor_node_state_array; ///< treeNodeName, Is it expanded
-    int                                       g_node_depth = -1;         ///< TreeNode Depth
+    int g_node_depth = -1;                                               ///< TreeNode Depth
 
-    void DrawVecControl(const std::string& label,
-                        VKernel::Vector3&  values,
-                        float              resetValue  = 0.0f,
-                        float              columnWidth = 100.0f);
+    void DrawVecControl(const std::string &label,
+                        VKernel::Vector3 &values,
+                        float resetValue = 0.0f,
+                        float columnWidth = 100.0f);
 
     ControPanel::ControPanel(bool isGameMode)
     {
         m_only_game_mode = isGameMode;
 
         // TreeNodePush
-        m_functions["TreeNodePush"] = [this](const std::string& name, void* value_ptr) -> void { ///< nodeName
+        m_functions["TreeNodePush"] = [this](const std::string &name, void *value_ptr) -> void { ///< nodeName
             bool node_state = false;
             g_node_depth++;
             if (g_node_depth > 0) ///< If it's not the root node
@@ -56,7 +53,8 @@ namespace Games
         };
 
         // TreeNodePop
-        m_functions["TreeNodePop"] = [this](const std::string& name, void* value_ptr) -> void {
+        m_functions["TreeNodePop"] = [this](const std::string &name, void *value_ptr) -> void
+        {
             if (g_editor_node_state_array[g_node_depth].second) ///< node expanded
             {
                 ImGui::TreePop(); ///< pop
@@ -66,11 +64,11 @@ namespace Games
         };
 
         // Transform
-        m_functions["Transform"] = [this](const std::string& name,
-                                          void*              value_ptr) -> void { ///< feild name, field instance
+        m_functions["Transform"] = [this](const std::string &name,
+                                          void *value_ptr) -> void { ///< feild name, field instance
             if (g_editor_node_state_array[g_node_depth].second)
             {
-                VKernel::Transform* trans_ptr = static_cast<VKernel::Transform*>(value_ptr);
+                VKernel::Transform *trans_ptr = static_cast<VKernel::Transform *>(value_ptr);
 
                 // rotation : Quaternion -> vec3
                 VKernel::Vector3 degrees_val;
@@ -117,7 +115,12 @@ namespace Games
 
     void ControPanel::preRender()
     {
-        if (isPanelOpen)
+        if (!MainPanel::isPanelOpen)
+        {
+            return;
+        }
+
+        if (!MainPanel::isPanelOne)
         {
             return;
         }
@@ -138,11 +141,16 @@ namespace Games
         bool isOpen = true;
         ImGui::Begin("ControPanel", &isOpen, window_flags);
 
+        // Automatically adjust font size
+        float windowArea = ImGui::GetWindowSize().x * ImGui::GetWindowSize().y;
+        float scale = sqrtf(windowArea / (640 * 0.20 * 400)) * 0.5;
+        ImGui::SetWindowFontScale(scale);
+
         ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 1.0f), "Control Panel");
 
         // get selected object
         std::shared_ptr<VKernel::GObject> selected_go = VKernel::g_runtime_global_context.m_render_system->getGO();
-        std::shared_ptr<VKernel::Level>   current_level =
+        std::shared_ptr<VKernel::Level> current_level =
             VKernel::g_runtime_global_context.m_world_manager->getCurrentActiveLevel().lock();
         std::shared_ptr<VKernel::Character> current_character = current_level->getCurrentActiveCharacter().lock();
 
@@ -163,7 +171,7 @@ namespace Games
             selected_object = true;
         }
 
-        auto&& selected_object_components = selected_go->getComponents(); ///< get Components
+        auto &&selected_object_components = selected_go->getComponents(); ///< get Components
         for (auto component_ptr : selected_object_components)             ///< iterate
         {
             std::string str = component_ptr.getTypeName();
@@ -188,15 +196,15 @@ namespace Games
                 auto object_instance = VKernel::Reflection::ReflectionInstance(
                     VKernel::Reflection::TypeMeta::newMetaFromName(component_ptr.getTypeName().c_str()),
                     component_ptr.operator->());
-                VKernel::Reflection::FieldAccessor* fields;
-                int                                 fields_count = object_instance.m_meta.getFieldsList(fields);
+                VKernel::Reflection::FieldAccessor *fields;
+                int fields_count = object_instance.m_meta.getFieldsList(fields);
                 for (size_t index = 0; index < fields_count; index++)
                 {
                     auto field = fields[index];
 
-                    VKernel::MeshComponentRes* mesh_com_ptr =
-                        static_cast<VKernel::MeshComponentRes*>(field.get(object_instance.m_instance));
-                    VKernel::Vector3& color = mesh_com_ptr->m_color;
+                    VKernel::MeshComponentRes *mesh_com_ptr =
+                        static_cast<VKernel::MeshComponentRes *>(field.get(object_instance.m_instance));
+                    VKernel::Vector3 &color = mesh_com_ptr->m_color;
 
                     float myColor[3] = {color.x, color.y, color.z};
                     ImGui::ColorPicker3("Color", myColor);
@@ -204,9 +212,9 @@ namespace Games
                     color.y = myColor[1];
                     color.z = myColor[2];
 
-                    bool& apply_lighting = mesh_com_ptr->m_apply_lighting;
+                    bool &apply_lighting = mesh_com_ptr->m_apply_lighting;
                     ImGui::Checkbox("Apply Lighting", &apply_lighting);
-                    bool& apply_texture = mesh_com_ptr->m_apply_texture;
+                    bool &apply_texture = mesh_com_ptr->m_apply_texture;
                     ImGui::Checkbox("Apply Texture", &apply_texture);
                 }
 
@@ -219,13 +227,13 @@ namespace Games
         ImGui::PopStyleColor();
     }
 
-    void ControPanel::createLeafNodeUI(VKernel::Reflection::ReflectionInstance& instance)
+    void ControPanel::createLeafNodeUI(VKernel::Reflection::ReflectionInstance &instance)
     {
-        VKernel::Reflection::FieldAccessor* fields;
-        int                                 fields_count = instance.m_meta.getFieldsList(fields);
+        VKernel::Reflection::FieldAccessor *fields;
+        int fields_count = instance.m_meta.getFieldsList(fields);
         for (size_t index = 0; index < fields_count; index++) ///< Each field of the class
         {
-            auto field               = fields[index];
+            auto field = fields[index];
             auto ui_creator_iterator = m_functions.find(field.getFieldTypeName());
             if (ui_creator_iterator == m_functions.end()) ///< If not in the map
             {
@@ -248,7 +256,7 @@ namespace Games
         delete[] fields;
     }
 
-    void DrawVecControl(const std::string& label, VKernel::Vector3& values, float resetValue, float columnWidth)
+    void DrawVecControl(const std::string &label, VKernel::Vector3 &values, float resetValue, float columnWidth)
     {
         // Text
         ImGui::PushID(label.c_str());
@@ -259,18 +267,13 @@ namespace Games
         ImGui::NextColumn();
 
         ImGui::PushMultiItemsWidths(3, ImGui::CalcItemWidth());
-        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2 {0, 0});
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{0, 0});
 
-        float  lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
+        float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
         ImVec2 buttonSize = {lineHeight + 3.0f, lineHeight};
 
         // X
-        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4 {0.8f, 0.1f, 0.15f, 1.0f});
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4 {0.9f, 0.2f, 0.2f, 1.0f});
-        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4 {0.8f, 0.1f, 0.15f, 1.0f});
-        if (ImGui::Button("X", buttonSize))
-            values.x = resetValue;
-        ImGui::PopStyleColor(3);
+        ImGui::Text("X");
 
         ImGui::SameLine();
         ImGui::DragFloat("##X", &values.x, 0.1f, 0.0f, 0.0f, "%.2f");
@@ -278,12 +281,7 @@ namespace Games
         ImGui::SameLine();
 
         // Y
-        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4 {0.2f, 0.45f, 0.2f, 1.0f});
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4 {0.3f, 0.55f, 0.3f, 1.0f});
-        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4 {0.2f, 0.45f, 0.2f, 1.0f});
-        if (ImGui::Button("Y", buttonSize))
-            values.y = resetValue;
-        ImGui::PopStyleColor(3);
+        ImGui::Text("Y");
 
         ImGui::SameLine();
         ImGui::DragFloat("##Y", &values.y, 0.1f, 0.0f, 0.0f, "%.2f");
@@ -291,12 +289,7 @@ namespace Games
         ImGui::SameLine();
 
         // Z
-        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4 {0.1f, 0.25f, 0.8f, 1.0f});
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4 {0.2f, 0.35f, 0.9f, 1.0f});
-        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4 {0.1f, 0.25f, 0.8f, 1.0f});
-        if (ImGui::Button("Z", buttonSize))
-            values.z = resetValue;
-        ImGui::PopStyleColor(3);
+        ImGui::Text("Z");
 
         ImGui::SameLine();
         ImGui::DragFloat("##Z", &values.z, 0.1f, 0.0f, 0.0f, "%.2f");

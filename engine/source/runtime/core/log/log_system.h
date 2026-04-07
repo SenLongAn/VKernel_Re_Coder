@@ -19,7 +19,7 @@ namespace VKernel
     };
     struct LogMessage
     {
-        LogLevel    level;
+        LogLevel level;
         std::string log;
     };
 
@@ -32,33 +32,33 @@ namespace VKernel
         ~LogSystem();
 
         // print log
-        template<typename... TARGS>
-        void log(LogLevel level, TARGS&&... args)
+        template <typename... TARGS>
+        void log(LogLevel level, TARGS &&...args)
         {
             // log level
             switch (level)
             {
-                case LogLevel::debug:
-                    m_logger->debug(std::forward<TARGS>(args)...);
-                    break;
-                case LogLevel::info:
-                    m_logger->info(std::forward<TARGS>(args)...);
-                    break;
-                case LogLevel::warn:
-                    m_logger->warn(std::forward<TARGS>(args)...);
-                    break;
-                case LogLevel::error:
-                    m_logger->error(std::forward<TARGS>(args)...);
-                    break;
-                case LogLevel::fatal:
-                    m_logger->critical(std::forward<TARGS>(args)...);
-                    fatalCallback(std::forward<TARGS>(args)...);
-                    break;
-                default:
-                    break;
+            case LogLevel::debug:
+                m_logger->debug(std::forward<TARGS>(args)...);
+                break;
+            case LogLevel::info:
+                m_logger->info(std::forward<TARGS>(args)...);
+                break;
+            case LogLevel::warn:
+                m_logger->warn(std::forward<TARGS>(args)...);
+                break;
+            case LogLevel::error:
+                m_logger->error(std::forward<TARGS>(args)...);
+                break;
+            case LogLevel::fatal:
+                m_logger->critical(std::forward<TARGS>(args)...);
+                fatalCallback(std::forward<TARGS>(args)...);
+                break;
+            default:
+                break;
             }
 
-            if (m_messages.size() >= 20)
+            if (m_messages.size() >= 10)
             {
                 m_messages.erase(m_messages.begin());
             }
@@ -68,8 +68,8 @@ namespace VKernel
         }
 
         // fatal Callback func
-        template<typename... TARGS>
-        void fatalCallback(TARGS&&... args)
+        template <typename... TARGS>
+        void fatalCallback(TARGS &&...args)
         {
             const std::string format_str = fmt::format(std::forward<TARGS>(args)...);
             throw std::runtime_error(format_str); // throw Exception
@@ -80,7 +80,7 @@ namespace VKernel
     private:
         // log handle
         std::shared_ptr<spdlog::logger> m_logger;
-        std::vector<LogMessage>         m_messages;
+        std::vector<LogMessage> m_messages;
     };
 
 } // namespace VKernel

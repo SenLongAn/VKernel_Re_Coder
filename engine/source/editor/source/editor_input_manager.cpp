@@ -13,7 +13,6 @@
 #include "runtime/function/render/render_system.h"
 #include "runtime/function/render/window_system.h"
 #include "runtime/function/ui/window_ui.h"
-
 #include "runtime/core/math/math_headers.h"
 
 #include <iostream>
@@ -83,7 +82,7 @@ namespace ReCoder
                 VKernel::Vector2 cursor_uv =
                     VKernel::Vector2((m_mouse_x - m_engine_window_pos.x) / m_engine_window_size.x,
                                      (m_mouse_y - m_engine_window_pos.y) / m_engine_window_size.y); ///< Calculate uv
-                updateCursorOnAxis(cursor_uv); ///< Calculate which axis the mouse is hovering over
+                updateCursorOnAxis(cursor_uv);                                                      ///< Calculate which axis the mouse is hovering over
             }
         }
 
@@ -170,26 +169,26 @@ namespace ReCoder
 
     void EditorInputManager::processEditorCommand()
     {
-        float               camera_speed  = m_camera_speed;
-        std::shared_ptr     editor_camera = g_editor_global_context.m_scene_manager->getEditorCamera();
+        float camera_speed = m_camera_speed;
+        std::shared_ptr editor_camera = g_editor_global_context.m_scene_manager->getEditorCamera();
         VKernel::Quaternion camera_rotate = editor_camera->rotation().inverse();
-        VKernel::Vector3    camera_relative_pos(0, 0, 0);
+        VKernel::Vector3 camera_relative_pos(0, 0, 0);
 
         if ((unsigned int)EditorCommand::camera_foward & m_editor_command)
         {
-            camera_relative_pos += camera_rotate * VKernel::Vector3 {0, camera_speed, 0};
+            camera_relative_pos += camera_rotate * VKernel::Vector3{0, camera_speed, 0};
         }
         if ((unsigned int)EditorCommand::camera_back & m_editor_command)
         {
-            camera_relative_pos += camera_rotate * VKernel::Vector3 {0, -camera_speed, 0};
+            camera_relative_pos += camera_rotate * VKernel::Vector3{0, -camera_speed, 0};
         }
         if ((unsigned int)EditorCommand::camera_left & m_editor_command)
         {
-            camera_relative_pos += camera_rotate * VKernel::Vector3 {-camera_speed, 0, 0};
+            camera_relative_pos += camera_rotate * VKernel::Vector3{-camera_speed, 0, 0};
         }
         if ((unsigned int)EditorCommand::camera_right & m_editor_command)
         {
-            camera_relative_pos += camera_rotate * VKernel::Vector3 {camera_speed, 0, 0};
+            camera_relative_pos += camera_rotate * VKernel::Vector3{camera_speed, 0, 0};
         }
 
         editor_camera->move(camera_relative_pos);
@@ -201,48 +200,48 @@ namespace ReCoder
         {
             switch (key)
             {
-                case GLFW_KEY_A:
-                    m_editor_command |= (unsigned int)EditorCommand::camera_left;
-                    break;
-                case GLFW_KEY_S:
-                    m_editor_command |= (unsigned int)EditorCommand::camera_back;
-                    break;
-                case GLFW_KEY_W:
-                    m_editor_command |= (unsigned int)EditorCommand::camera_foward;
-                    break;
-                case GLFW_KEY_D:
-                    m_editor_command |= (unsigned int)EditorCommand::camera_right;
-                    break;
-                case GLFW_KEY_F11:
-                    VKernel::g_is_full_screen_mode = !VKernel::g_is_full_screen_mode;
-                    VKernel::g_runtime_global_context.m_window_system->showTitleBar(!VKernel::g_is_full_screen_mode);
-                    break;
-                default:
-                    break;
+            case GLFW_KEY_A:
+                m_editor_command |= (unsigned int)EditorCommand::camera_left;
+                break;
+            case GLFW_KEY_S:
+                m_editor_command |= (unsigned int)EditorCommand::camera_back;
+                break;
+            case GLFW_KEY_W:
+                m_editor_command |= (unsigned int)EditorCommand::camera_foward;
+                break;
+            case GLFW_KEY_D:
+                m_editor_command |= (unsigned int)EditorCommand::camera_right;
+                break;
+            case GLFW_KEY_F11:
+                VKernel::g_is_full_screen_mode = !VKernel::g_is_full_screen_mode;
+                VKernel::g_runtime_global_context.m_window_system->showTitleBar(!VKernel::g_is_full_screen_mode);
+                break;
+            default:
+                break;
             }
         }
         else if (action == GLFW_RELEASE)
         {
             switch (key)
             {
-                case GLFW_KEY_A:
-                    m_editor_command &=
-                        (VKernel::k_complement_control_command ^ (unsigned int)EditorCommand::camera_left);
-                    break;
-                case GLFW_KEY_S:
-                    m_editor_command &=
-                        (VKernel::k_complement_control_command ^ (unsigned int)EditorCommand::camera_back);
-                    break;
-                case GLFW_KEY_W:
-                    m_editor_command &=
-                        (VKernel::k_complement_control_command ^ (unsigned int)EditorCommand::camera_foward);
-                    break;
-                case GLFW_KEY_D:
-                    m_editor_command &=
-                        (VKernel::k_complement_control_command ^ (unsigned int)EditorCommand::camera_right);
-                    break;
-                default:
-                    break;
+            case GLFW_KEY_A:
+                m_editor_command &=
+                    (VKernel::k_complement_control_command ^ (unsigned int)EditorCommand::camera_left);
+                break;
+            case GLFW_KEY_S:
+                m_editor_command &=
+                    (VKernel::k_complement_control_command ^ (unsigned int)EditorCommand::camera_back);
+                break;
+            case GLFW_KEY_W:
+                m_editor_command &=
+                    (VKernel::k_complement_control_command ^ (unsigned int)EditorCommand::camera_foward);
+                break;
+            case GLFW_KEY_D:
+                m_editor_command &=
+                    (VKernel::k_complement_control_command ^ (unsigned int)EditorCommand::camera_right);
+                break;
+            default:
+                break;
             }
         }
     }

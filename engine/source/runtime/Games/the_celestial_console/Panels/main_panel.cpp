@@ -4,25 +4,17 @@
 #include "runtime/function/global/global_context.h"
 #include "runtime/function/render/render_system.h"
 
-#include <imgui.h>
-#include <imgui_internal.h>
-
-#include "main_panel.h"
 #include <vulkan/vulkan.h>
 
 namespace Games
 {
+    bool MainPanel::isPanelOpen = true;
+    bool MainPanel::isPanelOne = true;
+
     WINDOWUI_REGISTER(MainPanel, true);
 
     void MainPanel::initialize(VKernel::WindowUIInitInfo init_info)
     {
-        // set imgui state
-        ImGuiIO& io = ImGui::GetIO();
-        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; ///< Enable docking feature
-        io.ConfigDockingAlwaysTabBar         = true;      ///< Always show the title bar
-        io.ConfigWindowsMoveFromTitleBarOnly = true;      ///< Window can only be dragged from the title bar
-        io.IniFilename                       = nullptr;   ///< Do not save the layout
-        io.FontGlobalScale                   = 2.0f;
     }
 
     void MainPanel::preRender()
@@ -34,38 +26,61 @@ namespace Games
         ImGui::SetNextWindowSize(ImVec2(viewport.width / 10.0f * 6, viewport.height), ImGuiCond_Always);
 
         ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoDocking |
-                                        ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize;
+                                        ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
         bool isOpen = true;
         ImGui::Begin("MainPanel", &isOpen, window_flags);
 
+        // Automatically adjust font size
+        float windowArea = ImGui::GetWindowSize().x * ImGui::GetWindowSize().y;
+        float scale = sqrtf(windowArea / (640 * 0.20 * 400)) * 0.3;
+        ImGui::SetWindowFontScale(scale);
+
         // text:
-        ImGui::SetCursorPosX(viewport.width / 10.0f * 1);
+        ImGui::SetCursorPosX(ImGui::GetWindowSize().x / 10.0f * 1);
         ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Direction:");
         ImGui::SameLine();
-        ImGui::SetCursorPosX(viewport.width / 10.0f * 2);
+        ImGui::SetCursorPosX(ImGui::GetWindowSize().x / 10.0f * 3);
         ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Temperature:");
         ImGui::SameLine();
-        ImGui::SetCursorPosX(viewport.width / 10.0f * 3);
+        ImGui::SetCursorPosX(ImGui::GetWindowSize().x / 10.0f * 5);
         ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Sunlight:");
         ImGui::SameLine();
-        ImGui::SetCursorPosX(viewport.width / 10.0f * 4);
+        ImGui::SetCursorPosX(ImGui::GetWindowSize().x / 10.0f * 7);
         ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "FrameRate:");
         ImGui::SameLine();
 
         // button
-        ImVec2 buttonSize(40, 30);
-        ImVec2 buttonPos(viewport.width / 10.0F * 5, viewport.height / 100.0f);
+        ImVec2 buttonSize(ImGui::GetWindowSize().x / 50.0f, ImGui::GetWindowSize().y / 50.0f);
+        ImVec2 buttonPos(ImGui::GetWindowSize().x / 10.0F * 9, viewport.height / 100.0f);
         ImGui::SetCursorPos(buttonPos);
-        if (!isPanelOpen)
+        if (isPanelOne)
         {
-            if (ImGui::Button("<>", buttonSize))
+            if (ImGui::Button("1", buttonSize)) ///< Current status
+            {
+                isPanelOne = !isPanelOne;
+            }
+        }
+        else
+        {
+            if (ImGui::Button("2", buttonSize))
+            {
+                isPanelOne = !isPanelOne;
+            }
+        }
+
+        ImVec2 buttonSize1(ImGui::GetWindowSize().x / 50.0f, ImGui::GetWindowSize().y / 50.0f);
+        ImVec2 buttonPos1(ImGui::GetWindowSize().x / 10.0F * 9.2, viewport.height / 100.0f);
+        ImGui::SetCursorPos(buttonPos1);
+        if (isPanelOpen)
+        {
+            if (ImGui::Button("<>", buttonSize1))
             {
                 isPanelOpen = !isPanelOpen;
             }
         }
         else
         {
-            if (ImGui::Button("><", buttonSize))
+            if (ImGui::Button("><", buttonSize1))
             {
                 isPanelOpen = !isPanelOpen;
             }
@@ -75,33 +90,37 @@ namespace Games
         DrawCrosshairShape();
 
         // log
-        ImGui::SetCursorPos(ImVec2(viewport.width / 10.0f * 1.5, viewport.height - viewport.height / 10.0f * 1.4));
+        float curY = ImGui::GetWindowSize().y;
+        ImGui::SetCursorPos(ImVec2(ImGui::GetWindowSize().x / 10.0f * 2.5, curY - curY / 10.0f * 1.5));
 
-        ImGui::BeginChild("LogRegion", ImVec2(0, 150), false);
+        ImGui::BeginChild("LogRegion", ImVec2(0, curY / 10.0f * 1.4), false, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
 
         std::vector<VKernel::LogMessage> messages = VKernel::g_runtime_global_context.m_logger_system->GetMessage();
-        for (const auto& log : messages)
+        for (const auto &log : messages)
         {
             switch (log.level)
             {
-                case VKernel::LogLevel::debug:
-                    ImGui::TextColored(ImVec4(0.1f, 0.0f, 1.0f, 1.0f), "%s", log.log.c_str());
-                    break;
-                case VKernel::LogLevel::info:
-                    ImGui::TextColored(ImVec4(0.1f, 1.0f, 0.0f, 1.0f), "%s", log.log.c_str());
-                    break;
-                case VKernel::LogLevel::warn:
-                    ImGui::TextColored(ImVec4(0.1f, 0.1f, 0.1f, 1.0f), "%s", log.log.c_str());
-                    break;
-                case VKernel::LogLevel::error:
-                    ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "%s", log.log.c_str());
-                    break;
-                default:
-                    break;
+            case VKernel::LogLevel::debug:
+                ImGui::TextColored(ImVec4(0.1f, 0.0f, 1.0f, 1.0f), "%s", log.log.c_str());
+                break;
+            case VKernel::LogLevel::info:
+                ImGui::TextColored(ImVec4(0.1f, 1.0f, 0.0f, 1.0f), "%s", log.log.c_str());
+                break;
+            case VKernel::LogLevel::warn:
+                ImGui::TextColored(ImVec4(0.1f, 0.1f, 0.1f, 1.0f), "%s", log.log.c_str());
+                break;
+            case VKernel::LogLevel::error:
+                ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "%s", log.log.c_str());
+                break;
+            default:
+                break;
             }
         }
 
-        ImGui::SetScrollHereY(0.0f);
+        if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
+        {
+            ImGui::SetScrollHereY(1.0f);
+        }
 
         ImGui::EndChild();
 
@@ -110,15 +129,15 @@ namespace Games
 
     void MainPanel::DrawCrosshairShape()
     {
-        ImDrawList* draw_list = ImGui::GetWindowDrawList();
-        VkViewport  viewport =
+        ImDrawList *draw_list = ImGui::GetWindowDrawList();
+        VkViewport viewport =
             VKernel::g_runtime_global_context.m_render_system->getVulkanAPI()->getSwapchainInfo().viewport;
         ImVec2 center = {viewport.x + viewport.width / 2.0f, viewport.y + viewport.height / 2.0f};
 
-        float length    = 15.0f;
-        float gap       = 5.0f;
-        float thickness = 2.0f;
-        ImU32 color     = IM_COL32(255, 0, 0, 200);
+        float length = viewport.x / 5.0f;
+        float gap = viewport.y / 5.0f;
+        float thickness = viewport.x / 5.0f;
+        ImU32 color = IM_COL32(255, 0, 0, 200);
 
         draw_list->AddLine(ImVec2(center.x, center.y - length), ImVec2(center.x, center.y - gap), color, thickness);
 
