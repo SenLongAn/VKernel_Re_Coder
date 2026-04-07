@@ -9,6 +9,7 @@
 #include "runtime/resource/config_manager/config_manager.h"
 #include "runtime/resource/res_type/components/mesh.h"
 #include "runtime/Games/the_celestial_console/Panels/main_panel.h"
+#include "runtime/core/base/macro.h"
 
 namespace Games
 {
@@ -148,6 +149,11 @@ namespace Games
 
         ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 1.0f), "Control Panel");
 
+        if (ImGui::IsWindowHovered() || ImGui::IsAnyItemHovered())
+        {
+            selected_object = false;
+        }
+
         // get selected object
         std::shared_ptr<VKernel::GObject> selected_go = VKernel::g_runtime_global_context.m_render_system->getGO();
         std::shared_ptr<VKernel::Level> current_level =
@@ -160,15 +166,6 @@ namespace Games
             ImGui::End();
             ImGui::PopStyleColor();
             return;
-        }
-
-        if (ImGui::IsWindowHovered() || ImGui::IsAnyItemHovered())
-        {
-            selected_object = false;
-        }
-        else
-        {
-            selected_object = true;
         }
 
         auto &&selected_object_components = selected_go->getComponents(); ///< get Components

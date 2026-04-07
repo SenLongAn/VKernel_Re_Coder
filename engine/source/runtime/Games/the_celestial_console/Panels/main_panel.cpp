@@ -19,6 +19,8 @@ namespace Games
 
     void MainPanel::preRender()
     {
+        selected_object = true;
+
         VkViewport viewport =
             VKernel::g_runtime_global_context.m_render_system->getVulkanAPI()->getSwapchainInfo().viewport;
 

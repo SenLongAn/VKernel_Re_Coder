@@ -3,7 +3,7 @@
 
 namespace VKernel
 {
-    bool WindowUI::selected_object = true;
+    bool WindowUI::selected_object = false;
 
     int WindowUIFactory::index = 0;
 
@@ -11,7 +11,7 @@ namespace VKernel
 
     void WindowUIManager::initUIs(WindowUIInitInfo init_info)
     {
-        for (auto& ui : m_uis)
+        for (auto &ui : m_uis)
         {
             ui->initialize(init_info);
         }
@@ -19,7 +19,7 @@ namespace VKernel
 
     void WindowUIManager::updateUIs()
     {
-        for (auto& ui : m_uis)
+        for (auto &ui : m_uis)
         {
             if (VKernel::g_is_editor_mode && ui->iSGameMode())
                 continue;

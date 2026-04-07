@@ -3,6 +3,7 @@
 #include "runtime/function/global/global_context.h"
 #include "runtime/function/render/render_system.h"
 #include "runtime/Games/the_celestial_console/Panels/main_panel.h"
+#include "runtime/core/base/macro.h"
 
 namespace Games
 {
@@ -49,10 +50,6 @@ namespace Games
         if (ImGui::IsWindowHovered() || ImGui::IsAnyItemHovered())
         {
             selected_object = false;
-        }
-        else
-        {
-            selected_object = true;
         }
 
         ImGui::End();
