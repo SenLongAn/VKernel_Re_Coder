@@ -8,7 +8,7 @@
 
 namespace VKernel
 {
-    void UIPass::initialize(const RenderPassInitInfo* init_info)
+    void UIPass::initialize(const RenderPassInitInfo *init_info)
     {
         RenderPass::initialize(nullptr);
 
@@ -17,7 +17,7 @@ namespace VKernel
         ImGui::CreateContext();
 
         // Cast base class info to derived class info, and get the render pass
-        m_framebuffer.render_pass = static_cast<const UIPassInitInfo*>(init_info)->render_pass;
+        m_framebuffer.render_pass = static_cast<const UIPassInitInfo *>(init_info)->render_pass;
     }
 
     void UIPass::initializeUIRenderBackend()
@@ -28,15 +28,15 @@ namespace VKernel
         // Integration of ImGui and Vulkan, allowing imgui to be rendered
         // Vulkan object sets ImGui init info
         ImGui_ImplVulkan_InitInfo init_info = {};
-        init_info.Instance                  = m_vulkan_api->getInstance();
-        init_info.PhysicalDevice            = m_vulkan_api->getPhysicalDevice();
-        init_info.Device                    = m_vulkan_api->getLogicDevice();
-        init_info.QueueFamily               = m_vulkan_api->getQueueFamilyIndices().graphics_family.value();
-        init_info.Queue                     = m_vulkan_api->getGraphicsQueue();
-        init_info.DescriptorPool            = m_vulkan_api->getDescriptorPool();
-        init_info.Subpass                   = _main_camera_subpass_ui;
-        init_info.MinImageCount             = 3;
-        init_info.ImageCount                = 3;
+        init_info.Instance = m_vulkan_api->getInstance();
+        init_info.PhysicalDevice = m_vulkan_api->getPhysicalDevice();
+        init_info.Device = m_vulkan_api->getLogicDevice();
+        init_info.QueueFamily = m_vulkan_api->getQueueFamilyIndices().graphics_family.value();
+        init_info.Queue = m_vulkan_api->getGraphicsQueue();
+        init_info.DescriptorPool = m_vulkan_api->getDescriptorPool();
+        init_info.Subpass = _main_camera_subpass_ui;
+        init_info.MinImageCount = 3;
+        init_info.ImageCount = 3;
         ImGui_ImplVulkan_Init(&init_info, m_framebuffer.render_pass);
 
         // upload font

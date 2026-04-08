@@ -19,7 +19,7 @@ void main()
     highp vec4 ui_color = subpassLoad(in_ui_color).rgba;
 
     // Whether it is transparent, and whether each channel component is less than 0.000001
-    if (ui_color.r == 0.0) ///< show the scene;
+    if (ui_color.r == 0.0 && ui_color.b == 0.0 && ui_color.b == 0.0) ///< show the scene;
     {
         // Gamma correct
         ui_color  = vec4(pow(ui_color.r, 1.0 / 2.2),

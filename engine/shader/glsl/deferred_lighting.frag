@@ -94,6 +94,7 @@ void main()
     }
     else if (SHADINGMODELID_DEFAULT_LIT == gbuffer.shadingModelID) ///< scene
     {
+        highp vec3 in_apply_lighting =  vec3(1.0, 1.0, 1.0);
 #include "mesh_lighting.inl"
     }
 

@@ -14,7 +14,6 @@
 #include "runtime/resource/asset_manager/asset_manager.h"
 #include "runtime/resource/config_manager/config_manager.h"
 
-#include "render_system.h"
 #include <iostream>
 
 namespace VKernel
@@ -26,21 +25,21 @@ namespace VKernel
     {
         // init
         std::shared_ptr<ConfigManager> config_manager = g_runtime_global_context.m_config_manager;
-        std::shared_ptr<AssetManager>  asset_manager  = g_runtime_global_context.m_asset_manager;
+        std::shared_ptr<AssetManager> asset_manager = g_runtime_global_context.m_asset_manager;
 
         // vulkan api
         m_vulkan_api = std::make_shared<VulkanAPI>();
         m_vulkan_api->initialize(window_system);
         // global rendering resource
         GlobalRenderingRes global_rendering_res;
-        const std::string& global_rendering_res_url = config_manager->getGlobalRenderingResUrl();
+        const std::string &global_rendering_res_url = config_manager->getGlobalRenderingResUrl();
         asset_manager->loadAsset(global_rendering_res_url, global_rendering_res);
 
         // resource
         LevelResourceDesc level_resource_desc;
         level_resource_desc.m_ibl_resource_desc.m_skybox_irradiance_map = global_rendering_res.m_skybox_irradiance_map;
-        level_resource_desc.m_ibl_resource_desc.m_skybox_specular_map   = global_rendering_res.m_skybox_specular_map;
-        level_resource_desc.m_ibl_resource_desc.m_brdf_map              = global_rendering_res.m_brdf_map;
+        level_resource_desc.m_ibl_resource_desc.m_skybox_specular_map = global_rendering_res.m_skybox_specular_map;
+        level_resource_desc.m_ibl_resource_desc.m_brdf_map = global_rendering_res.m_brdf_map;
         level_resource_desc.m_color_grading_resource_desc.m_color_grading_map =
             global_rendering_res.m_color_grading_map;
 
@@ -48,8 +47,8 @@ namespace VKernel
         m_render_resource->uploadGlobalRenderResource(m_vulkan_api, level_resource_desc);
 
         // camera
-        const CameraPose& camera_pose = global_rendering_res.m_camera_config.m_pose;
-        m_render_camera               = std::make_shared<RenderCamera>();
+        const CameraPose &camera_pose = global_rendering_res.m_camera_config.m_pose;
+        m_render_camera = std::make_shared<RenderCamera>();
         m_render_camera->lookAt(camera_pose.m_position, camera_pose.m_target, camera_pose.m_up);
         m_render_camera->setZFar(global_rendering_res.m_camera_config.m_z_far);
         m_render_camera->setZNear(global_rendering_res.m_camera_config.m_z_near);
@@ -61,7 +60,7 @@ namespace VKernel
         m_render_scene->setVisibleNodesReference();
         m_render_scene->m_directional_light.m_direction =
             global_rendering_res.m_directional_light.m_direction.normalisedCopy();
-        m_render_scene->m_directional_light.m_color  = global_rendering_res.m_directional_light.m_color.toVector3();
+        m_render_scene->m_directional_light.m_color = global_rendering_res.m_directional_light.m_color.toVector3();
         m_render_scene->m_ambient_light.m_irradiance = global_rendering_res.m_ambient_light.toVector3();
         for (size_t i = 0; i < global_rendering_res.m_point_lights.size(); i++)
         {
@@ -72,13 +71,13 @@ namespace VKernel
         // pipline
         RenderPipelineInitInfo pipeline_init_info;
         pipeline_init_info.render_resource = m_render_resource;
-        m_render_pipeline                  = std::make_shared<RenderPipeline>();
-        m_render_pipeline->m_vulkan_api    = m_vulkan_api;
+        m_render_pipeline = std::make_shared<RenderPipeline>();
+        m_render_pipeline->m_vulkan_api = m_vulkan_api;
         m_render_pipeline->initialize(pipeline_init_info);
 
         // resource: descriptor layout
         std::static_pointer_cast<RenderResource>(m_render_resource)->m_material_descriptor_set_layout =
-            static_cast<RenderPass*>(m_render_pipeline->m_main_camera_pass.get())
+            static_cast<RenderPass *>(m_render_pipeline->m_main_camera_pass.get())
                 ->m_descriptor_infos[MainCameraPass::LayoutType::_mesh_per_material]
                 .layout;
     }
@@ -137,13 +136,13 @@ namespace VKernel
 
     std::shared_ptr<VulkanAPI> RenderSystem::getVulkanAPI() const { return m_vulkan_api; }
 
-    RenderSwapContext& RenderSystem::getSwapContext() { return m_swap_context; }
+    RenderSwapContext &RenderSystem::getSwapContext() { return m_swap_context; }
 
     std::shared_ptr<RenderCamera> RenderSystem::getRenderCamera() const { return m_render_camera; }
 
     std::shared_ptr<RenderResourceBase> RenderSystem::getRenderResource() const { return m_render_resource; }
 
-    std::pair<uint32_t, Vector4> RenderSystem::getGuidOfPickedMesh(const Vector2& picked_uv)
+    std::pair<uint32_t, Vector4> RenderSystem::getGuidOfPickedMesh(const Vector2 &picked_uv)
     {
         return m_render_pipeline->getGuidOfPickedMesh(picked_uv);
     }
@@ -153,12 +152,12 @@ namespace VKernel
         return m_render_scene->getGObjectIDByMeshID(mesh_id);
     }
 
-    GuidAllocator<GameObjectPartId>& RenderSystem::getGOInstanceIdAllocator()
+    GuidAllocator<GameObjectPartId> &RenderSystem::getGOInstanceIdAllocator()
     {
         return m_render_scene->getInstanceIdAllocator();
     }
 
-    GuidAllocator<MeshSourceDesc>& RenderSystem::getMeshAssetIdAllocator()
+    GuidAllocator<MeshSourceDesc> &RenderSystem::getMeshAssetIdAllocator()
     {
         return m_render_scene->getMeshAssetIdAllocator();
     }
@@ -197,10 +196,10 @@ namespace VKernel
     void RenderSystem::updateEngineContentViewport(float offset_x, float offset_y, float width, float height)
     {
         VkViewport viewport;
-        viewport.x        = offset_x;
-        viewport.y        = offset_y;
-        viewport.width    = width;
-        viewport.height   = height;
+        viewport.x = offset_x;
+        viewport.y = offset_y;
+        viewport.width = width;
+        viewport.height = height;
         viewport.minDepth = 0.0f;
         viewport.maxDepth = 1.0f;
 
@@ -215,9 +214,9 @@ namespace VKernel
 
         // reset camera
         std::shared_ptr<ConfigManager> config_manager = g_runtime_global_context.m_config_manager;
-        std::shared_ptr<AssetManager>  asset_manager  = g_runtime_global_context.m_asset_manager;
-        GlobalRenderingRes             global_rendering_res;
-        const std::string&             global_rendering_res_url = config_manager->getGlobalRenderingResUrl();
+        std::shared_ptr<AssetManager> asset_manager = g_runtime_global_context.m_asset_manager;
+        GlobalRenderingRes global_rendering_res;
+        const std::string &global_rendering_res_url = config_manager->getGlobalRenderingResUrl();
         asset_manager->loadAsset(global_rendering_res_url, global_rendering_res);
         m_render_camera->resetData(global_rendering_res.m_camera_config);
 
@@ -236,7 +235,7 @@ namespace VKernel
 
     void RenderSystem::processSwapData()
     {
-        RenderSwapData& swap_data = m_swap_context.getRenderSwapData();
+        RenderSwapData &swap_data = m_swap_context.getRenderSwapData();
 
         // update game object if needed
 
@@ -250,13 +249,13 @@ namespace VKernel
                 for (size_t part_index = 0; part_index < gobject.getObjectParts().size();
                      part_index++) ///< Iterate over each all submesh
                 {
-                    const auto& game_object_part = gobject.getObjectParts()[part_index]; ///< get current submesh
+                    const auto &game_object_part = gobject.getObjectParts()[part_index]; ///< get current submesh
 
                     // Create an entity for each submesh
                     RenderEntity render_entity;
 
                     GameObjectPartId part_id = {gobject.getId(), part_index}; ///< instance id: object id, submesh index
-                    bool             is_entity_in_scene =
+                    bool is_entity_in_scene =
                         m_render_scene->getInstanceIdAllocator().hasElement(part_id); ///< Has it loaded?
                     render_entity.m_instance_id = static_cast<uint32_t>(
                         m_render_scene->getInstanceIdAllocator().allocGuid(part_id)); ///< allocator submesh guid
@@ -265,9 +264,9 @@ namespace VKernel
 
                     render_entity.m_model_matrix =
                         game_object_part.m_transform_desc.m_transform_matrix; ///< set entity model matrix
-                    render_entity.m_color          = game_object_part.m_color;
+                    render_entity.m_color = game_object_part.m_color;
                     render_entity.m_apply_lighting = game_object_part.m_apply_lighting;
-                    render_entity.m_apply_texture  = game_object_part.m_apply_texture;
+                    render_entity.m_apply_texture = game_object_part.m_apply_texture;
 
                     // load vertex data
                     MeshSourceDesc mesh_source = {game_object_part.m_mesh_desc.m_mesh_file};
@@ -325,7 +324,7 @@ namespace VKernel
                     }
                     else ///< else update
                     {
-                        for (auto& entity : m_render_scene->m_render_entities)
+                        for (auto &entity : m_render_scene->m_render_entities)
                         {
                             if (entity.m_instance_id == render_entity.m_instance_id)
                             {

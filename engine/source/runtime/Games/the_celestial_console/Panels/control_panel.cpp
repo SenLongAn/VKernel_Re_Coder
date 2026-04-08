@@ -11,6 +11,8 @@
 #include "runtime/Games/the_celestial_console/Panels/main_panel.h"
 #include "runtime/core/base/macro.h"
 
+#include <stdio.h>
+
 namespace Games
 {
     WINDOWUI_REGISTER(ControPanel, true);
@@ -134,7 +136,7 @@ namespace Games
             ImGuiCond_Always);
         ImGui::SetNextWindowSize(ImVec2(viewport.width / 10.0f * 2, viewport.height), ImGuiCond_Always);
 
-        ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.002f, 0.0f, 0.0f, 1.0f));
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.002f, 0.002f, 0.002f, 1.0f));
 
         ImGuiWindowFlags window_flags = ImGuiWindowFlags_None | ImGuiWindowFlags_NoDocking |
                                         ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize;
@@ -149,7 +151,7 @@ namespace Games
 
         ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 1.0f), "Control Panel");
 
-        if (ImGui::IsWindowHovered() || ImGui::IsAnyItemHovered())
+        if (ImGui::IsWindowHovered() || ImGui::IsAnyItemHovered() || isMouseInWindowRange())
         {
             selected_object = false;
         }
@@ -208,11 +210,9 @@ namespace Games
                     color.x = myColor[0];
                     color.y = myColor[1];
                     color.z = myColor[2];
-
-                    bool &apply_lighting = mesh_com_ptr->m_apply_lighting;
-                    ImGui::Checkbox("Apply Lighting", &apply_lighting);
-                    bool &apply_texture = mesh_com_ptr->m_apply_texture;
-                    ImGui::Checkbox("Apply Texture", &apply_texture);
+                    color.x = myColor[0] < 0.002f ? 0.002f : myColor[0];
+                    color.y = myColor[1] < 0.002f ? 0.002f : myColor[1];
+                    color.z = myColor[2] < 0.002f ? 0.002f : myColor[2];
                 }
 
                 m_functions["TreeNodePop"](("<" + component_ptr.getTypeName() + ">").c_str(), nullptr); ///< pop

@@ -3,6 +3,7 @@
 #include "runtime/function/global/global_context.h"
 #include "runtime/function/render/render_system.h"
 #include "runtime/Games/the_celestial_console/Panels/main_panel.h"
+#include "runtime/function/render/render_resource.h"
 
 #include <string>
 
@@ -35,13 +36,17 @@ namespace Games
             ImGuiCond_Always);
         ImGui::SetNextWindowSize(ImVec2(viewport.width / 10.0f * 2, viewport.height), ImGuiCond_Always);
 
-        ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.002f, 0.0f, 0.0f, 1.0f));
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.002f, 0.002f, 0.002f, 1.0f));
 
         ImGuiWindowFlags window_flags = ImGuiWindowFlags_None | ImGuiWindowFlags_NoDocking |
                                         ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
 
         bool isOpen = true;
         ImGui::Begin("StarRegionPanel", &isOpen, window_flags);
+
+        ImGui::GetStyle().WindowPadding = ImVec2(0, 0);
+
+        float window_x = ImGui::GetWindowSize().x;
 
         // Automatically adjust font size
         float windowArea = ImGui::GetWindowSize().x * ImGui::GetWindowSize().y;
@@ -55,25 +60,41 @@ namespace Games
         {
             selected_object = false;
         }
-        else
-        {
-            selected_object = true;
-        }
 
         // Scrollable window
-        ImGui::SetCursorPos(ImVec2(ImGui::GetWindowPos().x, ImGui::GetWindowSize().y / 2));
+        ImGui::SetCursorPos(ImVec2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + ImGui::GetWindowSize().y / 4));
 
-        ImGui::BeginChild("Planets", ImVec2(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y / 2), false);
+        ImGui::BeginChild("Planets", ImVec2(ImGui::GetWindowSize().x + ImGui::GetWindowSize().x * 0.05, (ImGui::GetWindowSize().y / 4) * 2.8), window_flags);
 
-        ImVec2 buttonSize(ImGui::GetWindowSize().x / 2, ImGui::GetWindowSize().x / 2);
-        ImVec2 buttonPos(0, 0);
-        ImGui::SetCursorPos(buttonPos);
-
-        for (int i = 0; i < 10; i++)
+        // Whether the panel can be penetrated
+        if (ImGui::IsWindowHovered() || ImGui::IsAnyItemHovered())
         {
-            if (ImGui::Button(std::to_string(i).c_str(), buttonSize))
-            {
-            }
+            selected_object = false;
+        }
+
+        // button
+        static bool isFirst = true;
+        if (isFirst)
+        {
+            createImGuiDescriptorSetForTexture(image, image_view, image_allocation, descriptorSetLayout, descriptorSet, texture_id,
+                                               "asset/objects/_textures/gun.jpg", true);
+            isFirst = false;
+        }
+
+        int col = 3;
+        float spacing = window_x * 0.035;
+        ImVec2 buttonSize((window_x - spacing) / col, (window_x - spacing) / col);
+        ImGui::GetStyle().ItemSpacing = ImVec2(0, 0);
+        ImGui::GetStyle().ItemInnerSpacing = ImVec2(0, 0);
+        ImGui::GetStyle().FramePadding = ImVec2((spacing / 6.0f), (spacing / 6.0f));
+
+        for (int i = 0; i < 20; i++)
+        {
+            if ((i % col) != 0)
+                ImGui::SameLine(0, 0);
+
+            // ImGui::ImageButton(texture_id, buttonSize);
+            ImGui::Image(texture_id, buttonSize);
         }
 
         ImGui::EndChild();

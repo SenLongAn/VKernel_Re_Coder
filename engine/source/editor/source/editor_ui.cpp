@@ -725,7 +725,7 @@ namespace ReCoder
 
         else
         {
-            ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.002f, 0.0f, 0.0f, 1.0f));
+            ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.002f, 0.002f, 0.002f, 1.0f));
         }
 
         // create window
@@ -796,7 +796,7 @@ namespace ReCoder
 
         else
         {
-            ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.002f, 0.0f, 0.0f, 1.0f));
+            ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.002f, 0.002f, 0.002f, 1.0f));
         }
 
         // create window
@@ -984,7 +984,7 @@ namespace ReCoder
 
         else
         {
-            ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.002f, 0.0f, 0.0f, 1.0f));
+            ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.002f, 0.002f, 0.002f, 1.0f));
         }
 
         // begin window

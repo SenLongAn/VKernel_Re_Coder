@@ -75,13 +75,17 @@ namespace ReCoder
 
     void EditorSceneManager::onGObjectSelected(VKernel::GObjectID selected_gobject_id)
     {
+        bool isUpdate = false;
+        if (m_selected_gobject_id != selected_gobject_id)
+            isUpdate = true;
         m_selected_gobject_id = selected_gobject_id;
 
         // get GO
         std::shared_ptr<VKernel::GObject> selected_gobject = getSelectedGObject().lock();
         if (selected_gobject)
         {
-            LOG_INFO(selected_gobject->getName());
+            if (isUpdate)
+                LOG_INFO(selected_gobject->getName());
             VKernel::g_runtime_global_context.m_render_system->setGo(selected_gobject);
             // get TransformComponent matrix
             VKernel::TransformComponent *transform_component =
