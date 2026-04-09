@@ -46,7 +46,7 @@ namespace Games
 
         ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 1.0f), "Setting Panel");
 
-        if (ImGui::IsWindowHovered() || ImGui::IsAnyItemHovered())
+        if (isMouseInWindowRange())
         {
             selected_object = false;
         }

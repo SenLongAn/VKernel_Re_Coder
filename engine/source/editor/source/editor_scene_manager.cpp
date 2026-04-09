@@ -46,10 +46,6 @@ namespace ReCoder
                 selected_object = level->getGObjectByID(m_selected_gobject_id);
             }
         }
-        if (selected_object.use_count())
-        {
-            // std::cout << "select_mesh_id: " << selected_object.lock()->getID() << std::endl;
-        }
         return selected_object;
     }
 

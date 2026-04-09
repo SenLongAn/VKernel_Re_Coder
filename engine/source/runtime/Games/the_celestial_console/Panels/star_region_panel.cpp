@@ -56,7 +56,7 @@ namespace Games
         ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 1.0f), "StarRegion Panel");
 
         // Whether the panel can be penetrated
-        if (ImGui::IsWindowHovered() || ImGui::IsAnyItemHovered())
+        if (isMouseInWindowRange())
         {
             selected_object = false;
         }
@@ -67,7 +67,7 @@ namespace Games
         ImGui::BeginChild("Planets", ImVec2(ImGui::GetWindowSize().x + ImGui::GetWindowSize().x * 0.05, (ImGui::GetWindowSize().y / 4) * 2.8), window_flags);
 
         // Whether the panel can be penetrated
-        if (ImGui::IsWindowHovered() || ImGui::IsAnyItemHovered())
+        if (isMouseInWindowRange())
         {
             selected_object = false;
         }

@@ -428,7 +428,7 @@ namespace ReCoder
         // set imgui state
         ImGuiIO &io = ImGui::GetIO();
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; ///< Enable docking feature
-        io.ConfigDockingAlwaysTabBar = true;              ///< Always show the title bar
+        io.ConfigDockingAlwaysTabBar = false;             ///< Always show the title bar
         io.ConfigWindowsMoveFromTitleBarOnly = true;      ///< Window can only be dragged from the title bar
         io.IniFilename = nullptr;                         ///< Do not save the layout
         io.FontGlobalScale = 1.0f;
@@ -738,6 +738,11 @@ namespace ReCoder
             return;
         }
 
+        if (ImGui::IsWindowHovered() || ImGui::IsAnyItemHovered())
+        {
+            selected_object = false;
+        }
+
         // Automatically adjust font size
         float windowArea = ImGui::GetWindowSize().x * ImGui::GetWindowSize().y;
         float scale = sqrtf(windowArea / (640 * 0.15 * 400)) * 0.5;
@@ -808,6 +813,11 @@ namespace ReCoder
             return;
         }
 
+        if (ImGui::IsWindowHovered() || ImGui::IsAnyItemHovered())
+        {
+            selected_object = false;
+        }
+
         // Automatically adjust font size
         float windowArea = ImGui::GetWindowSize().x * ImGui::GetWindowSize().y;
         float scale = sqrtf(windowArea / (640 * 0.15 * 400)) * 0.5;
@@ -820,11 +830,6 @@ namespace ReCoder
 
         if (ImGui::BeginTable("File Content", 2, flags))
         {
-            // Divided into two columns: name and type
-            ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_NoHide);
-            ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthFixed);
-            ImGui::TableHeadersRow();
-
             // build file tree
             m_editor_file_service.buildEngineFileTree();
 
@@ -994,6 +999,11 @@ namespace ReCoder
             ImGui::End();
             ImGui::PopStyleColor();
             return;
+        }
+
+        if (ImGui::IsWindowHovered() || ImGui::IsAnyItemHovered())
+        {
+            selected_object = false;
         }
 
         // Automatically adjust font size
