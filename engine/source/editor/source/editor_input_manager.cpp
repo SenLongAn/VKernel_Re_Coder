@@ -65,25 +65,25 @@ namespace ReCoder
         }
         else if (g_editor_global_context.m_window_system->isMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT)) ///< mouse left
         {
-            g_editor_global_context.m_scene_manager->moveEntity( ///< move entity
-                xpos,
-                ypos,
-                m_mouse_x,
-                m_mouse_y,
-                m_engine_window_pos,
-                m_engine_window_size,
-                m_cursor_on_axis,
-                g_editor_global_context.m_scene_manager->getSelectedObjectMatrix());
+            // g_editor_global_context.m_scene_manager->moveEntity( ///< move entity
+            //     xpos,
+            //     ypos,
+            //     m_mouse_x,
+            //     m_mouse_y,
+            //     m_engine_window_pos,
+            //     m_engine_window_size,
+            //     m_cursor_on_axis,
+            //     g_editor_global_context.m_scene_manager->getSelectedObjectMatrix());
         }
         else ///< Otherwise, no clicks
         {
-            if (isCursorInRect(m_engine_window_pos, m_engine_window_size)) ///< If the mouse is inside the game window
-            {
-                VKernel::Vector2 cursor_uv =
-                    VKernel::Vector2((m_mouse_x - m_engine_window_pos.x) / m_engine_window_size.x,
-                                     (m_mouse_y - m_engine_window_pos.y) / m_engine_window_size.y); ///< Calculate uv
-                updateCursorOnAxis(cursor_uv);                                                      ///< Calculate which axis the mouse is hovering over
-            }
+            // if (isCursorInRect(m_engine_window_pos, m_engine_window_size)) ///< If the mouse is inside the game window
+            // {
+            //     VKernel::Vector2 cursor_uv =
+            //         VKernel::Vector2((m_mouse_x - m_engine_window_pos.x) / m_engine_window_size.x,
+            //                          (m_mouse_y - m_engine_window_pos.y) / m_engine_window_size.y); ///< Calculate uv
+            //     updateCursorOnAxis(cursor_uv);                                                      ///< Calculate which axis the mouse is hovering over
+            // }
         }
 
         // last frame mouse xy
@@ -93,7 +93,7 @@ namespace ReCoder
 
     void EditorInputManager::onScroll(double xoffset, double yoffset)
     {
-        if (!VKernel::g_is_editor_mode)
+        if (!VKernel::g_is_editor_mode || !VKernel::WindowUI::selected_object)
             return;
 
         if (isCursorInRect(

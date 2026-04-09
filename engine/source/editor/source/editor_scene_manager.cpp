@@ -75,6 +75,7 @@ namespace ReCoder
         if (m_selected_gobject_id != selected_gobject_id)
             isUpdate = true;
         m_selected_gobject_id = selected_gobject_id;
+        VKernel::g_runtime_global_context.m_render_system->setGOId(m_selected_gobject_id);
 
         // get GO
         std::shared_ptr<VKernel::GObject> selected_gobject = getSelectedGObject().lock();

@@ -433,8 +433,11 @@ namespace ReCoder
         io.IniFilename = nullptr;                         ///< Do not save the layout
         io.FontGlobalScale = 1.0f;
 
-        // set color style
+        // set style
         setUIColorStyle();
+
+        ImGuiStyle &style = ImGui::GetStyle();
+        style.WindowMenuButtonPosition = ImGuiDir_None;
     }
 
     void EditorUI::preRender()
@@ -488,6 +491,7 @@ namespace ReCoder
         {
             showEditorMenu(&m_editor_menu_window_open);
             showEditorGameWindow(&m_game_engine_window_open);
+            is_first = true;
         }
     }
 
@@ -729,7 +733,7 @@ namespace ReCoder
         }
 
         // create window
-        ImGuiWindowFlags window_flags = ImGuiWindowFlags_None;
+        ImGuiWindowFlags window_flags = ImGuiWindowFlags_None | ImGuiWindowFlags_NoCollapse;
         bool isSuccess = ImGui::Begin("World Objects", p_open, window_flags);
         if (!isSuccess)
         {
@@ -805,7 +809,7 @@ namespace ReCoder
         }
 
         // create window
-        ImGuiWindowFlags window_flags = ImGuiWindowFlags_None;
+        ImGuiWindowFlags window_flags = ImGuiWindowFlags_None | ImGuiWindowFlags_NoCollapse;
         if (!ImGui::Begin("File Content", p_open, window_flags))
         {
             ImGui::End();
@@ -858,7 +862,7 @@ namespace ReCoder
         {
             ImGui::SetNextWindowBgAlpha(0.0f);
         }
-        ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar; ///< Window icon: includes menu bar
+        ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoCollapse; ///< Window icon: includes menu bar
 
         if (!ImGui::Begin("Game Engine", nullptr, window_flags))
         {
@@ -900,22 +904,22 @@ namespace ReCoder
         // MenuBar
         if (ImGui::BeginMenuBar())
         {
-            if (VKernel::g_is_editor_mode && !VKernel::g_is_full_screen_mode)
-            {
-                // axis mode
-                drawAxisToggleButton("Trans", trans_button_ckecked, (int)EditorAxisMode::TranslateMode);
+            // if (VKernel::g_is_editor_mode && !VKernel::g_is_full_screen_mode)
+            // {
+            //     // axis mode
+            //     drawAxisToggleButton("Trans", trans_button_ckecked, (int)EditorAxisMode::TranslateMode);
 
-                ImGui::SameLine();
+            //     ImGui::SameLine();
 
-                drawAxisToggleButton("Rotate", rotate_button_ckecked, (int)EditorAxisMode::RotateMode);
+            //     drawAxisToggleButton("Rotate", rotate_button_ckecked, (int)EditorAxisMode::RotateMode);
 
-                ImGui::SameLine();
+            //     ImGui::SameLine();
 
-                drawAxisToggleButton("Scale", scale_button_ckecked, (int)EditorAxisMode::ScaleMode);
+            //     drawAxisToggleButton("Scale", scale_button_ckecked, (int)EditorAxisMode::ScaleMode);
 
-                // editor or game mode
-                ImGui::SameLine();
-            }
+            //     // editor or game mode
+            //     ImGui::SameLine();
+            // }
 
             if (VKernel::g_is_editor_mode)
             {
@@ -993,7 +997,7 @@ namespace ReCoder
         }
 
         // begin window
-        ImGuiWindowFlags window_flags = ImGuiWindowFlags_None;
+        ImGuiWindowFlags window_flags = ImGuiWindowFlags_None | ImGuiWindowFlags_NoCollapse;
         if (!ImGui::Begin("Components Details", p_open, window_flags))
         {
             ImGui::End();
@@ -1062,7 +1066,7 @@ namespace ReCoder
         colors[ImGuiCol_WindowBg] = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
         colors[ImGuiCol_ChildBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
         colors[ImGuiCol_PopupBg] = ImVec4(0.08f, 0.08f, 0.08f, 0.94f);
-        colors[ImGuiCol_Border] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+        colors[ImGuiCol_Border] = ImVec4(0.002f, 0.002f, 0.002f, 1.0f);
         colors[ImGuiCol_BorderShadow] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
         colors[ImGuiCol_FrameBg] = ImVec4(0.047f, 0.047f, 0.047f, 0.5411f);
         colors[ImGuiCol_FrameBgHovered] = ImVec4(0.196f, 0.196f, 0.196f, 0.40f);
@@ -1083,7 +1087,7 @@ namespace ReCoder
         colors[ImGuiCol_ButtonActive] = ImVec4(0.0353f, 0.0196f, 0.0235f, 1.00f);
         colors[ImGuiCol_Header] = ImVec4(0.1137f, 0.0235f, 0.0745f, 0.588f);
         colors[ImGuiCol_HeaderHovered] = ImVec4(5.0f / 255.0f, 5.0f / 255.0f, 5.0f / 255.0f, 1.00f);
-        colors[ImGuiCol_HeaderActive] = ImVec4(0.0f, 0.0f, 0.0f, 1.00f);
+        colors[ImGuiCol_HeaderActive] = ImVec4(0.002f, 0.002f, 0.002f, 1.00f);
         colors[ImGuiCol_Separator] = ImVec4(0.0f, 0.0f, 0.0f, 0.50f);
         colors[ImGuiCol_SeparatorHovered] = ImVec4(45.0f / 255.0f, 7.0f / 255.0f, 26.0f / 255.0f, 1.00f);
         colors[ImGuiCol_SeparatorActive] = ImVec4(45.0f / 255.0f, 7.0f / 255.0f, 26.0f / 255.0f, 1.00f);

@@ -17,7 +17,7 @@ namespace VKernel
 {
     GObject::~GObject()
     {
-        for (auto& component : m_components)
+        for (auto &component : m_components)
         {
             VKERNEL_REFLECTION_DELETE(component);
         }
@@ -36,14 +36,14 @@ namespace VKernel
         }
     }
 
-    bool GObject::load(const ObjectInstanceRes& object_instance_res)
+    bool GObject::load(const ObjectInstanceRes &object_instance_res)
     {
         setName(object_instance_res.m_name);
 
         // clear old components
         m_components.clear();
 
-        // load object instanced components,
+        // load object instanced components
         m_components = object_instance_res.m_instanced_components;
         for (auto component : m_components) ///< Iteration
         {
@@ -57,7 +57,7 @@ namespace VKernel
         m_definition_url = object_instance_res.m_definition;
 
         ObjectDefinitionRes definition_res;
-        const bool          is_loaded_success =
+        const bool is_loaded_success =
             g_runtime_global_context.m_asset_manager->loadAsset(m_definition_url, definition_res); ///< load data
         if (!is_loaded_success)
             return false;
@@ -81,7 +81,7 @@ namespace VKernel
 
     void GObject::tick(float delta_time)
     {
-        for (auto& component : m_components) ///< Iteration
+        for (auto &component : m_components) ///< Iteration
         {
             if (shouldComponentTick(component.getTypeName()))
             {
@@ -90,16 +90,16 @@ namespace VKernel
         }
     }
 
-    void GObject::save(ObjectInstanceRes& out_object_instance_res)
+    void GObject::save(ObjectInstanceRes &out_object_instance_res)
     {
-        out_object_instance_res.m_name                 = m_name;
-        out_object_instance_res.m_definition           = m_definition_url;
+        out_object_instance_res.m_name = m_name;
+        out_object_instance_res.m_definition = m_definition_url;
         out_object_instance_res.m_instanced_components = m_components;
     }
 
-    bool GObject::hasComponent(const std::string& compenent_type_name) const
+    bool GObject::hasComponent(const std::string &compenent_type_name) const
     {
-        for (const auto& component : m_components)
+        for (const auto &component : m_components)
         {
             if (component.getTypeName() == compenent_type_name)
                 return true;

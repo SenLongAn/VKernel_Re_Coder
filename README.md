@@ -1,17 +1,21 @@
 ### VKernel + Re_Coder
 
-Tiny Game Engine: Vulkan Kernel Engine + ReSet Coder Editor
+#### Overview:
 
-Programming Language: C++
+Game Engine: Vulkan Kernel Engine + ReSet Coder Editor + the celestial console game
 
-Graphics API: Vulkan
+Recreated, repaired, and expanded the engine functions from scratch, and developed a simple construction-type game based on the game engine.
 
-IDE: VSCode
+The original software is licensed under the MIT license. For the complete license text, please refer to the PICCOLOLICENSE file.
 
-Build Tool: CMake
+Tech stack: C++, Vulkan, CMake, VSCode
 
-Platform: Windows
+#### Process:
 
-This project is a replica based on the [Piccolo Engine](https://github.com/BoomingTech/Piccolo), with additional development. New features have been added on this basis, while some original functions have been removed.
+Generate configuration files: cmake -Bbuild
 
-This project is copyrighted by Copyright (c) 2022 Contributors to the Piccolo Engine. The original software is licensed under the MIT license. For the complete license text, please refer to the PICCOLOLICENSE file.
+Build the project: cmake --build build
+
+Go to directory: cd bin
+
+Run: ./ReCoderEditor.exe

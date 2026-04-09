@@ -84,18 +84,19 @@ namespace Games
         int col = 3;
         float spacing = window_x * 0.035;
         ImVec2 buttonSize((window_x - spacing) / col, (window_x - spacing) / col);
-        ImGui::GetStyle().ItemSpacing = ImVec2(0, 0);
-        ImGui::GetStyle().ItemInnerSpacing = ImVec2(0, 0);
-        ImGui::GetStyle().FramePadding = ImVec2((spacing / 6.0f), (spacing / 6.0f));
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemInnerSpacing, ImVec2(0, 0));
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2((spacing / 6.0f), (spacing / 6.0f)));
 
         for (int i = 0; i < 20; i++)
         {
             if ((i % col) != 0)
                 ImGui::SameLine(0, 0);
 
-            // ImGui::ImageButton(texture_id, buttonSize);
-            ImGui::Image(texture_id, buttonSize);
+            ImGui::ImageButton(texture_id, buttonSize);
         }
+
+        ImGui::PopStyleVar(3);
 
         ImGui::EndChild();
 

@@ -213,6 +213,11 @@ namespace Games
                     color.x = myColor[0] < 0.002f ? 0.002f : myColor[0];
                     color.y = myColor[1] < 0.002f ? 0.002f : myColor[1];
                     color.z = myColor[2] < 0.002f ? 0.002f : myColor[2];
+
+                    bool &apply_lighting = mesh_com_ptr->m_apply_lighting;
+                    ImGui::Checkbox("Apply Lighting", &apply_lighting);
+                    bool &apply_texture = mesh_com_ptr->m_apply_texture;
+                    ImGui::Checkbox("Apply Texture", &apply_texture);
                 }
 
                 m_functions["TreeNodePop"](("<" + component_ptr.getTypeName() + ">").c_str(), nullptr); ///< pop
