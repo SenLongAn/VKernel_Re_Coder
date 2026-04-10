@@ -22,5 +22,6 @@ namespace Games
 
     private:
         void DrawCrosshairShape();
+        void setUIColorStyle();
     };
 } // namespace Games

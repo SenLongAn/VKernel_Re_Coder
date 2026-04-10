@@ -12,7 +12,7 @@
 namespace VKernel
 {
     void RenderScene::updateVisibleObjects(std::shared_ptr<RenderResource> render_resource,
-                                           std::shared_ptr<RenderCamera>   camera)
+                                           std::shared_ptr<RenderCamera> camera)
     {
         updateVisibleObjectsDirectionalLight(render_resource, camera);
         updateVisibleObjectsPointLight(render_resource);
@@ -23,18 +23,18 @@ namespace VKernel
     void RenderScene::setVisibleNodesReference()
     {
         RenderPass::m_visiable_nodes.p_directional_light_visible_mesh_nodes = &m_directional_light_visible_mesh_nodes;
-        RenderPass::m_visiable_nodes.p_point_lights_visible_mesh_nodes      = &m_point_lights_visible_mesh_nodes;
-        RenderPass::m_visiable_nodes.p_main_camera_visible_mesh_nodes       = &m_main_camera_visible_mesh_nodes;
-        RenderPass::m_visiable_nodes.p_axis_node                            = &m_axis_node;
+        RenderPass::m_visiable_nodes.p_point_lights_visible_mesh_nodes = &m_point_lights_visible_mesh_nodes;
+        RenderPass::m_visiable_nodes.p_main_camera_visible_mesh_nodes = &m_main_camera_visible_mesh_nodes;
+        RenderPass::m_visiable_nodes.p_axis_node = &m_axis_node;
     }
 
     void RenderScene::clearForLevelReloading() { m_render_entities.clear(); }
 
-    GuidAllocator<GameObjectPartId>& RenderScene::getInstanceIdAllocator() { return m_instance_id_allocator; }
+    GuidAllocator<GameObjectPartId> &RenderScene::getInstanceIdAllocator() { return m_instance_id_allocator; }
 
-    GuidAllocator<MeshSourceDesc>& RenderScene::getMeshAssetIdAllocator() { return m_mesh_asset_id_allocator; }
+    GuidAllocator<MeshSourceDesc> &RenderScene::getMeshAssetIdAllocator() { return m_mesh_asset_id_allocator; }
 
-    GuidAllocator<MaterialSourceDesc>& RenderScene::getMaterialAssetdAllocator()
+    GuidAllocator<MaterialSourceDesc> &RenderScene::getMaterialAssetdAllocator()
     {
         return m_material_asset_id_allocator;
     }
@@ -55,7 +55,7 @@ namespace VKernel
     }
 
     void RenderScene::updateVisibleObjectsDirectionalLight(std::shared_ptr<RenderResource> render_resource,
-                                                           std::shared_ptr<RenderCamera>   camera)
+                                                           std::shared_ptr<RenderCamera> camera)
     {
         // light PV
         Matrix4x4 directional_light_proj_view = CalculateDirectionalLightCamera(*this, *camera);
@@ -71,19 +71,19 @@ namespace VKernel
 
         // TODO: Frustum
         // Iterative entity
-        for (const RenderEntity& entity : m_render_entities)
+        for (const RenderEntity &entity : m_render_entities)
         {
             // add null node
             m_directional_light_visible_mesh_nodes.emplace_back();
-            RenderMeshNode& temp_node = m_directional_light_visible_mesh_nodes.back();
+            RenderMeshNode &temp_node = m_directional_light_visible_mesh_nodes.back();
 
             // set node
-            temp_node.node_id                 = entity.m_instance_id;
-            temp_node.model_matrix            = &entity.m_model_matrix;
-            VulkanMesh& mesh_asset            = render_resource->getEntityMesh(entity);
-            temp_node.ref_mesh                = &mesh_asset;
-            VulkanPBRMaterial& material_asset = render_resource->getEntityMaterial(entity);
-            temp_node.ref_material            = &material_asset;
+            temp_node.node_id = entity.m_instance_id;
+            temp_node.model_matrix = &entity.m_model_matrix;
+            VulkanMesh &mesh_asset = render_resource->getEntityMesh(entity);
+            temp_node.ref_mesh = &mesh_asset;
+            VulkanPBRMaterial &material_asset = render_resource->getEntityMaterial(entity);
+            temp_node.ref_material = &material_asset;
         }
     }
 
@@ -112,35 +112,35 @@ namespace VKernel
         // TODO: Frustum
 
         // Iterative entity
-        for (const RenderEntity& entity : m_render_entities)
+        for (const RenderEntity &entity : m_render_entities)
         {
             // add null node
             m_point_lights_visible_mesh_nodes.emplace_back();
-            RenderMeshNode& temp_node = m_point_lights_visible_mesh_nodes.back();
+            RenderMeshNode &temp_node = m_point_lights_visible_mesh_nodes.back();
 
             // set node
-            temp_node.node_id                 = entity.m_instance_id;
-            temp_node.model_matrix            = &entity.m_model_matrix;
-            VulkanMesh& mesh_asset            = render_resource->getEntityMesh(entity);
-            temp_node.ref_mesh                = &mesh_asset;
-            VulkanPBRMaterial& material_asset = render_resource->getEntityMaterial(entity);
-            temp_node.ref_material            = &material_asset;
+            temp_node.node_id = entity.m_instance_id;
+            temp_node.model_matrix = &entity.m_model_matrix;
+            VulkanMesh &mesh_asset = render_resource->getEntityMesh(entity);
+            temp_node.ref_mesh = &mesh_asset;
+            VulkanPBRMaterial &material_asset = render_resource->getEntityMaterial(entity);
+            temp_node.ref_material = &material_asset;
         }
     }
 
     void addBoundingBox(Matrix4x4 model_matrix, AxisAlignedBox bounding_box, uint32_t id)
     {
         // Calculate Matrix4x4
-        Vector3   min    = bounding_box.getMinCorner();
-        Vector3   max    = bounding_box.getMaxCorner();
-        Vector3   center = (min + max) * 0.5f;
-        Vector3   size   = max - min;
-        Matrix4x4 mat4   = Matrix4x4(center, size, Quaternion::IDENTITY);
-        mat4             = model_matrix * mat4; ///< M * local
+        Vector3 min = bounding_box.getMinCorner();
+        Vector3 max = bounding_box.getMaxCorner();
+        Vector3 center = (min + max) * 0.5f;
+        Vector3 size = max - min;
+        Matrix4x4 mat4 = Matrix4x4(center, size, Quaternion::IDENTITY);
+        mat4 = model_matrix * mat4; ///< M * local
 
         // to transform
-        Vector3    position;
-        Vector3    scale;
+        Vector3 position;
+        Vector3 scale;
         Quaternion orientation;
         mat4.decomposition(position, scale, orientation);
         Transform transform(position, orientation, scale);
@@ -151,41 +151,41 @@ namespace VKernel
             g_runtime_global_context.m_render_system->getRenderPipline()
                 ->getDebugManager()
                 ->getDebugDrawGroup()
-                ->addBox(Vector4(0.0f, 1.0f, 0.0f, 1.0f), transform, PrimitiveType::_Primitive_line, true);
+                ->addBox(Vector4(0.00f, 1.00f, 1.0f, 1.00f), transform, PrimitiveType::_Primitive_line, true);
         }
         else
         {
             g_runtime_global_context.m_render_system->getRenderPipline()
                 ->getDebugManager()
                 ->getDebugDrawGroup()
-                ->addBox(Vector4(1.0f, 0.0f, 0.0f, 1.0f), transform, PrimitiveType::_Primitive_line, true);
+                ->addBox(Vector4(1.00f, 0.00f, 1.00f, 1.00f), transform, PrimitiveType::_Primitive_line, true);
         }
     }
 
     void RenderScene::updateVisibleObjectsMainCamera(std::shared_ptr<RenderResource> render_resource,
-                                                     std::shared_ptr<RenderCamera>   camera)
+                                                     std::shared_ptr<RenderCamera> camera)
     {
         // TODO: Frustum
         // clear
         m_main_camera_visible_mesh_nodes.clear();
 
         // Iterative entity
-        for (auto& entity : m_render_entities)
+        for (auto &entity : m_render_entities)
         {
             // add null node
             m_main_camera_visible_mesh_nodes.emplace_back();
-            RenderMeshNode& temp_node = m_main_camera_visible_mesh_nodes.back();
+            RenderMeshNode &temp_node = m_main_camera_visible_mesh_nodes.back();
 
             // set node
-            temp_node.node_id                 = entity.m_instance_id;
-            temp_node.model_matrix            = &entity.m_model_matrix;                 ///< model matrix
-            VulkanMesh& mesh_asset            = render_resource->getEntityMesh(entity); ///< mesh
-            temp_node.ref_mesh                = &mesh_asset;
-            VulkanPBRMaterial& material_asset = render_resource->getEntityMaterial(entity); ///< material
-            temp_node.ref_material            = &material_asset;
-            temp_node.color                   = entity.m_color;
-            temp_node.apply_lighting          = entity.m_apply_lighting;
-            temp_node.apply_texture           = entity.m_apply_texture;
+            temp_node.node_id = entity.m_instance_id;
+            temp_node.model_matrix = &entity.m_model_matrix;                 ///< model matrix
+            VulkanMesh &mesh_asset = render_resource->getEntityMesh(entity); ///< mesh
+            temp_node.ref_mesh = &mesh_asset;
+            VulkanPBRMaterial &material_asset = render_resource->getEntityMaterial(entity); ///< material
+            temp_node.ref_material = &material_asset;
+            temp_node.color = entity.m_color;
+            temp_node.apply_lighting = entity.m_apply_lighting;
+            temp_node.apply_texture = entity.m_apply_texture;
 
             addBoundingBox(entity.m_model_matrix, entity.m_bounding_box, entity.m_instance_id);
         }
@@ -194,13 +194,13 @@ namespace VKernel
     {
         if (m_render_axis.has_value())
         {
-            RenderEntity& axis = *m_render_axis;
+            RenderEntity &axis = *m_render_axis;
 
             m_axis_node.model_matrix = axis.m_model_matrix;
-            m_axis_node.node_id      = axis.m_instance_id;
+            m_axis_node.node_id = axis.m_instance_id;
 
-            VulkanMesh& mesh_asset = render_resource->getEntityMesh(axis);
-            m_axis_node.ref_mesh   = &mesh_asset;
+            VulkanMesh &mesh_asset = render_resource->getEntityMesh(axis);
+            m_axis_node.ref_mesh = &mesh_asset;
         }
     }
 } // namespace VKernel

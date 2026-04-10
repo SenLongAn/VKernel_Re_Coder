@@ -80,9 +80,9 @@ namespace Games
                 degrees_val.z = trans_ptr->m_rotation.getYaw(false).valueDegrees();
 
                 // Draw Control
-                DrawVecControl("Position", trans_ptr->m_position);
-                DrawVecControl("Rotation", degrees_val);
-                DrawVecControl("Scale", trans_ptr->m_scale);
+                DrawVecControl("P", trans_ptr->m_position);
+                DrawVecControl("R", degrees_val);
+                DrawVecControl("S", trans_ptr->m_scale);
 
                 // rotation : new vec3 -> Quaternion
                 trans_ptr->m_rotation.w = VKernel::Math::cos(VKernel::Math::degreesToRadians(degrees_val.x / 2)) *
@@ -136,20 +136,15 @@ namespace Games
             ImGuiCond_Always);
         ImGui::SetNextWindowSize(ImVec2(viewport.width / 10.0f * 2, viewport.height), ImGuiCond_Always);
 
-        ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.03f, 0.03f, 0.04f, 1.0f));
-
         ImGuiWindowFlags window_flags = ImGuiWindowFlags_None | ImGuiWindowFlags_NoDocking |
-                                        ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize;
+                                        ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
 
-        bool isOpen = true;
-        ImGui::Begin("ControPanel", &isOpen, window_flags);
+        ImGui::Begin("CONTROLE", nullptr, window_flags);
 
         // Automatically adjust font size
         float windowArea = ImGui::GetWindowSize().x * ImGui::GetWindowSize().y;
         float scale = sqrtf(windowArea / (640 * 0.20 * 400)) * 0.5;
         ImGui::SetWindowFontScale(scale);
-
-        ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 1.0f), "Control Panel");
 
         if (isMouseInWindowRange())
         {
@@ -162,71 +157,103 @@ namespace Games
             VKernel::g_runtime_global_context.m_world_manager->getCurrentActiveLevel().lock();
         std::shared_ptr<VKernel::Character> current_character = current_level->getCurrentActiveCharacter().lock();
 
-        if (selected_go == nullptr ||
-            (current_character != nullptr && current_character->getObject().lock() == selected_go))
+        if (selected_go)
         {
-            ImGui::End();
-            ImGui::PopStyleColor();
-            return;
-        }
+            addSeparator();
 
-        auto &&selected_object_components = selected_go->getComponents(); ///< get Components
-        for (auto component_ptr : selected_object_components)             ///< iterate
-        {
-            std::string str = component_ptr.getTypeName();
-            if (str == "TransformComponent")
+            auto &&selected_object_components = selected_go->getComponents(); ///< get Components
+            for (auto component_ptr : selected_object_components)             ///< iterate
             {
-                m_functions["TreeNodePush"](("<" + component_ptr.getTypeName() + ">").c_str(),
-                                            nullptr); ///< push treenode
-
-                auto object_instance = VKernel::Reflection::ReflectionInstance(
-                    VKernel::Reflection::TypeMeta::newMetaFromName(component_ptr.getTypeName().c_str()),
-                    component_ptr.operator->());
-
-                createLeafNodeUI(object_instance);
-
-                m_functions["TreeNodePop"](("<" + component_ptr.getTypeName() + ">").c_str(), nullptr); ///< pop
-            }
-            if (str == "MeshComponent")
-            {
-                m_functions["TreeNodePush"](("<" + component_ptr.getTypeName() + ">").c_str(),
-                                            nullptr); ///< push treenode
-
-                auto object_instance = VKernel::Reflection::ReflectionInstance(
-                    VKernel::Reflection::TypeMeta::newMetaFromName(component_ptr.getTypeName().c_str()),
-                    component_ptr.operator->());
-                VKernel::Reflection::FieldAccessor *fields;
-                int fields_count = object_instance.m_meta.getFieldsList(fields);
-                for (size_t index = 0; index < fields_count; index++)
+                std::string str = component_ptr.getTypeName();
+                if (str == "TransformComponent")
                 {
-                    auto field = fields[index];
+                    m_functions["TreeNodePush"](("<" + component_ptr.getTypeName() + ">").c_str(),
+                                                nullptr); ///< push treenode
 
-                    VKernel::MeshComponentRes *mesh_com_ptr =
-                        static_cast<VKernel::MeshComponentRes *>(field.get(object_instance.m_instance));
-                    VKernel::Vector3 &color = mesh_com_ptr->m_color;
+                    auto object_instance = VKernel::Reflection::ReflectionInstance(
+                        VKernel::Reflection::TypeMeta::newMetaFromName(component_ptr.getTypeName().c_str()),
+                        component_ptr.operator->());
 
-                    float myColor[3] = {color.x, color.y, color.z};
-                    ImGui::ColorPicker3("Color", myColor);
-                    color.x = myColor[0];
-                    color.y = myColor[1];
-                    color.z = myColor[2];
-                    color.x = myColor[0] < 0.002f ? 0.002f : myColor[0];
-                    color.y = myColor[1] < 0.002f ? 0.002f : myColor[1];
-                    color.z = myColor[2] < 0.002f ? 0.002f : myColor[2];
+                    createLeafNodeUI(object_instance);
 
-                    bool &apply_lighting = mesh_com_ptr->m_apply_lighting;
-                    ImGui::Checkbox("Apply Lighting", &apply_lighting);
-                    bool &apply_texture = mesh_com_ptr->m_apply_texture;
-                    ImGui::Checkbox("Apply Texture", &apply_texture);
+                    m_functions["TreeNodePop"](("<" + component_ptr.getTypeName() + ">").c_str(), nullptr); ///< pop
                 }
+                if (str == "MeshComponent")
+                {
+                    m_functions["TreeNodePush"](("<" + component_ptr.getTypeName() + ">").c_str(),
+                                                nullptr); ///< push treenode
 
-                m_functions["TreeNodePop"](("<" + component_ptr.getTypeName() + ">").c_str(), nullptr); ///< pop
+                    auto object_instance = VKernel::Reflection::ReflectionInstance(
+                        VKernel::Reflection::TypeMeta::newMetaFromName(component_ptr.getTypeName().c_str()),
+                        component_ptr.operator->());
+                    VKernel::Reflection::FieldAccessor *fields;
+                    int fields_count = object_instance.m_meta.getFieldsList(fields);
+                    for (size_t index = 0; index < fields_count; index++)
+                    {
+                        auto field = fields[index];
+
+                        VKernel::MeshComponentRes *mesh_com_ptr =
+                            static_cast<VKernel::MeshComponentRes *>(field.get(object_instance.m_instance));
+                        VKernel::Vector3 &color = mesh_com_ptr->m_color;
+
+                        float myColor[3] = {color.x, color.y, color.z};
+                        ImGui::ColorPicker3("Color", myColor);
+                        color.x = myColor[0];
+                        color.y = myColor[1];
+                        color.z = myColor[2];
+                        color.x = myColor[0] < 0.002f ? 0.002f : myColor[0];
+                        color.y = myColor[1] < 0.002f ? 0.002f : myColor[1];
+                        color.z = myColor[2] < 0.002f ? 0.002f : myColor[2];
+
+                        bool &apply_lighting = mesh_com_ptr->m_apply_lighting;
+                        ImGui::Checkbox("Apply Lighting", &apply_lighting);
+                        bool &apply_texture = mesh_com_ptr->m_apply_texture;
+                        ImGui::Checkbox("Apply Texture", &apply_texture);
+                    }
+
+                    m_functions["TreeNodePop"](("<" + component_ptr.getTypeName() + ">").c_str(), nullptr); ///< pop
+                }
             }
         }
+
+        // text:
+
+        ImGui::SetCursorPosY(ImGui::GetCursorPos().y + ImGui::GetWindowSize().y / 50.0f);
+        addSeparator();
+
+        ImGui::SetCursorPosX(ImGui::GetWindowSize().x / 50.0f);
+        ImGui::TextColored(ImVec4(0.00f, 1.00f, 0.80f, 1.0f), "DIRECTION:");
+        ImGui::SetCursorPosX(ImGui::GetWindowSize().x / 50.0f);
+        ImGui::TextColored(ImVec4(0.00f, 1.00f, 0.80f, 1.0f), "TEMPERATURE:");
+        ImGui::SetCursorPosX(ImGui::GetWindowSize().x / 50.0f);
+        ImGui::TextColored(ImVec4(0.00f, 1.00f, 0.80f, 1.0f), "SUNLIGHT:");
+        ImGui::SetCursorPosX(ImGui::GetWindowSize().x / 50.0f);
+        ImGui::TextColored(ImVec4(0.00f, 1.00f, 0.80f, 1.0f), "FRAMERATE:");
+
+        // log
+
+        ImGui::SetCursorPosY(ImGui::GetCursorPos().y + ImGui::GetWindowSize().y / 50.0f);
+        addSeparator();
+
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.00f, 1.00f, 1.00f));
+        ImGui::TextWrapped("%s", "<<<----LOG--->>>");
+
+        ImGui::BeginChild("LogRegion", ImVec2(0, ImGui::GetWindowSize().y - ImGui::GetCursorPosY()), false, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+        std::vector<VKernel::LogMessage> messages = VKernel::g_runtime_global_context.m_logger_system->GetMessage();
+        for (const auto &log : messages)
+        {
+            ImGui::TextWrapped("%s", log.log.c_str());
+        }
+
+        if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
+        {
+            ImGui::SetScrollHereY(1.0f);
+        }
+
+        ImGui::EndChild();
+        ImGui::PopStyleColor();
 
         ImGui::End();
-
-        ImGui::PopStyleColor();
     }
 
     void ControPanel::createLeafNodeUI(VKernel::Reflection::ReflectionInstance &instance)

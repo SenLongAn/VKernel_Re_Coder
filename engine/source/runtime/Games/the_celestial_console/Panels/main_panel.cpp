@@ -19,6 +19,8 @@ namespace Games
 
     void MainPanel::preRender()
     {
+        setUIColorStyle();
+
         VkViewport viewport =
             VKernel::g_runtime_global_context.m_render_system->getVulkanAPI()->getSwapchainInfo().viewport;
 
@@ -27,8 +29,11 @@ namespace Games
 
         ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
 
-        ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoDocking |
-                                        ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
+        float original_border_size = ImGui::GetStyle().WindowBorderSize;
+        ImGui::GetStyle().WindowBorderSize = 0.0f;
+
+        ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar |
+                                        ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
         bool isOpen = true;
         ImGui::Begin("MainPanel", &isOpen, window_flags);
 
@@ -37,52 +42,38 @@ namespace Games
         float scale = sqrtf(windowArea / (640 * 0.20 * 400)) * 0.3;
         ImGui::SetWindowFontScale(scale);
 
-        // text:
-        ImGui::SetCursorPosX(ImGui::GetWindowSize().x / 10.0f * 1);
-        ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Direction:");
-        ImGui::SameLine();
-        ImGui::SetCursorPosX(ImGui::GetWindowSize().x / 10.0f * 3);
-        ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Temperature:");
-        ImGui::SameLine();
-        ImGui::SetCursorPosX(ImGui::GetWindowSize().x / 10.0f * 5);
-        ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Sunlight:");
-        ImGui::SameLine();
-        ImGui::SetCursorPosX(ImGui::GetWindowSize().x / 10.0f * 7);
-        ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "FrameRate:");
-        ImGui::SameLine();
-
         // button
-        ImVec2 buttonSize(ImGui::GetWindowSize().x / 50.0f, ImGui::GetWindowSize().y / 50.0f);
-        ImVec2 buttonPos(ImGui::GetWindowSize().x / 10.0F * 9, viewport.height / 100.0f);
+        ImVec2 buttonSize(ImGui::GetWindowSize().x / 10.0f, ImGui::GetWindowSize().y / 50.0f);
+        ImVec2 buttonPos(ImGui::GetWindowSize().x / 10.0F * 2.5, viewport.height / 100.0f);
         ImGui::SetCursorPos(buttonPos);
         if (isPanelOne)
         {
-            if (ImGui::Button("1", buttonSize)) ///< Current status
+            if (ImGui::Button("BUILD MODE", buttonSize)) ///< Current status
             {
                 isPanelOne = !isPanelOne;
             }
         }
         else
         {
-            if (ImGui::Button("2", buttonSize))
+            if (ImGui::Button("GALAXY MODE", buttonSize))
             {
                 isPanelOne = !isPanelOne;
             }
         }
 
-        ImVec2 buttonSize1(ImGui::GetWindowSize().x / 50.0f, ImGui::GetWindowSize().y / 50.0f);
-        ImVec2 buttonPos1(ImGui::GetWindowSize().x / 10.0F * 9.2, viewport.height / 100.0f);
+        ImVec2 buttonSize1(ImGui::GetWindowSize().x / 10.0f, ImGui::GetWindowSize().y / 50.0f);
+        ImVec2 buttonPos1(ImGui::GetWindowSize().x / 10.0F * 6.5, viewport.height / 100.0f);
         ImGui::SetCursorPos(buttonPos1);
         if (isPanelOpen)
         {
-            if (ImGui::Button("<>", buttonSize1))
+            if (ImGui::Button("OPEN CONTROLE", buttonSize1))
             {
                 isPanelOpen = !isPanelOpen;
             }
         }
         else
         {
-            if (ImGui::Button("><", buttonSize1))
+            if (ImGui::Button("CLOSE CONTROLE", buttonSize1))
             {
                 isPanelOpen = !isPanelOpen;
             }
@@ -91,42 +82,9 @@ namespace Games
         // Crosshair
         DrawCrosshairShape();
 
-        // log
-        float curY = ImGui::GetWindowSize().y;
-        ImGui::SetCursorPos(ImVec2(ImGui::GetWindowSize().x / 10.0f * 2.5, curY - curY / 10.0f * 1.5));
-
-        ImGui::BeginChild("LogRegion", ImVec2(0, curY / 10.0f * 1.4), false, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
-
-        std::vector<VKernel::LogMessage> messages = VKernel::g_runtime_global_context.m_logger_system->GetMessage();
-        for (const auto &log : messages)
-        {
-            switch (log.level)
-            {
-            case VKernel::LogLevel::debug:
-                ImGui::TextColored(ImVec4(0.1f, 0.0f, 1.0f, 1.0f), "%s", log.log.c_str());
-                break;
-            case VKernel::LogLevel::info:
-                ImGui::TextColored(ImVec4(0.1f, 1.0f, 0.0f, 1.0f), "%s", log.log.c_str());
-                break;
-            case VKernel::LogLevel::warn:
-                ImGui::TextColored(ImVec4(0.1f, 0.1f, 0.1f, 1.0f), "%s", log.log.c_str());
-                break;
-            case VKernel::LogLevel::error:
-                ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "%s", log.log.c_str());
-                break;
-            default:
-                break;
-            }
-        }
-
-        if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
-        {
-            ImGui::SetScrollHereY(1.0f);
-        }
-
-        ImGui::EndChild();
-
         ImGui::End();
+
+        ImGui::GetStyle().WindowBorderSize = original_border_size;
 
         ImGui::PopStyleColor();
     }
@@ -141,7 +99,7 @@ namespace Games
         float length = viewport.x / 5.0f;
         float gap = viewport.y / 5.0f;
         float thickness = viewport.x / 5.0f;
-        ImU32 color = IM_COL32(255, 0, 0, 200);
+        ImU32 color = IM_COL32(255, 0, 255, 200);
 
         draw_list->AddLine(ImVec2(center.x, center.y - length), ImVec2(center.x, center.y - gap), color, thickness);
 
@@ -150,5 +108,82 @@ namespace Games
         draw_list->AddLine(ImVec2(center.x - length, center.y), ImVec2(center.x - gap, center.y), color, thickness);
 
         draw_list->AddLine(ImVec2(center.x + gap, center.y), ImVec2(center.x + length, center.y), color, thickness);
+    }
+
+    void MainPanel::setUIColorStyle()
+    {
+        ImGuiStyle *style = &ImGui::GetStyle();
+        ImVec4 *colors = style->Colors;
+
+        colors[ImGuiCol_Text] = ImVec4(0.00f, 1.00f, 1.0f, 1.00f);
+        colors[ImGuiCol_TextDisabled] = ImVec4(0.40f, 0.40f, 0.50f, 1.00f);
+
+        colors[ImGuiCol_WindowBg] = ImVec4(0.01f, 0.01f, 0.03f, 1.00f);
+        colors[ImGuiCol_ChildBg] = ImVec4(0.03f, 0.02f, 0.06f, 0.80f);
+        colors[ImGuiCol_PopupBg] = ImVec4(0.08f, 0.05f, 0.15f, 0.95f);
+
+        colors[ImGuiCol_Border] = ImVec4(0.00f, 0.80f, 1.00f, 0.60f);
+        colors[ImGuiCol_BorderShadow] = ImVec4(1.00f, 0.00f, 0.80f, 0.30f);
+
+        colors[ImGuiCol_FrameBg] = ImVec4(0.10f, 0.05f, 0.15f, 0.90f);
+        colors[ImGuiCol_FrameBgHovered] = ImVec4(0.15f, 0.05f, 0.25f, 1.00f);
+        colors[ImGuiCol_FrameBgActive] = ImVec4(0.20f, 0.10f, 0.30f, 1.00f);
+
+        colors[ImGuiCol_TitleBg] = ImVec4(0.08f, 0.04f, 0.12f, 1.00f);
+        colors[ImGuiCol_TitleBgActive] = ImVec4(0.12f, 0.05f, 0.20f, 1.00f);
+        colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.06f, 0.03f, 0.10f, 0.80f);
+        colors[ImGuiCol_MenuBarBg] = ImVec4(0.06f, 0.03f, 0.10f, 1.00f);
+
+        colors[ImGuiCol_ScrollbarBg] = ImVec4(0.05f, 0.02f, 0.08f, 0.80f);
+        colors[ImGuiCol_ScrollbarGrab] = ImVec4(1.00f, 0.00f, 0.80f, 0.80f);
+        colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(1.00f, 0.20f, 0.90f, 1.00f);
+        colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.00f, 0.80f, 1.00f, 1.00f);
+
+        colors[ImGuiCol_CheckMark] = ImVec4(1.00f, 0.00f, 1.00f, 1.00f);
+        colors[ImGuiCol_SliderGrab] = ImVec4(1.00f, 0.00f, 0.80f, 1.00f);
+        colors[ImGuiCol_SliderGrabActive] = ImVec4(0.00f, 0.80f, 1.00f, 1.00f);
+
+        colors[ImGuiCol_Button] = ImVec4(0.08f, 0.04f, 0.15f, 1.00f);
+        colors[ImGuiCol_ButtonHovered] = ImVec4(0.00f, 0.80f, 1.00f, 0.70f);
+        colors[ImGuiCol_ButtonActive] = ImVec4(1.00f, 0.00f, 0.80f, 0.80f);
+
+        colors[ImGuiCol_Header] = ImVec4(0.12f, 0.05f, 0.20f, 1.00f);
+        colors[ImGuiCol_HeaderHovered] = ImVec4(0.00f, 0.60f, 0.80f, 0.60f);
+        colors[ImGuiCol_HeaderActive] = ImVec4(1.00f, 0.00f, 0.60f, 0.60f);
+
+        colors[ImGuiCol_Separator] = ImVec4(0.00f, 0.80f, 1.00f, 0.50f);
+        colors[ImGuiCol_SeparatorHovered] = ImVec4(1.00f, 0.00f, 0.80f, 0.80f);
+        colors[ImGuiCol_SeparatorActive] = ImVec4(0.00f, 1.00f, 0.80f, 1.00f);
+
+        colors[ImGuiCol_ResizeGrip] = ImVec4(1.00f, 0.00f, 0.80f, 0.40f);
+        colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.00f, 0.80f, 1.00f, 0.80f);
+        colors[ImGuiCol_ResizeGripActive] = ImVec4(0.00f, 1.00f, 0.80f, 1.00f);
+
+        colors[ImGuiCol_Tab] = ImVec4(0.06f, 0.03f, 0.12f, 1.00f);
+        colors[ImGuiCol_TabHovered] = ImVec4(0.00f, 0.70f, 0.90f, 0.80f);
+        colors[ImGuiCol_TabActive] = ImVec4(0.10f, 0.05f, 0.20f, 1.00f);
+        colors[ImGuiCol_TabUnfocused] = ImVec4(0.04f, 0.02f, 0.08f, 0.80f);
+        colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.08f, 0.04f, 0.15f, 0.90f);
+
+        colors[ImGuiCol_DockingPreview] = ImVec4(0.00f, 0.80f, 1.00f, 0.70f);
+        colors[ImGuiCol_DockingEmptyBg] = ImVec4(0.02f, 0.01f, 0.04f, 1.00f);
+
+        colors[ImGuiCol_PlotLines] = ImVec4(0.00f, 1.00f, 0.80f, 1.00f);
+        colors[ImGuiCol_PlotLinesHovered] = ImVec4(1.00f, 0.00f, 0.80f, 1.00f);
+        colors[ImGuiCol_PlotHistogram] = ImVec4(1.00f, 0.00f, 0.80f, 1.00f);
+        colors[ImGuiCol_PlotHistogramHovered] = ImVec4(0.00f, 0.80f, 1.00f, 1.00f);
+
+        colors[ImGuiCol_TableHeaderBg] = ImVec4(0.08f, 0.04f, 0.15f, 1.00f);
+        colors[ImGuiCol_TableBorderStrong] = ImVec4(0.00f, 0.80f, 1.00f, 0.80f);
+        colors[ImGuiCol_TableBorderLight] = ImVec4(1.00f, 0.00f, 0.80f, 0.40f);
+        colors[ImGuiCol_TableRowBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+        colors[ImGuiCol_TableRowBgAlt] = ImVec4(0.80f, 0.00f, 1.00f, 0.08f);
+
+        colors[ImGuiCol_TextSelectedBg] = ImVec4(0.00f, 0.80f, 1.00f, 0.40f);
+        colors[ImGuiCol_DragDropTarget] = ImVec4(1.00f, 0.00f, 0.80f, 0.90f);
+        colors[ImGuiCol_NavHighlight] = ImVec4(0.00f, 1.00f, 0.80f, 1.00f);
+        colors[ImGuiCol_NavWindowingHighlight] = ImVec4(1.00f, 0.00f, 0.80f, 0.80f);
+        colors[ImGuiCol_NavWindowingDimBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.80f);
+        colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.70f);
     }
 } // namespace Games

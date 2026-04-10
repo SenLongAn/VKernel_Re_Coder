@@ -47,6 +47,7 @@ namespace VKernel
                                                 std::string path,
                                                 bool is_srgb = false); ///< Load ImTextureID based on texture path
         bool isMouseInWindowRange();
+        void addSeparator();
 
     protected:
         bool m_only_game_mode = false;

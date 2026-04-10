@@ -432,12 +432,6 @@ namespace ReCoder
         io.ConfigWindowsMoveFromTitleBarOnly = true;      ///< Window can only be dragged from the title bar
         io.IniFilename = nullptr;                         ///< Do not save the layout
         io.FontGlobalScale = 1.0f;
-
-        // set style
-        setUIColorStyle();
-
-        ImGuiStyle &style = ImGui::GetStyle();
-        style.WindowMenuButtonPosition = ImGuiDir_None;
     }
 
     void EditorUI::preRender()
@@ -450,8 +444,12 @@ namespace ReCoder
         }
         else
         {
-            style->WindowBorderSize = 0.0f;
+            style->WindowBorderSize = 3.0f;
         }
+
+        setUIColorStyle();
+
+        style->WindowMenuButtonPosition = ImGuiDir_None;
 
         // render
         static bool is_first = true;
@@ -497,12 +495,12 @@ namespace ReCoder
             g_editor_global_context.m_input_manager->setEngineWindowPos(render_target_window_pos);
             g_editor_global_context.m_input_manager->setEngineWindowSize(render_target_window_size);
 
-            showEditorMenu(&m_editor_menu_window_open);
+            showEditorMenu();
         }
         else
         {
-            showEditorMenu(&m_editor_menu_window_open);
-            showEditorGameWindow(&m_game_engine_window_open);
+            showEditorMenu();
+            showEditorGameWindow();
             is_first = true;
         }
     }
@@ -586,14 +584,14 @@ namespace ReCoder
     void EditorUI::showEditorUI()
     {
         // Render 5 windows
-        showEditorMenu(&m_editor_menu_window_open);
-        showEditorWorldObjectsWindow(&m_asset_window_open);
-        showEditorGameWindow(&m_game_engine_window_open);
-        showEditorFileContentWindow(&m_file_content_window_open);
-        showEditorDetailWindow(&m_detail_window_open);
+        showEditorMenu();
+        showEditorWorldObjectsWindow();
+        showEditorGameWindow();
+        showEditorFileContentWindow();
+        showEditorDetailWindow();
     }
 
-    void EditorUI::showEditorMenu(bool *p_open)
+    void EditorUI::showEditorMenu()
     {
         // create menu window
 
@@ -629,7 +627,7 @@ namespace ReCoder
             ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
         }
 
-        ImGui::Begin("Editor menu", p_open, window_flags);
+        ImGui::Begin("Editor menu", nullptr, window_flags);
 
         // Automatically adjust font size
         float windowArea = ImGui::GetWindowSize().x * ImGui::GetWindowSize().y;
@@ -720,15 +718,6 @@ namespace ReCoder
                     ImGui::EndMenu();
                 }
 
-                if (ImGui::BeginMenu("Window"))
-                {
-                    ImGui::MenuItem("World Objects", nullptr, &m_asset_window_open);
-                    // ImGui::MenuItem("Game", nullptr, &m_game_engine_window_open);
-                    ImGui::MenuItem("File Content", nullptr, &m_file_content_window_open);
-                    ImGui::MenuItem("Detail", nullptr, &m_detail_window_open);
-                    ImGui::EndMenu();
-                }
-
                 ImGui::EndMenuBar();
             }
         }
@@ -738,15 +727,12 @@ namespace ReCoder
         ImGui::PopStyleColor();
     }
 
-    void EditorUI::showEditorWorldObjectsWindow(bool *p_open)
+    void EditorUI::showEditorWorldObjectsWindow()
     {
-        // If the window is closed
-        if (!*p_open)
-            return;
 
         // create window
         ImGuiWindowFlags window_flags = ImGuiWindowFlags_None | ImGuiWindowFlags_NoCollapse;
-        bool isSuccess = ImGui::Begin("World Objects", p_open, window_flags);
+        bool isSuccess = ImGui::Begin("World Objects", nullptr, window_flags);
         if (!isSuccess)
         {
             ImGui::End();
@@ -801,14 +787,12 @@ namespace ReCoder
         ImGui::End();
     }
 
-    void EditorUI::showEditorFileContentWindow(bool *p_open)
+    void EditorUI::showEditorFileContentWindow()
     {
-        if (!*p_open)
-            return;
 
         // create window
         ImGuiWindowFlags window_flags = ImGuiWindowFlags_None | ImGuiWindowFlags_NoCollapse;
-        if (!ImGui::Begin("File Content", p_open, window_flags))
+        if (!ImGui::Begin("File Content", nullptr, window_flags))
         {
             ImGui::End();
             return;
@@ -826,7 +810,7 @@ namespace ReCoder
 
         // table
         static ImGuiTableFlags flags = ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersOuterH |
-                                       ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg |
+                                       ImGuiTableFlags_Resizable |
                                        ImGuiTableFlags_NoBordersInBody;
 
         if (ImGui::BeginTable("File Content", 2, flags))
@@ -844,10 +828,8 @@ namespace ReCoder
         ImGui::End();
     }
 
-    void EditorUI::showEditorGameWindow(bool *p_open)
+    void EditorUI::showEditorGameWindow()
     {
-        if (!*p_open)
-            return;
 
         // begin window
         if (VKernel::g_is_editor_mode)
@@ -963,14 +945,12 @@ namespace ReCoder
         ImGui::PopStyleColor();
     }
 
-    void EditorUI::showEditorDetailWindow(bool *p_open)
+    void EditorUI::showEditorDetailWindow()
     {
-        if (!*p_open)
-            return;
 
         // begin window
         ImGuiWindowFlags window_flags = ImGuiWindowFlags_None | ImGuiWindowFlags_NoCollapse;
-        if (!ImGui::Begin("Components Details", p_open, window_flags))
+        if (!ImGui::Begin("Components Details", nullptr, window_flags))
         {
             ImGui::End();
             return;

@@ -8,6 +8,7 @@
 #include "runtime/core/base/macro.h"
 
 #include <backends/imgui_impl_vulkan.h>
+#include "window_ui.h"
 
 namespace VKernel
 {
@@ -81,6 +82,16 @@ namespace VKernel
                 mouse_pos.x <= window_pos.x + window_size.x &&
                 mouse_pos.y >= window_pos.y &&
                 mouse_pos.y <= window_pos.y + window_size.y);
+    }
+
+    void WindowUI::addSeparator()
+    {
+        ImGui::SetCursorPosY(ImGui::GetCursorPos().y + ImGui::GetWindowSize().y / 50.0f);
+
+        ImDrawList *draw_list = ImGui::GetWindowDrawList();
+        ImVec2 start = ImGui::GetCursorScreenPos();
+        ImVec2 end = ImVec2(start.x + ImGui::GetWindowSize().x, start.y);
+        draw_list->AddLine(start, end, IM_COL32(255, 0, 50, 255), ImGui::GetWindowSize().y / 700.0f);
     }
 
     int WindowUIFactory::index = 0;

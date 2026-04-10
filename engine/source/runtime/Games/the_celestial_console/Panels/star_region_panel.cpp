@@ -36,13 +36,9 @@ namespace Games
             ImGuiCond_Always);
         ImGui::SetNextWindowSize(ImVec2(viewport.width / 10.0f * 2, viewport.height), ImGuiCond_Always);
 
-        ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.03f, 0.03f, 0.04f, 1.0f));
+        ImGuiWindowFlags window_flags = ImGuiWindowFlags_None | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoCollapse;
 
-        ImGuiWindowFlags window_flags = ImGuiWindowFlags_None | ImGuiWindowFlags_NoDocking |
-                                        ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
-
-        bool isOpen = true;
-        ImGui::Begin("StarRegionPanel", &isOpen, window_flags);
+        ImGui::Begin("STAR REGION", nullptr, window_flags);
 
         ImGui::GetStyle().WindowPadding = ImVec2(0, 0);
 
@@ -52,8 +48,6 @@ namespace Games
         float windowArea = ImGui::GetWindowSize().x * ImGui::GetWindowSize().y;
         float scale = sqrtf(windowArea / (640 * 0.20 * 400)) * 0.5;
         ImGui::SetWindowFontScale(scale);
-
-        ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 1.0f), "StarRegion Panel");
 
         // Whether the panel can be penetrated
         if (isMouseInWindowRange())
@@ -101,7 +95,5 @@ namespace Games
         ImGui::EndChild();
 
         ImGui::End();
-
-        ImGui::PopStyleColor();
     }
 } // namespace Games
