@@ -23,9 +23,9 @@ namespace VKernel
         m_raw_meshes.resize(m_mesh_res.m_sub_meshes.size()); ///< resize
 
         size_t raw_mesh_count = 0;
-        for (SubMeshRes& sub_mesh : m_mesh_res.m_sub_meshes) ///< Traverse all subgrids
+        for (SubMeshRes &sub_mesh : m_mesh_res.m_sub_meshes) ///< Traverse all subgrids
         {
-            GameObjectPartDesc& meshComponent = m_raw_meshes[raw_mesh_count]; ///< current submesh
+            GameObjectPartDesc &meshComponent = m_raw_meshes[raw_mesh_count]; ///< current submesh
 
             meshComponent.m_mesh_desc.m_mesh_file =
                 asset_manager->getFullPath(sub_mesh.m_obj_file_ref).generic_string(); ///< full path
@@ -46,9 +46,10 @@ namespace VKernel
             }
 
             // write transform
-            auto object_space_transform                       = sub_mesh.m_transform.getMatrix();
+            sub_mesh.m_transform.updateRotation();
+            auto object_space_transform = sub_mesh.m_transform.getMatrix();
             meshComponent.m_transform_desc.m_transform_matrix = object_space_transform;
-            meshComponent.m_color                             = m_mesh_res.m_color;
+            meshComponent.m_color = m_mesh_res.m_color;
             if (m_mesh_res.m_apply_lighting)
             {
                 meshComponent.m_apply_lighting = Vector3::UNIT_SCALE;
@@ -77,17 +78,16 @@ namespace VKernel
             return;
 
         // Get the transformation of the associated object
-        TransformComponent* transform_component =
+        TransformComponent *transform_component =
             m_parent_object.lock()->tryGetComponent(TransformComponent, "TransformComponent");
 
         std::vector<GameObjectPartDesc> dirty_mesh_parts;
-        for (GameObjectPartDesc& mesh_part : m_raw_meshes) ///< Traverse all the grids of this object
+        for (GameObjectPartDesc &mesh_part : m_raw_meshes) ///< Traverse all the grids of this object
         {
             // Compute Subgrid Transform
             Matrix4x4 object_transform_matrix = mesh_part.m_transform_desc.m_transform_matrix;
             mesh_part.m_transform_desc.m_transform_matrix =
-                transform_component->getMatrix() *
-                object_transform_matrix; ///< Parent Object Transform * Submesh Relative Transform
+                transform_component->getMatrix() * object_transform_matrix; ///< Parent Object Transform * Submesh Relative Transform
             mesh_part.m_color = m_mesh_res.m_color;
             if (m_mesh_res.m_apply_lighting)
             {
@@ -112,8 +112,8 @@ namespace VKernel
         }
 
         // Add to swap Context
-        RenderSwapContext& render_swap_context = g_runtime_global_context.m_render_system->getSwapContext();
-        RenderSwapData&    logic_swap_data     = render_swap_context.getLogicSwapData();
+        RenderSwapContext &render_swap_context = g_runtime_global_context.m_render_system->getSwapContext();
+        RenderSwapData &logic_swap_data = render_swap_context.getLogicSwapData();
         logic_swap_data.addDirtyGameObject(GameObjectDesc(m_parent_object.lock()->getID(), dirty_mesh_parts));
     }
 } // namespace VKernel

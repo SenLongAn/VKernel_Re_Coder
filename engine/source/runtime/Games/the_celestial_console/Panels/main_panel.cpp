@@ -25,6 +25,8 @@ namespace Games
         ImGui::SetNextWindowPos(ImVec2(viewport.x + viewport.width / 10.0f * 2, viewport.y), ImGuiCond_Always);
         ImGui::SetNextWindowSize(ImVec2(viewport.width / 10.0f * 6, viewport.height), ImGuiCond_Always);
 
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+
         ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoDocking |
                                         ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
         bool isOpen = true;
@@ -125,6 +127,8 @@ namespace Games
         ImGui::EndChild();
 
         ImGui::End();
+
+        ImGui::PopStyleColor();
     }
 
     void MainPanel::DrawCrosshairShape()

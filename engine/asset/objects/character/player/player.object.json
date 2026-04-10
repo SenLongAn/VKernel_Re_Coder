@@ -34,22 +34,22 @@
                             "material": "asset/objects/character/player/components/mesh/player.material.json",
                             "obj_file_ref": "asset/objects/character/player/components/mesh/sphere.obj",
                             "transform": {
-                                "position": {
-                                    "x": 0,
-                                    "y": 0,
-                                    "z": 0
-                                },
-                                "euler_rotation": {
-                                    "x": 0,
-                                    "y": 0,
-                                    "z": 0
-                                },
-                                "scale": {
-                                    "x": 1,
-                                    "y": 1,
-                                    "z": 1
-                                },
-                                "is_serialization": true
+                              "position": {
+                                "x": 0.0,
+                                "y": 0.0,
+                                "z": 0.0
+                              },
+                              "euler_rotation": {
+                                "x": 0.0,
+                                "y": 0.0,
+                                "z": 0.0
+                              },
+                              "scale": {
+                                "x": 1,
+                                "y": 1,
+                                "z": 1
+                              },
+                              "is_serialization": true
                             }
                         }
                     ]

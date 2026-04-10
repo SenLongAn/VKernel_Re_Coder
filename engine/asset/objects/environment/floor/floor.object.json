@@ -33,23 +33,24 @@
                         {
                             "material": "asset/objects/environment/_material/white.material.json",
                             "obj_file_ref": "asset/objects/environment/floor/components/mesh/floor.obj",
+
                             "transform": {
-                                "position": {
-                                    "x": 0,
-                                    "y": 0,
-                                    "z": 0
-                                },
-                                "euler_rotation": {
-                                    "x": 0,
-                                    "y": 0,
-                                    "z": 0
-                                },
-                                "scale": {
-                                    "x": 1,
-                                    "y": 1,
-                                    "z": 1
-                                },
-                                "is_serialization": true
+                              "position": {
+                                "x": 0.0,
+                                "y": 0.0,
+                                "z": 0.0
+                              },
+                              "euler_rotation": {
+                                "x": 90.0,
+                                "y": 0.0,
+                                "z": 0.0
+                              },
+                              "scale": {
+                                "x": 1,
+                                "y": 1.7,
+                                "z": 1.0
+                              },
+                              "is_serialization": true
                             }
                         }
                     ]
