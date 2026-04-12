@@ -1,6 +1,7 @@
 #pragma once
 
 #include "runtime/function/render/vulkan_interface/vulkan_api.h"
+#include "runtime/core/font/IconsFontAwesome6.h"
 
 #include <functional>
 #include <memory>
@@ -36,6 +37,7 @@ namespace VKernel
         WindowUI() = default;
         WindowUI(bool isGameMode);
         virtual void initialize(WindowUIInitInfo init_info) = 0;
+        virtual void preUpdate() = 0;
         virtual void preRender() = 0;
         bool iSGameMode() { return m_only_game_mode; }
         void createImGuiDescriptorSetForTexture(VkImage &image,
@@ -48,6 +50,7 @@ namespace VKernel
                                                 bool is_srgb = false); ///< Load ImTextureID based on texture path
         bool isMouseInWindowRange();
         void addSeparator();
+        void updateFont(const std::string &path, float size);
 
     protected:
         bool m_only_game_mode = false;
@@ -110,6 +113,7 @@ public:                           \
         void initUIs(WindowUIInitInfo init_info);
 
         // tick
+        void preUpdate();
         void updateUIs();
 
         // clear

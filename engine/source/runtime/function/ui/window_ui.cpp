@@ -6,6 +6,7 @@
 #include "runtime/function/render/render_system.h"
 #include "runtime/function/render/render_resource_base.h"
 #include "runtime/core/base/macro.h"
+#include "runtime/core/font/IconsFontAwesome6.h"
 
 #include <backends/imgui_impl_vulkan.h>
 #include "window_ui.h"
@@ -91,7 +92,29 @@ namespace VKernel
         ImDrawList *draw_list = ImGui::GetWindowDrawList();
         ImVec2 start = ImGui::GetCursorScreenPos();
         ImVec2 end = ImVec2(start.x + ImGui::GetWindowSize().x, start.y);
-        draw_list->AddLine(start, end, IM_COL32(255, 0, 50, 255), ImGui::GetWindowSize().y / 700.0f);
+        draw_list->AddLine(start, end, IM_COL32(0, 200, 200, 255), ImGui::GetWindowSize().y / 700.0f);
+
+        ImGui::SetCursorPosY(ImGui::GetCursorPos().y + ImGui::GetWindowSize().y / 100.0f);
+    }
+
+    void WindowUI::updateFont(const std::string &path, float size)
+    {
+        ImGuiIO &io = ImGui::GetIO();
+        io.Fonts->Clear();
+
+        io.Fonts->AddFontFromFileTTF(path.c_str(), size);
+
+        float baseFontSize = 20.0f;
+        float iconFontSize = baseFontSize * 2.0f / 3.0f;
+        static const ImWchar icons_ranges[] = {ICON_MIN_FA, ICON_MAX_16_FA, 0};
+        ImFontConfig icons_config;
+        icons_config.MergeMode = true;
+        icons_config.PixelSnapH = true;
+        icons_config.GlyphMinAdvanceX = iconFontSize;
+        std::string fontPath = "asset/font/" + std::string(FONT_ICON_FILE_NAME_FAS);
+        io.Fonts->AddFontFromFileTTF(fontPath.c_str(), iconFontSize, &icons_config, icons_ranges);
+
+        io.Fonts->Build();
     }
 
     int WindowUIFactory::index = 0;
@@ -103,6 +126,18 @@ namespace VKernel
         for (auto &ui : m_uis)
         {
             ui->initialize(init_info);
+        }
+    }
+
+    void WindowUIManager::preUpdate()
+    {
+        for (auto &ui : m_uis)
+        {
+            if (VKernel::g_is_editor_mode && ui->iSGameMode())
+                continue;
+            if (!VKernel::g_is_editor_mode && !ui->iSGameMode())
+                continue;
+            ui->preUpdate();
         }
     }
 

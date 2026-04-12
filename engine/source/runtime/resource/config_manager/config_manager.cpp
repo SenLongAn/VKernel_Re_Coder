@@ -9,11 +9,11 @@
 namespace VKernel
 {
     void ConfigManager::initialize(
-        const std::filesystem::path& config_file_path) ///< Absolute Path: ……/bin/ReCoderEditor.ini
+        const std::filesystem::path &config_file_path) ///< Absolute Path: ……/bin/ReCoderEditor.ini
     {
         // Read the file content line by line
         std::ifstream config_file(config_file_path);
-        std::string   config_line;
+        std::string config_line;
         while (std::getline(config_file, config_line))
         {
             // For each line of content, divide it into two parts based on the '=' sign.
@@ -21,7 +21,7 @@ namespace VKernel
             if (seperate_pos > 0 && seperate_pos < (config_line.length() - 1))
             {
                 // name, value
-                std::string name  = config_line.substr(0, seperate_pos);
+                std::string name = config_line.substr(0, seperate_pos);
                 std::string value = config_line.substr(seperate_pos + 1, config_line.length() - seperate_pos - 1);
 
                 // Match the key and look up the value
@@ -33,7 +33,7 @@ namespace VKernel
                 {
                     m_asset_folder = m_root_folder / value; ///< ……/bin/asset
                 }
-                else if (name == "DefaultWorld") ///< bin/asset/world/1.world.json
+                else if (name == "DefaultWorld") ///< bin/asset/world/default.world.json
                 {
                     m_default_world_url = value;
                 }
@@ -45,12 +45,12 @@ namespace VKernel
         }
     }
 
-    const std::filesystem::path& ConfigManager::getRootFolder() const { return m_root_folder; }
+    const std::filesystem::path &ConfigManager::getRootFolder() const { return m_root_folder; }
 
-    const std::filesystem::path& ConfigManager::getAssetFolder() const { return m_asset_folder; }
+    const std::filesystem::path &ConfigManager::getAssetFolder() const { return m_asset_folder; }
 
-    const std::string& ConfigManager::getDefaultWorldUrl() const { return m_default_world_url; }
+    const std::string &ConfigManager::getDefaultWorldUrl() const { return m_default_world_url; }
 
-    const std::string& ConfigManager::getGlobalRenderingResUrl() const { return m_global_rendering_res_url; }
+    const std::string &ConfigManager::getGlobalRenderingResUrl() const { return m_global_rendering_res_url; }
 
 } // namespace VKernel

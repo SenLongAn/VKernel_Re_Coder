@@ -3,12 +3,17 @@
 #include "runtime/function/global/global_context.h"
 #include "runtime/function/render/render_system.h"
 #include "runtime/Games/the_celestial_console/Panels/main_panel.h"
+#include "setting_panel.h"
 
 namespace Games
 {
     WINDOWUI_REGISTER(SettingPanel, true);
 
     void SettingPanel::initialize(VKernel::WindowUIInitInfo init_info) {}
+
+    void SettingPanel::preUpdate()
+    {
+    }
 
     void SettingPanel::preRender()
     {
@@ -33,7 +38,7 @@ namespace Games
 
         ImGuiWindowFlags window_flags = ImGuiWindowFlags_None | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse;
 
-        ImGui::Begin("SETTING", nullptr, window_flags);
+        ImGui::Begin(ICON_FA_ANCHOR " SETTING", nullptr, window_flags);
 
         // Automatically adjust font size
         float windowArea = ImGui::GetWindowSize().x * ImGui::GetWindowSize().y;

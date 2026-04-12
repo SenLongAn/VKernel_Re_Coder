@@ -17,7 +17,7 @@ namespace VKernel
 {
     RuntimeGlobalContext g_runtime_global_context; ///< instance
 
-    void RuntimeGlobalContext::startSystems(const std::string& config_file_path)
+    void RuntimeGlobalContext::startSystems(const std::string &config_file_path)
     {
         m_file_system = std::make_shared<FileSystem>();
 

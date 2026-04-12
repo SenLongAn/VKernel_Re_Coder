@@ -45,6 +45,10 @@ namespace VKernel
 
     void UIPass::draw()
     {
+        // update font
+        g_runtime_global_context.m_window_ui_manager->preUpdate();
+        uploadFonts();
+
         // If the Editor UI Settings exist
         // Order Management
         ImGui_ImplVulkan_NewFrame(); ///< Start a new Vulkan frame
@@ -62,6 +66,8 @@ namespace VKernel
 
     void UIPass::uploadFonts()
     {
+        ImGui_ImplVulkan_DestroyFontsTexture();
+
         // begin
         VkCommandBuffer commandBuffer = m_vulkan_api->beginSingleTimeCommands();
 

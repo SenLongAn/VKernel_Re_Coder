@@ -32,7 +32,7 @@
           "definition": "asset/objects/character/player/player.object.json"
         },    
         {
-          "name": "Ground",
+          "name": "Floor",
           "instanced_components": [
             {
               "$context": {
@@ -61,7 +61,7 @@
           "definition": "asset/objects/environment/floor/floor.object.json"
         },
         {
-          "name": "Wall1",
+          "name": "Wall_1",
           "instanced_components": [
             {
               "$context": {
@@ -90,7 +90,7 @@
           "definition": "asset/objects/environment/wall/wall.object.json"
         },
         {
-          "name": "Wall2",
+          "name": "Wall_2",
           "instanced_components": [
             {
               "$context": {

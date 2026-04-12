@@ -79,7 +79,7 @@ namespace Games
         VKernel::g_runtime_global_context.m_render_system->getRenderPipline()
             ->getDebugManager()
             ->getDebugDrawGroup()
-            ->addLine(VKernel::Vector4(0.00f, 1.00f, 1.0f, 1.00f),
+            ->addLine(VKernel::Vector4(0.00f, 1.0f, 1.0f, 1.00f),
                       std::static_pointer_cast<Games::ControlCabin>(current_character)->getPosition(),
                       world_pos,
                       VKernel::Transform(

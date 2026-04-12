@@ -3,6 +3,7 @@
 #include "runtime/core/log/log_system.h"
 #include "runtime/function/global/global_context.h"
 #include "runtime/function/render/render_system.h"
+#include "runtime/engine.h"
 
 #include <vulkan/vulkan.h>
 
@@ -17,6 +18,14 @@ namespace Games
     {
     }
 
+    void MainPanel::preUpdate()
+    {
+        if (VKernel::g_is_update_mode)
+        {
+            updateFont("asset/font/DigitalNumbers.ttf", 10);
+            VKernel::g_is_update_mode = false;
+        }
+    }
     void MainPanel::preRender()
     {
         setUIColorStyle();

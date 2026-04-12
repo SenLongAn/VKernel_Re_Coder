@@ -15,11 +15,12 @@
 
 namespace VKernel
 {
-    bool                            g_is_editor_mode {false};
-    bool                            g_is_full_screen_mode {false};
-    std::unordered_set<std::string> g_editor_tick_component_types {}; ///< Component that only runs in editor mode
+    bool g_is_editor_mode{false};
+    bool g_is_update_mode{true};
+    bool g_is_full_screen_mode{false};
+    std::unordered_set<std::string> g_editor_tick_component_types{}; ///< Component that only runs in editor mode
 
-    void VKernelEngine::startEngine(const std::string& config_file_path)
+    void VKernelEngine::startEngine(const std::string &config_file_path)
     {
         Reflection::TypeMetaRegister::metaRegister(); ///< meta Register
 
@@ -65,7 +66,7 @@ namespace VKernel
             using namespace std::chrono;
 
             steady_clock::time_point tick_time_point = steady_clock::now(); ///< current time
-            duration<float>          time_span       = duration_cast<duration<float>>(
+            duration<float> time_span = duration_cast<duration<float>>(
                 tick_time_point - m_last_tick_time_point); ///< Calculate the time difference
             delta_time = time_span.count();
 

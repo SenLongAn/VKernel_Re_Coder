@@ -6,6 +6,7 @@
 #include "runtime/function/render/render_resource.h"
 
 #include <string>
+#include "star_region_panel.h"
 
 namespace Games
 {
@@ -13,10 +14,21 @@ namespace Games
 
     void StarRegionPanel::initialize(VKernel::WindowUIInitInfo init_info) {}
 
+    void StarRegionPanel::preUpdate()
+    {
+        static bool isFirst = true;
+        if (isFirst)
+        {
+            createImGuiDescriptorSetForTexture(image, image_view, image_allocation, descriptorSetLayout, descriptorSet, texture_id,
+                                               "asset/objects/_textures/gun.jpg", true);
+            isFirst = false;
+        }
+    }
+
     void StarRegionPanel::preRender()
     {
-
         // Is it render
+
         if (!MainPanel::isPanelOpen)
         {
             return;
@@ -38,7 +50,7 @@ namespace Games
 
         ImGuiWindowFlags window_flags = ImGuiWindowFlags_None | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoCollapse;
 
-        ImGui::Begin("STAR REGION", nullptr, window_flags);
+        ImGui::Begin(ICON_FA_ANCHOR " STAR REGION", nullptr, window_flags);
 
         ImGui::GetStyle().WindowPadding = ImVec2(0, 0);
 
@@ -67,14 +79,6 @@ namespace Games
         }
 
         // button
-        static bool isFirst = true;
-        if (isFirst)
-        {
-            createImGuiDescriptorSetForTexture(image, image_view, image_allocation, descriptorSetLayout, descriptorSet, texture_id,
-                                               "asset/objects/_textures/gun.jpg", true);
-            isFirst = false;
-        }
-
         int col = 3;
         float spacing = window_x * 0.035;
         ImVec2 buttonSize((window_x - spacing) / col, (window_x - spacing) / col);

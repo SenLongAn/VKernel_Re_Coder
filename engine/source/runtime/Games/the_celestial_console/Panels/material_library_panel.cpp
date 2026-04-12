@@ -4,12 +4,17 @@
 #include "runtime/function/render/render_system.h"
 #include "runtime/Games/the_celestial_console/Panels/main_panel.h"
 #include "runtime/core/base/macro.h"
+#include "material_library_panel.h"
 
 namespace Games
 {
     WINDOWUI_REGISTER(MaterialLibraryPanel, true);
 
     void MaterialLibraryPanel::initialize(VKernel::WindowUIInitInfo init_info) {}
+
+    void MaterialLibraryPanel::preUpdate()
+    {
+    }
 
     void MaterialLibraryPanel::preRender()
     {
@@ -34,7 +39,7 @@ namespace Games
 
         ImGuiWindowFlags window_flags = ImGuiWindowFlags_None | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse;
 
-        ImGui::Begin("MATERIAL LIBRARY", nullptr, window_flags);
+        ImGui::Begin(ICON_FA_ANCHOR " MATERIAL LIBRARY", nullptr, window_flags);
 
         // Automatically adjust font size
         float windowArea = ImGui::GetWindowSize().x * ImGui::GetWindowSize().y;

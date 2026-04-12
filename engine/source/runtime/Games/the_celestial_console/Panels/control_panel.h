@@ -14,10 +14,11 @@ namespace Games
     public:
         ControPanel(bool isGameMode);
         void initialize(VKernel::WindowUIInitInfo init_info) override;
+        virtual void preUpdate() override final; ///< pre render
         void preRender() override;
 
     private:
-        std::unordered_map<std::string, std::function<void(std::string, void*)>> m_functions;
-        void createLeafNodeUI(VKernel::Reflection::ReflectionInstance& instance);
+        std::unordered_map<std::string, std::function<void(std::string, void *)>> m_functions;
+        void createLeafNodeUI(VKernel::Reflection::ReflectionInstance &instance);
     };
 } // namespace Games

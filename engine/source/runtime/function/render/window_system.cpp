@@ -2,8 +2,11 @@
 
 #include "runtime/core/base/macro.h"
 
-#include "window_system.h"
 #include <iostream>
+
+#include <stb_image.h>
+
+#include <windows.h>
 
 namespace VKernel
 {
@@ -21,7 +24,7 @@ namespace VKernel
             return;
         }
 
-        m_width  = create_info.width;
+        m_width = create_info.width;
         m_height = create_info.height;
 
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API); ///< Do not use OpenGL，Vulkan is required.
@@ -34,6 +37,9 @@ namespace VKernel
             return;
         }
 
+        // icon
+        setWindowIcon(m_window, "asset/texture/global/icon.ico");
+
         // Setup input callbacks
         glfwSetWindowUserPointer(m_window, this);
         glfwSetWindowSizeCallback(m_window, windowSizeCallback);
@@ -44,7 +50,26 @@ namespace VKernel
         glfwSetMouseButtonCallback(m_window, mouseButtonCallback);
     }
 
-    GLFWwindow* WindowSystem::getWindow() const { return m_window; }
+    void WindowSystem::setWindowIcon(GLFWwindow *window, const char *iconPath)
+    {
+        HWND hwnd = glfwGetWin32Window(m_window);
+        HICON hIcon = (HICON)LoadImage(
+            NULL,
+            iconPath,
+            IMAGE_ICON,
+            32, 32,
+            LR_LOADFROMFILE);
+
+        if (hIcon)
+        {
+            PostMessage(hwnd, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
+            HICON hSmall = (HICON)LoadImage(NULL, iconPath,
+                                            IMAGE_ICON, 16, 16, LR_LOADFROMFILE);
+            PostMessage(hwnd, WM_SETICON, ICON_SMALL, (LPARAM)hSmall);
+        }
+    }
+
+    GLFWwindow *WindowSystem::getWindow() const { return m_window; }
 
     std::array<int, 2> WindowSystem::getWindowSize() const { return std::array<int, 2>({m_width, m_height}); }
 

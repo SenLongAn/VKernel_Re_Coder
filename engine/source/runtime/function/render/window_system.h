@@ -1,12 +1,17 @@
 #pragma once
 
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
-
 #include <array>
 #include <functional>
 #include <vector>
 
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+
+#define GLFW_EXPOSE_NATIVE_WIN32
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
+#include <GLFW/glfw3native.h>
 /**
  * window core
  */
@@ -14,9 +19,9 @@ namespace VKernel
 {
     struct WindowCreateInfo
     {
-        int         width {640};
-        int         height {400};
-        const char* title {"VKernel"};
+        int width{640};
+        int height{400};
+        const char *title{"VKernel"};
     };
 
     class WindowSystem ///< window core
@@ -28,17 +33,20 @@ namespace VKernel
 
         void initialize(WindowCreateInfo create_info); ///< init
 
-        GLFWwindow*        getWindow() const;     ///< Get Window
+        GLFWwindow *getWindow() const;            ///< Get Window
         std::array<int, 2> getWindowSize() const; ///< Get the window size
 
         void pollEvents() const;  // glfw event
         bool shouldClose() const; ///< Have you closed the window
 
+        // icon
+        void setWindowIcon(GLFWwindow *window, const char *iconPath);
+
         // type function
         typedef std::function<void(int, int, int, int)> onKeyFunc;
-        typedef std::function<void(double, double)>     onCursorPosFunc;
-        typedef std::function<void(double, double)>     onScrollFunc;
-        typedef std::function<void(int, int, int)>      onMouseButtonFunc;
+        typedef std::function<void(double, double)> onCursorPosFunc;
+        typedef std::function<void(double, double)> onScrollFunc;
+        typedef std::function<void(int, int, int)> onMouseButtonFunc;
 
         // Register to the observer
         void registerOnKeyFunc(onKeyFunc func) { m_onKeyFunc.push_back(func); }
@@ -64,47 +72,47 @@ namespace VKernel
 
     protected:
         // callbacks func
-        static void windowSizeCallback(GLFWwindow* window, int width, int height)
+        static void windowSizeCallback(GLFWwindow *window, int width, int height)
         {
-            WindowSystem* app = (WindowSystem*)glfwGetWindowUserPointer(window);
+            WindowSystem *app = (WindowSystem *)glfwGetWindowUserPointer(window);
             if (app)
             {
-                app->m_width  = width;
+                app->m_width = width;
                 app->m_height = height;
             }
         }
-        static void windowCloseCallback(GLFWwindow* window) { glfwSetWindowShouldClose(window, true); }
+        static void windowCloseCallback(GLFWwindow *window) { glfwSetWindowShouldClose(window, true); }
 
-        static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+        static void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods)
         {
-            WindowSystem* app = (WindowSystem*)glfwGetWindowUserPointer(window);
+            WindowSystem *app = (WindowSystem *)glfwGetWindowUserPointer(window);
             if (app)
             {
                 app->onKey(key, scancode, action, mods);
             }
         }
 
-        static void cursorPosCallback(GLFWwindow* window, double xpos, double ypos)
+        static void cursorPosCallback(GLFWwindow *window, double xpos, double ypos)
         {
-            WindowSystem* app = (WindowSystem*)glfwGetWindowUserPointer(window);
+            WindowSystem *app = (WindowSystem *)glfwGetWindowUserPointer(window);
             if (app)
             {
                 app->onCursorPos(xpos, ypos);
             }
         }
 
-        static void scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
+        static void scrollCallback(GLFWwindow *window, double xoffset, double yoffset)
         {
-            WindowSystem* app = (WindowSystem*)glfwGetWindowUserPointer(window);
+            WindowSystem *app = (WindowSystem *)glfwGetWindowUserPointer(window);
             if (app)
             {
                 app->onScroll(xoffset, yoffset);
             }
         }
 
-        static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
+        static void mouseButtonCallback(GLFWwindow *window, int button, int action, int mods)
         {
-            WindowSystem* app = (WindowSystem*)glfwGetWindowUserPointer(window);
+            WindowSystem *app = (WindowSystem *)glfwGetWindowUserPointer(window);
             if (app)
             {
                 app->onMouseButton(button, action, mods);
@@ -113,41 +121,40 @@ namespace VKernel
 
         void onKey(int key, int scancode, int action, int mods)
         {
-            for (auto& func : m_onKeyFunc)
+            for (auto &func : m_onKeyFunc)
                 func(key, scancode, action, mods);
         }
 
         void onCursorPos(double xpos, double ypos)
         {
-            for (auto& func : m_onCursorPosFunc)
+            for (auto &func : m_onCursorPosFunc)
                 func(xpos, ypos);
         }
 
         void onScroll(double xoffset, double yoffset)
         {
-            for (auto& func : m_onScrollFunc)
+            for (auto &func : m_onScrollFunc)
                 func(xoffset, yoffset);
         }
 
         void onMouseButton(int button, int action, int mods)
         {
-            for (auto& func : m_onMouseButtonFunc)
+            for (auto &func : m_onMouseButtonFunc)
                 func(button, action, mods);
         }
 
     private:
         // window
-        GLFWwindow* m_window {nullptr}; ///< window instance
-        int         m_width {0};        ///< window width
-        int         m_height {0};       ///< window height
+        GLFWwindow *m_window{nullptr}; ///< window instance
+        int m_width{0};                ///< window width
+        int m_height{0};               ///< window height
 
         // focus
-        bool m_is_focus_mode {false};
-
+        bool m_is_focus_mode{false};
         // List of Observers
-        std::vector<onKeyFunc>         m_onKeyFunc;
-        std::vector<onCursorPosFunc>   m_onCursorPosFunc;
-        std::vector<onScrollFunc>      m_onScrollFunc;
+        std::vector<onKeyFunc> m_onKeyFunc;
+        std::vector<onCursorPosFunc> m_onCursorPosFunc;
+        std::vector<onScrollFunc> m_onScrollFunc;
         std::vector<onMouseButtonFunc> m_onMouseButtonFunc;
     };
 } // namespace VKernel

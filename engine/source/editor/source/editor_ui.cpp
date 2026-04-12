@@ -13,7 +13,6 @@
 #include "runtime/platform/path/path.h"
 #include "runtime/resource/asset_manager/asset_manager.h"
 #include "runtime/resource/config_manager/config_manager.h"
-
 #include "runtime/function/render/window_system.h"
 
 #include <array>
@@ -85,9 +84,9 @@ namespace ReCoder
                 degrees_val.z = trans_ptr->m_rotation.getYaw(false).valueDegrees();
 
                 // Draw Control
-                DrawVecControl("P", trans_ptr->m_position);
-                DrawVecControl("R", degrees_val);
-                DrawVecControl("S", trans_ptr->m_scale);
+                DrawVecControl("P:", trans_ptr->m_position);
+                DrawVecControl("R:", degrees_val);
+                DrawVecControl("S:", trans_ptr->m_scale);
 
                 // rotation : new vec3 -> Quaternion
                 trans_ptr->m_rotation.w = VKernel::Math::cos(VKernel::Math::degreesToRadians(degrees_val.x / 2)) *
@@ -286,23 +285,15 @@ namespace ReCoder
 
     void DrawVecControl(const std::string &label, VKernel::Vector3 &values, float resetValue, float columnWidth)
     {
-        // Text
         ImGui::PushID(label.c_str());
 
-        ImGui::Columns(2);
-        ImGui::SetColumnWidth(0, columnWidth);
+        // Text
         ImGui::Text("%s", label.c_str());
-        ImGui::NextColumn();
-
+        ImGui::SameLine();
         ImGui::PushMultiItemsWidths(3, ImGui::CalcItemWidth());
-        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{0, 0});
-
-        float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
-        ImVec2 buttonSize = {lineHeight + 3.0f, lineHeight};
 
         // X
         ImGui::Text("X");
-
         ImGui::SameLine();
         ImGui::DragFloat("##X", &values.x, 0.1f, 0.0f, 0.0f, "%.2f");
         ImGui::PopItemWidth();
@@ -310,7 +301,6 @@ namespace ReCoder
 
         // Y
         ImGui::Text("Y");
-
         ImGui::SameLine();
         ImGui::DragFloat("##Y", &values.y, 0.1f, 0.0f, 0.0f, "%.2f");
         ImGui::PopItemWidth();
@@ -318,14 +308,10 @@ namespace ReCoder
 
         // Z
         ImGui::Text("Z");
-
         ImGui::SameLine();
         ImGui::DragFloat("##Z", &values.z, 0.1f, 0.0f, 0.0f, "%.2f");
         ImGui::PopItemWidth();
 
-        ImGui::PopStyleVar();
-
-        ImGui::Columns(1);
         ImGui::PopID();
     }
 
@@ -402,9 +388,9 @@ namespace ReCoder
                 {
                     auto child_instance =
                         VKernel::Reflection::ReflectionInstance(field_meta, field.get(instance.m_instance));
-                    m_editor_ui_creator["TreeNodePush"](field_meta.getTypeName(), nullptr);
+                    m_editor_ui_creator["TreeNodePush"](std::string(ICON_FA_INBOX) + " " + field_meta.getTypeName(), nullptr);
                     createClassUI(child_instance); ///< Recursion
-                    m_editor_ui_creator["TreeNodePop"](field_meta.getTypeName(), nullptr);
+                    m_editor_ui_creator["TreeNodePop"](std::string(ICON_FA_INBOX) + " " + field_meta.getTypeName(), nullptr);
                 }
                 else ///< else continue
                 {
@@ -432,6 +418,15 @@ namespace ReCoder
         io.ConfigWindowsMoveFromTitleBarOnly = true;      ///< Window can only be dragged from the title bar
         io.IniFilename = nullptr;                         ///< Do not save the layout
         io.FontGlobalScale = 1.0f;
+    }
+
+    void EditorUI::preUpdate()
+    {
+        if (VKernel::g_is_update_mode)
+        {
+            updateFont("asset/font/OpenSans-Light.ttf", 15);
+            VKernel::g_is_update_mode = false;
+        }
     }
 
     void EditorUI::preRender()
@@ -546,12 +541,7 @@ namespace ReCoder
         if (is_folder) ///< If it's not a leaf node
         {
             bool open =
-                ImGui::TreeNodeEx(node->m_file_name.c_str(), ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_DefaultOpen); ///< create treenode
-
-            // set node type
-            ImGui::TableNextColumn();
-            ImGui::SetNextItemWidth(100.0f);
-            ImGui::TextUnformatted(node->m_file_type.c_str());
+                ImGui::TreeNodeEx((std::string(ICON_FA_FOLDER_CLOSED) + " " + node->m_file_name).c_str(), ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_DefaultOpen); ///< create treenode
 
             // Recursive construction
             if (open) ///< If the node is expanded
@@ -563,9 +553,36 @@ namespace ReCoder
         }
         else
         {
-            ImGui::TreeNodeEx(node->m_file_name.c_str(),
-                              ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen |
-                                  ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_DefaultOpen); ///< create treenode
+            if (node->m_file_type == "jpg" || node->m_file_type == "png" || node->m_file_type == "tga" || node->m_file_type == "hdr") ///< texture
+            {
+                ImGui::TreeNodeEx((std::string(ICON_FA_FILE_IMAGE) + " " + node->m_file_name).c_str(),
+                                  ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen |
+                                      ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_DefaultOpen);
+            }
+            else if (node->m_file_type == "world" || node->m_file_type == "material") ///< json
+            {
+                ImGui::TreeNodeEx((std::string(ICON_FA_FILE_CODE) + " " + node->m_file_name).c_str(),
+                                  ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen |
+                                      ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_DefaultOpen);
+            }
+            else if (node->m_file_type == "object") ///< obj
+            {
+                ImGui::TreeNodeEx((std::string(ICON_FA_CUBES) + " " + node->m_file_name).c_str(),
+                                  ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen |
+                                      ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_DefaultOpen);
+            }
+            else if (node->m_file_type == "level") ///< obj
+            {
+                ImGui::TreeNodeEx((std::string(ICON_FA_REPEAT) + " " + node->m_file_name).c_str(),
+                                  ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen |
+                                      ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_DefaultOpen);
+            }
+            else
+            {
+                ImGui::TreeNodeEx((std::string(ICON_FA_FILE_LINES) + " " + node->m_file_name).c_str(),
+                                  ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen |
+                                      ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_DefaultOpen);
+            }
 
             // If clicked
             if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen() &&
@@ -573,11 +590,6 @@ namespace ReCoder
             {
                 onFileContentItemClicked(node);
             }
-
-            // set node type
-            ImGui::TableNextColumn();
-            ImGui::SetNextItemWidth(100.0f);
-            ImGui::TextUnformatted(node->m_file_type.c_str());
         }
     }
 
@@ -618,13 +630,13 @@ namespace ReCoder
             window_flags |= ImGuiWindowFlags_MenuBar;
         }
 
-        if (VKernel::g_is_editor_mode)
+        if (!VKernel::g_is_editor_mode || VKernel::g_is_full_screen_mode)
         {
-            ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.01f, 0.01f, 0.01f, 1.0f));
+            ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
         }
         else
         {
-            ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+            ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.01f, 0.01f, 0.01f, 1.0f));
         }
 
         ImGui::Begin("Editor menu", nullptr, window_flags);
@@ -675,10 +687,10 @@ namespace ReCoder
             ImGuiID left_right_down =
                 ImGui::DockBuilderSplitNode(left_right, ImGuiDir_Down, 0.25f, nullptr, &left_right_up);
 
-            ImGui::DockBuilderDockWindow("World Objects", left_left);
-            ImGui::DockBuilderDockWindow("Components Details", right);
-            ImGui::DockBuilderDockWindow("File Content", left_right_down);
-            ImGui::DockBuilderDockWindow("Game Engine", left_right_up);
+            ImGui::DockBuilderDockWindow(ICON_FA_CUBE " GAME OBJECTS", left_left);
+            ImGui::DockBuilderDockWindow(ICON_FA_CUBE " COMPONENTS", right);
+            ImGui::DockBuilderDockWindow(ICON_FA_CUBE " RESOURCES", left_right_down);
+            ImGui::DockBuilderDockWindow(ICON_FA_CUBE " RENDER", left_right_up);
 
             // finish
             ImGui::DockBuilderFinish(main_docking_id);
@@ -691,30 +703,34 @@ namespace ReCoder
         {
             if (ImGui::BeginMenuBar())
             {
-                if (ImGui::BeginMenu("Menu"))
+                if (ImGui::BeginMenu(ICON_FA_BARS " FILE"))
                 {
-                    if (ImGui::MenuItem("Reload Current Level"))
+                    if (ImGui::MenuItem(ICON_FA_REPEAT " RELOAD CURRENT LEVEL"))
                     {
                         VKernel::g_runtime_global_context.m_world_manager->reloadCurrentLevel(); ///< reload level
                         VKernel::g_runtime_global_context.m_render_system
                             ->clearForLevelReloading(); ///< clear and reset
                         g_editor_global_context.m_input_manager->resetCameraSpeed();
                     }
-                    if (ImGui::MenuItem("Save Current Level"))
+                    if (ImGui::MenuItem(ICON_FA_FLOPPY_DISK " SAVE CURRENT LEVEL"))
                     {
                         VKernel::g_runtime_global_context.m_world_manager->saveCurrentLevel();
                     }
-                    if (ImGui::MenuItem("Exit"))
+                    if (ImGui::MenuItem(ICON_FA_POWER_OFF " EXIT"))
                     {
                         g_editor_global_context.m_engine_runtime->shutdownEngine();
                         exit(0);
                     }
 
-                    if (ImGui::MenuItem("Reset Layout"))
+                    ImGui::EndMenu();
+                }
+
+                if (ImGui::BeginMenu(ICON_FA_PAINTBRUSH " STYLE"))
+                {
+                    if (ImGui::MenuItem(ICON_FA_RETWEET " RESET LAYOUT"))
                     {
                         reset_layout = true;
                     }
-
                     ImGui::EndMenu();
                 }
 
@@ -732,7 +748,7 @@ namespace ReCoder
 
         // create window
         ImGuiWindowFlags window_flags = ImGuiWindowFlags_None | ImGuiWindowFlags_NoCollapse;
-        bool isSuccess = ImGui::Begin("World Objects", nullptr, window_flags);
+        bool isSuccess = ImGui::Begin(ICON_FA_CUBE " GAME OBJECTS", nullptr, window_flags);
         if (!isSuccess)
         {
             ImGui::End();
@@ -761,7 +777,7 @@ namespace ReCoder
         {
             const VKernel::GObjectID object_id = id_object_pair.first;
             std::shared_ptr<VKernel::GObject> object = id_object_pair.second;
-            const std::string name = object->getName();
+            const std::string name = std::string(ICON_FA_CUBES) + " " + object->getName();
             if (name.size() > 0)
             {
                 // create Selectable table
@@ -792,7 +808,7 @@ namespace ReCoder
 
         // create window
         ImGuiWindowFlags window_flags = ImGuiWindowFlags_None | ImGuiWindowFlags_NoCollapse;
-        if (!ImGui::Begin("File Content", nullptr, window_flags))
+        if (!ImGui::Begin(ICON_FA_CUBE " RESOURCES", nullptr, window_flags))
         {
             ImGui::End();
             return;
@@ -813,7 +829,7 @@ namespace ReCoder
                                        ImGuiTableFlags_Resizable |
                                        ImGuiTableFlags_NoBordersInBody;
 
-        if (ImGui::BeginTable("File Content", 2, flags))
+        if (ImGui::BeginTable("File Content", 1, flags))
         {
             // build file tree
             m_editor_file_service.buildEngineFileTree();
@@ -843,7 +859,7 @@ namespace ReCoder
         ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
         ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoCollapse; ///< Window icon: includes menu bar
 
-        if (!ImGui::Begin("Game Engine", nullptr, window_flags))
+        if (!ImGui::Begin(ICON_FA_CUBE " RENDER", nullptr, window_flags))
         {
             ImGui::End();
             ImGui::PopStyleColor();
@@ -884,21 +900,25 @@ namespace ReCoder
         // MenuBar
         if (ImGui::BeginMenuBar())
         {
+            ImVec2 buttonSize = ImGui::CalcTextSize(ICON_FA_PLAY);
+            ImGui::SetCursorPosX(ImGui::GetWindowWidth() / 2.0f - buttonSize.x / 2.0f);
+
             if (VKernel::g_is_editor_mode)
             {
                 ImGui::PushID("Editor Mode");
-                if (ImGui::Button("Editor Mode")) ///< button
+                if (ImGui::Button(ICON_FA_PLAY)) ///< button
                 {
                     // When clicked
                     VKernel::g_is_editor_mode = false; ///< bool
                     g_editor_global_context.m_scene_manager->drawSelectedEntityAxis();
                     g_editor_global_context.m_input_manager->resetEditorCommand();
+                    VKernel::g_is_update_mode = true;
                 }
                 ImGui::PopID();
             }
             else
             {
-                if (ImGui::Button("Game Mode")) ///< button
+                if (ImGui::Button(ICON_FA_STOP)) ///< button
                 {
                     // When clicked
                     VKernel::g_is_editor_mode = true;
@@ -906,6 +926,7 @@ namespace ReCoder
                     VKernel::g_runtime_global_context.m_input_system->resetGameCommand();
                     g_editor_global_context.m_render_system->getRenderCamera()->setMainViewMatrix(
                         g_editor_global_context.m_scene_manager->getEditorCamera()->getViewMatrix());
+                    VKernel::g_is_update_mode = true;
                 }
             }
 
@@ -950,7 +971,7 @@ namespace ReCoder
 
         // begin window
         ImGuiWindowFlags window_flags = ImGuiWindowFlags_None | ImGuiWindowFlags_NoCollapse;
-        if (!ImGui::Begin("Components Details", nullptr, window_flags))
+        if (!ImGui::Begin(ICON_FA_CUBE " COMPONENTS", nullptr, window_flags))
         {
             ImGui::End();
             return;
@@ -977,28 +998,21 @@ namespace ReCoder
 
         // get selected object name
         const std::string &name = selected_object->getName();
-        static char cname[128];
-        memset(cname, 0, 128);
-        memcpy(cname, name.c_str(), name.size());
-
-        // InputText
-        ImGui::Text("Name");
-        ImGui::SameLine();
-        ImGui::InputText("##Name", cname, IM_ARRAYSIZE(cname), ImGuiInputTextFlags_ReadOnly);
+        ImGui::Text((std::string(ICON_FA_CUBES) + " Name: " + name).c_str());
 
         // render Components
         static ImGuiTableFlags flags = ImGuiTableFlags_Resizable | ImGuiTableFlags_NoSavedSettings;
         auto &&selected_object_components = selected_object->getComponents(); ///< get Components
         for (auto component_ptr : selected_object_components)                 ///< iterate
         {
-            m_editor_ui_creator["TreeNodePush"](("<" + component_ptr.getTypeName() + ">").c_str(),
+            m_editor_ui_creator["TreeNodePush"]((std::string(ICON_FA_CHART_BAR) + " " + component_ptr.getTypeName()).c_str(),
                                                 nullptr); ///< push treenode
             auto object_instance = VKernel::Reflection::ReflectionInstance(
                 VKernel::Reflection::TypeMeta::newMetaFromName(component_ptr.getTypeName().c_str()),
                 component_ptr.operator->());
             createClassUI(object_instance); ///<
             // render
-            m_editor_ui_creator["TreeNodePop"](("<" + component_ptr.getTypeName() + ">").c_str(), nullptr); ///< pop
+            m_editor_ui_creator["TreeNodePop"]((std::string(ICON_FA_CHART_BAR) + " " + component_ptr.getTypeName()).c_str(), nullptr); ///< pop
         }
 
         ImGui::End();
@@ -1016,8 +1030,10 @@ namespace ReCoder
         colors[ImGuiCol_ChildBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
 
         colors[ImGuiCol_PopupBg] = ImVec4(0.08f, 0.08f, 0.08f, 0.94f);
+
         colors[ImGuiCol_Border] = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
         colors[ImGuiCol_BorderShadow] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+
         colors[ImGuiCol_FrameBg] = ImVec4(0.047f, 0.047f, 0.047f, 0.5411f);
         colors[ImGuiCol_FrameBgHovered] = ImVec4(0.196f, 0.196f, 0.196f, 0.40f);
         colors[ImGuiCol_FrameBgActive] = ImVec4(0.294f, 0.294f, 0.294f, 0.67f);
@@ -1038,20 +1054,21 @@ namespace ReCoder
         colors[ImGuiCol_SliderGrab] = colors[ImGuiCol_CheckMark];
         colors[ImGuiCol_SliderGrabActive] = ImVec4(0.3647f, 0.0392f, 0.2588f, 0.50f);
 
-        colors[ImGuiCol_Button] = ImVec4(0.0117f, 0.0117f, 0.0117f, 1.00f);
-        colors[ImGuiCol_ButtonHovered] = ImVec4(0.03f, 0.03f, 0.1f, 1.0f);
-        colors[ImGuiCol_ButtonActive] = ImVec4(0.03f, 0.03f, 0.1f, 1.0f);
+        colors[ImGuiCol_Button] = ImVec4(0.05f, 0.05f, 0.05f, 1.0f);
+        colors[ImGuiCol_ButtonHovered] = ImVec4(0.08f, 0.08f, 0.08f, 1.0f);
+        colors[ImGuiCol_ButtonActive] = ImVec4(0.08f, 0.08f, 0.08f, 1.0f);
 
         colors[ImGuiCol_Header] = ImVec4(0.1f, 0.1f, 0.1f, 1.0f);
         colors[ImGuiCol_HeaderHovered] = ImVec4(0.1f, 0.1f, 0.1f, 1.0f);
         colors[ImGuiCol_HeaderActive] = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
 
         colors[ImGuiCol_Separator] = ImVec4(0.0f, 0.0f, 0.0f, 0.50f);
-        colors[ImGuiCol_SeparatorHovered] = ImVec4(45.0f / 255.0f, 7.0f / 255.0f, 26.0f / 255.0f, 1.00f);
-        colors[ImGuiCol_SeparatorActive] = ImVec4(45.0f / 255.0f, 7.0f / 255.0f, 26.0f / 255.0f, 1.00f);
-        colors[ImGuiCol_ResizeGrip] = ImVec4(0.26f, 0.59f, 0.98f, 0.20f);
-        colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.26f, 0.59f, 0.98f, 0.67f);
-        colors[ImGuiCol_ResizeGripActive] = ImVec4(0.26f, 0.59f, 0.98f, 0.95f);
+        colors[ImGuiCol_SeparatorHovered] = ImVec4(0.03f, 0.03f, 0.1f, 1.0f);
+        colors[ImGuiCol_SeparatorActive] = ImVec4(0.03f, 0.03f, 0.1f, 1.0f);
+
+        colors[ImGuiCol_ResizeGrip] = ImVec4(0.03f, 0.03f, 0.1f, 1.0f);
+        colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.03f, 0.03f, 0.1f, 1.0f);
+        colors[ImGuiCol_ResizeGripActive] = ImVec4(0.03f, 0.03f, 0.1f, 1.0f);
 
         colors[ImGuiCol_Tab] = ImVec4(6.0f / 255.0f, 6.0f / 255.0f, 8.0f / 255.0f, 1.00f);
         colors[ImGuiCol_TabHovered] = ImVec4(0.08f, 0.08f, 0.08f, 1.0f);

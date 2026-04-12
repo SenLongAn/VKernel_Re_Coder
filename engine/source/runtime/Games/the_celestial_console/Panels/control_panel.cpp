@@ -12,6 +12,7 @@
 #include "runtime/core/base/macro.h"
 
 #include <stdio.h>
+#include "control_panel.h"
 
 namespace Games
 {
@@ -80,9 +81,9 @@ namespace Games
                 degrees_val.z = trans_ptr->m_rotation.getYaw(false).valueDegrees();
 
                 // Draw Control
-                DrawVecControl("P", trans_ptr->m_position);
-                DrawVecControl("R", degrees_val);
-                DrawVecControl("S", trans_ptr->m_scale);
+                DrawVecControl("P:", trans_ptr->m_position);
+                DrawVecControl("R:", degrees_val);
+                DrawVecControl("S:", trans_ptr->m_scale);
 
                 // rotation : new vec3 -> Quaternion
                 trans_ptr->m_rotation.w = VKernel::Math::cos(VKernel::Math::degreesToRadians(degrees_val.x / 2)) *
@@ -116,6 +117,9 @@ namespace Games
 
     void ControPanel::initialize(VKernel::WindowUIInitInfo init_info) {}
 
+    void ControPanel::preUpdate()
+    {
+    }
     void ControPanel::preRender()
     {
         if (!MainPanel::isPanelOpen)
@@ -139,7 +143,7 @@ namespace Games
         ImGuiWindowFlags window_flags = ImGuiWindowFlags_None | ImGuiWindowFlags_NoDocking |
                                         ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
 
-        ImGui::Begin("CONTROLE", nullptr, window_flags);
+        ImGui::Begin(ICON_FA_ANCHOR " CONTROLE", nullptr, window_flags);
 
         // Automatically adjust font size
         float windowArea = ImGui::GetWindowSize().x * ImGui::GetWindowSize().y;
@@ -167,7 +171,7 @@ namespace Games
                 std::string str = component_ptr.getTypeName();
                 if (str == "TransformComponent")
                 {
-                    m_functions["TreeNodePush"](("<" + component_ptr.getTypeName() + ">").c_str(),
+                    m_functions["TreeNodePush"]((std::string(ICON_FA_CHART_BAR) + " " + component_ptr.getTypeName()).c_str(),
                                                 nullptr); ///< push treenode
 
                     auto object_instance = VKernel::Reflection::ReflectionInstance(
@@ -176,11 +180,12 @@ namespace Games
 
                     createLeafNodeUI(object_instance);
 
-                    m_functions["TreeNodePop"](("<" + component_ptr.getTypeName() + ">").c_str(), nullptr); ///< pop
+                    m_functions["TreeNodePop"]((std::string(ICON_FA_CHART_BAR) + " " + component_ptr.getTypeName()).c_str(),
+                                               nullptr); ///< pop
                 }
                 if (str == "MeshComponent")
                 {
-                    m_functions["TreeNodePush"](("<" + component_ptr.getTypeName() + ">").c_str(),
+                    m_functions["TreeNodePush"]((std::string(ICON_FA_CHART_BAR) + " " + component_ptr.getTypeName()).c_str(),
                                                 nullptr); ///< push treenode
 
                     auto object_instance = VKernel::Reflection::ReflectionInstance(
@@ -211,7 +216,8 @@ namespace Games
                         ImGui::Checkbox("Apply Texture", &apply_texture);
                     }
 
-                    m_functions["TreeNodePop"](("<" + component_ptr.getTypeName() + ">").c_str(), nullptr); ///< pop
+                    m_functions["TreeNodePop"]((std::string(ICON_FA_CHART_BAR) + " " + component_ptr.getTypeName()).c_str(),
+                                               nullptr); ///< pop
                 }
             }
         }
@@ -220,6 +226,8 @@ namespace Games
 
         ImGui::SetCursorPosY(ImGui::GetCursorPos().y + ImGui::GetWindowSize().y / 50.0f);
         addSeparator();
+
+        ImGui::TextWrapped("%s", ICON_FA_CALCULATOR " STATE:");
 
         ImGui::SetCursorPosX(ImGui::GetWindowSize().x / 50.0f);
         ImGui::TextColored(ImVec4(0.00f, 1.00f, 0.80f, 1.0f), "DIRECTION:");
@@ -235,8 +243,8 @@ namespace Games
         ImGui::SetCursorPosY(ImGui::GetCursorPos().y + ImGui::GetWindowSize().y / 50.0f);
         addSeparator();
 
+        ImGui::TextWrapped("%s", ICON_FA_BUG " DEBUG:");
         ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.00f, 1.00f, 1.00f));
-        ImGui::TextWrapped("%s", "<<<----LOG--->>>");
 
         ImGui::BeginChild("LogRegion", ImVec2(0, ImGui::GetWindowSize().y - ImGui::GetCursorPosY()), false, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
         std::vector<VKernel::LogMessage> messages = VKernel::g_runtime_global_context.m_logger_system->GetMessage();
@@ -287,23 +295,15 @@ namespace Games
 
     void DrawVecControl(const std::string &label, VKernel::Vector3 &values, float resetValue, float columnWidth)
     {
-        // Text
         ImGui::PushID(label.c_str());
 
-        ImGui::Columns(2);
-        ImGui::SetColumnWidth(0, columnWidth);
+        // Text
         ImGui::Text("%s", label.c_str());
-        ImGui::NextColumn();
-
+        ImGui::SameLine();
         ImGui::PushMultiItemsWidths(3, ImGui::CalcItemWidth());
-        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{0, 0});
-
-        float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
-        ImVec2 buttonSize = {lineHeight + 3.0f, lineHeight};
 
         // X
         ImGui::Text("X");
-
         ImGui::SameLine();
         ImGui::DragFloat("##X", &values.x, 0.1f, 0.0f, 0.0f, "%.2f");
         ImGui::PopItemWidth();
@@ -311,7 +311,6 @@ namespace Games
 
         // Y
         ImGui::Text("Y");
-
         ImGui::SameLine();
         ImGui::DragFloat("##Y", &values.y, 0.1f, 0.0f, 0.0f, "%.2f");
         ImGui::PopItemWidth();
@@ -319,14 +318,10 @@ namespace Games
 
         // Z
         ImGui::Text("Z");
-
         ImGui::SameLine();
         ImGui::DragFloat("##Z", &values.z, 0.1f, 0.0f, 0.0f, "%.2f");
         ImGui::PopItemWidth();
 
-        ImGui::PopStyleVar();
-
-        ImGui::Columns(1);
         ImGui::PopID();
     }
 } // namespace Games

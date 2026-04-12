@@ -14,8 +14,9 @@ namespace ReCoder
 namespace VKernel
 {
 
-    extern bool                            g_is_editor_mode;
-    extern bool                            g_is_full_screen_mode; ///< full screen mode
+    extern bool g_is_editor_mode;
+    extern bool g_is_update_mode;
+    extern bool g_is_full_screen_mode; ///< full screen mode
     extern std::unordered_set<std::string> g_editor_tick_component_types;
     class VKernelEngine ///< Engine
     {
@@ -23,18 +24,18 @@ namespace VKernel
         friend class ReCoder::ReCoderEditor;
 
     public:
-        void startEngine(const std::string& config_file_path); ///< init
+        void startEngine(const std::string &config_file_path); ///< init
         void run();                                            ///< run
         bool tickOneFrame(float delta_time);                   ///< run
         void shutdownEngine();                                 ///< clear
 
     protected:
-        std::chrono::steady_clock::time_point m_last_tick_time_point {
+        std::chrono::steady_clock::time_point m_last_tick_time_point{
             std::chrono::steady_clock::now()}; ///< last tick time point
 
     protected:
-        void  logicalTick(float delta_time);  ///< The logical module updates every frame.
-        bool  rendererTick(float delta_time); ///< The render module updates every frame.
-        float calculateDeltaTime();           ///< calculate DeltaTime，Each frame can only be called once
+        void logicalTick(float delta_time);  ///< The logical module updates every frame.
+        bool rendererTick(float delta_time); ///< The render module updates every frame.
+        float calculateDeltaTime();          ///< calculate DeltaTime，Each frame can only be called once
     };
 } // namespace VKernel
