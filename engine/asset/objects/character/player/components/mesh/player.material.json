@@ -1,4 +1,4 @@
 {
-  "base_colour_texture_file": "asset/objects/character/player/components/mesh/_textures/bricks2.jpg",
-  "normal_texture_file": "asset/objects/character/player/components/mesh/_textures/bricks2_normal.jpg"
+  "base_colour_texture_file": "asset/objects/character/player/components/mesh/_textures/blue_metal_plate_diff_4k.jpg",
+  "normal_texture_file": "asset/objects/character/player/components/mesh/_textures/blue_metal_plate_nor_gl_4k.jpg"
 }

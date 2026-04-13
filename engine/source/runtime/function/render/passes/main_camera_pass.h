@@ -16,7 +16,8 @@ namespace VKernel
     class RenderResourceBase;
 
     struct MainCameraPassInitInfo : RenderPassInitInfo
-    {};
+    {
+    };
 
     class MainCameraPass : public RenderPass
     {
@@ -43,27 +44,27 @@ namespace VKernel
 
     public:
         // axis
-        bool   m_is_show_axis {false};
-        size_t m_selected_axis {3};
+        bool m_is_show_axis{false};
+        size_t m_selected_axis{3};
 
     public:
-        void initialize(const RenderPassInitInfo* init_info) override final; ///< init
+        void initialize(const RenderPassInitInfo *init_info) override final; ///< init
 
         void preparePassData(std::shared_ptr<RenderResourceBase> render_resource) override final; ///< get other class
 
-        void draw(ColorGradingPass& color_grading_pass,
-                  ToneMappingPass&  tone_mapping_pass,
-                  FXAAPass&         fxaa_pass,
-                  UIPass&           ui_pass,
-                  CombineUIPass&    combine_ui_pass,
-                  uint32_t          current_swapchain_image_index); ///< deferred
+        void draw(ColorGradingPass &color_grading_pass,
+                  ToneMappingPass &tone_mapping_pass,
+                  FXAAPass &fxaa_pass,
+                  UIPass &ui_pass,
+                  CombineUIPass &combine_ui_pass,
+                  uint32_t current_swapchain_image_index); ///< deferred
 
-        void drawForward(ColorGradingPass& color_grading_pass,
-                         ToneMappingPass&  tone_mapping_pass,
-                         FXAAPass&         fxaa_pass,
-                         UIPass&           ui_pass,
-                         CombineUIPass&    combine_ui_pass,
-                         uint32_t          current_swapchain_image_index); ///< forward
+        void drawForward(ColorGradingPass &color_grading_pass,
+                         ToneMappingPass &tone_mapping_pass,
+                         FXAAPass &fxaa_pass,
+                         UIPass &ui_pass,
+                         CombineUIPass &combine_ui_pass,
+                         uint32_t current_swapchain_image_index); ///< forward
 
         void updateAfterFramebufferRecreate(); ///< recreate framebuffer
 

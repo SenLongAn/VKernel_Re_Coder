@@ -1,20 +1,20 @@
 {
   "skybox_irradiance_map": {
-    "negative_x_map": "asset/texture/sky/skybox_irradiance_X-.hdr",
-    "positive_x_map": "asset/texture/sky/skybox_irradiance_X+.hdr",
-    "negative_y_map": "asset/texture/sky/skybox_irradiance_Y-.hdr",
-    "positive_y_map": "asset/texture/sky/skybox_irradiance_Y+.hdr",
-    "negative_z_map": "asset/texture/sky/skybox_irradiance_Z-.hdr",
-    "positive_z_map": "asset/texture/sky/skybox_irradiance_Z+.hdr"
+    "negative_x_map": "asset/texture/sky/skybox_irradiance_X-.jpg",
+    "positive_x_map": "asset/texture/sky/skybox_irradiance_X+.jpg",
+    "negative_y_map": "asset/texture/sky/skybox_irradiance_Y-.jpg",
+    "positive_y_map": "asset/texture/sky/skybox_irradiance_Y+.jpg",
+    "negative_z_map": "asset/texture/sky/skybox_irradiance_Z-.jpg",
+    "positive_z_map": "asset/texture/sky/skybox_irradiance_Z+.jpg"
   },
   
   "skybox_specular_map": {
-    "negative_x_map": "asset/texture/sky/skybox_specular_X-.hdr",
-    "positive_x_map": "asset/texture/sky/skybox_specular_X+.hdr",
-    "negative_y_map": "asset/texture/sky/skybox_specular_Y-.hdr",
-    "positive_y_map": "asset/texture/sky/skybox_specular_Y+.hdr",
-    "negative_z_map": "asset/texture/sky/skybox_specular_Z-.hdr",
-    "positive_z_map": "asset/texture/sky/skybox_specular_Z+.hdr"
+    "negative_x_map": "asset/texture/sky/skybox_specular_X-.png",
+    "positive_x_map": "asset/texture/sky/skybox_specular_X+.png",
+    "negative_y_map": "asset/texture/sky/skybox_specular_Y-.png",
+    "positive_y_map": "asset/texture/sky/skybox_specular_Y+.png",
+    "negative_z_map": "asset/texture/sky/skybox_specular_Z-.png",
+    "positive_z_map": "asset/texture/sky/skybox_specular_Z+.png"
   },
   
   "brdf_map": "asset/texture/global/brdf_schilk.hdr",
@@ -32,7 +32,7 @@
       "position": {
           "x": 0.0,
           "y": -0.5,
-          "z": -1.0
+          "z": -5.0
       },
       "target": {
           "x": 0.0,
@@ -60,35 +60,35 @@
       "z": -1.0
     },
     "color": {
-      "r": 10.0,
-      "g": 10.0,
-      "b": 10.0
+      "r": 8.0,
+      "g": 11.0,
+      "b": 11.0
     }
   },
 
   "point_lights": [
    {    
       "position": {
-        "x": -6.0,
+        "x": -1.0,
         "y": -1.0,
-        "z": 4.0
+        "z": 1.0
       },
       "flux": {
         "x": 1000.0,
         "y": 0.0,
-        "z": 0.0
+        "z": 1000.0
       }
     },
    {    
       "position": {
-        "x": -5.0,
+        "x": 1.0,
         "y": -1.0,
-        "z": 4.0
+        "z": 1.0
       },
       "flux": {
         "x": 0.0,
         "y": 1000.0,
-        "z": 0.0
+        "z": 1000.0
       }
     }
   ]

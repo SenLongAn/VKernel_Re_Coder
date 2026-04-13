@@ -30,13 +30,13 @@ namespace VKernel
         if (!texture->m_pixels)
             return nullptr;
 
-        texture->m_width        = iw;
-        texture->m_height       = ih;
-        texture->m_format       = (is_srgb) ? VkFormat::VK_FORMAT_R8G8B8A8_SRGB : VkFormat::VK_FORMAT_R8G8B8A8_UNORM;
-        texture->m_depth        = 1;
+        texture->m_width = iw;
+        texture->m_height = ih;
+        texture->m_format = (is_srgb) ? VkFormat::VK_FORMAT_R8G8B8A8_SRGB : VkFormat::VK_FORMAT_R8G8B8A8_UNORM;
+        texture->m_depth = 1;
         texture->m_array_layers = 1;
-        texture->m_mip_levels   = 1;
-        texture->m_type         = IMAGE_TYPE::IMAGE_TYPE_2D;
+        texture->m_mip_levels = 1;
+        texture->m_type = IMAGE_TYPE::IMAGE_TYPE_2D;
 
         return texture;
     }
@@ -56,29 +56,29 @@ namespace VKernel
             return nullptr;
         }
 
-        texture->m_width  = iw;
+        texture->m_width = iw;
         texture->m_height = ih;
         switch (desired_channels) ///< three or four
         {
-            case 2:
-                texture->m_format = VkFormat::VK_FORMAT_R32G32_SFLOAT;
-                break;
-            case 4:
-                texture->m_format = VkFormat::VK_FORMAT_R32G32B32A32_SFLOAT;
-                break;
-            default:
-                LOG_ERROR("unsupported channels number");
-                break;
+        case 2:
+            texture->m_format = VkFormat::VK_FORMAT_R32G32_SFLOAT;
+            break;
+        case 4:
+            texture->m_format = VkFormat::VK_FORMAT_R32G32B32A32_SFLOAT;
+            break;
+        default:
+            LOG_ERROR("unsupported channels number");
+            break;
         }
-        texture->m_depth        = 1;
+        texture->m_depth = 1;
         texture->m_array_layers = 1;
-        texture->m_mip_levels   = 1;
-        texture->m_type         = IMAGE_TYPE::IMAGE_TYPE_2D;
+        texture->m_mip_levels = 1;
+        texture->m_type = IMAGE_TYPE::IMAGE_TYPE_2D;
 
         return texture;
     }
 
-    RenderMeshData RenderResourceBase::loadMeshData(const MeshSourceDesc& source, AxisAlignedBox& bounding_box)
+    RenderMeshData RenderResourceBase::loadMeshData(const MeshSourceDesc &source, AxisAlignedBox &bounding_box)
     {
         RenderMeshData ret;
 
@@ -90,20 +90,20 @@ namespace VKernel
         return ret;
     }
 
-    RenderMaterialData RenderResourceBase::loadMaterialData(const MaterialSourceDesc& source)
+    RenderMaterialData RenderResourceBase::loadMaterialData(const MaterialSourceDesc &source)
     {
         RenderMaterialData ret;
         ret.m_base_color_texture = loadTexture(source.m_base_color_file, true);
-        ret.m_normal_texture     = loadTexture(source.m_normal_file);
+        ret.m_normal_texture = loadTexture(source.m_normal_file);
         return ret;
     }
 
-    StaticMeshData RenderResourceBase::loadStaticMesh(const MeshSourceDesc& source, AxisAlignedBox& bounding_box)
+    StaticMeshData RenderResourceBase::loadStaticMesh(const MeshSourceDesc &source, AxisAlignedBox &bounding_box)
     {
         StaticMeshData mesh_data;
 
         // tinyobj 3rdparty
-        tinyobj::ObjReader       reader;
+        tinyobj::ObjReader reader;
         tinyobj::ObjReaderConfig reader_config;
         reader_config.vertex_color = false;
         if (!reader.ParseFromFile(source.m_mesh_file, reader_config)) ///< parse from mesh file
@@ -120,8 +120,8 @@ namespace VKernel
             LOG_INFO("loadMesh warning!");
         }
 
-        auto& attrib = reader.GetAttrib(); ///< vertex data
-        auto& shapes = reader.GetShapes(); ///< all mesh
+        auto &attrib = reader.GetAttrib(); ///< vertex data
+        auto &shapes = reader.GetShapes(); ///< all mesh
 
         // read data, Write to mesh_vertices
         std::vector<MeshVertexDataDefinition> mesh_vertices;
@@ -134,7 +134,7 @@ namespace VKernel
                 size_t fv = size_t(shapes[s].mesh.num_face_vertices[f]); ///< face vertex size
 
                 // Data Structure
-                bool with_normal   = true;
+                bool with_normal = true;
                 bool with_texcoord = true;
 
                 Vector3 vertex[3];
@@ -200,9 +200,9 @@ namespace VKernel
                 {
                     Vector3 v0 = vertex[1] - vertex[0];
                     Vector3 v1 = vertex[2] - vertex[1];
-                    normal[0]  = v0.crossProduct(v1).normalisedCopy();
-                    normal[1]  = normal[0];
-                    normal[2]  = normal[0];
+                    normal[0] = v0.crossProduct(v1).normalisedCopy();
+                    normal[1] = normal[0];
+                    normal[2] = normal[0];
                 }
 
                 if (!with_texcoord) ///< No texcoord default data set
@@ -212,10 +212,10 @@ namespace VKernel
                     uv[2] = Vector2(0.5f, 0.5f);
                 }
 
-                Vector3 tangent {1, 0, 0}; ///< Calculate tangent
+                Vector3 tangent{1, 0, 0}; ///< Calculate tangent
                 {
-                    Vector3 edge1    = vertex[1] - vertex[0];
-                    Vector3 edge2    = vertex[2] - vertex[1];
+                    Vector3 edge1 = vertex[1] - vertex[0];
+                    Vector3 edge2 = vertex[2] - vertex[1];
                     Vector2 deltaUV1 = uv[1] - uv[0];
                     Vector2 deltaUV2 = uv[2] - uv[1];
 
@@ -225,17 +225,17 @@ namespace VKernel
                     else if (divide < 0.0f && divide > -0.000001f)
                         divide = -0.000001f;
 
-                    float df  = 1.0f / divide;
+                    float df = 1.0f / divide;
                     tangent.x = df * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
                     tangent.y = df * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
                     tangent.z = df * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
-                    tangent   = (tangent).normalisedCopy();
+                    tangent = (tangent).normalisedCopy();
                 }
 
                 // write data for a triangle primitive
                 for (size_t i = 0; i < 3; i++)
                 {
-                    MeshVertexDataDefinition mesh_vert {};
+                    MeshVertexDataDefinition mesh_vert{};
 
                     mesh_vert.x = vertex[i].x;
                     mesh_vert.y = vertex[i].y;
@@ -259,18 +259,18 @@ namespace VKernel
 
         // Write the mesh_vertices data into mesh_data
         // Resize the array
-        uint32_t stride           = sizeof(MeshVertexDataDefinition);
+        uint32_t stride = sizeof(MeshVertexDataDefinition);
         mesh_data.m_vertex_buffer = std::make_shared<BufferData>(mesh_vertices.size() * stride); ///< all vertex size
-        mesh_data.m_index_buffer  = std::make_shared<BufferData>(
+        mesh_data.m_index_buffer = std::make_shared<BufferData>(
             mesh_vertices.size() * sizeof(uint32_t)); ///< The number of indices is the same as the number of vertices
 
         assert(mesh_vertices.size() <=
                std::numeric_limits<uint32_t>::max()); ///< Check if the data size exceeds the limit
 
-        uint32_t* indices = (uint32_t*)mesh_data.m_index_buffer->m_data;
+        uint32_t *indices = (uint32_t *)mesh_data.m_index_buffer->m_data;
         for (size_t i = 0; i < mesh_vertices.size(); i++) ///< write vertex and indice
         {
-            ((MeshVertexDataDefinition*)(mesh_data.m_vertex_buffer->m_data))[i] = mesh_vertices[i];
+            ((MeshVertexDataDefinition *)(mesh_data.m_vertex_buffer->m_data))[i] = mesh_vertices[i];
             indices[i] = static_cast<uint32_t>(i); ///< Equal to vertex index
         }
 
@@ -280,7 +280,7 @@ namespace VKernel
         return mesh_data;
     }
 
-    AxisAlignedBox RenderResourceBase::getCachedBoudingBox(const MeshSourceDesc& source) const
+    AxisAlignedBox RenderResourceBase::getCachedBoudingBox(const MeshSourceDesc &source) const
     {
         auto find_it = m_bounding_box_cache_map.find(source);
         if (find_it != m_bounding_box_cache_map.end()) ///< If found

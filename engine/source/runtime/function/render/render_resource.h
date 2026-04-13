@@ -17,32 +17,32 @@ namespace VKernel
 
     struct IBLResource
     {
-        VkImage       _brdfLUT_texture_image;
-        VkImageView   _brdfLUT_texture_image_view;
-        VkSampler     _brdfLUT_texture_sampler;
+        VkImage _brdfLUT_texture_image;
+        VkImageView _brdfLUT_texture_image_view;
+        VkSampler _brdfLUT_texture_sampler;
         VmaAllocation _brdfLUT_texture_image_allocation;
 
-        VkImage       _irradiance_texture_image;
-        VkImageView   _irradiance_texture_image_view;
-        VkSampler     _irradiance_texture_sampler;
+        VkImage _irradiance_texture_image;
+        VkImageView _irradiance_texture_image_view;
+        VkSampler _irradiance_texture_sampler;
         VmaAllocation _irradiance_texture_image_allocation;
 
-        VkImage       _specular_texture_image;            ///< image
-        VkImageView   _specular_texture_image_view;       ///< image view
-        VkSampler     _specular_texture_sampler;          ///< sampler
+        VkImage _specular_texture_image;                  ///< image
+        VkImageView _specular_texture_image_view;         ///< image view
+        VkSampler _specular_texture_sampler;              ///< sampler
         VmaAllocation _specular_texture_image_allocation; ///< allocation
     };
 
     struct StorageBuffer
     {
-        uint32_t _min_storage_buffer_offset_alignment {256}; ///< alignment
+        uint32_t _min_storage_buffer_offset_alignment{256}; ///< alignment
 
-        uint32_t _max_storage_buffer_range {1 << 27}; ///< max range
+        uint32_t _max_storage_buffer_range{1 << 27}; ///< max range
 
-        VkBuffer       _global_upload_ringbuffer; ///< buffer, ring: Multiple sets of data placed in the same buffer
+        VkBuffer _global_upload_ringbuffer;              ///< buffer, ring: Multiple sets of data placed in the same buffer
         VkDeviceMemory _global_upload_ringbuffer_memory; ///< memory
 
-        void* _global_upload_ringbuffer_memory_pointer; ///< gpu map memory, We will write data here.
+        void *_global_upload_ringbuffer_memory_pointer; ///< gpu map memory, We will write data here.
 
         // The end position of a data set , vector is because of synchronization primitives
         std::vector<uint32_t> _global_upload_ringbuffers_begin;
@@ -50,35 +50,35 @@ namespace VKernel
         std::vector<uint32_t> _global_upload_ringbuffers_size;
 
         // axis
-        VkBuffer       _axis_inefficient_storage_buffer;
+        VkBuffer _axis_inefficient_storage_buffer;
         VkDeviceMemory _axis_inefficient_storage_buffer_memory;
-        void*          _axis_inefficient_storage_buffer_memory_pointer;
+        void *_axis_inefficient_storage_buffer_memory_pointer;
     };
 
     struct ColorGradingResource ///< color grading
     {
-        VkImage       _color_grading_LUT_texture_image;
-        VkImageView   _color_grading_LUT_texture_image_view;
+        VkImage _color_grading_LUT_texture_image;
+        VkImageView _color_grading_LUT_texture_image_view;
         VmaAllocation _color_grading_LUT_texture_image_allocation;
     };
 
     struct GlobalRenderResource
     {
-        IBLResource          _ibl_resource;
+        IBLResource _ibl_resource;
         ColorGradingResource _color_grading_resource; ///< color grading
-        StorageBuffer        _storage_buffer;
+        StorageBuffer _storage_buffer;
     };
 
     class RenderResource : public RenderResourceBase
     {
     public:
-        std::map<size_t, VulkanMesh>        m_vulkan_meshes;        ///< mesh id, mesh buffer
+        std::map<size_t, VulkanMesh> m_vulkan_meshes;               ///< mesh id, mesh buffer
         std::map<size_t, VulkanPBRMaterial> m_vulkan_pbr_materials; ///< material id, material image view
 
-        MeshPerframeStorageBufferObject                 m_mesh_perframe_storage_buffer_object; ///< Render Resource
+        MeshPerframeStorageBufferObject m_mesh_perframe_storage_buffer_object; ///< Render Resource
         MeshPointLightShadowPerframeStorageBufferObject m_mesh_point_light_shadow_perframe_storage_buffer_object;
         MeshDirectionalLightShadowPerframeStorageBufferObject
-                                                       m_mesh_directional_light_shadow_perframe_storage_buffer_object;
+            m_mesh_directional_light_shadow_perframe_storage_buffer_object;
         MeshInefficientPickPerframeStorageBufferObject m_mesh_inefficient_pick_perframe_storage_buffer_object;
 
         GlobalRenderResource m_global_render_resource; ///<  Storage buffer
@@ -91,70 +91,73 @@ namespace VKernel
 
         // other resource
         virtual void updatePerFrameBuffer(
-            std::shared_ptr<RenderScene>  render_scene,
+            std::shared_ptr<RenderScene> render_scene,
             std::shared_ptr<RenderCamera> camera) override final; ///< update MeshPerframeStorageBufferObject data
 
         // global
         virtual void
         uploadGlobalRenderResource(std::shared_ptr<VulkanAPI> vulkan_api,
-                                   LevelResourceDesc          level_resource_desc) override final; ///<  Storage buffer
+                                   LevelResourceDesc level_resource_desc) override final; ///<  Storage buffer
 
         void resetRingBufferOffset(uint8_t current_frame_index);
 
         // mesh
         virtual void
         uploadGameObjectRenderResource(std::shared_ptr<VulkanAPI> vulkan_api,
-                                       RenderEntity               render_entity,
+                                       RenderEntity render_entity,
                                        RenderMeshData mesh_data) override final; ///< vertex and indice buffer
 
-        VulkanMesh& getEntityMesh(RenderEntity entity);
+        VulkanMesh &getEntityMesh(RenderEntity entity);
 
         // material
         virtual void
         uploadGameObjectRenderResource(std::shared_ptr<VulkanAPI> vulkan_api,
-                                       RenderEntity               render_entity,
+                                       RenderEntity render_entity,
                                        RenderMaterialData material_data) override final; ///< image view and descriptor
 
-        VulkanPBRMaterial& getEntityMaterial(RenderEntity entity);
+        VulkanPBRMaterial &getEntityMaterial(RenderEntity entity);
 
     private:
         // global
         void createAndMapStorageBuffer(std::shared_ptr<VulkanAPI> vulkan_api); ///< Storage buffer
 
         void createIBLSamplers(std::shared_ptr<VulkanAPI> vulkan_api);
-        void createIBLTextures(std::shared_ptr<VulkanAPI>                  vulkan_api,
+        void createIBLTextures(std::shared_ptr<VulkanAPI> vulkan_api,
                                std::array<std::shared_ptr<TextureData>, 6> irradiance_maps,
                                std::array<std::shared_ptr<TextureData>, 6> specular_maps);
+        void createIBLTexturesNoHDR(std::shared_ptr<VulkanAPI> vulkan_api,
+                                    std::array<std::shared_ptr<TextureData>, 6> irradiance_maps,
+                                    std::array<std::shared_ptr<TextureData>, 6> specular_maps);
 
         // mesh
-        VulkanMesh& getOrCreateVulkanMesh(std::shared_ptr<VulkanAPI> vulkan_api,
-                                          RenderEntity               entity,
-                                          RenderMeshData             mesh_data); ///< vertex and indice
+        VulkanMesh &getOrCreateVulkanMesh(std::shared_ptr<VulkanAPI> vulkan_api,
+                                          RenderEntity entity,
+                                          RenderMeshData mesh_data); ///< vertex and indice
 
-        void updateMeshData(std::shared_ptr<VulkanAPI>             vulkan_api,
-                            uint32_t                               index_buffer_size,
-                            void*                                  index_buffer_data,
-                            uint32_t                               vertex_buffer_size,
-                            struct MeshVertexDataDefinition const* vertex_buffer_data,
-                            VulkanMesh&                            now_mesh); ///<  vertex and indice buffer
+        void updateMeshData(std::shared_ptr<VulkanAPI> vulkan_api,
+                            uint32_t index_buffer_size,
+                            void *index_buffer_data,
+                            uint32_t vertex_buffer_size,
+                            struct MeshVertexDataDefinition const *vertex_buffer_data,
+                            VulkanMesh &now_mesh); ///<  vertex and indice buffer
 
-        void updateVertexBuffer(std::shared_ptr<VulkanAPI>             vulkan_api,
-                                uint32_t                               vertex_buffer_size,
-                                struct MeshVertexDataDefinition const* vertex_buffer_data,
-                                uint32_t                               index_buffer_size,
-                                uint32_t*                              index_buffer_data,
-                                VulkanMesh&                            now_mesh); ///< vertex buffer
+        void updateVertexBuffer(std::shared_ptr<VulkanAPI> vulkan_api,
+                                uint32_t vertex_buffer_size,
+                                struct MeshVertexDataDefinition const *vertex_buffer_data,
+                                uint32_t index_buffer_size,
+                                uint32_t *index_buffer_data,
+                                VulkanMesh &now_mesh); ///< vertex buffer
 
         void updateIndexBuffer(std::shared_ptr<VulkanAPI> vulkan_api,
-                               uint32_t                   index_buffer_size,
-                               void*                      index_buffer_data,
-                               VulkanMesh&                now_mesh); ///< indice buffer
+                               uint32_t index_buffer_size,
+                               void *index_buffer_data,
+                               VulkanMesh &now_mesh); ///< indice buffer
 
         // material
-        VulkanPBRMaterial& getOrCreateVulkanMaterial(std::shared_ptr<VulkanAPI> vulkan_api,
-                                                     RenderEntity               entity,
+        VulkanPBRMaterial &getOrCreateVulkanMaterial(std::shared_ptr<VulkanAPI> vulkan_api,
+                                                     RenderEntity entity,
                                                      RenderMaterialData material_data); ///< image view and descriptor
-        void               updateTextureImageData(std::shared_ptr<VulkanAPI> vulkan_api,
-                                                  const TextureDataToUpdate& texture_data); ///< image view
+        void updateTextureImageData(std::shared_ptr<VulkanAPI> vulkan_api,
+                                    const TextureDataToUpdate &texture_data); ///< image view
     };
 } // namespace VKernel

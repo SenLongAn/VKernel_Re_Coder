@@ -26,7 +26,7 @@
         {
             "$context": {
                 "mesh_res": {
-                    "color": {"x": 1.0, "y": 1.0, "z": 1.0},
+                    "color": {"x": 0.1, "y": 0.1, "z": 0.15},
                     "apply_lighting": true,
                     "apply_texture": true,
                     "sub_meshes": [

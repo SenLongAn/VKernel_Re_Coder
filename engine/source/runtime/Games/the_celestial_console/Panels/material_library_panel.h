@@ -17,5 +17,11 @@ namespace Games
         void preRender() override;
 
     private:
+        VkImage image;
+        VkImageView image_view;
+        VmaAllocation image_allocation;
+        VkDescriptorSetLayout descriptorSetLayout;
+        VkDescriptorSet descriptorSet;
+        ImTextureID texture_id;
     };
 } // namespace Games

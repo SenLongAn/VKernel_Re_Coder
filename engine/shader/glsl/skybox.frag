@@ -16,5 +16,7 @@ void main()
     highp vec3 origin_sample_UVW = vec3(in_UVW.x, -in_UVW.y, in_UVW.z);
     highp vec3 color             = textureLod(specular_sampler, origin_sample_UVW, 0.0).rgb;
 
+    color = vec3(pow(color.x, 2.2), pow(color.y, 2.2), pow(color.z, 2.2));
+
     out_scene_color = vec4(color, 1.0);
 }

@@ -51,7 +51,7 @@ namespace Games
         float scale = sqrtf(windowArea / (640 * 0.20 * 400)) * 0.3;
         ImGui::SetWindowFontScale(scale);
 
-        // button
+        // button and text
         ImVec2 buttonSize(ImGui::GetWindowSize().x / 10.0f, ImGui::GetWindowSize().y / 50.0f);
         ImVec2 buttonPos(ImGui::GetWindowSize().x / 10.0F * 2.5, viewport.height / 100.0f);
         ImGui::SetCursorPos(buttonPos);
@@ -69,6 +69,10 @@ namespace Games
                 isPanelOne = !isPanelOne;
             }
         }
+
+        ImVec2 textPos(ImGui::GetWindowSize().x / 10.0F * 4.5, viewport.height / 100.0f);
+        ImGui::SetCursorPos(textPos);
+        ImGui::TextColored(ImVec4(0.00f, 1.00f, 1.00f, 1.0f), "CELESTIAL CONSOLE");
 
         ImVec2 buttonSize1(ImGui::GetWindowSize().x / 10.0f, ImGui::GetWindowSize().y / 50.0f);
         ImVec2 buttonPos1(ImGui::GetWindowSize().x / 10.0F * 6.5, viewport.height / 100.0f);
