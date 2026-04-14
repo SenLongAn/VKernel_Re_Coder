@@ -66,6 +66,9 @@ namespace VKernel
             {
                 meshComponent.m_apply_texture = 0;
             }
+            meshComponent.m_name = m_mesh_res.m_name;
+            meshComponent.m_introduction = m_mesh_res.m_introduction;
+            meshComponent.m_type = m_mesh_res.m_type;
 
             // add count
             ++raw_mesh_count;
@@ -105,6 +108,10 @@ namespace VKernel
             {
                 mesh_part.m_apply_texture = 0;
             }
+
+            mesh_part.m_name = m_mesh_res.m_name;
+            mesh_part.m_introduction = m_mesh_res.m_introduction;
+            mesh_part.m_type = m_mesh_res.m_type;
 
             dirty_mesh_parts.push_back(mesh_part); ///< add
 

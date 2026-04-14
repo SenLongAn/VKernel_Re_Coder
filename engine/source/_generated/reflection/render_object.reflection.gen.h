@@ -218,6 +218,21 @@ namespace TypeFieldReflectionOparator{
         static void set_m_apply_texture(void* instance, void* field_value){ static_cast<VKernel::GameObjectPartDesc*>(instance)->m_apply_texture = *static_cast<int*>(field_value);}
         static void* get_m_apply_texture(void* instance){ return static_cast<void*>(&(static_cast<VKernel::GameObjectPartDesc*>(instance)->m_apply_texture));}
         static bool isArray_m_apply_texture(){ return false; }
+        static const char* getFieldName_m_name(){ return "m_name";}
+        static const char* getFieldTypeName_m_name(){ return "std::string";}
+        static void set_m_name(void* instance, void* field_value){ static_cast<VKernel::GameObjectPartDesc*>(instance)->m_name = *static_cast<std::string*>(field_value);}
+        static void* get_m_name(void* instance){ return static_cast<void*>(&(static_cast<VKernel::GameObjectPartDesc*>(instance)->m_name));}
+        static bool isArray_m_name(){ return false; }
+        static const char* getFieldName_m_introduction(){ return "m_introduction";}
+        static const char* getFieldTypeName_m_introduction(){ return "std::string";}
+        static void set_m_introduction(void* instance, void* field_value){ static_cast<VKernel::GameObjectPartDesc*>(instance)->m_introduction = *static_cast<std::string*>(field_value);}
+        static void* get_m_introduction(void* instance){ return static_cast<void*>(&(static_cast<VKernel::GameObjectPartDesc*>(instance)->m_introduction));}
+        static bool isArray_m_introduction(){ return false; }
+        static const char* getFieldName_m_type(){ return "m_type";}
+        static const char* getFieldTypeName_m_type(){ return "std::string";}
+        static void set_m_type(void* instance, void* field_value){ static_cast<VKernel::GameObjectPartDesc*>(instance)->m_type = *static_cast<std::string*>(field_value);}
+        static void* get_m_type(void* instance){ return static_cast<void*>(&(static_cast<VKernel::GameObjectPartDesc*>(instance)->m_type));}
+        static bool isArray_m_type(){ return false; }
 
         // methods
         
@@ -274,6 +289,30 @@ namespace TypeFieldReflectionOparator{
             &TypeFieldReflectionOparator::TypeGameObjectPartDescOperator::getFieldTypeName_m_apply_texture,
             &TypeFieldReflectionOparator::TypeGameObjectPartDescOperator::isArray_m_apply_texture);
         REGISTER_FIELD_TO_MAP("GameObjectPartDesc", field_function_tuple_m_apply_texture);
+        FieldFunctionTuple* field_function_tuple_m_name=new FieldFunctionTuple(
+            &TypeFieldReflectionOparator::TypeGameObjectPartDescOperator::set_m_name,
+            &TypeFieldReflectionOparator::TypeGameObjectPartDescOperator::get_m_name,
+            &TypeFieldReflectionOparator::TypeGameObjectPartDescOperator::getClassName,
+            &TypeFieldReflectionOparator::TypeGameObjectPartDescOperator::getFieldName_m_name,
+            &TypeFieldReflectionOparator::TypeGameObjectPartDescOperator::getFieldTypeName_m_name,
+            &TypeFieldReflectionOparator::TypeGameObjectPartDescOperator::isArray_m_name);
+        REGISTER_FIELD_TO_MAP("GameObjectPartDesc", field_function_tuple_m_name);
+        FieldFunctionTuple* field_function_tuple_m_introduction=new FieldFunctionTuple(
+            &TypeFieldReflectionOparator::TypeGameObjectPartDescOperator::set_m_introduction,
+            &TypeFieldReflectionOparator::TypeGameObjectPartDescOperator::get_m_introduction,
+            &TypeFieldReflectionOparator::TypeGameObjectPartDescOperator::getClassName,
+            &TypeFieldReflectionOparator::TypeGameObjectPartDescOperator::getFieldName_m_introduction,
+            &TypeFieldReflectionOparator::TypeGameObjectPartDescOperator::getFieldTypeName_m_introduction,
+            &TypeFieldReflectionOparator::TypeGameObjectPartDescOperator::isArray_m_introduction);
+        REGISTER_FIELD_TO_MAP("GameObjectPartDesc", field_function_tuple_m_introduction);
+        FieldFunctionTuple* field_function_tuple_m_type=new FieldFunctionTuple(
+            &TypeFieldReflectionOparator::TypeGameObjectPartDescOperator::set_m_type,
+            &TypeFieldReflectionOparator::TypeGameObjectPartDescOperator::get_m_type,
+            &TypeFieldReflectionOparator::TypeGameObjectPartDescOperator::getClassName,
+            &TypeFieldReflectionOparator::TypeGameObjectPartDescOperator::getFieldName_m_type,
+            &TypeFieldReflectionOparator::TypeGameObjectPartDescOperator::getFieldTypeName_m_type,
+            &TypeFieldReflectionOparator::TypeGameObjectPartDescOperator::isArray_m_type);
+        REGISTER_FIELD_TO_MAP("GameObjectPartDesc", field_function_tuple_m_type);
 
         
         

@@ -20,7 +20,7 @@ namespace Games
         if (isFirst)
         {
             createImGuiDescriptorSetForTexture(image, image_view, image_allocation, descriptorSetLayout, descriptorSet, texture_id,
-                                               "asset/objects/_textures/Planet.png", true);
+                                               "asset/texture/icon/Planet.png", true);
             isFirst = false;
         }
     }

@@ -1,0 +1,64 @@
+{
+    "components": [
+        {
+            "$context": {
+                "transform": {
+                    "position": {
+                        "x": 0,
+                        "y": 0,
+                        "z": 0
+                    },
+                    "euler_rotation": {
+                        "x": 0,
+                        "y": 0,
+                        "z": 0
+                    },
+                    "scale": {
+                        "x": 1,
+                        "y": 1,
+                        "z": 1
+                    },
+                    "is_serialization": true
+                }
+            },
+            "$typeName": "TransformComponent"
+        },
+        {
+            "$context": {
+                "mesh_res": {
+                    "color": {"x": 1.0, "y": 1.0, "z": 1.0},
+                    "apply_lighting": true,
+                    "apply_texture": true,
+                    "name": "Quad_Shotgun",
+                    "introduction": "A pump-action or semi-automatic shotgun designed to load four rounds at a time and capable of firing four times in rapid succession",
+                    "type": "GUN",
+                    "sub_meshes": [
+                        {
+                            "material": "asset/objects/environment/Quad_Shotgun/Quad_Shotgun.material.json",
+                            "obj_file_ref": "asset/objects/environment/Quad_Shotgun/Quad_Shotgun.obj",
+                            "transform": {
+                                "position": {
+                                    "x": 0,
+                                    "y": 0,
+                                    "z": 0
+                                },
+                                "euler_rotation": {
+                                    "x": 180.0,
+                                    "y": 0.0,
+                                    "z": 0.0
+                                },
+                                "scale": {
+                                    "x": 0.2,
+                                    "y": 0.2,
+                                    "z": 0.2
+                                },
+                                "is_serialization": true
+                            }
+                        }
+                    ]
+                }
+            },
+            "$typeName": "MeshComponent"
+        }
+    ]
+}

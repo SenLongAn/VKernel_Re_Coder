@@ -29,6 +29,9 @@
                     "color": {"x": 1.0, "y": 1.0, "z": 1.0},
                     "apply_lighting": true,
                     "apply_texture": true,
+                    "name": "Beretta_M92A1",
+                    "introduction": "An improved pistol in the Beretta 92 series with the addition of a Picatinny rail, standard 17-round magazine, and optimized internal buffer structure",
+                    "type": "GUN",
                     "sub_meshes": [
                         {
                             "material": "asset/objects/environment/_material/Beretta_M92A1.material.json",

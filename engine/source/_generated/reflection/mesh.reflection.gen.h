@@ -114,6 +114,21 @@ namespace TypeFieldReflectionOparator{
         static void set_m_apply_texture(void* instance, void* field_value){ static_cast<VKernel::MeshComponentRes*>(instance)->m_apply_texture = *static_cast<bool*>(field_value);}
         static void* get_m_apply_texture(void* instance){ return static_cast<void*>(&(static_cast<VKernel::MeshComponentRes*>(instance)->m_apply_texture));}
         static bool isArray_m_apply_texture(){ return false; }
+        static const char* getFieldName_m_name(){ return "m_name";}
+        static const char* getFieldTypeName_m_name(){ return "std::string";}
+        static void set_m_name(void* instance, void* field_value){ static_cast<VKernel::MeshComponentRes*>(instance)->m_name = *static_cast<std::string*>(field_value);}
+        static void* get_m_name(void* instance){ return static_cast<void*>(&(static_cast<VKernel::MeshComponentRes*>(instance)->m_name));}
+        static bool isArray_m_name(){ return false; }
+        static const char* getFieldName_m_introduction(){ return "m_introduction";}
+        static const char* getFieldTypeName_m_introduction(){ return "std::string";}
+        static void set_m_introduction(void* instance, void* field_value){ static_cast<VKernel::MeshComponentRes*>(instance)->m_introduction = *static_cast<std::string*>(field_value);}
+        static void* get_m_introduction(void* instance){ return static_cast<void*>(&(static_cast<VKernel::MeshComponentRes*>(instance)->m_introduction));}
+        static bool isArray_m_introduction(){ return false; }
+        static const char* getFieldName_m_type(){ return "m_type";}
+        static const char* getFieldTypeName_m_type(){ return "std::string";}
+        static void set_m_type(void* instance, void* field_value){ static_cast<VKernel::MeshComponentRes*>(instance)->m_type = *static_cast<std::string*>(field_value);}
+        static void* get_m_type(void* instance){ return static_cast<void*>(&(static_cast<VKernel::MeshComponentRes*>(instance)->m_type));}
+        static bool isArray_m_type(){ return false; }
         static const char* getFieldName_m_sub_meshes(){ return "m_sub_meshes";}
         static const char* getFieldTypeName_m_sub_meshes(){ return "std::vector<SubMeshRes>";}
         static void set_m_sub_meshes(void* instance, void* field_value){ static_cast<VKernel::MeshComponentRes*>(instance)->m_sub_meshes = *static_cast<std::vector<SubMeshRes>*>(field_value);}
@@ -172,6 +187,30 @@ namespace ArrayReflectionOperator{
             &TypeFieldReflectionOparator::TypeMeshComponentResOperator::getFieldTypeName_m_apply_texture,
             &TypeFieldReflectionOparator::TypeMeshComponentResOperator::isArray_m_apply_texture);
         REGISTER_FIELD_TO_MAP("MeshComponentRes", field_function_tuple_m_apply_texture);
+        FieldFunctionTuple* field_function_tuple_m_name=new FieldFunctionTuple(
+            &TypeFieldReflectionOparator::TypeMeshComponentResOperator::set_m_name,
+            &TypeFieldReflectionOparator::TypeMeshComponentResOperator::get_m_name,
+            &TypeFieldReflectionOparator::TypeMeshComponentResOperator::getClassName,
+            &TypeFieldReflectionOparator::TypeMeshComponentResOperator::getFieldName_m_name,
+            &TypeFieldReflectionOparator::TypeMeshComponentResOperator::getFieldTypeName_m_name,
+            &TypeFieldReflectionOparator::TypeMeshComponentResOperator::isArray_m_name);
+        REGISTER_FIELD_TO_MAP("MeshComponentRes", field_function_tuple_m_name);
+        FieldFunctionTuple* field_function_tuple_m_introduction=new FieldFunctionTuple(
+            &TypeFieldReflectionOparator::TypeMeshComponentResOperator::set_m_introduction,
+            &TypeFieldReflectionOparator::TypeMeshComponentResOperator::get_m_introduction,
+            &TypeFieldReflectionOparator::TypeMeshComponentResOperator::getClassName,
+            &TypeFieldReflectionOparator::TypeMeshComponentResOperator::getFieldName_m_introduction,
+            &TypeFieldReflectionOparator::TypeMeshComponentResOperator::getFieldTypeName_m_introduction,
+            &TypeFieldReflectionOparator::TypeMeshComponentResOperator::isArray_m_introduction);
+        REGISTER_FIELD_TO_MAP("MeshComponentRes", field_function_tuple_m_introduction);
+        FieldFunctionTuple* field_function_tuple_m_type=new FieldFunctionTuple(
+            &TypeFieldReflectionOparator::TypeMeshComponentResOperator::set_m_type,
+            &TypeFieldReflectionOparator::TypeMeshComponentResOperator::get_m_type,
+            &TypeFieldReflectionOparator::TypeMeshComponentResOperator::getClassName,
+            &TypeFieldReflectionOparator::TypeMeshComponentResOperator::getFieldName_m_type,
+            &TypeFieldReflectionOparator::TypeMeshComponentResOperator::getFieldTypeName_m_type,
+            &TypeFieldReflectionOparator::TypeMeshComponentResOperator::isArray_m_type);
+        REGISTER_FIELD_TO_MAP("MeshComponentRes", field_function_tuple_m_type);
         FieldFunctionTuple* field_function_tuple_m_sub_meshes=new FieldFunctionTuple(
             &TypeFieldReflectionOparator::TypeMeshComponentResOperator::set_m_sub_meshes,
             &TypeFieldReflectionOparator::TypeMeshComponentResOperator::get_m_sub_meshes,

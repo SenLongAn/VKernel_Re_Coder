@@ -17,11 +17,13 @@ namespace Games
         void preRender() override;
 
     private:
-        VkImage image;
-        VkImageView image_view;
-        VmaAllocation image_allocation;
-        VkDescriptorSetLayout descriptorSetLayout;
-        VkDescriptorSet descriptorSet;
-        ImTextureID texture_id;
+        std::unordered_map<std::string, int> m_mesh_type;
+
+        std::vector<VkImage> images;
+        std::vector<VkImageView> image_views;
+        std::vector<VmaAllocation> image_allocations;
+        std::vector<VkDescriptorSetLayout> descriptorSetLayouts;
+        std::vector<VkDescriptorSet> descriptorSets;
+        std::vector<ImTextureID> texture_ids;
     };
 } // namespace Games

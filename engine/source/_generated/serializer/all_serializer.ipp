@@ -559,6 +559,9 @@ namespace VKernel{
         ret_context.insert_or_assign("color", Serializer::write(instance.m_color));
         ret_context.insert_or_assign("apply_lighting", Serializer::write(instance.m_apply_lighting));
         ret_context.insert_or_assign("apply_texture", Serializer::write(instance.m_apply_texture));
+        ret_context.insert_or_assign("name", Serializer::write(instance.m_name));
+        ret_context.insert_or_assign("introduction", Serializer::write(instance.m_introduction));
+        ret_context.insert_or_assign("type", Serializer::write(instance.m_type));
         return  Json(ret_context);
     }
     template<>
@@ -582,6 +585,15 @@ namespace VKernel{
         }
         if(!json_context["apply_texture"].is_null()){
             Serializer::read(json_context["apply_texture"], instance.m_apply_texture);
+        }
+        if(!json_context["name"].is_null()){
+            Serializer::read(json_context["name"], instance.m_name);
+        }
+        if(!json_context["introduction"].is_null()){
+            Serializer::read(json_context["introduction"], instance.m_introduction);
+        }
+        if(!json_context["type"].is_null()){
+            Serializer::read(json_context["type"], instance.m_type);
         }
         return instance;
     }
@@ -742,6 +754,9 @@ namespace VKernel{
         ret_context.insert_or_assign("color", Serializer::write(instance.m_color));
         ret_context.insert_or_assign("apply_lighting", Serializer::write(instance.m_apply_lighting));
         ret_context.insert_or_assign("apply_texture", Serializer::write(instance.m_apply_texture));
+        ret_context.insert_or_assign("name", Serializer::write(instance.m_name));
+        ret_context.insert_or_assign("introduction", Serializer::write(instance.m_introduction));
+        ret_context.insert_or_assign("type", Serializer::write(instance.m_type));
         Json::array m_sub_meshes_json;
         for (auto& item : instance.m_sub_meshes){
             m_sub_meshes_json.emplace_back(Serializer::write(item));
@@ -762,6 +777,15 @@ namespace VKernel{
         }
         if(!json_context["apply_texture"].is_null()){
             Serializer::read(json_context["apply_texture"], instance.m_apply_texture);
+        }
+        if(!json_context["name"].is_null()){
+            Serializer::read(json_context["name"], instance.m_name);
+        }
+        if(!json_context["introduction"].is_null()){
+            Serializer::read(json_context["introduction"], instance.m_introduction);
+        }
+        if(!json_context["type"].is_null()){
+            Serializer::read(json_context["type"], instance.m_type);
         }
         if(!json_context["sub_meshes"].is_null()){
             assert(json_context["sub_meshes"].is_array());

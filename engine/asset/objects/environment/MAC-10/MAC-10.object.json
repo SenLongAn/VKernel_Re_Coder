@@ -29,6 +29,9 @@
                     "color": {"x": 1.0, "y": 1.0, "z": 1.0},
                     "apply_lighting": true,
                     "apply_texture": true,
+                    "name": "MAC-10",
+                    "introduction": "A compactly designed, high-rate-of-fire open-bolt submachine gun developed in the United States, suitable for rapid close-range suppressive fire",
+                    "type": "GUN",
                     "sub_meshes": [
                         {
                             "material": "asset/objects/environment/_material/MAC-10.material.json",

@@ -8,7 +8,6 @@
 
 #include "_generated/serializer/all_serializer.h"
 #include "runtime/core/base/macro.h"
-#include "world_manager.h"
 
 namespace VKernel
 {
@@ -136,10 +135,10 @@ namespace VKernel
         active_level->save(); ///< save
     }
 
-    bool WorldManager::loadWorld(const std::string& world_url)
+    bool WorldManager::loadWorld(const std::string &world_url)
     {
         // load world
-        WorldRes   world_res;
+        WorldRes world_res;
         const bool is_world_load_success = g_runtime_global_context.m_asset_manager->loadAsset(world_url, world_res);
         if (!is_world_load_success)
         {
@@ -152,7 +151,7 @@ namespace VKernel
         {
             return false;
         }
-        auto iter              = m_loaded_levels.find(world_res.m_default_level_url);
+        auto iter = m_loaded_levels.find(world_res.m_default_level_url);
         m_current_active_level = iter->second;
 
         // Already loaded
@@ -161,7 +160,7 @@ namespace VKernel
         return true;
     }
 
-    bool WorldManager::loadLevel(const std::string& level_url)
+    bool WorldManager::loadLevel(const std::string &level_url)
     {
         // load level
         std::shared_ptr<Level> level = std::make_shared<Level>();

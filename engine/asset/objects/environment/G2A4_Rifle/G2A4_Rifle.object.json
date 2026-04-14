@@ -29,6 +29,9 @@
                     "color": {"x": 1.0, "y": 1.0, "z": 1.0},
                     "apply_lighting": true,
                     "apply_texture": true,
+                    "name": "G2A4_Rifle",
+                    "introduction": "The German Heckler & Koch company's 7.62mm precision sniper rifle, improved based on the G3, features a semi-automatic firing mode and a free-floating barrel design",
+                    "type": "GUN",
                     "sub_meshes": [
                         {
                             "material": "asset/objects/environment/_material/G2A4_Rifle.material.json",

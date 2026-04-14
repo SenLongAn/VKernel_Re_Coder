@@ -17,11 +17,13 @@ namespace VKernel
     {
         REFLECTION_BODY(MeshComponent)
     public:
-        MeshComponent() {}; ///< Construction
+        MeshComponent(){}; ///< Construction
 
         void postLoadResource(std::weak_ptr<GObject> parent_object) override; ///< load data
 
-        const std::vector<GameObjectPartDesc>& getRawMeshes() const { return m_raw_meshes; } ///< get
+        const std::vector<GameObjectPartDesc> &getRawMeshes() const { return m_raw_meshes; } ///< get
+
+        const MeshComponentRes &getMeshComponentRes() { return m_mesh_res; }
 
         void tick(float delta_time) override; ///< tick
 
