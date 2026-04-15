@@ -1,0 +1,64 @@
+{
+    "components": [
+        {
+            "$context": {
+                "transform": {
+                    "position": {
+                        "x": 0,
+                        "y": 0,
+                        "z": 0
+                    },
+                    "euler_rotation": {
+                        "x": 0,
+                        "y": 0,
+                        "z": 0
+                    },
+                    "scale": {
+                        "x": 1,
+                        "y": 1,
+                        "z": 1
+                    },
+                    "is_serialization": true
+                }
+            },
+            "$typeName": "TransformComponent"
+        },
+        {
+            "$context": {
+                "mesh_res": {
+                    "color": {"x": 1.0, "y": 1.0, "z": 1.0},
+                    "apply_lighting": true,
+                    "apply_texture": true,
+                    "name": "Chengdu_J-20",
+                    "introduction": "China's independently developed fifth-generation stealth fighter, featuring high stealth, high maneuverability, and beyond-visual-range strike capabilities, is the most powerful aerial combat platform of the PLA Air Force",
+                    "type": "CARRIER AIRCRAFT",
+                    "sub_meshes": [
+                        {
+                            "material": "asset/objects/environment/Chengdu_J-20/Chengdu_J-20.material.json",
+                            "obj_file_ref": "asset/objects/environment/Chengdu_J-20/Chengdu_J-20.obj",
+                            "transform": {
+                                "position": {
+                                    "x": 0,
+                                    "y": 0,
+                                    "z": 0
+                                },
+                                "euler_rotation": {
+                                    "x": 180.0,
+                                    "y": 0.0,
+                                    "z": 0.0
+                                },
+                                "scale": {
+                                    "x": 1.0,
+                                    "y": 1.0,
+                                    "z": 1.0
+                                },
+                                "is_serialization": true
+                            }
+                        }
+                    ]
+                }
+            },
+            "$typeName": "MeshComponent"
+        }
+    ]
+}

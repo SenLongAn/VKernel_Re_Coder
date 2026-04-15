@@ -5,9 +5,12 @@ project(VKernel_Recoder VERSION 0.1.0) ##< Project name, project version
 set(CMAKE_CXX_STANDARD 17) ##< C++ standard
 set(CMAKE_CXX_STANDARD_REQUIRED ON) ##< If the C++ standard is not supported, an error will be reported.
 set(BUILD_SHARED_LIBS OFF) ##< OFF has built all the libraries as static libraries.
+# set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Release>:Release>")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
+
 
 if(PROJECT_SOURCE_DIR STREQUAL PROJECT_BINARY_DIR) ##< If the source directory == the build directory
-    message(FATAL_ERROR "In-source builds not allowed...") ##< Print error message
+message(FATAL_ERROR "In-source builds not allowed...") ##< Print error message
 endif()
 
 ## set directory

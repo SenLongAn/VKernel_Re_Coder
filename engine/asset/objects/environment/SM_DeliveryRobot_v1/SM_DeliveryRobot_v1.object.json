@@ -1,0 +1,64 @@
+{
+    "components": [
+        {
+            "$context": {
+                "transform": {
+                    "position": {
+                        "x": 0,
+                        "y": 0,
+                        "z": 0
+                    },
+                    "euler_rotation": {
+                        "x": 0,
+                        "y": 0,
+                        "z": 0
+                    },
+                    "scale": {
+                        "x": 1,
+                        "y": 1,
+                        "z": 1
+                    },
+                    "is_serialization": true
+                }
+            },
+            "$typeName": "TransformComponent"
+        },
+        {
+            "$context": {
+                "mesh_res": {
+                    "color": {"x": 0.1, "y": 0.1, "z": 0.1},
+                    "apply_lighting": true,
+                    "apply_texture": true,
+                    "name": "SM_DeliveryRobot_v1",
+                    "introduction": "Clean up",
+                    "type": "CAR",
+                    "sub_meshes": [
+                        {
+                            "material": "asset/objects/environment/SM_DeliveryRobot_v1/SM_DeliveryRobot_v1.material.json",
+                            "obj_file_ref": "asset/objects/environment/SM_DeliveryRobot_v1/SM_DeliveryRobot_v1.obj",
+                            "transform": {
+                                "position": {
+                                    "x": 0,
+                                    "y": 0,
+                                    "z": 0
+                                },
+                                "euler_rotation": {
+                                    "x": 180.0,
+                                    "y": 0.0,
+                                    "z": 0.0
+                                },
+                                "scale": {
+                                    "x": 5.0,
+                                    "y": 5.0,
+                                    "z": 5.0
+                                },
+                                "is_serialization": true
+                            }
+                        }
+                    ]
+                }
+            },
+            "$typeName": "MeshComponent"
+        }
+    ]
+}

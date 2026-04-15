@@ -1,0 +1,64 @@
+{
+    "components": [
+        {
+            "$context": {
+                "transform": {
+                    "position": {
+                        "x": 0,
+                        "y": 0,
+                        "z": 0
+                    },
+                    "euler_rotation": {
+                        "x": 0,
+                        "y": 0,
+                        "z": 0
+                    },
+                    "scale": {
+                        "x": 1,
+                        "y": 1,
+                        "z": 1
+                    },
+                    "is_serialization": true
+                }
+            },
+            "$typeName": "TransformComponent"
+        },
+        {
+            "$context": {
+                "mesh_res": {
+                    "color": {"x": 0.3, "y": 0.2, "z": 0.4},
+                    "apply_lighting": true,
+                    "apply_texture": true,
+                    "name": "Poca",
+                    "introduction": "Tank",
+                    "type": "CAR",
+                    "sub_meshes": [
+                        {
+                            "material": "asset/objects/environment/Poca/Poca.material.json",
+                            "obj_file_ref": "asset/objects/environment/Poca/Poca.obj",
+                            "transform": {
+                                "position": {
+                                    "x": 0,
+                                    "y": 0,
+                                    "z": 0
+                                },
+                                "euler_rotation": {
+                                    "x": 180.0,
+                                    "y": 0.0,
+                                    "z": 0.0
+                                },
+                                "scale": {
+                                    "x": 0.05,
+                                    "y": 0.05,
+                                    "z": 0.05
+                                },
+                                "is_serialization": true
+                            }
+                        }
+                    ]
+                }
+            },
+            "$typeName": "MeshComponent"
+        }
+    ]
+}

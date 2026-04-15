@@ -61,14 +61,14 @@
           "definition": "asset/objects/environment/floor/floor.object.json"
         },
         {
-          "name": "Beretta_M92A1",
+          "name": "Quad_Shotgun",
           "instanced_components": [
             {
               "$context": {
                 "transform": {
                   "position": {
-                    "x": -4.0,
-                    "y": -0.5,
+                    "x": -5.0,
+                    "y": -1.5,
                     "z": 6.0
                   },
                   "euler_rotation": {
@@ -87,22 +87,22 @@
               "$typeName": "TransformComponent"
             }
           ],
-          "definition": "asset/objects/environment/Beretta_M92A1/Beretta_M92A1.object.json"
+          "definition": "asset/objects/environment/Quad_Shotgun/Quad_Shotgun.object.json"
         },
         {
-          "name": "MAC-10",
+          "name": "fa_n26_le",
           "instanced_components": [
             {
               "$context": {
                 "transform": {
                   "position": {
-                    "x": 0.0,
-                    "y": -0.5,
+                    "x": -13.0,
+                    "y": -0.2,
                     "z": 6.0
                   },
                   "euler_rotation": {
                     "x": 0.0,
-                    "y": 0.0,
+                    "y": 90.0,
                     "z": 0.0
                   },
                   "scale": {
@@ -116,17 +116,133 @@
               "$typeName": "TransformComponent"
             }
           ],
-          "definition": "asset/objects/environment/MAC-10/MAC-10.object.json"
+          "definition": "asset/objects/environment/fa_n26_le/fa_n26_le.object.json"
         },
         {
-          "name": "G2A4_Rifle",
+          "name": "SM_SpaceShip_01",
           "instanced_components": [
             {
               "$context": {
                 "transform": {
                   "position": {
-                    "x": 3.0,
-                    "y": -0.5,
+                    "x": 7.0,
+                    "y": -1.4,
+                    "z": 6.0
+                  },
+                  "euler_rotation": {
+                    "x": 0.0,
+                    "y": 90.0,
+                    "z": 0.0
+                  },
+                  "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                  },
+                  "is_serialization": true
+                }
+              },
+              "$typeName": "TransformComponent"
+            }
+          ],
+          "definition": "asset/objects/environment/SM_SpaceShip_01/SM_SpaceShip_01.object.json"
+        },
+        {
+          "name": "SpaceFighter",
+          "instanced_components": [
+            {
+              "$context": {
+                "transform": {
+                  "position": {
+                    "x": 0.0,
+                    "y": -0.9,
+                    "z": 18.0
+                  },
+                  "euler_rotation": {
+                    "x": 0.0,
+                    "y": 90.0,
+                    "z": 0.0
+                  },
+                  "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                  },
+                  "is_serialization": true
+                }
+              },
+              "$typeName": "TransformComponent"
+            }
+          ],
+          "definition": "asset/objects/environment/SpaceFighter/SpaceFighter.object.json"
+        },
+        {
+          "name": "square-garage",
+          "instanced_components": [
+            {
+              "$context": {
+                "transform": {
+                  "position": {
+                    "x": -16.0,
+                    "y": -0.1,
+                    "z": 18.0
+                  },
+                  "euler_rotation": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                  },
+                  "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                  },
+                  "is_serialization": true
+                }
+              },
+              "$typeName": "TransformComponent"
+            }
+          ],
+          "definition": "asset/objects/environment/square-garage/square-garage.object.json"
+        },
+        {
+          "name": "Poca",
+          "instanced_components": [
+            {
+              "$context": {
+                "transform": {
+                  "position": {
+                    "x": 10.0,
+                    "y": -0.1,
+                    "z": 18.0
+                  },
+                  "euler_rotation": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                  },
+                  "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                  },
+                  "is_serialization": true
+                }
+              },
+              "$typeName": "TransformComponent"
+            }
+          ],
+          "definition": "asset/objects/environment/Poca/Poca.object.json"
+        },
+        {
+          "name": "SM_DeliveryRobot_v1",
+          "instanced_components": [
+            {
+              "$context": {
+                "transform": {
+                  "position": {
+                    "x": 14.0,
+                    "y": -0.1,
                     "z": 6.0
                   },
                   "euler_rotation": {
@@ -145,7 +261,65 @@
               "$typeName": "TransformComponent"
             }
           ],
-          "definition": "asset/objects/environment/G2A4_Rifle/G2A4_Rifle.object.json"
+          "definition": "asset/objects/environment/SM_DeliveryRobot_v1/SM_DeliveryRobot_v1.object.json"
+        },
+        {
+          "name": "Military_Trenche",
+          "instanced_components": [
+            {
+              "$context": {
+                "transform": {
+                  "position": {
+                    "x": 2.0,
+                    "y": -1.3,
+                    "z": 6.0
+                  },
+                  "euler_rotation": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                  },
+                  "scale": {
+                    "x": 1.2,
+                    "y": 1.0,
+                    "z": 1.0
+                  },
+                  "is_serialization": true
+                }
+              },
+              "$typeName": "TransformComponent"
+            }
+          ],
+          "definition": "asset/objects/environment/Military_Trenche/Military_Trenche.object.json"
+        },
+        {
+          "name": "Wood",
+          "instanced_components": [
+            {
+              "$context": {
+                "transform": {
+                  "position": {
+                    "x": -2.0,
+                    "y": -0.2,
+                    "z": 6.0
+                  },
+                  "euler_rotation": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                  },
+                  "scale": {
+                    "x": 1.2,
+                    "y": 1.0,
+                    "z": 1.0
+                  },
+                  "is_serialization": true
+                }
+              },
+              "$typeName": "TransformComponent"
+            }
+          ],
+          "definition": "asset/objects/environment/Wood/Wood.object.json"
         }
     ]
 }

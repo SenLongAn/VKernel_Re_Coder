@@ -19,13 +19,14 @@ namespace Games
         m_mesh_type["CARRIER AIRCRAFT"] = 2;
         m_mesh_type["DRONE"] = 3;
         m_mesh_type["BOAT"] = 4;
+        m_mesh_type["CAR"] = 5;
 
-        images.resize(5);
-        image_views.resize(5);
-        image_allocations.resize(5);
-        descriptorSetLayouts.resize(5);
-        descriptorSets.resize(5);
-        texture_ids.resize(5);
+        images.resize(6);
+        image_views.resize(6);
+        image_allocations.resize(6);
+        descriptorSetLayouts.resize(6);
+        descriptorSets.resize(6);
+        texture_ids.resize(6);
     }
 
     void MaterialLibraryPanel::preUpdate()
@@ -43,6 +44,8 @@ namespace Games
                                                "asset/texture/icon/drone.jpg", true);
             createImGuiDescriptorSetForTexture(images[4], image_views[4], image_allocations[4], descriptorSetLayouts[4], descriptorSets[4], texture_ids[4],
                                                "asset/texture/icon/boat.jpg", true);
+            createImGuiDescriptorSetForTexture(images[5], image_views[5], image_allocations[5], descriptorSetLayouts[5], descriptorSets[5], texture_ids[5],
+                                               "asset/texture/icon/car.jpg", true);
             isFirst = false;
         }
     }
